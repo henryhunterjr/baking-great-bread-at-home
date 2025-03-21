@@ -79,9 +79,9 @@ const Index = () => {
     },
     {
       id: 5,
-      title: "The Watchers' Descent",
-      image: "/lovable-uploads/05319e89-2b08-42ea-a5bd-3eb56c8c5dc9.png",
-      description: "Echoes of Giants and Forgotten Truths - A fascinating exploration of ancient history.",
+      title: "The Yeast Water Handbook",
+      image: "/lovable-uploads/fd62f06c-1337-421a-9a9b-7a4c21ec1182.png",
+      description: "A comprehensive guide to creating and using natural yeast waters for unique bread flavors.",
       link: "https://a.co/d/4muwBEV",
       isExternalLink: true
     }
