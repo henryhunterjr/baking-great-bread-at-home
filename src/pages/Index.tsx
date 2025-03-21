@@ -43,7 +43,7 @@ const Index = () => {
     };
   }, []);
   
-  // Featured books
+  // Featured books with corrected cover images
   const featuredBooks = [
     {
       id: 1,
@@ -64,7 +64,7 @@ const Index = () => {
     {
       id: 3,
       title: "Vitale Sourdough Mastery",
-      image: "/lovable-uploads/c9c54d1b-23da-4ca7-b7b0-73fa9e8c613e.png",
+      image: "/lovable-uploads/646e5f8d-0a55-476c-9e3e-3b2db6e789bb.png", 
       description: "Unlock the secrets of perfect sourdough with this comprehensive guide to flavor development.",
       link: "https://a.co/d/1HBuy64",
       isExternalLink: true
@@ -72,7 +72,7 @@ const Index = () => {
     {
       id: 4,
       title: "From Oven to Market",
-      image: "/lovable-uploads/ed6c6802-1359-445c-a4fd-f7a3a1ed452e.png",
+      image: "/lovable-uploads/c9c54d1b-23da-4ca7-b7b0-73fa9e8c613e.png", 
       description: "Everything you need to know about selling bread at farmers' markets and beyond.",
       link: "https://a.co/d/9ebJdSZ",
       isExternalLink: true
