@@ -17,9 +17,10 @@ const EquipmentSection: React.FC<EquipmentSectionProps> = ({
   control,
   errors
 }) => {
-  const { fields: equipmentFields, append, remove } = useFieldArray({
+  // This is the only component that correctly expects objects
+  const { fields: equipmentFields, append, remove } = useFieldArray<RecipeFormValues>({
     control,
-    name: "equipmentNeeded"
+    name: "equipmentNeeded" as const
   });
 
   return (
