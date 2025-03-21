@@ -191,8 +191,8 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 items-center max-w-5xl mx-auto">
             <div className="hero-image-container">
               <img 
-                src="https://images.unsplash.com/photo-1507638940746-7b17d6b55b8f?q=80&w=1000&auto=format&fit=crop" 
-                alt="Henry baking bread" 
+                src="/lovable-uploads/646e5f8d-0a55-476c-9e3e-3b2db6e789bb.png" 
+                alt="Henry in his kitchen wearing chef's whites and apron" 
                 className="hero-image rounded-lg"
               />
             </div>
