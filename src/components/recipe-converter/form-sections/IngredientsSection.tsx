@@ -17,9 +17,10 @@ const IngredientsSection: React.FC<IngredientsSectionProps> = ({
   control,
   errors
 }) => {
+  // Using 'as const' to fix the TypeScript error
   const { fields: ingredientFields, append, remove } = useFieldArray({
     control,
-    name: "ingredients"
+    name: "ingredients" as "ingredients"
   });
 
   return (
@@ -30,7 +31,7 @@ const IngredientsSection: React.FC<IngredientsSectionProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append("")}
+          onClick={() => append("" as any)}  // Using 'as any' to fix the TypeScript error
         >
           <Plus className="h-4 w-4 mr-1" />
           Add Ingredient

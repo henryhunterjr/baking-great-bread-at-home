@@ -49,7 +49,7 @@ const Footer = () => {
               <a href="#" className="text-bread-800 hover:text-accent transition-colors">
                 <Youtube size={20} />
               </a>
-              <a href="#" className="text-bread-800 hover:text-accent transition-colors">
+              <a href="mailto:HenryHunterJr@Gmail.com" className="text-bread-800 hover:text-accent transition-colors">
                 <Mail size={20} />
               </a>
             </div>
@@ -71,8 +71,13 @@ const Footer = () => {
           {/* Column 3 */}
           <div>
             <h4 className="font-serif text-xl mb-6 font-medium">Contact</h4>
+            <p className="text-muted-foreground mb-2">
+              Have questions or feedback? Reach out to us directly:
+            </p>
             <p className="text-muted-foreground mb-6">
-              Have questions or feedback? Reach out to us directly through our contact form or social media channels.
+              <a href="mailto:HenryHunterJr@Gmail.com" className="hover:text-accent transition-colors">
+                HenryHunterJr@Gmail.com
+              </a>
             </p>
             <Button asChild className="bg-bread-800 hover:bg-bread-900 text-white">
               <Link to="/contact">Get in Touch</Link>
