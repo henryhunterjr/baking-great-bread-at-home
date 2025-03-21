@@ -49,7 +49,7 @@ const Index = () => {
     {
       id: 1,
       title: "Sourdough for the Rest of Us",
-      image: "/lovable-uploads/e5ad348d-4545-4155-b74b-3ab6249ee711.png",
+      image: "/lovable-uploads/d1efb4dd-b9b6-48dc-ba6c-10dc3dc380d0.png",
       description: "A beginner-friendly guide to mastering sourdough bread with simple techniques and clear instructions.",
       link: "https://hunter53.gumroad.com/l/tejdc",
       isExternalLink: true
