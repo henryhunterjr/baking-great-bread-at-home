@@ -19,7 +19,7 @@ const EquipmentSection: React.FC<EquipmentSectionProps> = ({
 }) => {
   const { fields: equipmentFields, append, remove } = useFieldArray({
     control,
-    name: "equipmentNeeded"
+    name: "equipmentNeeded" as const
   });
 
   return (

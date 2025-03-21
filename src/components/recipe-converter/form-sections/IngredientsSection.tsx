@@ -19,7 +19,7 @@ const IngredientsSection: React.FC<IngredientsSectionProps> = ({
 }) => {
   const { fields: ingredientFields, append, remove } = useFieldArray({
     control,
-    name: "ingredients",
+    name: "ingredients" as const,
   });
 
   return (
