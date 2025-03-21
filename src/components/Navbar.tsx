@@ -1,14 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Toggle } from '@/components/ui/toggle';
+import { useTheme } from '@/hooks/use-theme';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,7 +35,7 @@ const Navbar = () => {
     { name: 'Books & Guides', path: '/books' },
     { name: 'Baking Tools', path: '/tools' },
     { name: 'Challenges', path: '/challenges' },
-    { name: 'Coaching', path: '/coaching' },
+    // Removed Coaching link as requested
     { name: 'Blog', path: '/blog' },
     { name: 'App', path: '/app' },
     { name: 'Community', path: '/community' },
@@ -54,12 +57,12 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0 font-serif font-medium tracking-tight text-2xl">
             <Link to="/" className="flex items-center gap-2" onClick={closeMobileMenu}>
-              <span className="text-accent">Baking</span> Great Bread
+              <span className="text-accent">Baking</span> Great Bread at Home
             </Link>
           </div>
           
           {/* Desktop navigation */}
-          <nav className="hidden md:flex space-x-8 items-center">
+          <nav className="hidden md:flex space-x-6 items-center">
             {navLinks.map((link) => (
               <Link 
                 key={link.name}
@@ -72,10 +75,36 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            
+            {/* Dark mode toggle */}
+            <Toggle 
+              pressed={theme === 'dark'} 
+              onPressedChange={(pressed) => setTheme(pressed ? 'dark' : 'light')}
+              aria-label="Toggle dark mode"
+              className="ml-2"
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Toggle>
           </nav>
           
-          {/* Mobile menu button */}
-          <div className="md:hidden">
+          {/* Mobile menu button and dark mode toggle */}
+          <div className="md:hidden flex items-center gap-2">
+            <Toggle 
+              pressed={theme === 'dark'} 
+              onPressedChange={(pressed) => setTheme(pressed ? 'dark' : 'light')}
+              aria-label="Toggle dark mode"
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Toggle>
+            
             <Button 
               variant="ghost" 
               size="icon" 
