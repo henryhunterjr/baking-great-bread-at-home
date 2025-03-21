@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -51,21 +50,40 @@ const Index = () => {
       title: "Sourdough for the Rest of Us",
       image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1000&auto=format&fit=crop",
       description: "A beginner-friendly guide to mastering sourdough bread with simple techniques and clear instructions.",
-      link: "/books"
+      link: "https://hunter53.gumroad.com/l/tejdc",
+      isExternalLink: true
     },
     {
       id: 2,
-      title: "The Watcher's Descent",
+      title: "Bread: A Journey Through History, Science, Art, and Community",
       image: "https://images.unsplash.com/photo-1549413468-f219cb28c2af?q=80&w=1000&auto=format&fit=crop",
-      description: "An in-depth exploration of advanced fermentation techniques and artisanal baking methods.",
-      link: "/books"
+      description: "An exploration of bread's cultural significance through the lenses of history, science, art, and community building.",
+      link: "https://a.co/d/4UCIwap",
+      isExternalLink: true
     },
     {
       id: 3,
       title: "Vitale Sourdough Mastery",
       image: "https://images.unsplash.com/photo-1586444248877-f8bf6ff1a1fc?q=80&w=1000&auto=format&fit=crop",
       description: "Unlock the secrets of perfect sourdough with this comprehensive guide to flavor development.",
-      link: "/books"
+      link: "https://a.co/d/1HBuy64",
+      isExternalLink: true
+    },
+    {
+      id: 4,
+      title: "From Oven to Market",
+      image: "https://images.unsplash.com/photo-1568254183919-78a4f43a2877?q=80&w=1000&auto=format&fit=crop",
+      description: "Everything you need to know about selling bread at farmers' markets and beyond.",
+      link: "https://a.co/d/9ebJdSZ",
+      isExternalLink: true
+    },
+    {
+      id: 5,
+      title: "The Yeast Water Handbook",
+      image: "https://images.unsplash.com/photo-1592093475472-a7657b9a349a?q=80&w=1000&auto=format&fit=crop",
+      description: "A comprehensive guide to creating and using yeast water cultures for artisan bread making.",
+      link: "https://a.co/d/4muwBEV",
+      isExternalLink: true
     }
   ];
   
@@ -232,7 +250,7 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredBooks.map((book, index) => (
               <Card key={book.id} className="overflow-hidden card-hover border-bread-100">
                 <div className="aspect-[3/4] overflow-hidden">
@@ -251,10 +269,17 @@ const Index = () => {
                     className="w-full border-bread-200 text-bread-800 hover:bg-bread-50"
                     asChild
                   >
-                    <Link to={book.link}>
-                      Learn More
-                      <ArrowRight className="ml-2 h-3 w-3" />
-                    </Link>
+                    {book.isExternalLink ? (
+                      <a href={book.link} target="_blank" rel="noopener noreferrer">
+                        View Book
+                        <ArrowRight className="ml-2 h-3 w-3" />
+                      </a>
+                    ) : (
+                      <Link to={book.link}>
+                        View Book
+                        <ArrowRight className="ml-2 h-3 w-3" />
+                      </Link>
+                    )}
                   </Button>
                 </CardContent>
               </Card>
