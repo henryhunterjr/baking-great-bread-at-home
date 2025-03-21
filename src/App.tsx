@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/use-theme";
 import Index from "./pages/Index";
 import ChallengesArchive from "./pages/ChallengesArchive";
+import Blog from "./pages/Blog";
 import AppStore from "./pages/AppStore";
 import NotFound from "./pages/NotFound";
 
@@ -24,8 +25,7 @@ const App = () => (
             <Route path="/challenges" element={<ChallengesArchive />} />
             <Route path="/books" element={<NotFound />} />
             <Route path="/tools" element={<NotFound />} />
-            <Route path="/coaching" element={<NotFound />} />
-            <Route path="/blog" element={<NotFound />} />
+            <Route path="/blog" element={<Blog />} />
             <Route path="/app" element={<AppStore />} />
             <Route path="/community" element={<NotFound />} />
             <Route path="/contact" element={<NotFound />} />
