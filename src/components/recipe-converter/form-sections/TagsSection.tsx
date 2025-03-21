@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, X } from 'lucide-react';
-import { Control, useFieldArray } from 'react-hook-form';
+import { Control, useFieldArray, FieldArrayPath } from 'react-hook-form';
 import { RecipeFormValues } from '../RecipeForm';
 
 interface TagsSectionProps {
@@ -15,7 +15,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
 }) => {
   const { fields: tagFields, append, remove } = useFieldArray({
     control,
-    name: "tags" as const
+    name: "tags" as FieldArrayPath<RecipeFormValues>
   });
 
   return (
@@ -62,7 +62,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
             key={field.id} 
             className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm flex items-center gap-1"
           >
-            <span>{String(field)}</span>
+            <span>{String(field.value)}</span>
             <button
               type="button"
               onClick={() => remove(index)}

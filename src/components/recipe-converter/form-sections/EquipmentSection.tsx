@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash } from 'lucide-react';
-import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
+import { UseFormRegister, Control, useFieldArray, FieldArrayPath } from 'react-hook-form';
 import { RecipeFormValues } from '../RecipeForm';
 
 interface EquipmentSectionProps {
@@ -17,10 +16,9 @@ const EquipmentSection: React.FC<EquipmentSectionProps> = ({
   control,
   errors
 }) => {
-  // This is the only component that correctly expects objects
-  const { fields: equipmentFields, append, remove } = useFieldArray<RecipeFormValues>({
+  const { fields: equipmentFields, append, remove } = useFieldArray({
     control,
-    name: "equipmentNeeded" as const
+    name: "equipmentNeeded" as FieldArrayPath<RecipeFormValues>
   });
 
   return (

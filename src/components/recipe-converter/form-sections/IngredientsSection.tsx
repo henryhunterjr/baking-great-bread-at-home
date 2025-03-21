@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash } from 'lucide-react';
-import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
+import { UseFormRegister, Control, useFieldArray, FieldArrayPath } from 'react-hook-form';
 import { RecipeFormValues } from '../RecipeForm';
 
 interface IngredientsSectionProps {
@@ -19,7 +19,7 @@ const IngredientsSection: React.FC<IngredientsSectionProps> = ({
 }) => {
   const { fields: ingredientFields, append, remove } = useFieldArray({
     control,
-    name: "ingredients" as const
+    name: "ingredients" as FieldArrayPath<RecipeFormValues>
   });
 
   return (
@@ -30,7 +30,7 @@ const IngredientsSection: React.FC<IngredientsSectionProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append("" as any)}
+          onClick={() => append("")}
         >
           <Plus className="h-4 w-4 mr-1" />
           Add Ingredient

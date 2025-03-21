@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, Trash } from 'lucide-react';
-import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
+import { UseFormRegister, Control, useFieldArray, FieldArrayPath } from 'react-hook-form';
 import { RecipeFormValues } from '../RecipeForm';
 
 interface InstructionsSectionProps {
@@ -19,7 +19,7 @@ const InstructionsSection: React.FC<InstructionsSectionProps> = ({
 }) => {
   const { fields: instructionFields, append, remove } = useFieldArray({
     control,
-    name: "instructions" as const
+    name: "instructions" as FieldArrayPath<RecipeFormValues>
   });
 
   return (
@@ -30,7 +30,7 @@ const InstructionsSection: React.FC<InstructionsSectionProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append("" as any)}
+          onClick={() => append("")}
         >
           <Plus className="h-4 w-4 mr-1" />
           Add Step
