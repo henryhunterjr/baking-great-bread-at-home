@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -265,7 +264,10 @@ const Index = () => {
                   <img 
                     src={book.image} 
                     alt={book.title} 
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                    className={`w-full h-full object-cover transition-transform duration-500 hover:scale-110 ${(book.id === 1 || book.id === 4) ? 'object-top' : 'object-center'}`}
+                    style={{
+                      objectPosition: book.id === 1 ? 'center 15%' : book.id === 4 ? 'center 15%' : 'center'
+                    }}
                   />
                 </div>
                 <CardContent className="p-6">
