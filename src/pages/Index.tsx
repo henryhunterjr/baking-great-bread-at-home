@@ -87,28 +87,47 @@ const Index = () => {
     }
   ];
   
-  // Featured tools
+  // Featured tools with updated affiliate links
   const featuredTools = [
     {
       id: 1,
       title: "Brød & Taylor Bread Proofer",
       image: "https://images.unsplash.com/photo-1609501676725-7155fb064675?q=80&w=1000&auto=format&fit=crop",
       description: "Create the perfect environment for your dough with precise temperature control.",
-      link: "/tools"
+      link: "https://brodandtaylor.com/discount/BAKINGGREATBREAD10",
+      isExternalLink: true
     },
     {
       id: 2,
       title: "SourHouse Starter Kit",
       image: "https://images.unsplash.com/photo-1635321313157-5be9fde3fcbb?q=80&w=1000&auto=format&fit=crop",
       description: "Everything you need to begin your sourdough journey with confidence.",
-      link: "/tools"
+      link: "https://sourhouse.com/discount/BAKINGGREATBREAD10",
+      isExternalLink: true
     },
     {
       id: 3,
       title: "ModKitchn Bread Lame",
       image: "https://images.unsplash.com/photo-1603569283843-5223b2f550ff?q=80&w=1000&auto=format&fit=crop",
       description: "Precision scoring tool for creating beautiful patterns on your artisan loaves.",
-      link: "/tools"
+      link: "https://modkitchn.com/discount/BAKINGGREATBREAD10",
+      isExternalLink: true
+    },
+    {
+      id: 4,
+      title: "Holland Bowl Mill",
+      image: "https://images.unsplash.com/photo-1590874023110-f82d5e4317a4?q=80&w=1000&auto=format&fit=crop",
+      description: "Handcrafted wooden proofing bowls made from sustainable materials.",
+      link: "https://hollandbowlmill.com/affiliate-area/",
+      isExternalLink: true
+    },
+    {
+      id: 5,
+      title: "Wire Monkey Shop",
+      image: "https://images.unsplash.com/photo-1603792907191-89e55f70099a?q=80&w=1000&auto=format&fit=crop",
+      description: "Specialized bread baking equipment for the serious artisan baker.",
+      link: "https://wiremonkey.refersion.com/",
+      isExternalLink: true
     }
   ];
   
@@ -325,7 +344,7 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredTools.map((tool) => (
+            {featuredTools.slice(0, 3).map((tool) => (
               <Card key={tool.id} className="overflow-hidden card-hover border-bread-100 glass-card">
                 <div className="aspect-video overflow-hidden">
                   <img 
@@ -342,12 +361,58 @@ const Index = () => {
                     className="w-full bg-bread-800 hover:bg-bread-900 text-white"
                     asChild
                   >
-                    <Link to={tool.link}>
-                      Shop Now
-                      <ArrowRight className="ml-2 h-3 w-3" />
-                    </Link>
+                    {tool.isExternalLink ? (
+                      <a href={tool.link} target="_blank" rel="noopener noreferrer">
+                        Shop Now
+                        <ArrowRight className="ml-2 h-3 w-3" />
+                      </a>
+                    ) : (
+                      <Link to={tool.link}>
+                        Shop Now
+                        <ArrowRight className="ml-2 h-3 w-3" />
+                      </Link>
+                    )}
                   </Button>
                 </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
+            {featuredTools.slice(3).map((tool) => (
+              <Card key={tool.id} className="overflow-hidden card-hover border-bread-100 glass-card">
+                <div className="flex flex-col md:flex-row">
+                  <div className="md:w-1/3 aspect-square md:aspect-auto overflow-hidden">
+                    <img 
+                      src={tool.image} 
+                      alt={tool.title} 
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                    />
+                  </div>
+                  <div className="md:w-2/3 p-6 flex flex-col justify-between">
+                    <div>
+                      <h3 className="font-serif text-xl font-medium mb-2">{tool.title}</h3>
+                      <p className="text-muted-foreground text-sm mb-4">{tool.description}</p>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      className="bg-bread-800 hover:bg-bread-900 text-white"
+                      asChild
+                    >
+                      {tool.isExternalLink ? (
+                        <a href={tool.link} target="_blank" rel="noopener noreferrer">
+                          Shop Now
+                          <ArrowRight className="ml-2 h-3 w-3" />
+                        </a>
+                      ) : (
+                        <Link to={tool.link}>
+                          Shop Now
+                          <ArrowRight className="ml-2 h-3 w-3" />
+                        </Link>
+                      )}
+                    </Button>
+                  </div>
+                </div>
               </Card>
             ))}
           </div>
@@ -452,7 +517,7 @@ const Index = () => {
                     <h3 className="font-serif text-xl font-medium mb-2 group-hover:text-bread-800 transition-colors">
                       {post.title}
                     </h3>
-                    <p className="text-muted-foreground text-sm mb-4 flex-grow">{post.excerpt}</p>
+                    <p className="text-muted-foreground text-sm mb-4">{post.excerpt}</p>
                     <div className="inline-flex items-center text-bread-800 text-sm font-medium group-hover:underline">
                       Read Article
                       <ArrowRight className="ml-2 h-3 w-3 transition-transform group-hover:translate-x-1" />
