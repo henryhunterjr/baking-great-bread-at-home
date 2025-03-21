@@ -13,9 +13,9 @@ interface TagsSectionProps {
 const TagsSection: React.FC<TagsSectionProps> = ({
   control
 }) => {
-  const { fields: tagFields, append, remove } = useFieldArray<RecipeFormValues>({
+  const { fields: tagFields, append, remove } = useFieldArray({
     control,
-    name: "tags"
+    name: "tags",
   });
 
   return (
@@ -62,7 +62,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
             key={field.id} 
             className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm flex items-center gap-1"
           >
-            <span>{field.value}</span>
+            <span>{field as unknown as string}</span>
             <button
               type="button"
               onClick={() => remove(index)}

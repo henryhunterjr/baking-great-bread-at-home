@@ -17,9 +17,9 @@ const InstructionsSection: React.FC<InstructionsSectionProps> = ({
   control,
   errors
 }) => {
-  const { fields: instructionFields, append, remove } = useFieldArray<RecipeFormValues>({
+  const { fields: instructionFields, append, remove } = useFieldArray({
     control,
-    name: "instructions"
+    name: "instructions",
   });
 
   return (

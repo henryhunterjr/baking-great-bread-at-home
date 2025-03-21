@@ -17,9 +17,9 @@ const IngredientsSection: React.FC<IngredientsSectionProps> = ({
   control,
   errors
 }) => {
-  const { fields: ingredientFields, append, remove } = useFieldArray<RecipeFormValues>({
+  const { fields: ingredientFields, append, remove } = useFieldArray({
     control,
-    name: "ingredients"
+    name: "ingredients",
   });
 
   return (
