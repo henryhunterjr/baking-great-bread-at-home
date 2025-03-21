@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash } from 'lucide-react';
 import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
-import { RecipeFormValues } from '../RecipeForm';
+import { RecipeFormValues, EquipmentItem } from '@/types/recipeTypes';
+import { v4 as uuidv4 } from 'uuid';
 
 interface EquipmentSectionProps {
   register: UseFormRegister<RecipeFormValues>;
@@ -22,6 +23,10 @@ const EquipmentSection: React.FC<EquipmentSectionProps> = ({
     name: "equipmentNeeded"
   });
 
+  const addEquipment = () => {
+    append({ id: uuidv4(), name: "", affiliateLink: "" });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -30,7 +35,7 @@ const EquipmentSection: React.FC<EquipmentSectionProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append({ name: "", affiliateLink: "" })}
+          onClick={addEquipment}
         >
           <Plus className="h-4 w-4 mr-1" />
           Add Equipment

@@ -14,7 +14,7 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
     {
       id: 1,
       title: "Bread: A Journey Through History, Science, Art, and Community",
-      image: "/lovable-uploads/c9a9c9a9-c9a9-c9a9-c9a9-c9a9c9a9c9a9.png",
+      image: "/lovable-uploads/147235a4-ba60-4748-8b66-0f589298ffe0.png",
       description: "Explore the cultural and scientific history of bread through the ages.",
       link: "https://amzn.to/3znnSrA",
       isExternalLink: true
@@ -22,23 +22,23 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
     {
       id: 2,
       title: "Vitale Sourdough Mastery",
-      image: "/lovable-uploads/c8a8c8a8-c8a8-c8a8-c8a8-c8a8c8a8c8a8.png",
-      description: "Master the art of sourdough with this comprehensive guide.",
+      image: "/lovable-uploads/f0ad0c4f-e5f5-4e6a-90b0-9bc1d341874b.png",
+      description: "Master the art of fermentation and baking with this comprehensive guide.",
       link: "https://adobe.ly/3K4DVwG",
       isExternalLink: true
     },
     {
       id: 3,
       title: "Yeast Water Handbook",
-      image: "/lovable-uploads/c7a7c7a7-c7a7-c7a7-c7a7-c7a7c7a7c7a7.png",
-      description: "Explore the world of yeast water fermentation with this detailed handbook.",
+      image: "/lovable-uploads/b3f7f1bf-daa4-44ab-b699-a894e6b9d759.png",
+      description: "A comprehensive guide to yeast water fermentation.",
       link: "https://designrr.page/?id=459955&token=101509510&h=4420",
       isExternalLink: true
     },
     {
       id: 4,
       title: "The Watcher's Descent",
-      image: "/lovable-uploads/c6a6c6a6-c6a6-c6a6-c6a6-c6a6c6a6c6a6.png",
+      image: "/lovable-uploads/7b78e962-59a6-430b-a290-e43c6d340155.png",
       description: "Echoes of Giants and Forgotten Truths - Henry's fiction work.",
       link: "https://amzn.to/3Wfj6Fj",
       isExternalLink: true
@@ -46,8 +46,8 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
     {
       id: 5,
       title: "Sourdough for the Rest of Us",
-      image: "/lovable-uploads/2c5fee3e-f4a9-4a25-8bbd-c6acc7145890.png",
-      description: "A free guide to get you started with sourdough baking.",
+      image: "/lovable-uploads/1da6a5af-6269-4a91-ad2e-8d6bbb3bfd5d.png",
+      description: "Perfection Not Required - A free guide to get you started with sourdough baking.",
       link: "https://bit.ly/3XjRKP3",
       isExternalLink: true
     }
