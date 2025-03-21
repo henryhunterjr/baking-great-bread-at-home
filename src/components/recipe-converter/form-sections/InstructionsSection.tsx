@@ -3,24 +3,25 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, Trash } from 'lucide-react';
-import { UseFieldArrayAppend, UseFieldArrayRemove, FieldArrayWithId, UseFormRegister } from 'react-hook-form';
+import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
 import { RecipeFormValues } from '../RecipeForm';
 
 interface InstructionsSectionProps {
-  instructionFields: FieldArrayWithId<RecipeFormValues, "instructions", "id">[];
   register: UseFormRegister<RecipeFormValues>;
-  appendInstruction: UseFieldArrayAppend<RecipeFormValues, "instructions">;
-  removeInstruction: UseFieldArrayRemove;
+  control: Control<RecipeFormValues>;
   errors: Record<string, any>;
 }
 
 const InstructionsSection: React.FC<InstructionsSectionProps> = ({
-  instructionFields,
   register,
-  appendInstruction,
-  removeInstruction,
+  control,
   errors
 }) => {
+  const { fields: instructionFields, append, remove } = useFieldArray({
+    control,
+    name: "instructions"
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -29,7 +30,7 @@ const InstructionsSection: React.FC<InstructionsSectionProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => appendInstruction("")}
+          onClick={() => append("")}
         >
           <Plus className="h-4 w-4 mr-1" />
           Add Step
@@ -51,7 +52,7 @@ const InstructionsSection: React.FC<InstructionsSectionProps> = ({
               type="button"
               variant="ghost"
               size="icon"
-              onClick={() => removeInstruction(index)}
+              onClick={() => remove(index)}
               className="mt-2"
             >
               <Trash className="h-4 w-4 text-muted-foreground hover:text-destructive" />

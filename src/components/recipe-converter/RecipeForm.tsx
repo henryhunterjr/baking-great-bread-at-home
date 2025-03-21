@@ -1,11 +1,9 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { X, Save } from 'lucide-react';
 import { RecipeData } from '@/pages/RecipeConverter';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, FieldArrayWithId, UseFormRegister, Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
@@ -65,61 +63,6 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
     defaultValues: initialRecipe
   });
   
-  // Field arrays for all form sections
-  const { 
-    fields: ingredientFields, 
-    append: appendIngredient, 
-    remove: removeIngredient 
-  } = useFieldArray<RecipeFormValues>({ 
-    control, 
-    name: "ingredients" 
-  });
-  
-  const { 
-    fields: instructionFields, 
-    append: appendInstruction, 
-    remove: removeInstruction 
-  } = useFieldArray<RecipeFormValues>({ 
-    control, 
-    name: "instructions" 
-  });
-  
-  const { 
-    fields: tipFields, 
-    append: appendTip, 
-    remove: removeTip 
-  } = useFieldArray<RecipeFormValues>({ 
-    control, 
-    name: "tips" 
-  });
-  
-  const { 
-    fields: proTipFields, 
-    append: appendProTip, 
-    remove: removeProTip 
-  } = useFieldArray<RecipeFormValues>({ 
-    control, 
-    name: "proTips" 
-  });
-  
-  const { 
-    fields: equipmentFields, 
-    append: appendEquipment, 
-    remove: removeEquipment 
-  } = useFieldArray<RecipeFormValues>({ 
-    control, 
-    name: "equipmentNeeded" 
-  });
-  
-  const { 
-    fields: tagFields,
-    append: appendTag,
-    remove: removeTag
-  } = useFieldArray<RecipeFormValues>({ 
-    control, 
-    name: "tags" 
-  });
-  
   const onSubmit = (data: RecipeFormValues) => {
     onSave(data as RecipeData);
   };
@@ -130,27 +73,6 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-serif font-medium">Edit Recipe</h2>
-            <div className="flex space-x-2">
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="sm"
-                onClick={onCancel}
-              >
-                <X className="mr-2 h-4 w-4" />
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                variant="default"
-                size="sm"
-                className="bg-bread-800 hover:bg-bread-900"
-                disabled={!isDirty}
-              >
-                <Save className="mr-2 h-4 w-4" />
-                Save Recipe
-              </Button>
-            </div>
           </div>
           
           <Separator />
@@ -165,10 +87,8 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
           
           {/* Ingredients */}
           <IngredientsSection 
-            ingredientFields={ingredientFields}
             register={register}
-            appendIngredient={appendIngredient}
-            removeIngredient={removeIngredient}
+            control={control}
             errors={errors}
           />
           
@@ -176,10 +96,8 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
           
           {/* Instructions */}
           <InstructionsSection 
-            instructionFields={instructionFields}
             register={register}
-            appendInstruction={appendInstruction}
-            removeInstruction={removeInstruction}
+            control={control}
             errors={errors}
           />
           
@@ -187,23 +105,16 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
           
           {/* Tips and Pro Tips */}
           <TipsSection 
-            tipFields={tipFields}
-            proTipFields={proTipFields}
             register={register}
-            appendTip={appendTip}
-            removeTip={removeTip}
-            appendProTip={appendProTip}
-            removeProTip={removeProTip}
+            control={control}
           />
           
           <Separator />
           
           {/* Equipment */}
           <EquipmentSection 
-            equipmentFields={equipmentFields}
             register={register}
-            appendEquipment={appendEquipment}
-            removeEquipment={removeEquipment}
+            control={control}
             errors={errors}
           />
           
@@ -211,10 +122,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
           
           {/* Tags */}
           <TagsSection 
-            tagFields={tagFields}
             control={control}
-            appendTag={appendTag}
-            removeTag={removeTag}
           />
           
           {/* Form Actions */}

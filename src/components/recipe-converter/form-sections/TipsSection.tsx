@@ -3,28 +3,28 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash } from 'lucide-react';
-import { UseFieldArrayAppend, UseFieldArrayRemove, FieldArrayWithId, UseFormRegister } from 'react-hook-form';
+import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
 import { RecipeFormValues } from '../RecipeForm';
 
 interface TipsSectionProps {
-  tipFields: FieldArrayWithId<RecipeFormValues, "tips", "id">[];
-  proTipFields: FieldArrayWithId<RecipeFormValues, "proTips", "id">[];
   register: UseFormRegister<RecipeFormValues>;
-  appendTip: UseFieldArrayAppend<RecipeFormValues, "tips">;
-  removeTip: UseFieldArrayRemove;
-  appendProTip: UseFieldArrayAppend<RecipeFormValues, "proTips">;
-  removeProTip: UseFieldArrayRemove;
+  control: Control<RecipeFormValues>;
 }
 
 const TipsSection: React.FC<TipsSectionProps> = ({
-  tipFields,
-  proTipFields,
   register,
-  appendTip,
-  removeTip,
-  appendProTip,
-  removeProTip
+  control
 }) => {
+  const { fields: tipFields, append: appendTip, remove: removeTip } = useFieldArray({
+    control,
+    name: "tips"
+  });
+  
+  const { fields: proTipFields, append: appendProTip, remove: removeProTip } = useFieldArray({
+    control,
+    name: "proTips"
+  });
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-4">

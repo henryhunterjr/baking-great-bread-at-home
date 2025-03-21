@@ -3,24 +3,25 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash } from 'lucide-react';
-import { UseFieldArrayAppend, UseFieldArrayRemove, FieldArrayWithId, UseFormRegister } from 'react-hook-form';
+import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
 import { RecipeFormValues } from '../RecipeForm';
 
 interface IngredientsSectionProps {
-  ingredientFields: FieldArrayWithId<RecipeFormValues, "ingredients", "id">[];
   register: UseFormRegister<RecipeFormValues>;
-  appendIngredient: UseFieldArrayAppend<RecipeFormValues, "ingredients">;
-  removeIngredient: UseFieldArrayRemove;
+  control: Control<RecipeFormValues>;
   errors: Record<string, any>;
 }
 
 const IngredientsSection: React.FC<IngredientsSectionProps> = ({
-  ingredientFields,
   register,
-  appendIngredient,
-  removeIngredient,
+  control,
   errors
 }) => {
+  const { fields: ingredientFields, append, remove } = useFieldArray({
+    control,
+    name: "ingredients"
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -29,7 +30,7 @@ const IngredientsSection: React.FC<IngredientsSectionProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => appendIngredient("")}
+          onClick={() => append("")}
         >
           <Plus className="h-4 w-4 mr-1" />
           Add Ingredient
@@ -48,7 +49,7 @@ const IngredientsSection: React.FC<IngredientsSectionProps> = ({
               type="button"
               variant="ghost"
               size="icon"
-              onClick={() => removeIngredient(index)}
+              onClick={() => remove(index)}
             >
               <Trash className="h-4 w-4 text-muted-foreground hover:text-destructive" />
             </Button>

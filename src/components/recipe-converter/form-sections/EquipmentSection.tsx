@@ -3,24 +3,25 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash } from 'lucide-react';
-import { UseFieldArrayAppend, UseFieldArrayRemove, FieldArrayWithId, UseFormRegister } from 'react-hook-form';
+import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
 import { RecipeFormValues } from '../RecipeForm';
 
 interface EquipmentSectionProps {
-  equipmentFields: FieldArrayWithId<RecipeFormValues, "equipmentNeeded", "id">[];
   register: UseFormRegister<RecipeFormValues>;
-  appendEquipment: UseFieldArrayAppend<RecipeFormValues, "equipmentNeeded">;
-  removeEquipment: UseFieldArrayRemove;
+  control: Control<RecipeFormValues>;
   errors: Record<string, any>;
 }
 
 const EquipmentSection: React.FC<EquipmentSectionProps> = ({
-  equipmentFields,
   register,
-  appendEquipment,
-  removeEquipment,
+  control,
   errors
 }) => {
+  const { fields: equipmentFields, append, remove } = useFieldArray({
+    control,
+    name: "equipmentNeeded"
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -29,7 +30,7 @@ const EquipmentSection: React.FC<EquipmentSectionProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => appendEquipment({ name: "", affiliateLink: "" })}
+          onClick={() => append({ name: "", affiliateLink: "" })}
         >
           <Plus className="h-4 w-4 mr-1" />
           Add Equipment
@@ -53,7 +54,7 @@ const EquipmentSection: React.FC<EquipmentSectionProps> = ({
               type="button"
               variant="ghost"
               size="icon"
-              onClick={() => removeEquipment(index)}
+              onClick={() => remove(index)}
               className="justify-self-end"
             >
               <Trash className="h-4 w-4 text-muted-foreground hover:text-destructive" />
