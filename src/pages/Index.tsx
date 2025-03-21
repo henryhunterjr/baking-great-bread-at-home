@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -64,7 +65,7 @@ const Index = () => {
     {
       id: 3,
       title: "Vitale Sourdough Mastery",
-      image: "/lovable-uploads/646e5f8d-0a55-476c-9e3e-3b2db6e789bb.png", 
+      image: "/lovable-uploads/64d291fa-0087-428c-a301-3dc6730f3743.png", 
       description: "Unlock the secrets of perfect sourdough with this comprehensive guide to flavor development.",
       link: "https://a.co/d/1HBuy64",
       isExternalLink: true
