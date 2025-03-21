@@ -48,7 +48,7 @@ const Index = () => {
     {
       id: 1,
       title: "Sourdough for the Rest of Us",
-      image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1000&auto=format&fit=crop",
+      image: "/lovable-uploads/e5ad348d-4545-4155-b74b-3ab6249ee711.png",
       description: "A beginner-friendly guide to mastering sourdough bread with simple techniques and clear instructions.",
       link: "https://hunter53.gumroad.com/l/tejdc",
       isExternalLink: true
@@ -56,7 +56,7 @@ const Index = () => {
     {
       id: 2,
       title: "Bread: A Journey Through History, Science, Art, and Community",
-      image: "https://images.unsplash.com/photo-1549413468-f219cb28c2af?q=80&w=1000&auto=format&fit=crop",
+      image: "/lovable-uploads/2c5fee3e-f4a9-4a25-8bbd-c6acc7145890.png",
       description: "An exploration of bread's cultural significance through the lenses of history, science, art, and community building.",
       link: "https://a.co/d/4UCIwap",
       isExternalLink: true
@@ -64,7 +64,7 @@ const Index = () => {
     {
       id: 3,
       title: "Vitale Sourdough Mastery",
-      image: "https://images.unsplash.com/photo-1586444248877-f8bf6ff1a1fc?q=80&w=1000&auto=format&fit=crop",
+      image: "/lovable-uploads/c9c54d1b-23da-4ca7-b7b0-73fa9e8c613e.png",
       description: "Unlock the secrets of perfect sourdough with this comprehensive guide to flavor development.",
       link: "https://a.co/d/1HBuy64",
       isExternalLink: true
@@ -72,16 +72,16 @@ const Index = () => {
     {
       id: 4,
       title: "From Oven to Market",
-      image: "https://images.unsplash.com/photo-1568254183919-78a4f43a2877?q=80&w=1000&auto=format&fit=crop",
+      image: "/lovable-uploads/ed6c6802-1359-445c-a4fd-f7a3a1ed452e.png",
       description: "Everything you need to know about selling bread at farmers' markets and beyond.",
       link: "https://a.co/d/9ebJdSZ",
       isExternalLink: true
     },
     {
       id: 5,
-      title: "The Yeast Water Handbook",
-      image: "https://images.unsplash.com/photo-1592093475472-a7657b9a349a?q=80&w=1000&auto=format&fit=crop",
-      description: "A comprehensive guide to creating and using yeast water cultures for artisan bread making.",
+      title: "The Watchers' Descent",
+      image: "/lovable-uploads/05319e89-2b08-42ea-a5bd-3eb56c8c5dc9.png",
+      description: "Echoes of Giants and Forgotten Truths - A fascinating exploration of ancient history.",
       link: "https://a.co/d/4muwBEV",
       isExternalLink: true
     }
@@ -222,6 +222,13 @@ const Index = () => {
               <p className="text-muted-foreground">
                 Through books, online courses, and an active community, Henry has helped thousands of bakers overcome common challenges and achieve results they never thought possible in their own kitchens.
               </p>
+              <div className="mt-6">
+                <img 
+                  src="/lovable-uploads/4e1336b3-7d4d-4a63-a658-6fbb456160fd.png" 
+                  alt="Henry M. Hunter Jr. signature with whisk icon" 
+                  className="h-16 w-auto"
+                />
+              </div>
               <Button 
                 variant="outline" 
                 className="border-bread-200 text-bread-800 hover:bg-bread-50 mt-4"
@@ -406,6 +413,11 @@ const Index = () => {
             <p className="section-subtitle">
               Tips, techniques, and inspiration to help you on your bread-making journey.
             </p>
+            <img 
+              src="/lovable-uploads/27ebc720-4afd-4d56-a5aa-364c66ef2d5c.png" 
+              alt="Baking Great Bread at Home Blog" 
+              className="mx-auto mt-4 max-w-xs"
+            />
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -459,9 +471,11 @@ const Index = () => {
           <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-bread-50 to-cream-100 border border-bread-100">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               <div className="p-8 md:p-12 lg:p-16">
-                <span className="inline-block text-xs font-medium tracking-wider uppercase py-1 px-3 border border-bread-200 rounded-full text-bread-800 bg-white/80 backdrop-blur-sm mb-6">
-                  Free Download
-                </span>
+                <img 
+                  src="/lovable-uploads/57ca7c7a-c958-4126-b81f-4bbf30028a7f.png" 
+                  alt="Baking Great Bread at Home Logo" 
+                  className="w-40 h-auto mb-6"
+                />
                 <h2 className="font-serif text-3xl md:text-4xl font-medium mb-4">
                   Crust & Crumb App
                 </h2>
