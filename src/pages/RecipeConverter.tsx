@@ -87,7 +87,7 @@ const RecipeConverter: React.FC = () => {
           'The bread is done when it sounds hollow when tapped on the bottom.'
         ],
         proTips: [
-          'For a more open crumb, increase hydration to 75-80% once you're comfortable with the process.',
+          'For a more open crumb, increase hydration to 75-80% once you\'re comfortable with the process.',
           'Try cold autolyse by mixing flour and water and refrigerating overnight before adding starter.',
           'Use rice flour for dusting your banneton to prevent sticking.'
         ],
