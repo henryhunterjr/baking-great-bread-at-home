@@ -32,7 +32,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
                 const input = e.currentTarget;
                 const value = input.value.trim();
                 if (value) {
-                  append(value);
+                  append(value as any);
                   input.value = '';
                 }
               }
@@ -46,7 +46,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
               const input = document.getElementById('new-tag') as HTMLInputElement;
               const value = input.value.trim();
               if (value) {
-                append(value);
+                append(value as any);
                 input.value = '';
               }
             }}
