@@ -13,9 +13,9 @@ interface TagsSectionProps {
 const TagsSection: React.FC<TagsSectionProps> = ({
   control
 }) => {
-  const { fields: tagFields, append, remove } = useFieldArray({
+  const { fields: tagFields, append, remove } = useFieldArray<RecipeFormValues, "tags">({
     control,
-    name: "tags" as const
+    name: "tags"
   });
 
   return (
@@ -32,7 +32,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
                 const input = e.currentTarget;
                 const value = input.value.trim();
                 if (value) {
-                  append(value as any);
+                  append(value);
                   input.value = '';
                 }
               }
@@ -46,7 +46,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
               const input = document.getElementById('new-tag') as HTMLInputElement;
               const value = input.value.trim();
               if (value) {
-                append(value as any);
+                append(value);
                 input.value = '';
               }
             }}
