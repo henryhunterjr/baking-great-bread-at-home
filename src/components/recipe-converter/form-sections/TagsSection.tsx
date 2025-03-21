@@ -13,9 +13,9 @@ interface TagsSectionProps {
 const TagsSection: React.FC<TagsSectionProps> = ({
   control
 }) => {
-  const { fields: tagFields, append, remove } = useFieldArray({
+  const { fields: tagFields, append, remove } = useFieldArray<RecipeFormValues>({
     control,
-    name: "tags"
+    name: "tags" as const
   });
 
   return (
@@ -59,7 +59,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
       <div className="flex flex-wrap gap-2">
         {tagFields.map((field, index) => {
           // Field value needs to be cast appropriately
-          const tagValue = typeof field === 'string' ? field : (field as any);
+          const tagValue = typeof field === 'string' ? field : field.value || (field as any);
           
           return (
             <div 
