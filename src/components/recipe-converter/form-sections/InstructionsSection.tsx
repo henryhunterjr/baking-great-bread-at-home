@@ -1,22 +1,20 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { FormControl, FormDescription, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Trash } from 'lucide-react';
-import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
-import { RecipeFormValues } from '../RecipeForm';
+import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { Plus, Trash2 } from 'lucide-react';
+import { RecipeFormValues } from '@/pages/RecipeConverter';
 
 interface InstructionsSectionProps {
-  register: UseFormRegister<RecipeFormValues>;
-  control: Control<RecipeFormValues>;
-  errors: Record<string, any>;
+  form: UseFormReturn<RecipeFormValues>;
+  control: any;
+  errors: any;
 }
 
-const InstructionsSection: React.FC<InstructionsSectionProps> = ({
-  register,
-  control,
-  errors
-}) => {
+const InstructionsSection: React.FC<InstructionsSectionProps> = ({ form, control, errors }) => {
+  // Fix by specifying the exact field type as a generic parameter
   const { fields: instructionFields, append, remove } = useFieldArray<RecipeFormValues, "instructions">({
     control,
     name: "instructions"
@@ -25,7 +23,7 @@ const InstructionsSection: React.FC<InstructionsSectionProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium font-serif">Instructions</h3>
+        <h3 className="text-lg font-medium">Instructions</h3>
         <Button
           type="button"
           variant="outline"
@@ -37,33 +35,43 @@ const InstructionsSection: React.FC<InstructionsSectionProps> = ({
         </Button>
       </div>
       
+      <FormDescription>
+        Break down your recipe into clear, step-by-step instructions.
+      </FormDescription>
+
       <div className="space-y-3">
         {instructionFields.map((field, index) => (
-          <div key={field.id} className="flex items-start gap-2">
-            <div className="mt-2.5 bg-muted w-6 h-6 flex items-center justify-center rounded-full text-sm font-medium flex-shrink-0">
-              {index + 1}
-            </div>
-            <Textarea
-              {...register(`instructions.${index}`)}
-              placeholder="Describe this step..."
-              className={`flex-grow ${errors.instructions?.[index] ? "border-destructive" : ""}`}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => remove(index)}
-              className="mt-2"
-            >
-              <Trash className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-            </Button>
-          </div>
+          <FormField
+            key={field.id}
+            control={control}
+            name={`instructions.${index}`}
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex gap-2">
+                  <div className="flex-shrink-0 flex items-start pt-2 px-3 bg-muted rounded-md">
+                    <span className="font-medium text-sm">{index + 1}</span>
+                  </div>
+                  <FormControl>
+                    <Textarea
+                      placeholder={`Step ${index + 1}: e.g., Mix the flour, water, and salt...`}
+                      {...field}
+                    />
+                  </FormControl>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => remove(index)}
+                    className="flex-shrink-0"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         ))}
-        {instructionFields.length === 0 && (
-          <p className="text-sm italic text-muted-foreground">
-            No instructions added yet
-          </p>
-        )}
       </div>
     </div>
   );

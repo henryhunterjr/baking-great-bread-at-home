@@ -64,13 +64,13 @@
     --secondary-foreground: 40 38% 98%;
 
     --muted: 30 15% 20%;
-    --muted-foreground: 30 10% 70%;
+    --muted-foreground: 30 10% 80%;
 
-    --accent: 35 80% 50%;
-    --accent-foreground: 40 38% 98%;
+    --accent: 35 80% 60%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 40 38% 98%;
+    --destructive-foreground: 0 0% 100%;
 
     --border: 30 15% 25%;
     --input: 30 15% 25%;

@@ -1,69 +1,78 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash } from 'lucide-react';
-import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
-import { RecipeFormValues } from '../RecipeForm';
+import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { Plus, Trash2 } from 'lucide-react';
+import { RecipeFormValues } from '@/pages/RecipeConverter';
 
-interface IngredientsSectionProps {
-  register: UseFormRegister<RecipeFormValues>;
-  control: Control<RecipeFormValues>;
-  errors: Record<string, any>;
+interface IngredientsFormSectionProps {
+  form: UseFormReturn<RecipeFormValues>;
+  control: any;
+  errors: any;
 }
 
-const IngredientsSection: React.FC<IngredientsSectionProps> = ({
-  register,
+const IngredientsFormSection: React.FC<IngredientsFormSectionProps> = ({
+  form,
   control,
   errors
 }) => {
-  // Using 'as const' to fix the TypeScript error
-  const { fields: ingredientFields, append, remove } = useFieldArray({
+  // Fix by specifying the exact field type as a generic parameter
+  const { fields: ingredientFields, append, remove } = useFieldArray<RecipeFormValues, "ingredients">({
     control,
-    name: "ingredients" as "ingredients"
+    name: "ingredients"
   });
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium font-serif">Ingredients</h3>
+        <h3 className="text-lg font-medium">Ingredients</h3>
         <Button
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append("" as any)}  // Using 'as any' to fix the TypeScript error
+          onClick={() => append("")}
         >
           <Plus className="h-4 w-4 mr-1" />
           Add Ingredient
         </Button>
       </div>
       
+      <FormDescription>
+        List all ingredients needed for your recipe.
+      </FormDescription>
+
       <div className="space-y-3">
         {ingredientFields.map((field, index) => (
-          <div key={field.id} className="flex items-center gap-2">
-            <Input
-              {...register(`ingredients.${index}`)}
-              placeholder="500g (4 cups) bread flour"
-              className={errors.ingredients?.[index] ? "border-destructive" : ""}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => remove(index)}
-            >
-              <Trash className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-            </Button>
-          </div>
+          <FormField
+            key={field.id}
+            control={control}
+            name={`ingredients.${index}`}
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex gap-2">
+                  <FormControl>
+                    <Input placeholder="e.g., 500g bread flour" {...field} />
+                  </FormControl>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => remove(index)}
+                    className="shrink-0"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         ))}
-        {ingredientFields.length === 0 && (
-          <p className="text-sm italic text-muted-foreground">
-            No ingredients added yet
-          </p>
-        )}
       </div>
     </div>
   );
 };
 
-export default IngredientsSection;
+export default IngredientsFormSection;

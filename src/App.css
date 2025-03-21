@@ -51,6 +51,28 @@
   filter: brightness(0.9);
 }
 
+/* Dark mode text improvements */
+.dark .section-title {
+  @apply text-white;
+}
+
+.dark .section-subtitle {
+  @apply text-gray-300;
+}
+
+.dark h1, 
+.dark h2, 
+.dark h3, 
+.dark h4, 
+.dark h5, 
+.dark h6 {
+  @apply text-white;
+}
+
+.dark .text-muted-foreground {
+  @apply text-gray-300;
+}
+
 /* Responsive optimizations */
 @media (max-width: 768px) {
   #root {

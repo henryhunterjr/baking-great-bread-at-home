@@ -1,18 +1,20 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { FormControl, FormDescription, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Plus, X } from 'lucide-react';
-import { Control, useFieldArray } from 'react-hook-form';
-import { RecipeFormValues } from '../RecipeForm';
+import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { Plus, Trash2 } from 'lucide-react';
+import { RecipeFormValues } from '@/pages/RecipeConverter';
 
 interface TagsSectionProps {
-  control: Control<RecipeFormValues>;
+  form: UseFormReturn<RecipeFormValues>;
+  control: any;
+  errors: any;
 }
 
-const TagsSection: React.FC<TagsSectionProps> = ({
-  control
-}) => {
+const TagsSection: React.FC<TagsSectionProps> = ({ form, control, errors }) => {
+  // Fix by specifying the exact field type as a generic parameter
   const { fields: tagFields, append, remove } = useFieldArray<RecipeFormValues, "tags">({
     control,
     name: "tags"
@@ -21,62 +23,49 @@ const TagsSection: React.FC<TagsSectionProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium font-serif">Tags</h3>
-        <div className="flex items-center gap-2">
-          <Input 
-            id="new-tag"
-            placeholder="Add a tag..."
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                const input = e.currentTarget;
-                const value = input.value.trim();
-                if (value) {
-                  append(value);
-                  input.value = '';
-                }
-              }
-            }}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const input = document.getElementById('new-tag') as HTMLInputElement;
-              const value = input.value.trim();
-              if (value) {
-                append(value);
-                input.value = '';
-              }
-            }}
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
+        <h3 className="text-lg font-medium">Tags</h3>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => append("")}
+        >
+          <Plus className="h-4 w-4 mr-1" />
+          Add Tag
+        </Button>
       </div>
       
-      <div className="flex flex-wrap gap-2">
+      <FormDescription>
+        Add descriptive tags to your recipe to make it easier to find later.
+      </FormDescription>
+
+      <div className="space-y-3">
         {tagFields.map((field, index) => (
-          <div 
-            key={field.id} 
-            className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm flex items-center gap-1"
-          >
-            <span>{String(field)}</span>
-            <button
-              type="button"
-              onClick={() => remove(index)}
-              className="text-muted-foreground hover:text-destructive focus:outline-none"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </div>
+          <FormField
+            key={field.id}
+            control={control}
+            name={`tags.${index}`}
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex gap-2">
+                  <FormControl>
+                    <Input placeholder="e.g., sourdough, breakfast, vegan" {...field} />
+                  </FormControl>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => remove(index)}
+                    className="shrink-0"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         ))}
-        {tagFields.length === 0 && (
-          <p className="text-sm italic text-muted-foreground">
-            No tags added yet
-          </p>
-        )}
       </div>
     </div>
   );

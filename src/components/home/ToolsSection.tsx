@@ -38,10 +38,10 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
   ];
 
   return (
-    <section ref={sectionRef} className="py-16 md:py-24 bg-bread-50 opacity-0">
+    <section ref={sectionRef} className="py-16 md:py-24 bg-bread-50 dark:bg-bread-900/30 opacity-0">
       <div className="container max-w-6xl mx-auto px-4">
-        <h2 className="section-title text-center">Baking Tools & Resources</h2>
-        <p className="section-subtitle text-center">
+        <h2 className="section-title text-center dark:text-white">Baking Tools & Resources</h2>
+        <p className="section-subtitle text-center dark:text-gray-300">
           Free tools and resources to help you on your baking journey
         </p>
         
@@ -55,7 +55,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
           <Button 
             asChild
             variant="outline"
-            className="border-bread-800 text-bread-800 hover:bg-bread-800 hover:text-white"
+            className="border-bread-800 text-bread-800 hover:bg-bread-800 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-bread-900"
           >
             <Link to="/tools">
               View All Tools

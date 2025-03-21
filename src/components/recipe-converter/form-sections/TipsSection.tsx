@@ -1,35 +1,36 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { FormControl, FormDescription, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash } from 'lucide-react';
-import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
-import { RecipeFormValues } from '../RecipeForm';
+import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { Plus, Trash2 } from 'lucide-react';
+import { RecipeFormValues } from '@/pages/RecipeConverter';
 
 interface TipsSectionProps {
-  register: UseFormRegister<RecipeFormValues>;
-  control: Control<RecipeFormValues>;
+  form: UseFormReturn<RecipeFormValues>;
+  control: any;
+  errors: any;
 }
 
-const TipsSection: React.FC<TipsSectionProps> = ({
-  register,
-  control
-}) => {
+const TipsSection: React.FC<TipsSectionProps> = ({ form, control, errors }) => {
+  // Fix by specifying the exact field type as a generic parameter for both fields
   const { fields: tipFields, append: appendTip, remove: removeTip } = useFieldArray<RecipeFormValues, "tips">({
     control,
     name: "tips"
   });
-  
+
   const { fields: proTipFields, append: appendProTip, remove: removeProTip } = useFieldArray<RecipeFormValues, "proTips">({
     control,
     name: "proTips"
   });
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="space-y-8">
+      {/* Regular Tips */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium font-serif">Tips</h3>
+          <h3 className="text-lg font-medium">Tips</h3>
           <Button
             type="button"
             variant="outline"
@@ -41,34 +42,44 @@ const TipsSection: React.FC<TipsSectionProps> = ({
           </Button>
         </div>
         
+        <FormDescription>
+          Add helpful tips for beginners.
+        </FormDescription>
+
         <div className="space-y-3">
           {tipFields.map((field, index) => (
-            <div key={field.id} className="flex items-center gap-2">
-              <Input
-                {...register(`tips.${index}`)}
-                placeholder="Helpful tip..."
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => removeTip(index)}
-              >
-                <Trash className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-              </Button>
-            </div>
+            <FormField
+              key={field.id}
+              control={control}
+              name={`tips.${index}`}
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex gap-2">
+                    <FormControl>
+                      <Input placeholder="e.g., Let the dough rest for best results" {...field} />
+                    </FormControl>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => removeTip(index)}
+                      className="shrink-0"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           ))}
-          {tipFields.length === 0 && (
-            <p className="text-sm italic text-muted-foreground">
-              No tips added yet
-            </p>
-          )}
         </div>
       </div>
       
+      {/* Pro Tips */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium font-serif">Pro Tips</h3>
+          <h3 className="text-lg font-medium">Pro Tips</h3>
           <Button
             type="button"
             variant="outline"
@@ -80,28 +91,37 @@ const TipsSection: React.FC<TipsSectionProps> = ({
           </Button>
         </div>
         
+        <FormDescription>
+          Add advanced techniques and insights for experienced bakers.
+        </FormDescription>
+
         <div className="space-y-3">
           {proTipFields.map((field, index) => (
-            <div key={field.id} className="flex items-center gap-2">
-              <Input
-                {...register(`proTips.${index}`)}
-                placeholder="Advanced technique..."
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => removeProTip(index)}
-              >
-                <Trash className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-              </Button>
-            </div>
+            <FormField
+              key={field.id}
+              control={control}
+              name={`proTips.${index}`}
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex gap-2">
+                    <FormControl>
+                      <Input placeholder="e.g., For extra rise, try cold fermentation" {...field} />
+                    </FormControl>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => removeProTip(index)}
+                      className="shrink-0"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           ))}
-          {proTipFields.length === 0 && (
-            <p className="text-sm italic text-muted-foreground">
-              No pro tips added yet
-            </p>
-          )}
         </div>
       </div>
     </div>
