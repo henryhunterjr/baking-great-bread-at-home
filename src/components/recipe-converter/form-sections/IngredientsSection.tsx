@@ -17,10 +17,10 @@ const IngredientsSection: React.FC<IngredientsSectionProps> = ({
   control,
   errors
 }) => {
-  // Properly type useFieldArray for string array
-  const { fields: ingredientFields, append, remove } = useFieldArray<RecipeFormValues>({
+  // Remove the generic type parameter as it's causing the error
+  const { fields: ingredientFields, append, remove } = useFieldArray({
     control,
-    name: "ingredients" as const
+    name: "ingredients"
   });
 
   return (
@@ -31,7 +31,7 @@ const IngredientsSection: React.FC<IngredientsSectionProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append("" as any)}
+          onClick={() => append("")}
         >
           <Plus className="h-4 w-4 mr-1" />
           Add Ingredient

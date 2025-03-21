@@ -13,10 +13,10 @@ interface TagsSectionProps {
 const TagsSection: React.FC<TagsSectionProps> = ({
   control
 }) => {
-  // Properly type useFieldArray for string array
-  const { fields: tagFields, append, remove } = useFieldArray<RecipeFormValues>({
+  // Remove the generic type parameter as it's causing the error
+  const { fields: tagFields, append, remove } = useFieldArray({
     control,
-    name: "tags" as const
+    name: "tags"
   });
 
   return (
@@ -33,7 +33,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
                 const input = e.currentTarget;
                 const value = input.value.trim();
                 if (value) {
-                  append(value as any);
+                  append(value);
                   input.value = '';
                 }
               }
@@ -47,7 +47,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
               const input = document.getElementById('new-tag') as HTMLInputElement;
               const value = input.value.trim();
               if (value) {
-                append(value as any);
+                append(value);
                 input.value = '';
               }
             }}
@@ -63,7 +63,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
             key={field.id} 
             className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm flex items-center gap-1"
           >
-            <span>{typeof field === 'string' ? field : String(field)}</span>
+            <span>{field.value !== undefined ? field.value : String(field)}</span>
             <button
               type="button"
               onClick={() => remove(index)}
