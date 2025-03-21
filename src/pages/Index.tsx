@@ -91,42 +91,82 @@ const Index = () => {
   const featuredTools = [
     {
       id: 1,
-      title: "Brød & Taylor Bread Proofer",
-      image: "https://images.unsplash.com/photo-1609501676725-7155fb064675?q=80&w=1000&auto=format&fit=crop",
-      description: "Create the perfect environment for your dough with precise temperature control.",
-      link: "https://brodandtaylor.com/discount/BAKINGGREATBREAD10",
+      title: "Sourhouse Starter Kit",
+      image: "https://images.unsplash.com/photo-1635321313157-5be9fde3fcbb?q=80&w=1000&auto=format&fit=crop",
+      description: "Everything you need to begin your sourdough journey with confidence.",
+      link: "https://bit.ly/Sourhouse",
       isExternalLink: true
     },
     {
       id: 2,
-      title: "SourHouse Starter Kit",
-      image: "https://images.unsplash.com/photo-1635321313157-5be9fde3fcbb?q=80&w=1000&auto=format&fit=crop",
-      description: "Everything you need to begin your sourdough journey with confidence.",
-      link: "https://sourhouse.com/discount/BAKINGGREATBREAD10",
+      title: "Brød & Taylor Bread Proofer",
+      image: "https://images.unsplash.com/photo-1609501676725-7155fb064675?q=80&w=1000&auto=format&fit=crop",
+      description: "Create the perfect environment for your dough with precise temperature control.",
+      link: "https://breadandtaylor.com/at_id=330823",
       isExternalLink: true
     },
     {
       id: 3,
-      title: "ModKitchn Bread Lame",
-      image: "https://images.unsplash.com/photo-1603569283843-5223b2f550ff?q=80&w=1000&auto=format&fit=crop",
-      description: "Precision scoring tool for creating beautiful patterns on your artisan loaves.",
-      link: "https://modkitchn.com/discount/BAKINGGREATBREAD10",
+      title: "Wire Monkey Shop",
+      image: "https://images.unsplash.com/photo-1603792907191-89e55f70099a?q=80&w=1000&auto=format&fit=crop",
+      description: "Specialized bread baking equipment for the serious artisan baker.",
+      link: "https://bit.ly/3QFQek8",
       isExternalLink: true
     },
     {
       id: 4,
-      title: "Holland Bowl Mill",
-      image: "https://images.unsplash.com/photo-1590874023110-f82d5e4317a4?q=80&w=1000&auto=format&fit=crop",
-      description: "Handcrafted wooden proofing bowls made from sustainable materials.",
-      link: "https://hollandbowlmill.com/affiliate-area/",
+      title: "Challenger Breadware",
+      image: "https://images.unsplash.com/photo-1574155376612-bfa4ed8aabfd?q=80&w=1000&auto=format&fit=crop",
+      description: "Premium cast iron bread baking equipment for perfect crust and crumb.",
+      link: "https://challengerbreadware.com/?ref=henryhunterjr",
       isExternalLink: true
     },
     {
       id: 5,
-      title: "Wire Monkey Shop",
-      image: "https://images.unsplash.com/photo-1603792907191-89e55f70099a?q=80&w=1000&auto=format&fit=crop",
-      description: "Specialized bread baking equipment for the serious artisan baker.",
-      link: "https://wiremonkey.refersion.com/",
+      title: "Holland Bowl Mill",
+      image: "https://images.unsplash.com/photo-1590874023110-f82d5e4317a4?q=80&w=1000&auto=format&fit=crop",
+      description: "Handcrafted wooden proofing bowls made from sustainable materials.",
+      link: "https://hollandbowlmill.com/baking/?wpam_id=10",
+      isExternalLink: true
+    },
+    {
+      id: 6,
+      title: "Crust & Crumb",
+      image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1000&auto=format&fit=crop",
+      description: "Essential tools for artisan bread baking at home.",
+      link: "https://bit.ly/CrustandCrumb",
+      isExternalLink: true
+    },
+    {
+      id: 7,
+      title: "Rosehill Sourdough",
+      image: "https://images.unsplash.com/photo-1586444248879-bc604cbd555a?q=80&w=1000&auto=format&fit=crop",
+      description: "Authentic sourdough starters and baking accessories.",
+      link: "https://rosehillsourdough.com/shop/",
+      isExternalLink: true
+    },
+    {
+      id: 8,
+      title: "ModKitchn Bread Lame",
+      image: "https://images.unsplash.com/photo-1603569283843-5223b2f550ff?q=80&w=1000&auto=format&fit=crop",
+      description: "Precision scoring tool for creating beautiful patterns on your artisan loaves.",
+      link: "https://bit.ly/4dsbJ3c",
+      isExternalLink: true
+    },
+    {
+      id: 9,
+      title: "Barlow & Co Woodwork",
+      image: "https://images.unsplash.com/photo-1581235720704-06d3acfcb36f?q=80&w=1000&auto=format&fit=crop",
+      description: "Handcrafted wooden tools and accessories for artisan bakers.",
+      link: "https://bit.ly/3Kl6Zm",
+      isExternalLink: true
+    },
+    {
+      id: 10,
+      title: "King Arthur Baking",
+      image: "https://images.unsplash.com/photo-1588116272743-543e522deb8e?q=80&w=1000&auto=format&fit=crop",
+      description: "Premium flours and baking ingredients for professional results.",
+      link: "https://bit.ly/4dLztcN",
       isExternalLink: true
     }
   ];
@@ -343,8 +383,8 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredTools.slice(0, 3).map((tool) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {featuredTools.slice(0, 6).map((tool) => (
               <Card key={tool.id} className="overflow-hidden card-hover border-bread-100 glass-card">
                 <div className="aspect-video overflow-hidden">
                   <img 
@@ -378,8 +418,8 @@ const Index = () => {
             ))}
           </div>
           
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
-            {featuredTools.slice(3).map((tool) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {featuredTools.slice(6).map((tool) => (
               <Card key={tool.id} className="overflow-hidden card-hover border-bread-100 glass-card">
                 <div className="flex flex-col md:flex-row">
                   <div className="md:w-1/3 aspect-square md:aspect-auto overflow-hidden">
@@ -618,3 +658,4 @@ const Index = () => {
 };
 
 export default Index;
+
