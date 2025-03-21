@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -391,16 +390,29 @@ const Index = () => {
               <p className="text-white/80 mb-8 text-lg">
                 Participate in our monthly challenges, connect with fellow bakers, and win amazing prizes including premium baking tools and personal coaching sessions.
               </p>
-              <Button 
-                size="lg" 
-                className="bg-white text-bread-900 hover:bg-cream-100"
-                asChild
-              >
-                <Link to="/challenges">
-                  Join Current Challenge
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+              <div className="flex flex-wrap gap-4">
+                <Button 
+                  size="lg" 
+                  className="bg-white text-bread-900 hover:bg-cream-100"
+                  asChild
+                >
+                  <Link to="/challenges">
+                    Join Current Challenge
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="border-white/30 text-white hover:bg-white/10"
+                  asChild
+                >
+                  <Link to="/challenges">
+                    Browse Past Challenges
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
