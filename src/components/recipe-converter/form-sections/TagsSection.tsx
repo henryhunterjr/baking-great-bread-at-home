@@ -13,9 +13,9 @@ interface TagsSectionProps {
 const TagsSection: React.FC<TagsSectionProps> = ({
   control
 }) => {
-  const { fields: tagFields, append, remove } = useFieldArray<RecipeFormValues>({
+  const { fields: tagFields, append, remove } = useFieldArray({
     control,
-    name: "tags",
+    name: "tags"
   });
 
   return (
@@ -32,7 +32,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
                 const input = e.currentTarget;
                 const value = input.value.trim();
                 if (value) {
-                  append(value);
+                  append(value as any);
                   input.value = '';
                 }
               }
@@ -46,7 +46,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
               const input = document.getElementById('new-tag') as HTMLInputElement;
               const value = input.value.trim();
               if (value) {
-                append(value);
+                append(value as any);
                 input.value = '';
               }
             }}
@@ -57,21 +57,26 @@ const TagsSection: React.FC<TagsSectionProps> = ({
       </div>
       
       <div className="flex flex-wrap gap-2">
-        {tagFields.map((field, index) => (
-          <div 
-            key={field.id} 
-            className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm flex items-center gap-1"
-          >
-            <span>{field.value as unknown as string}</span>
-            <button
-              type="button"
-              onClick={() => remove(index)}
-              className="text-muted-foreground hover:text-destructive focus:outline-none"
+        {tagFields.map((field, index) => {
+          // Field value needs to be cast appropriately
+          const tagValue = typeof field === 'string' ? field : (field as any);
+          
+          return (
+            <div 
+              key={field.id} 
+              className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm flex items-center gap-1"
             >
-              <X className="h-3 w-3" />
-            </button>
-          </div>
-        ))}
+              <span>{tagValue}</span>
+              <button
+                type="button"
+                onClick={() => remove(index)}
+                className="text-muted-foreground hover:text-destructive focus:outline-none"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          );
+        })}
         {tagFields.length === 0 && (
           <p className="text-sm italic text-muted-foreground">
             No tags added yet
