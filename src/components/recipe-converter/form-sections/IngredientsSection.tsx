@@ -1,78 +1,72 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormField, FormItem, FormControl, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
-import { RecipeFormValues } from '@/pages/RecipeConverter';
+import { useFieldArray, Control, UseFormRegister } from 'react-hook-form';
+import { RecipeFormValues } from '@/types/recipeTypes';
 
-interface IngredientsFormSectionProps {
-  form: UseFormReturn<RecipeFormValues>;
-  control: any;
-  errors: any;
+export interface IngredientsFormSectionProps {
+  control: Control<RecipeFormValues>;
+  register: UseFormRegister<RecipeFormValues>;
 }
 
-const IngredientsFormSection: React.FC<IngredientsFormSectionProps> = ({
-  form,
-  control,
-  errors
-}) => {
-  // Fix by specifying the exact field type as a generic parameter
-  const { fields: ingredientFields, append, remove } = useFieldArray<RecipeFormValues, "ingredients">({
+const IngredientsSection: React.FC<IngredientsFormSectionProps> = ({ control, register }) => {
+  const { fields, append, remove } = useFieldArray<RecipeFormValues>({
     control,
     name: "ingredients"
   });
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Ingredients</h3>
+      <div className="flex justify-between items-center">
+        <FormLabel className="text-lg font-medium">Ingredients</FormLabel>
         <Button
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append("")}
+          onClick={() => append('')}
+          className="flex items-center gap-1"
         >
-          <Plus className="h-4 w-4 mr-1" />
-          Add Ingredient
+          <Plus className="h-4 w-4" /> Add Ingredient
         </Button>
       </div>
-      
-      <FormDescription>
-        List all ingredients needed for your recipe.
-      </FormDescription>
 
-      <div className="space-y-3">
-        {ingredientFields.map((field, index) => (
-          <FormField
-            key={field.id}
-            control={control}
-            name={`ingredients.${index}`}
-            render={({ field }) => (
-              <FormItem>
+      {fields.map((field, index) => (
+        <FormField
+          key={field.id}
+          control={control}
+          name={`ingredients.${index}`}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
                 <div className="flex gap-2">
-                  <FormControl>
-                    <Input placeholder="e.g., 500g bread flour" {...field} />
-                  </FormControl>
+                  <Input {...field} placeholder={`Ingredient ${index + 1}`} />
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
                     onClick={() => remove(index)}
-                    className="shrink-0"
+                    className="flex-shrink-0"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ))}
-      </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      ))}
+
+      {fields.length === 0 && (
+        <div className="text-muted-foreground text-sm italic">
+          No ingredients added yet. Click "Add Ingredient" to start.
+        </div>
+      )}
     </div>
   );
 };
 
-export default IngredientsFormSection;
+export default IngredientsSection;

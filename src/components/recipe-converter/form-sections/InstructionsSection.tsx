@@ -1,78 +1,75 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { FormControl, FormDescription, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { FormField, FormItem, FormControl, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
-import { RecipeFormValues } from '@/pages/RecipeConverter';
+import { useFieldArray, Control, UseFormRegister } from 'react-hook-form';
+import { RecipeFormValues } from '@/types/recipeTypes';
 
-interface InstructionsSectionProps {
-  form: UseFormReturn<RecipeFormValues>;
-  control: any;
-  errors: any;
+export interface InstructionsSectionProps {
+  control: Control<RecipeFormValues>;
+  register: UseFormRegister<RecipeFormValues>;
 }
 
-const InstructionsSection: React.FC<InstructionsSectionProps> = ({ form, control, errors }) => {
-  // Fix by specifying the exact field type as a generic parameter
-  const { fields: instructionFields, append, remove } = useFieldArray<RecipeFormValues, "instructions">({
+const InstructionsSection: React.FC<InstructionsSectionProps> = ({ control, register }) => {
+  const { fields, append, remove } = useFieldArray<RecipeFormValues>({
     control,
     name: "instructions"
   });
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Instructions</h3>
+      <div className="flex justify-between items-center">
+        <FormLabel className="text-lg font-medium">Instructions</FormLabel>
         <Button
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append("")}
+          onClick={() => append('')}
+          className="flex items-center gap-1"
         >
-          <Plus className="h-4 w-4 mr-1" />
-          Add Step
+          <Plus className="h-4 w-4" /> Add Step
         </Button>
       </div>
-      
-      <FormDescription>
-        Break down your recipe into clear, step-by-step instructions.
-      </FormDescription>
 
-      <div className="space-y-3">
-        {instructionFields.map((field, index) => (
-          <FormField
-            key={field.id}
-            control={control}
-            name={`instructions.${index}`}
-            render={({ field }) => (
-              <FormItem>
+      {fields.map((field, index) => (
+        <FormField
+          key={field.id}
+          control={control}
+          name={`instructions.${index}`}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
                 <div className="flex gap-2">
-                  <div className="flex-shrink-0 flex items-start pt-2 px-3 bg-muted rounded-md">
-                    <span className="font-medium text-sm">{index + 1}</span>
+                  <div className="flex-grow">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium">Step {index + 1}</span>
+                    </div>
+                    <Textarea {...field} placeholder={`Describe step ${index + 1}`} />
                   </div>
-                  <FormControl>
-                    <Textarea
-                      placeholder={`Step ${index + 1}: e.g., Mix the flour, water, and salt...`}
-                      {...field}
-                    />
-                  </FormControl>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
                     onClick={() => remove(index)}
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 h-10"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ))}
-      </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      ))}
+
+      {fields.length === 0 && (
+        <div className="text-muted-foreground text-sm italic">
+          No instructions added yet. Click "Add Step" to start.
+        </div>
+      )}
     </div>
   );
 };

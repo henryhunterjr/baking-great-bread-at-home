@@ -1,73 +1,89 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { FormControl, FormDescription, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
-import { Plus, Trash2 } from 'lucide-react';
-import { RecipeFormValues } from '@/pages/RecipeConverter';
+import { Button } from '@/components/ui/button';
+import { Plus, X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Control, UseFormWatch, UseFormSetValue } from 'react-hook-form';
+import { RecipeFormValues } from '@/types/recipeTypes';
 
-interface TagsSectionProps {
-  form: UseFormReturn<RecipeFormValues>;
-  control: any;
-  errors: any;
+export interface TagsSectionProps {
+  control: Control<RecipeFormValues>;
+  watch: UseFormWatch<RecipeFormValues>;
+  setValue: UseFormSetValue<RecipeFormValues>;
 }
 
-const TagsSection: React.FC<TagsSectionProps> = ({ form, control, errors }) => {
-  // Fix by specifying the exact field type as a generic parameter
-  const { fields: tagFields, append, remove } = useFieldArray<RecipeFormValues, "tags">({
-    control,
-    name: "tags"
-  });
+const TagsSection: React.FC<TagsSectionProps> = ({ control, watch, setValue }) => {
+  const [tagInput, setTagInput] = React.useState('');
+  const tags = watch('tags') || [];
+
+  const addTag = () => {
+    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
+      setValue('tags', [...tags, tagInput.trim()]);
+      setTagInput('');
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setValue('tags', tags.filter(tag => tag !== tagToRemove));
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Tags</h3>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => append("")}
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          Add Tag
-        </Button>
-      </div>
-      
-      <FormDescription>
-        Add descriptive tags to your recipe to make it easier to find later.
-      </FormDescription>
-
-      <div className="space-y-3">
-        {tagFields.map((field, index) => (
-          <FormField
-            key={field.id}
-            control={control}
-            name={`tags.${index}`}
-            render={({ field }) => (
-              <FormItem>
-                <div className="flex gap-2">
-                  <FormControl>
-                    <Input placeholder="e.g., sourdough, breakfast, vegan" {...field} />
-                  </FormControl>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => remove(index)}
-                    className="shrink-0"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-                <FormMessage />
-              </FormItem>
+    <FormField
+      control={control}
+      name="tags"
+      render={({ field }) => (
+        <FormItem className="space-y-4">
+          <FormLabel className="text-lg font-medium">Tags</FormLabel>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {tags.map((tag, index) => (
+              <Badge key={index} variant="secondary" className="px-3 py-1">
+                {tag}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-4 w-4 ml-1 p-0"
+                  onClick={() => removeTag(tag)}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </Badge>
+            ))}
+            {tags.length === 0 && (
+              <div className="text-muted-foreground text-sm italic">
+                No tags added yet. Add some tags to categorize your recipe.
+              </div>
             )}
-          />
-        ))}
-      </div>
-    </div>
+          </div>
+          <div className="flex gap-2">
+            <FormControl>
+              <Input
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                placeholder="e.g., sourdough, beginner-friendly, vegan"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTag();
+                  }
+                }}
+              />
+            </FormControl>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addTag}
+              className="whitespace-nowrap"
+            >
+              <Plus className="h-4 w-4 mr-1" /> Add Tag
+            </Button>
+          </div>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 };
 

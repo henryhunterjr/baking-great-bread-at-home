@@ -1,26 +1,24 @@
 
 import React from 'react';
+import { FormField, FormItem, FormControl, FormLabel, FormMessage } from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { FormControl, FormDescription, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { Plus, Trash2 } from 'lucide-react';
-import { RecipeFormValues } from '@/pages/RecipeConverter';
+import { useFieldArray, Control, UseFormRegister } from 'react-hook-form';
+import { RecipeFormValues } from '@/types/recipeTypes';
 
-interface TipsSectionProps {
-  form: UseFormReturn<RecipeFormValues>;
-  control: any;
-  errors: any;
+export interface TipsSectionProps {
+  control: Control<RecipeFormValues>;
+  register: UseFormRegister<RecipeFormValues>;
 }
 
-const TipsSection: React.FC<TipsSectionProps> = ({ form, control, errors }) => {
-  // Fix by specifying the exact field type as a generic parameter for both fields
-  const { fields: tipFields, append: appendTip, remove: removeTip } = useFieldArray<RecipeFormValues, "tips">({
+const TipsSection: React.FC<TipsSectionProps> = ({ control, register }) => {
+  const { fields: tipFields, append: appendTip, remove: removeTip } = useFieldArray<RecipeFormValues>({
     control,
     name: "tips"
   });
-
-  const { fields: proTipFields, append: appendProTip, remove: removeProTip } = useFieldArray<RecipeFormValues, "proTips">({
+  
+  const { fields: proTipFields, append: appendProTip, remove: removeProTip } = useFieldArray<RecipeFormValues>({
     control,
     name: "proTips"
   });
@@ -29,100 +27,100 @@ const TipsSection: React.FC<TipsSectionProps> = ({ form, control, errors }) => {
     <div className="space-y-8">
       {/* Regular Tips */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium">Tips</h3>
+        <div className="flex justify-between items-center">
+          <FormLabel className="text-lg font-medium">Tips for Beginners</FormLabel>
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => appendTip("")}
+            onClick={() => appendTip('')}
+            className="flex items-center gap-1"
           >
-            <Plus className="h-4 w-4 mr-1" />
-            Add Tip
+            <Plus className="h-4 w-4" /> Add Tip
           </Button>
         </div>
-        
-        <FormDescription>
-          Add helpful tips for beginners.
-        </FormDescription>
 
-        <div className="space-y-3">
-          {tipFields.map((field, index) => (
-            <FormField
-              key={field.id}
-              control={control}
-              name={`tips.${index}`}
-              render={({ field }) => (
-                <FormItem>
+        {tipFields.map((field, index) => (
+          <FormField
+            key={field.id}
+            control={control}
+            name={`tips.${index}`}
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
                   <div className="flex gap-2">
-                    <FormControl>
-                      <Input placeholder="e.g., Let the dough rest for best results" {...field} />
-                    </FormControl>
+                    <Textarea {...field} placeholder={`Tip ${index + 1}`} />
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="ghost"
                       size="icon"
                       onClick={() => removeTip(index)}
-                      className="shrink-0"
+                      className="flex-shrink-0"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ))}
-        </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ))}
+
+        {tipFields.length === 0 && (
+          <div className="text-muted-foreground text-sm italic">
+            No beginner tips added yet. Add some to help new bakers.
+          </div>
+        )}
       </div>
-      
+
       {/* Pro Tips */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium">Pro Tips</h3>
+        <div className="flex justify-between items-center">
+          <FormLabel className="text-lg font-medium">Pro Tips</FormLabel>
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => appendProTip("")}
+            onClick={() => appendProTip('')}
+            className="flex items-center gap-1"
           >
-            <Plus className="h-4 w-4 mr-1" />
-            Add Pro Tip
+            <Plus className="h-4 w-4" /> Add Pro Tip
           </Button>
         </div>
-        
-        <FormDescription>
-          Add advanced techniques and insights for experienced bakers.
-        </FormDescription>
 
-        <div className="space-y-3">
-          {proTipFields.map((field, index) => (
-            <FormField
-              key={field.id}
-              control={control}
-              name={`proTips.${index}`}
-              render={({ field }) => (
-                <FormItem>
+        {proTipFields.map((field, index) => (
+          <FormField
+            key={field.id}
+            control={control}
+            name={`proTips.${index}`}
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
                   <div className="flex gap-2">
-                    <FormControl>
-                      <Input placeholder="e.g., For extra rise, try cold fermentation" {...field} />
-                    </FormControl>
+                    <Textarea {...field} placeholder={`Pro Tip ${index + 1}`} />
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="ghost"
                       size="icon"
                       onClick={() => removeProTip(index)}
-                      className="shrink-0"
+                      className="flex-shrink-0"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ))}
-        </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ))}
+
+        {proTipFields.length === 0 && (
+          <div className="text-muted-foreground text-sm italic">
+            No pro tips added yet. Add some advanced techniques.
+          </div>
+        )}
       </div>
     </div>
   );
