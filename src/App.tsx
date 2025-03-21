@@ -10,6 +10,7 @@ import ChallengesArchive from "./pages/ChallengesArchive";
 import Blog from "./pages/Blog";
 import AppStore from "./pages/AppStore";
 import RecipeConverter from "./pages/RecipeConverter";
+import CareCenter from "./pages/CareCenter";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/challenges" element={<ChallengesArchive />} />
             <Route path="/recipe-converter" element={<RecipeConverter />} />
+            <Route path="/care-center" element={<CareCenter />} />
             <Route path="/books" element={<NotFound />} />
             <Route path="/tools" element={<NotFound />} />
             <Route path="/blog" element={<Blog />} />

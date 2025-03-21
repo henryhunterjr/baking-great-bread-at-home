@@ -9,6 +9,7 @@ import ToolsSection from '@/components/home/ToolsSection';
 import CTASection from '@/components/home/CTASection';
 import BlogPreviewSection from '@/components/home/BlogPreviewSection';
 import AppPromoSection from '@/components/home/AppPromoSection';
+import CareCenterPreview from '@/components/home/CareCenterPreview';
 
 const Index = () => {
   // Refs for animation elements
@@ -16,6 +17,7 @@ const Index = () => {
   const aboutRef = useRef<HTMLElement>(null);
   const booksRef = useRef<HTMLElement>(null);
   const toolsRef = useRef<HTMLElement>(null);
+  const careCenterRef = useRef<HTMLElement>(null);
   const ctaRef = useRef<HTMLElement>(null);
   const blogRef = useRef<HTMLElement>(null);
   const appPromoRef = useRef<HTMLElement>(null);
@@ -43,7 +45,7 @@ const Index = () => {
     }
     
     // Observe other sections
-    [aboutRef, booksRef, toolsRef, ctaRef, blogRef, appPromoRef].forEach(ref => {
+    [aboutRef, booksRef, toolsRef, careCenterRef, ctaRef, blogRef, appPromoRef].forEach(ref => {
       if (ref.current) observer.observe(ref.current);
     });
     
@@ -60,6 +62,7 @@ const Index = () => {
       <AboutSection sectionRef={aboutRef} />
       <BooksSection sectionRef={booksRef} />
       <ToolsSection sectionRef={toolsRef} />
+      <CareCenterPreview sectionRef={careCenterRef} />
       <CTASection sectionRef={ctaRef} />
       <BlogPreviewSection sectionRef={blogRef} />
       <AppPromoSection sectionRef={appPromoRef} />
