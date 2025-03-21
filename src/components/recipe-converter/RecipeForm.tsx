@@ -70,7 +70,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
     fields: ingredientFields, 
     append: appendIngredient, 
     remove: removeIngredient 
-  } = useFieldArray({ 
+  } = useFieldArray<RecipeFormValues>({ 
     control, 
     name: "ingredients" 
   });
@@ -79,7 +79,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
     fields: instructionFields, 
     append: appendInstruction, 
     remove: removeInstruction 
-  } = useFieldArray({ 
+  } = useFieldArray<RecipeFormValues>({ 
     control, 
     name: "instructions" 
   });
@@ -88,7 +88,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
     fields: tipFields, 
     append: appendTip, 
     remove: removeTip 
-  } = useFieldArray({ 
+  } = useFieldArray<RecipeFormValues>({ 
     control, 
     name: "tips" 
   });
@@ -97,7 +97,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
     fields: proTipFields, 
     append: appendProTip, 
     remove: removeProTip 
-  } = useFieldArray({ 
+  } = useFieldArray<RecipeFormValues>({ 
     control, 
     name: "proTips" 
   });
@@ -106,7 +106,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
     fields: equipmentFields, 
     append: appendEquipment, 
     remove: removeEquipment 
-  } = useFieldArray({ 
+  } = useFieldArray<RecipeFormValues>({ 
     control, 
     name: "equipmentNeeded" 
   });
@@ -115,7 +115,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
     fields: tagFields,
     append: appendTag,
     remove: removeTag
-  } = useFieldArray({ 
+  } = useFieldArray<RecipeFormValues>({ 
     control, 
     name: "tags" 
   });
@@ -522,7 +522,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
                   key={field.id} 
                   className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm flex items-center gap-1"
                 >
-                  <span>{field.value}</span>
+                  <span>{field as unknown as { value: string }}.value</span>
                   <button
                     type="button"
                     onClick={() => removeTag(index)}
