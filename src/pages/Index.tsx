@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -183,9 +184,9 @@ const Index = () => {
               </div>
               <div className="hero-image-container">
                 <img 
-                  src="https://images.unsplash.com/photo-1603362219626-9432cfabe184?q=80&w=1000&auto=format&fit=crop" 
-                  alt="Freshly baked artisan bread" 
-                  className="hero-image"
+                  src="/lovable-uploads/ecf6ed85-89c2-44ae-97ef-35087b9b3b16.png" 
+                  alt="Cross-section of artisan sourdough bread showing open crumb structure" 
+                  className="hero-image rounded-lg shadow-xl"
                 />
               </div>
             </div>
@@ -524,7 +525,7 @@ const Index = () => {
               </div>
               <div className="flex justify-center p-8">
                 <img 
-                  src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1000&auto=format&fit=crop" 
+                  src="/lovable-uploads/0194d34b-b540-4a18-97b8-bcede6d0c4fe.png" 
                   alt="Crust & Crumb App" 
                   className="max-w-full h-auto rounded-xl shadow-xl animate-float"
                 />
