@@ -70,40 +70,58 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
     fields: ingredientFields, 
     append: appendIngredient, 
     remove: removeIngredient 
-  } = useFieldArray({ control, name: "ingredients" });
+  } = useFieldArray({ 
+    control, 
+    name: "ingredients" 
+  });
   
   const { 
     fields: instructionFields, 
     append: appendInstruction, 
     remove: removeInstruction 
-  } = useFieldArray({ control, name: "instructions" });
+  } = useFieldArray({ 
+    control, 
+    name: "instructions" 
+  });
   
   const { 
     fields: tipFields, 
     append: appendTip, 
     remove: removeTip 
-  } = useFieldArray({ control, name: "tips" });
+  } = useFieldArray({ 
+    control, 
+    name: "tips" 
+  });
   
   const { 
     fields: proTipFields, 
     append: appendProTip, 
     remove: removeProTip 
-  } = useFieldArray({ control, name: "proTips" });
+  } = useFieldArray({ 
+    control, 
+    name: "proTips" 
+  });
   
   const { 
     fields: equipmentFields, 
     append: appendEquipment, 
     remove: removeEquipment 
-  } = useFieldArray({ control, name: "equipmentNeeded" });
+  } = useFieldArray({ 
+    control, 
+    name: "equipmentNeeded" 
+  });
   
   const { 
     fields: tagFields,
     append: appendTag,
     remove: removeTag
-  } = useFieldArray({ control, name: "tags" });
+  } = useFieldArray({ 
+    control, 
+    name: "tags" 
+  });
   
   const onSubmit = (data: RecipeFormValues) => {
-    onSave(data);
+    onSave(data as RecipeData);
   };
   
   return (
@@ -504,10 +522,6 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
                   key={field.id} 
                   className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm flex items-center gap-1"
                 >
-                  <Input
-                    {...register(`tags.${index}`)}
-                    className="hidden"
-                  />
                   <span>{field.value}</span>
                   <button
                     type="button"
