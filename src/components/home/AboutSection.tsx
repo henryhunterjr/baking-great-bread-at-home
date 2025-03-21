@@ -1,8 +1,4 @@
-
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 interface AboutSectionProps {
   sectionRef: React.RefObject<HTMLElement>;
@@ -10,10 +6,7 @@ interface AboutSectionProps {
 
 const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
   return (
-    <section 
-      ref={sectionRef}
-      className="py-20 bg-bread-50/50 opacity-0"
-    >
+    <section ref={sectionRef} className="py-16 md:py-24 bg-bread-50 opacity-0">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="section-title">Meet Henry</h2>

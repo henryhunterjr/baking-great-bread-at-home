@@ -13,7 +13,12 @@ import AppPromoSection from '@/components/home/AppPromoSection';
 const Index = () => {
   // Refs for animation elements
   const heroRef = useRef<HTMLDivElement>(null);
-  const sectionRefs = useRef<(HTMLElement | null)[]>([]);
+  const aboutRef = useRef<HTMLElement>(null);
+  const booksRef = useRef<HTMLElement>(null);
+  const toolsRef = useRef<HTMLElement>(null);
+  const ctaRef = useRef<HTMLElement>(null);
+  const blogRef = useRef<HTMLElement>(null);
+  const appPromoRef = useRef<HTMLElement>(null);
   
   // Observer setup for animations
   useEffect(() => {
@@ -38,8 +43,8 @@ const Index = () => {
     }
     
     // Observe other sections
-    sectionRefs.current.forEach((el) => {
-      if (el) observer.observe(el);
+    [aboutRef, booksRef, toolsRef, ctaRef, blogRef, appPromoRef].forEach(ref => {
+      if (ref.current) observer.observe(ref.current);
     });
     
     return () => {
@@ -52,12 +57,12 @@ const Index = () => {
       <Navbar />
       
       <HeroSection heroRef={heroRef} />
-      <AboutSection sectionRef={(el) => sectionRefs.current[0] = el} />
-      <BooksSection sectionRef={(el) => sectionRefs.current[1] = el} />
-      <ToolsSection sectionRef={(el) => sectionRefs.current[2] = el} />
-      <CTASection sectionRef={(el) => sectionRefs.current[3] = el} />
-      <BlogPreviewSection sectionRef={(el) => sectionRefs.current[4] = el} />
-      <AppPromoSection sectionRef={(el) => sectionRefs.current[5] = el} />
+      <AboutSection sectionRef={aboutRef} />
+      <BooksSection sectionRef={booksRef} />
+      <ToolsSection sectionRef={toolsRef} />
+      <CTASection sectionRef={ctaRef} />
+      <BlogPreviewSection sectionRef={blogRef} />
+      <AppPromoSection sectionRef={appPromoRef} />
       
       <Footer />
     </div>
