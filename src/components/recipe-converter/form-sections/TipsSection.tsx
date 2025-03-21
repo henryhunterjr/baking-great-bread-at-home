@@ -15,15 +15,14 @@ const TipsSection: React.FC<TipsSectionProps> = ({
   register,
   control
 }) => {
-  // Remove the generic type parameters as they're causing the errors
   const { fields: tipFields, append: appendTip, remove: removeTip } = useFieldArray({
     control,
-    name: "tips"
+    name: "tips" as const
   });
   
   const { fields: proTipFields, append: appendProTip, remove: removeProTip } = useFieldArray({
     control,
-    name: "proTips"
+    name: "proTips" as const
   });
 
   return (
@@ -35,7 +34,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => appendTip("")}
+            onClick={() => appendTip("" as any)}
           >
             <Plus className="h-4 w-4 mr-1" />
             Add Tip
@@ -74,7 +73,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => appendProTip("")}
+            onClick={() => appendProTip("" as any)}
           >
             <Plus className="h-4 w-4 mr-1" />
             Add Pro Tip

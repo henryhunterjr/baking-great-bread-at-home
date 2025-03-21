@@ -17,10 +17,9 @@ const InstructionsSection: React.FC<InstructionsSectionProps> = ({
   control,
   errors
 }) => {
-  // Remove the generic type parameter as it's causing the error
   const { fields: instructionFields, append, remove } = useFieldArray({
     control,
-    name: "instructions"
+    name: "instructions" as const
   });
 
   return (
@@ -31,7 +30,7 @@ const InstructionsSection: React.FC<InstructionsSectionProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append("")}
+          onClick={() => append("" as any)}
         >
           <Plus className="h-4 w-4 mr-1" />
           Add Step

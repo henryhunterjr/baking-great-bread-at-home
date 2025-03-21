@@ -13,10 +13,9 @@ interface TagsSectionProps {
 const TagsSection: React.FC<TagsSectionProps> = ({
   control
 }) => {
-  // Remove the generic type parameter as it's causing the error
   const { fields: tagFields, append, remove } = useFieldArray({
     control,
-    name: "tags"
+    name: "tags" as const
   });
 
   return (
@@ -33,7 +32,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
                 const input = e.currentTarget;
                 const value = input.value.trim();
                 if (value) {
-                  append(value);
+                  append(value as any);
                   input.value = '';
                 }
               }
@@ -47,7 +46,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
               const input = document.getElementById('new-tag') as HTMLInputElement;
               const value = input.value.trim();
               if (value) {
-                append(value);
+                append(value as any);
                 input.value = '';
               }
             }}
@@ -63,7 +62,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
             key={field.id} 
             className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm flex items-center gap-1"
           >
-            <span>{field.value !== undefined ? field.value : String(field)}</span>
+            <span>{String(field)}</span>
             <button
               type="button"
               onClick={() => remove(index)}
