@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash } from 'lucide-react';
-import { UseFormRegister, Control, useFieldArray, FieldArrayPath } from 'react-hook-form';
+import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
 import { RecipeFormValues } from '../RecipeForm';
 
 interface EquipmentSectionProps {
@@ -18,7 +19,7 @@ const EquipmentSection: React.FC<EquipmentSectionProps> = ({
 }) => {
   const { fields: equipmentFields, append, remove } = useFieldArray({
     control,
-    name: "equipmentNeeded" as FieldArrayPath<RecipeFormValues>
+    name: "equipmentNeeded"
   });
 
   return (
