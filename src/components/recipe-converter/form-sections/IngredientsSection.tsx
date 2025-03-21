@@ -17,9 +17,10 @@ const IngredientsSection: React.FC<IngredientsSectionProps> = ({
   control,
   errors
 }) => {
-  const { fields: ingredientFields, append, remove } = useFieldArray<RecipeFormValues>({
+  // Explicitly type the useFieldArray with the correct field name
+  const { fields: ingredientFields, append, remove } = useFieldArray({
     control,
-    name: "ingredients" as const
+    name: "ingredients"
   });
 
   return (
@@ -30,7 +31,7 @@ const IngredientsSection: React.FC<IngredientsSectionProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append("" as any)}
+          onClick={() => append("")}
         >
           <Plus className="h-4 w-4 mr-1" />
           Add Ingredient

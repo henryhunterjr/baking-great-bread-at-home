@@ -15,14 +15,15 @@ const TipsSection: React.FC<TipsSectionProps> = ({
   register,
   control
 }) => {
-  const { fields: tipFields, append: appendTip, remove: removeTip } = useFieldArray<RecipeFormValues>({
+  // Explicitly type each useFieldArray with their correct field names
+  const { fields: tipFields, append: appendTip, remove: removeTip } = useFieldArray({
     control,
-    name: "tips" as const
+    name: "tips"
   });
   
-  const { fields: proTipFields, append: appendProTip, remove: removeProTip } = useFieldArray<RecipeFormValues>({
+  const { fields: proTipFields, append: appendProTip, remove: removeProTip } = useFieldArray({
     control,
-    name: "proTips" as const
+    name: "proTips"
   });
 
   return (
@@ -34,7 +35,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => appendTip("" as any)}
+            onClick={() => appendTip("")}
           >
             <Plus className="h-4 w-4 mr-1" />
             Add Tip
@@ -73,7 +74,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => appendProTip("" as any)}
+            onClick={() => appendProTip("")}
           >
             <Plus className="h-4 w-4 mr-1" />
             Add Pro Tip
