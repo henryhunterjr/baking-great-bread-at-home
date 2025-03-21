@@ -6,12 +6,14 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
 import { useTheme } from '@/hooks/use-theme';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { theme, setTheme } = useTheme();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,7 +37,6 @@ const Navbar = () => {
     { name: 'Books & Guides', path: '/books' },
     { name: 'Baking Tools', path: '/tools' },
     { name: 'Challenges', path: '/challenges' },
-    // Removed Coaching link as requested
     { name: 'Blog', path: '/blog' },
     { name: 'App', path: '/app' },
     { name: 'Community', path: '/community' },
@@ -55,14 +56,14 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex-shrink-0 font-serif font-medium tracking-tight text-2xl">
+          <div className="flex-shrink-0 font-serif font-medium tracking-tight text-lg sm:text-xl md:text-2xl">
             <Link to="/" className="flex items-center gap-2" onClick={closeMobileMenu}>
               <span className="text-accent">Baking</span> Great Bread at Home
             </Link>
           </div>
           
           {/* Desktop navigation */}
-          <nav className="hidden md:flex space-x-6 items-center">
+          <nav className="hidden md:flex space-x-4 lg:space-x-6 items-center">
             {navLinks.map((link) => (
               <Link 
                 key={link.name}
