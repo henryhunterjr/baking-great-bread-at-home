@@ -15,7 +15,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
 }) => {
   const { fields: tagFields, append, remove } = useFieldArray({
     control,
-    name: "tags"
+    name: "tags" as const
   });
 
   return (
