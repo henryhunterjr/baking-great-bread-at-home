@@ -7,7 +7,6 @@ import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
 import { RecipeFormValues } from '@/types/recipeTypes';
 import { Plus, Trash2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { v4 as uuidv4 } from 'uuid';
 
 interface TipsSectionProps {
   register: UseFormRegister<RecipeFormValues>;
@@ -24,7 +23,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
     remove: removeTip 
   } = useFieldArray({
     control,
-    name: "tips" as const
+    name: "tips"
   });
   
   const { 
@@ -33,15 +32,15 @@ const TipsSection: React.FC<TipsSectionProps> = ({
     remove: removeProTip 
   } = useFieldArray({
     control,
-    name: "proTips" as const
+    name: "proTips"
   });
 
   const addTip = () => {
-    appendTip('');
+    appendTip("");
   };
 
   const addProTip = () => {
-    appendProTip('');
+    appendProTip("");
   };
   
   return (
@@ -72,7 +71,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             <div key={field.id} className="flex items-start space-x-2">
               <div className="flex-grow">
                 <Input
-                  {...register(`tips.${index}` as const)}
+                  {...register(`tips.${index}`)}
                   placeholder="e.g., For best results, use bread flour with at least 12% protein"
                 />
               </div>
@@ -122,7 +121,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             <div key={field.id} className="flex items-start space-x-2">
               <div className="flex-grow">
                 <Input
-                  {...register(`proTips.${index}` as const)}
+                  {...register(`proTips.${index}`)}
                   placeholder="e.g., Try cold autolyse by refrigerating overnight before adding starter"
                 />
               </div>
