@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Sparkles } from 'lucide-react';
 import AIAssistant from './AIAssistant';
+import './floating-button.css';
 
 const FloatingAIButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -107,42 +108,6 @@ const FloatingAIButton = () => {
           </div>
         </DialogContent>
       </Dialog>
-      
-      <style jsx global>{`
-        @keyframes pulse-glow {
-          0%, 100% {
-            box-shadow: 0 0 15px 5px rgba(229, 168, 95, 0.7);
-            transform: scale(1);
-          }
-          50% {
-            box-shadow: 0 0 25px 8px rgba(229, 168, 95, 0.9);
-            transform: scale(1.05);
-          }
-        }
-        
-        @keyframes gradient-spin {
-          0% {
-            background-position: 0% 50%;
-            transform: rotate(0deg);
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-            transform: rotate(360deg);
-          }
-        }
-        
-        .animate-pulse-glow {
-          animation: pulse-glow 2s infinite;
-        }
-        
-        .animate-gradient-spin {
-          animation: gradient-spin 3s linear infinite;
-          background-size: 200% 200%;
-        }
-      `}</style>
     </>
   );
 };
