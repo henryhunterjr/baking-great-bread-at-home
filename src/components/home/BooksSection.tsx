@@ -37,10 +37,10 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
     },
     {
       id: 4,
-      title: "The Watcher's Descent",
-      image: "/lovable-uploads/7b78e962-59a6-430b-a290-e43c6d340155.png",
-      description: "Echoes of Giants and Forgotten Truths - Henry's fiction work.",
-      link: "https://amzn.to/3Wfj6Fj",
+      title: "From Oven to Market",
+      image: "/lovable-uploads/702a0b38-fa2b-45fc-82e8-9098fe010f62.png",
+      description: "Your complete guide to turning your baking passion into a thriving business.",
+      link: "https://a.co/d/eNYayoA",
       isExternalLink: true
     },
     {
