@@ -37,6 +37,14 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
     },
     {
       id: 4,
+      title: "Sourdough for the Rest of Us",
+      image: "/lovable-uploads/9c1c5006-46ce-47e5-8b43-615ce7e14ecc.png",
+      description: "A simple, stress-free guide that makes sourdough baking accessible to everyone.",
+      link: "https://sourdough-simplified-gift.lovable.app/sourdough-for-the-rest",
+      isExternalLink: true
+    },
+    {
+      id: 5,
       title: "From Card to Kitchen",
       image: "https://images.unsplash.com/photo-1556911261-6bd341186b2f?q=80&w=1000&auto=format&fit=crop",
       description: "Convert old family recipes, scanned images, or digital clippings into clean, standardized recipe cards.",
@@ -44,7 +52,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       isExternalLink: false
     },
     {
-      id: 5,
+      id: 6,
       title: "Sourdough Calculator",
       image: "https://images.unsplash.com/photo-1585478259715-876a6a81fc08?q=80&w=1000&auto=format&fit=crop",
       description: "Calculate hydration, starter percentages, and timings for the perfect sourdough loaf.",
@@ -52,7 +60,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       isExternalLink: false
     },
     {
-      id: 6,
+      id: 7,
       title: "Flavor Pairing Guide",
       image: "https://images.unsplash.com/photo-1514517604298-cf80e0fb7f1e?q=80&w=1000&auto=format&fit=crop",
       description: "Discover unexpected flavor combinations that will elevate your breads and pastries.",
