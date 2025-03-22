@@ -136,7 +136,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       description: "Handcrafted wooden bowls perfect for dough proofing and serving.",
       image: "/lovable-uploads/fd49bda2-9c04-4fb3-be06-3409f4f33c2e.png",
       link: "https://hollandbowlmill.com/baking/?wpam_id=10",
-      discountCode: "LOVE",
+      discountCode: "Use Code BREAD at Checkout to Save 10%",
       icon: "🪵"
     }
   ];
