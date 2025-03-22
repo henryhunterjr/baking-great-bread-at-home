@@ -14,9 +14,9 @@ interface InstructionsSectionProps {
 }
 
 const InstructionsSection: React.FC<InstructionsSectionProps> = ({ control, register, errors }) => {
-  const { fields, append, remove } = useFieldArray<RecipeFormValues>({
+  const { fields, append, remove } = useFieldArray({
     control,
-    name: "instructions"
+    name: "instructions" as const
   });
 
   return (
