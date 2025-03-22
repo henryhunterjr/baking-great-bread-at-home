@@ -50,75 +50,67 @@ const Navbar = () => {
   return (
     <header 
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out py-4",
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out",
         isScrolled ? "bg-background/80 backdrop-blur-md shadow-sm" : "bg-transparent"
       )}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        {/* Top row with logo and dark mode toggle */}
+        <div className="flex items-center justify-between h-16 py-3">
           <div className="flex-shrink-0 font-serif font-medium tracking-tight text-lg sm:text-xl md:text-2xl">
             <Link to="/" className="flex items-center gap-2" onClick={closeMobileMenu}>
               <span className="text-accent">Baking</span> Great Bread at Home
             </Link>
           </div>
           
-          {/* Desktop navigation */}
-          <nav className="hidden md:flex space-x-4 lg:space-x-6 items-center">
+          {/* Dark mode toggle (visible on all screen sizes) */}
+          <div className="flex items-center gap-2">
+            <Toggle 
+              pressed={theme === 'dark'} 
+              onPressedChange={(pressed) => setTheme(pressed ? 'dark' : 'light')}
+              aria-label="Toggle dark mode"
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Toggle>
+            
+            {/* Mobile menu button - only visible on mobile */}
+            <div className="md:hidden ml-2">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleMobileMenu}
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              >
+                {isMobileMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Second row with navigation - hidden on mobile */}
+        <div className="hidden md:block border-t border-muted/30 py-2 mb-1">
+          <nav className="flex justify-center space-x-6 lg:space-x-8 items-center">
             {navLinks.map((link) => (
               <Link 
                 key={link.name}
                 to={link.path}
                 className={cn(
-                  "nav-link text-sm",
+                  "nav-link text-sm py-1",
                   isActiveLink(link.path) && "active-nav-link"
                 )}
               >
                 {link.name}
               </Link>
             ))}
-            
-            {/* Dark mode toggle */}
-            <Toggle 
-              pressed={theme === 'dark'} 
-              onPressedChange={(pressed) => setTheme(pressed ? 'dark' : 'light')}
-              aria-label="Toggle dark mode"
-              className="ml-2"
-            >
-              {theme === 'dark' ? (
-                <Sun className="h-4 w-4" />
-              ) : (
-                <Moon className="h-4 w-4" />
-              )}
-            </Toggle>
           </nav>
-          
-          {/* Mobile menu button and dark mode toggle */}
-          <div className="md:hidden flex items-center gap-2">
-            <Toggle 
-              pressed={theme === 'dark'} 
-              onPressedChange={(pressed) => setTheme(pressed ? 'dark' : 'light')}
-              aria-label="Toggle dark mode"
-            >
-              {theme === 'dark' ? (
-                <Sun className="h-4 w-4" />
-              ) : (
-                <Moon className="h-4 w-4" />
-              )}
-            </Toggle>
-            
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={toggleMobileMenu}
-              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </Button>
-          </div>
         </div>
       </div>
       
