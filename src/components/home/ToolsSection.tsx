@@ -29,6 +29,14 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
     },
     {
       id: 3,
+      title: "Yeast Water Mastery Quiz",
+      image: "/lovable-uploads/17b70a1a-f9a7-4791-8af6-344e2750b6c1.png", 
+      description: "Test your knowledge and master the art of yeast water cultivation with our interactive quiz.",
+      link: "https://yeast-water-wisdom.vercel.app",
+      isExternalLink: true
+    },
+    {
+      id: 4,
       title: "From Card to Kitchen",
       image: "https://images.unsplash.com/photo-1556911261-6bd341186b2f?q=80&w=1000&auto=format&fit=crop",
       description: "Convert old family recipes, scanned images, or digital clippings into clean, standardized recipe cards.",
@@ -36,7 +44,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       isExternalLink: false
     },
     {
-      id: 4,
+      id: 5,
       title: "Sourdough Calculator",
       image: "https://images.unsplash.com/photo-1585478259715-876a6a81fc08?q=80&w=1000&auto=format&fit=crop",
       description: "Calculate hydration, starter percentages, and timings for the perfect sourdough loaf.",
@@ -44,7 +52,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       isExternalLink: false
     },
     {
-      id: 5,
+      id: 6,
       title: "Flavor Pairing Guide",
       image: "https://images.unsplash.com/photo-1514517604298-cf80e0fb7f1e?q=80&w=1000&auto=format&fit=crop",
       description: "Discover unexpected flavor combinations that will elevate your breads and pastries.",
@@ -62,13 +70,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-          {tools.slice(0, 3).map(tool => (
-            <ToolCard key={tool.id} tool={tool} />
-          ))}
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-10">
-          {tools.slice(3, 5).map(tool => (
+          {tools.slice(0, 6).map(tool => (
             <ToolCard key={tool.id} tool={tool} />
           ))}
         </div>

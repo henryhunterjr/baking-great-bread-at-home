@@ -43,12 +43,12 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
             >
               {tool.isExternalLink ? (
                 <a href={tool.link} target="_blank" rel="noopener noreferrer">
-                  Shop Now
+                  Explore
                   <ArrowRight className="ml-2 h-3 w-3" />
                 </a>
               ) : (
                 <Link to={tool.link}>
-                  Shop Now
+                  Explore
                   <ArrowRight className="ml-2 h-3 w-3" />
                 </Link>
               )}
@@ -78,12 +78,12 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
         >
           {tool.isExternalLink ? (
             <a href={tool.link} target="_blank" rel="noopener noreferrer">
-              Shop Now
+              Explore
               <ArrowRight className="ml-2 h-3 w-3" />
             </a>
           ) : (
             <Link to={tool.link}>
-              Shop Now
+              Explore
               <ArrowRight className="ml-2 h-3 w-3" />
             </Link>
           )}
