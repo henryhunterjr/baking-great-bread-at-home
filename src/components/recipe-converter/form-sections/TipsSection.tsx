@@ -15,12 +15,12 @@ interface TipsSectionProps {
 const TipsSection: React.FC<TipsSectionProps> = ({ control, register }) => {
   const { fields: tipFields, append: appendTip, remove: removeTip } = useFieldArray<RecipeFormValues>({
     control,
-    name: "tips"
+    name: "tips" as const
   });
   
   const { fields: proTipFields, append: appendProTip, remove: removeProTip } = useFieldArray<RecipeFormValues>({
     control,
-    name: "proTips"
+    name: "proTips" as const
   });
 
   return (
