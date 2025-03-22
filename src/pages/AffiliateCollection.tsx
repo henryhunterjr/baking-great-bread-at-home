@@ -20,19 +20,19 @@ const AffiliateCollection = () => {
           name: 'Baking Tools Starter Kit',
           price: '$56.41',
           link: 'https://collabs.shop/7k4ksj',
-          image: '/lovable-uploads/843803c3-b10d-42ed-ae58-11e2d61c7388.png'
+          image: '/lovable-uploads/b7a58c43-c3fa-4067-b552-84b21a51bfcc.png'
         },
         {
           name: 'High Capacity Baking Scale',
           price: '$24.95',
           link: 'https://collabs.shop/hvryn6',
-          image: '/lovable-uploads/092e2e36-3c7d-40bd-a67f-342da05c1026.png'
+          image: '/lovable-uploads/bd605a7a-18c1-4c34-9445-b91f2eb820b9.png'
         },
         {
           name: 'Dough Whisk',
           price: '$18.95',
           link: 'https://collabs.shop/6jalk7',
-          image: '/lovable-uploads/a3b6a0f7-eef9-4ccc-973e-b6edbe05c35f.png'
+          image: '/lovable-uploads/42db0924-1b5f-4c64-a48e-10f5ce28b6e7.png'
         },
         {
           name: 'Folding Proofer & Slow Cooker',
@@ -44,85 +44,85 @@ const AffiliateCollection = () => {
           name: 'Professional VG2 Knife Sharpener',
           price: '$129.00',
           link: 'https://collabs.shop/kpxkj2',
-          image: '/lovable-uploads/3cfea2c2-9ddc-412b-bfed-3f11c0a407ad.png'
+          image: '/lovable-uploads/2841fba8-52f8-4000-b3d7-59bd37281cd6.png'
         },
         {
           name: 'Precision Kitchen & Coffee Scale with Timer',
           price: '$24.95',
           link: 'https://collabs.shop/cuut37',
-          image: '/lovable-uploads/8df80a77-c11f-4e6e-ad01-66c59d3c079a.png'
+          image: '/lovable-uploads/ba4b0512-fc0a-434b-b5b0-32f7173ff6d1.png'
         },
         {
           name: 'Sahara Folding Dehydrator',
           price: '$199.00',
           link: 'https://collabs.shop/94zxfe',
-          image: '/lovable-uploads/be2abfc8-3126-4aab-9ffd-f5b1d9c195e7.png' // Using existing image as placeholder
+          image: '/lovable-uploads/7b1dd107-a286-4732-9d7c-a5080186c261.png'
         },
         {
           name: 'Compact Dough Sheeter 12" (Refurbished)',
           price: '$450.00',
           link: 'https://collabs.shop/mnrhy9',
-          image: '/lovable-uploads/be2abfc8-3126-4aab-9ffd-f5b1d9c195e7.png' // Using existing image as placeholder
+          image: '/lovable-uploads/b7a58c43-c3fa-4067-b552-84b21a51bfcc.png'
         },
         {
           name: 'Water Kettle and French Press',
           price: '$117.53',
           link: 'https://collabs.shop/b8bht0',
-          image: '/lovable-uploads/be2abfc8-3126-4aab-9ffd-f5b1d9c195e7.png' // Using existing image as placeholder
+          image: '/lovable-uploads/517ac596-6d3e-4c03-a1e5-f4348c47cca1.png'
         },
         {
           name: 'Baking Shell (Boule) & Steel',
           price: '$148.00',
           link: 'https://collabs.shop/g9yxme',
-          image: '/lovable-uploads/be2abfc8-3126-4aab-9ffd-f5b1d9c195e7.png' // Using existing image as placeholder
+          image: '/lovable-uploads/ba4b0512-fc0a-434b-b5b0-32f7173ff6d1.png'
         },
         {
           name: 'Folding Dough Sheeter 15.5"',
           price: '$850.00',
           link: 'https://collabs.shop/g4nf7i',
-          image: '/lovable-uploads/be2abfc8-3126-4aab-9ffd-f5b1d9c195e7.png' // Using existing image as placeholder
+          image: '/lovable-uploads/b7a58c43-c3fa-4067-b552-84b21a51bfcc.png'
         },
         {
           name: 'Sourdough Home (Refurbished)',
           price: '$89.00',
           link: 'https://collabs.shop/1vjisb',
-          image: '/lovable-uploads/be2abfc8-3126-4aab-9ffd-f5b1d9c195e7.png' // Using existing image as placeholder
+          image: '/lovable-uploads/517ac596-6d3e-4c03-a1e5-f4348c47cca1.png'
         },
         {
           name: 'Baking Shell (Batard) & Steel',
           price: '$148.00',
           link: 'https://collabs.shop/noauwh',
-          image: '/lovable-uploads/be2abfc8-3126-4aab-9ffd-f5b1d9c195e7.png' // Using existing image as placeholder
+          image: '/lovable-uploads/42db0924-1b5f-4c64-a48e-10f5ce28b6e7.png'
         },
         {
           name: 'Spice & Coffee Grinder',
           price: '$24.95',
           link: 'https://collabs.shop/ve9hzn',
-          image: '/lovable-uploads/be2abfc8-3126-4aab-9ffd-f5b1d9c195e7.png' // Using existing image as placeholder
+          image: '/lovable-uploads/bd605a7a-18c1-4c34-9445-b91f2eb820b9.png'
         },
         {
           name: 'Bench Knife',
           price: '$18.95',
           link: 'https://collabs.shop/8vcnxu',
-          image: '/lovable-uploads/be2abfc8-3126-4aab-9ffd-f5b1d9c195e7.png' // Using existing image as placeholder
+          image: '/lovable-uploads/42db0924-1b5f-4c64-a48e-10f5ce28b6e7.png'
         },
         {
           name: 'Cordless Vacuum Sealer',
           price: '$129.00',
           link: 'https://collabs.shop/rbhadw',
-          image: '/lovable-uploads/be2abfc8-3126-4aab-9ffd-f5b1d9c195e7.png' // Using existing image as placeholder
+          image: '/lovable-uploads/ba4b0512-fc0a-434b-b5b0-32f7173ff6d1.png'
         },
         {
           name: 'Baking Shell (Boule Only)',
           price: '$79.00',
           link: 'https://collabs.shop/jveyfn',
-          image: '/lovable-uploads/be2abfc8-3126-4aab-9ffd-f5b1d9c195e7.png' // Using existing image as placeholder
+          image: '/lovable-uploads/42db0924-1b5f-4c64-a48e-10f5ce28b6e7.png'
         },
         {
           name: 'Brød & Taylor Apron',
           price: '$60.00',
           link: 'https://collabs.shop/akcwv4',
-          image: '/lovable-uploads/be2abfc8-3126-4aab-9ffd-f5b1d9c195e7.png' // Using existing image as placeholder
+          image: '/lovable-uploads/ba4b0512-fc0a-434b-b5b0-32f7173ff6d1.png'
         }
       ]
     },

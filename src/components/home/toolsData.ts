@@ -85,7 +85,7 @@ export const affiliateProductsData: AffiliateProduct[] = [
     brand: "SourHouse",
     name: "Goldie Starter Home",
     description: "A warm, safe home for your sourdough starter.",
-    image: "/lovable-uploads/c32c2cba-ad10-4ec1-bd25-98452273364b.png",
+    image: "/lovable-uploads/517ac596-6d3e-4c03-a1e5-f4348c47cca1.png",
     link: "https://bit.ly/Sourhouse",
     discountCode: "HBK23",
     icon: "🧂"
