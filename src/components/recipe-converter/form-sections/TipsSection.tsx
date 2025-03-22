@@ -17,27 +17,31 @@ const TipsSection: React.FC<TipsSectionProps> = ({
   register, 
   control
 }) => {
-  // Use separate typed useFieldArray hooks for tips and proTips
-  const tipFieldArray = useFieldArray({
+  // Use properly typed useFieldArray hooks for tips and proTips
+  const { 
+    fields: tipFields, 
+    append: appendTip, 
+    remove: removeTip 
+  } = useFieldArray({
     control,
-    name: "tips" as const
+    name: "tips" // This needs to match the property name in RecipeFormValues
   });
   
-  const proTipFieldArray = useFieldArray({
+  const { 
+    fields: proTipFields, 
+    append: appendProTip, 
+    remove: removeProTip 
+  } = useFieldArray({
     control,
-    name: "proTips" as const
+    name: "proTips" // This needs to match the property name in RecipeFormValues
   });
 
-  // Destructure for clarity
-  const { fields: tipFields, append: appendTip, remove: removeTip } = tipFieldArray;
-  const { fields: proTipFields, append: appendProTip, remove: removeProTip } = proTipFieldArray;
-
   const addTip = () => {
-    appendTip("");
+    appendTip(""); // Adding an empty string to the tips array
   };
 
   const addProTip = () => {
-    appendProTip("");
+    appendProTip(""); // Adding an empty string to the proTips array
   };
   
   return (
@@ -68,7 +72,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             <div key={field.id} className="flex items-start space-x-2">
               <div className="flex-grow">
                 <Input
-                  {...register(`tips.${index}` as const)}
+                  {...register(`tips.${index}`)}
                   placeholder="e.g., For best results, use bread flour with at least 12% protein"
                 />
               </div>
@@ -118,7 +122,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             <div key={field.id} className="flex items-start space-x-2">
               <div className="flex-grow">
                 <Input
-                  {...register(`proTips.${index}` as const)}
+                  {...register(`proTips.${index}`)}
                   placeholder="e.g., Try cold autolyse by refrigerating overnight before adding starter"
                 />
               </div>
