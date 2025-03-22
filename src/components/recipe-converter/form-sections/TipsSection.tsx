@@ -20,12 +20,12 @@ const TipsSection: React.FC<TipsSectionProps> = ({
   // Use separate typed useFieldArray hooks for tips and proTips
   const tipFieldArray = useFieldArray({
     control,
-    name: "tips"
+    name: "tips" as const
   });
   
   const proTipFieldArray = useFieldArray({
     control,
-    name: "proTips"
+    name: "proTips" as const
   });
 
   // Destructure for clarity
@@ -68,7 +68,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             <div key={field.id} className="flex items-start space-x-2">
               <div className="flex-grow">
                 <Input
-                  {...register(`tips.${index}`)}
+                  {...register(`tips.${index}` as const)}
                   placeholder="e.g., For best results, use bread flour with at least 12% protein"
                 />
               </div>
@@ -118,7 +118,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             <div key={field.id} className="flex items-start space-x-2">
               <div className="flex-grow">
                 <Input
-                  {...register(`proTips.${index}`)}
+                  {...register(`proTips.${index}` as const)}
                   placeholder="e.g., Try cold autolyse by refrigerating overnight before adding starter"
                 />
               </div>
