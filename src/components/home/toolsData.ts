@@ -75,7 +75,7 @@ export const affiliateProductsData: AffiliateProduct[] = [
     brand: "Brød & Taylor",
     name: "Bread Proofer & Slow Cooker",
     description: "Perfect temperature control for optimal fermentation and rising.",
-    image: "/lovable-uploads/be2abfc8-3126-4aab-9ffd-f5b1d9c195e7.png",
+    image: "/lovable-uploads/4ecfd5ba-b06f-4201-b8d8-10cad69ec912.png",
     link: "https://collabs.shop/vutgu8",
     discountCode: "",
     icon: "🛠"
