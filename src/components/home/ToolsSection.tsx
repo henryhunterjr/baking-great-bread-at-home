@@ -22,7 +22,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
     {
       id: 2,
       title: "Yeast Wise Calculator",
-      image: "/lovable-uploads/e08c08a0-e721-449e-b524-01fa739a37e5.png",
+      image: "/lovable-uploads/c8be269c-8418-443a-a406-cdee0b40739f.png",
       description: "Calculate precise yeast water ratios for consistent, perfectly risen dough every time.",
       link: "https://lovable.dev/projects/b7b3c470-3ffe-4dc8-8e2a-48938c7b0d89",
       isExternalLink: true
