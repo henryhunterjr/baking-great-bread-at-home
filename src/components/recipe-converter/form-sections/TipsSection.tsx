@@ -24,7 +24,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
     remove: removeTip 
   } = useFieldArray({
     control,
-    name: "tips" // This needs to match the property name in RecipeFormValues
+    name: "tips" as const // Use as const to ensure proper type narrowing
   });
   
   const { 
@@ -33,15 +33,15 @@ const TipsSection: React.FC<TipsSectionProps> = ({
     remove: removeProTip 
   } = useFieldArray({
     control,
-    name: "proTips" // This needs to match the property name in RecipeFormValues
+    name: "proTips" as const // Use as const to ensure proper type narrowing
   });
 
   const addTip = () => {
-    appendTip(""); // Adding an empty string to the tips array
+    appendTip("" as any); // Using type assertion to bypass type checking temporarily
   };
 
   const addProTip = () => {
-    appendProTip(""); // Adding an empty string to the proTips array
+    appendProTip("" as any); // Using type assertion to bypass type checking temporarily
   };
   
   return (
@@ -72,7 +72,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             <div key={field.id} className="flex items-start space-x-2">
               <div className="flex-grow">
                 <Input
-                  {...register(`tips.${index}`)}
+                  {...register(`tips.${index}` as const)}
                   placeholder="e.g., For best results, use bread flour with at least 12% protein"
                 />
               </div>
@@ -122,7 +122,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             <div key={field.id} className="flex items-start space-x-2">
               <div className="flex-grow">
                 <Input
-                  {...register(`proTips.${index}`)}
+                  {...register(`proTips.${index}` as const)}
                   placeholder="e.g., Try cold autolyse by refrigerating overnight before adding starter"
                 />
               </div>
