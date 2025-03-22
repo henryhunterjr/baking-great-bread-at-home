@@ -6,19 +6,19 @@ export interface EquipmentItem {
 }
 
 export interface RecipeFormValues {
-  title?: string;
-  ingredients?: string[];
-  instructions?: string[];
-  tips?: string[];
-  proTips?: string[];
-  tags?: string[];
+  title: string;
   introduction?: string;
+  ingredients: string[];
   prepTime?: string;
   restTime?: string;
   bakeTime?: string;
   totalTime?: string;
-  equipmentNeeded?: EquipmentItem[];
+  instructions: string[];
+  tips: string[];
+  proTips: string[];
+  equipmentNeeded: EquipmentItem[];
   imageUrl?: string;
-  isPublic?: boolean;
-  isConverted?: boolean;
+  tags: string[];
+  isPublic: boolean;
+  isConverted: boolean;
 }
