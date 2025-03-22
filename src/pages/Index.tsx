@@ -18,8 +18,8 @@ const Index = () => {
   const booksRef = useRef<HTMLElement>(null);
   const toolsRef = useRef<HTMLElement>(null);
   const careCenterRef = useRef<HTMLElement>(null);
-  const ctaRef = useRef<HTMLElement>(null);
   const blogRef = useRef<HTMLElement>(null);
+  const ctaRef = useRef<HTMLElement>(null);
   const appPromoRef = useRef<HTMLElement>(null);
   
   // Observer setup for animations
@@ -45,7 +45,7 @@ const Index = () => {
     }
     
     // Observe other sections
-    [aboutRef, booksRef, toolsRef, careCenterRef, ctaRef, blogRef, appPromoRef].forEach(ref => {
+    [aboutRef, booksRef, toolsRef, careCenterRef, blogRef, ctaRef, appPromoRef].forEach(ref => {
       if (ref.current) observer.observe(ref.current);
     });
     
@@ -63,8 +63,8 @@ const Index = () => {
       <BooksSection sectionRef={booksRef} />
       <ToolsSection sectionRef={toolsRef} />
       <CareCenterPreview sectionRef={careCenterRef} />
-      <CTASection sectionRef={ctaRef} />
       <BlogPreviewSection sectionRef={blogRef} />
+      <CTASection sectionRef={ctaRef} />
       <AppPromoSection sectionRef={appPromoRef} />
       
       <Footer />

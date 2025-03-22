@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Twitter, Youtube, Mail } from 'lucide-react';
@@ -13,15 +12,15 @@ const Footer = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Newsletter signup */}
         <div className="max-w-3xl mx-auto mb-16 text-center">
-          <h3 className="font-serif text-2xl md:text-3xl mb-4">Join Our Baking Community</h3>
-          <p className="text-muted-foreground mb-8">
+          <h3 className="font-serif text-2xl md:text-3xl mb-4 dark:text-white">Join Our Baking Community</h3>
+          <p className="text-muted-foreground mb-8 dark:text-gray-200">
             Subscribe to our newsletter for exclusive recipes, baking tips, and early access to challenges.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
             <Input 
               type="email" 
               placeholder="Your email address" 
-              className="bg-background border-border"
+              className="bg-background border-border dark:bg-bread-800 dark:border-bread-700 dark:text-white dark:placeholder:text-gray-300"
             />
             <Button className="bg-bread-800 hover:bg-bread-900 text-white">
               Subscribe
@@ -85,7 +84,7 @@ const Footer = () => {
           </div>
         </div>
         
-        <div className="text-center text-sm text-muted-foreground border-t border-border/50 pt-8">
+        <div className="text-center text-sm text-muted-foreground border-t border-border/50 pt-8 dark:text-gray-300">
           <p>© {currentYear} Baking Great Bread at Home. All rights reserved.</p>
         </div>
       </div>

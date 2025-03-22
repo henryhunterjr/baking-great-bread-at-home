@@ -92,6 +92,24 @@
   @apply text-gray-300;
 }
 
+/* Fix for Footer subscription section in dark mode */
+.dark .bg-bread-50 .max-w-3xl h3 {
+  @apply text-white;
+}
+
+.dark .bg-bread-50 .max-w-3xl p {
+  @apply text-gray-200;
+}
+
+.dark .bg-bread-50 .max-w-3xl .bg-background {
+  @apply bg-bread-800 border-bread-700 text-white;
+}
+
+/* Fix for the blog section to ensure visibility */
+section.opacity-0 {
+  opacity: 1 !important;
+}
+
 /* Responsive optimizations */
 @media (max-width: 768px) {
   #root {

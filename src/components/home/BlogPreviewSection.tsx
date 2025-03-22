@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -14,11 +14,11 @@ const BlogPreviewSection: React.FC<BlogPreviewSectionProps> = ({ sectionRef }) =
   const { posts, loading, error } = useBlogPosts();
   
   return (
-    <section ref={sectionRef} className="py-16 md:py-24 bg-bread-50 opacity-0">
+    <section ref={sectionRef} className="py-16 md:py-24 bg-bread-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="font-serif text-3xl md:text-4xl font-medium mb-4">Latest from the Blog</h2>
+            <h2 className="font-serif text-3xl md:text-4xl font-medium mb-4 section-title">Latest from the Blog</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Discover tips, techniques, and stories from our community of passionate bakers.
             </p>
@@ -32,15 +32,21 @@ const BlogPreviewSection: React.FC<BlogPreviewSectionProps> = ({ sectionRef }) =
               ))
             ) : error ? (
               // Show error message
-              <div className="col-span-3 text-center p-8">
-                <p className="text-red-500">{error}</p>
+              <div className="col-span-3 text-center p-8 bg-destructive/10 rounded-lg">
+                <p className="text-destructive">{error}</p>
                 <p className="mt-4">Please check back later for our latest articles.</p>
               </div>
-            ) : (
+            ) : posts && posts.length > 0 ? (
               // Show actual blog posts
               posts.slice(0, 3).map((post) => (
                 <BlogPostCard key={post.id} post={post} />
               ))
+            ) : (
+              // Show a message if no posts are available
+              <div className="col-span-3 text-center p-8">
+                <p>No blog posts available at the moment.</p>
+                <p className="mt-4">Please check back later for our latest articles.</p>
+              </div>
             )}
           </div>
           
@@ -48,7 +54,7 @@ const BlogPreviewSection: React.FC<BlogPreviewSectionProps> = ({ sectionRef }) =
             <Button 
               variant="outline" 
               size="lg"
-              className="border-bread-200 text-bread-800 hover:bg-bread-50"
+              className="border-bread-200 text-bread-800 hover:bg-bread-50 dark:border-bread-700 dark:text-white dark:hover:bg-bread-800"
               asChild
             >
               <Link to="/blog">
