@@ -7,6 +7,7 @@ import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
 import { RecipeFormValues } from '@/types/recipeTypes';
 import { Plus, Trash2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { v4 as uuidv4 } from 'uuid';
 
 interface TipsSectionProps {
   register: UseFormRegister<RecipeFormValues>;
@@ -23,7 +24,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
     remove: removeTip 
   } = useFieldArray({
     control,
-    name: 'tips'
+    name: "tips" as const
   });
   
   const { 
@@ -32,8 +33,16 @@ const TipsSection: React.FC<TipsSectionProps> = ({
     remove: removeProTip 
   } = useFieldArray({
     control,
-    name: 'proTips'
+    name: "proTips" as const
   });
+
+  const addTip = () => {
+    appendTip('');
+  };
+
+  const addProTip = () => {
+    appendProTip('');
+  };
   
   return (
     <div className="space-y-4">
@@ -52,7 +61,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => appendTip('')}
+              onClick={addTip}
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Tip
@@ -85,7 +94,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
                 type="button" 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => appendTip('')}
+                onClick={addTip}
                 className="mt-2"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -102,7 +111,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => appendProTip('')}
+              onClick={addProTip}
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Pro Tip
@@ -135,7 +144,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
                 type="button" 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => appendProTip('')}
+                onClick={addProTip}
                 className="mt-2"
               >
                 <Plus className="h-4 w-4 mr-2" />
