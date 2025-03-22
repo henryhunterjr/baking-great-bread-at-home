@@ -2,6 +2,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/hooks/use-theme';
+import FloatingAIButton from '@/components/ai/FloatingAIButton';
 
 import Index from '@/pages/Index';
 import AppStore from '@/pages/AppStore';
@@ -18,6 +19,7 @@ function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="bread-theme">
       <Toaster />
+      <FloatingAIButton />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/app" element={<AppStore />} />
