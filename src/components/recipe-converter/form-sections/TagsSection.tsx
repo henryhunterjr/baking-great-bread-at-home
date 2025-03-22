@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Control, UseFormWatch, UseFormSetValue } from 'react-hook-form';
 import { RecipeFormValues } from '@/types/recipeTypes';
 
-export interface TagsSectionProps {
+interface TagsSectionProps {
   control: Control<RecipeFormValues>;
   watch: UseFormWatch<RecipeFormValues>;
   setValue: UseFormSetValue<RecipeFormValues>;

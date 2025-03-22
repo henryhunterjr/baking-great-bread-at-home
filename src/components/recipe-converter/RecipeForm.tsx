@@ -6,6 +6,8 @@ import { RecipeData } from '@/pages/RecipeConverter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { RecipeFormValues, EquipmentItem } from '@/types/recipeTypes';
+import { v4 as uuidv4 } from 'uuid';
 
 // Import form sections
 import BasicInfoSection from './form-sections/BasicInfoSection';
@@ -36,6 +38,7 @@ const recipeSchema = z.object({
   proTips: z.array(z.string().optional()),
   equipmentNeeded: z.array(
     z.object({
+      id: z.string(),
       name: z.string().min(1, "Equipment name is required"),
       affiliateLink: z.string().optional()
     })
@@ -46,21 +49,35 @@ const recipeSchema = z.object({
   isConverted: z.boolean().default(true)
 });
 
-export type RecipeFormValues = z.infer<typeof recipeSchema>;
-
 const RecipeForm: React.FC<RecipeFormProps> = ({ 
   initialRecipe, 
   onSave, 
   onCancel 
 }) => {
+  // Ensure equipment items have IDs before setting as default values
+  const preparedInitialRecipe = {
+    ...initialRecipe,
+    equipmentNeeded: initialRecipe.equipmentNeeded?.map(item => {
+      if (!item.id) {
+        return {
+          ...item,
+          id: uuidv4()
+        };
+      }
+      return item;
+    }) || []
+  };
+  
   const { 
     register, 
     control, 
     handleSubmit, 
+    watch,
+    setValue,
     formState: { errors, isDirty }
   } = useForm<RecipeFormValues>({
     resolver: zodResolver(recipeSchema),
-    defaultValues: initialRecipe
+    defaultValues: preparedInitialRecipe as RecipeFormValues
   });
   
   const onSubmit = (data: RecipeFormValues) => {
@@ -123,6 +140,8 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
           {/* Tags */}
           <TagsSection 
             control={control}
+            watch={watch}
+            setValue={setValue}
           />
           
           {/* Form Actions */}

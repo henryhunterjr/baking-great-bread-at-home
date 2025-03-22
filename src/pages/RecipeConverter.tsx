@@ -7,6 +7,8 @@ import RecipeCard from '@/components/recipe-converter/RecipeCard';
 import RecipeAssistant from '@/components/recipe-converter/RecipeAssistant';
 import RecipeSavedList from '@/components/recipe-converter/RecipeSavedList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { v4 as uuidv4 } from 'uuid';
+import { EquipmentItem } from '@/types/recipeTypes';
 
 export type RecipeData = {
   title: string;
@@ -19,7 +21,7 @@ export type RecipeData = {
   instructions: string[];
   tips: string[];
   proTips: string[];
-  equipmentNeeded: { name: string; affiliateLink?: string }[];
+  equipmentNeeded: EquipmentItem[];
   imageUrl: string;
   tags: string[];
   isPublic: boolean;
@@ -50,7 +52,17 @@ const RecipeConverter: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   
   const handleConversionComplete = (convertedRecipe: RecipeData) => {
-    setRecipe(convertedRecipe);
+    // Ensure all equipment items have an ID
+    const processedRecipe = {
+      ...convertedRecipe,
+      equipmentNeeded: convertedRecipe.equipmentNeeded?.map(item => ({
+        id: item.id || uuidv4(),
+        name: item.name,
+        affiliateLink: item.affiliateLink
+      })) || []
+    };
+    
+    setRecipe(processedRecipe);
     setIsEditing(true);
   };
   
@@ -70,7 +82,17 @@ const RecipeConverter: React.FC = () => {
   };
 
   const handleSelectSavedRecipe = (savedRecipe: RecipeData) => {
-    setRecipe(savedRecipe);
+    // Ensure all equipment items have an ID when loading a saved recipe
+    const processedRecipe = {
+      ...savedRecipe,
+      equipmentNeeded: savedRecipe.equipmentNeeded?.map(item => ({
+        id: item.id || uuidv4(),
+        name: item.name,
+        affiliateLink: item.affiliateLink
+      })) || []
+    };
+    
+    setRecipe(processedRecipe);
     setIsEditing(false);
   };
   

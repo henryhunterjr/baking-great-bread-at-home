@@ -7,18 +7,18 @@ import { Plus, Trash2 } from 'lucide-react';
 import { useFieldArray, Control, UseFormRegister } from 'react-hook-form';
 import { RecipeFormValues } from '@/types/recipeTypes';
 
-export interface TipsSectionProps {
+interface TipsSectionProps {
   control: Control<RecipeFormValues>;
   register: UseFormRegister<RecipeFormValues>;
 }
 
 const TipsSection: React.FC<TipsSectionProps> = ({ control, register }) => {
-  const { fields: tipFields, append: appendTip, remove: removeTip } = useFieldArray<RecipeFormValues>({
+  const { fields: tipFields, append: appendTip, remove: removeTip } = useFieldArray({
     control,
     name: "tips"
   });
   
-  const { fields: proTipFields, append: appendProTip, remove: removeProTip } = useFieldArray<RecipeFormValues>({
+  const { fields: proTipFields, append: appendProTip, remove: removeProTip } = useFieldArray({
     control,
     name: "proTips"
   });
@@ -33,7 +33,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({ control, register }) => {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => appendTip('')}
+            onClick={() => appendTip("")}
             className="flex items-center gap-1"
           >
             <Plus className="h-4 w-4" /> Add Tip
@@ -82,7 +82,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({ control, register }) => {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => appendProTip('')}
+            onClick={() => appendProTip("")}
             className="flex items-center gap-1"
           >
             <Plus className="h-4 w-4" /> Add Pro Tip

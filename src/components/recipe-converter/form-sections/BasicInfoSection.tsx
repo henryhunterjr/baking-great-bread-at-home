@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Clock, Image } from 'lucide-react';
 import { FieldErrors, UseFormRegister } from 'react-hook-form';
-import { RecipeFormValues } from '../RecipeForm';
+import { RecipeFormValues } from '@/types/recipeTypes';
 
 interface BasicInfoSectionProps {
   register: UseFormRegister<RecipeFormValues>;

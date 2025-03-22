@@ -7,13 +7,14 @@ import { Plus, Trash2 } from 'lucide-react';
 import { useFieldArray, Control, UseFormRegister } from 'react-hook-form';
 import { RecipeFormValues } from '@/types/recipeTypes';
 
-export interface InstructionsSectionProps {
+interface InstructionsSectionProps {
   control: Control<RecipeFormValues>;
   register: UseFormRegister<RecipeFormValues>;
+  errors: Record<string, any>;
 }
 
-const InstructionsSection: React.FC<InstructionsSectionProps> = ({ control, register }) => {
-  const { fields, append, remove } = useFieldArray<RecipeFormValues>({
+const InstructionsSection: React.FC<InstructionsSectionProps> = ({ control, register, errors }) => {
+  const { fields, append, remove } = useFieldArray({
     control,
     name: "instructions"
   });
@@ -26,7 +27,7 @@ const InstructionsSection: React.FC<InstructionsSectionProps> = ({ control, regi
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append('')}
+          onClick={() => append("")}
           className="flex items-center gap-1"
         >
           <Plus className="h-4 w-4" /> Add Step

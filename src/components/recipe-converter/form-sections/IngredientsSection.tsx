@@ -7,13 +7,14 @@ import { Plus, Trash2 } from 'lucide-react';
 import { useFieldArray, Control, UseFormRegister } from 'react-hook-form';
 import { RecipeFormValues } from '@/types/recipeTypes';
 
-export interface IngredientsFormSectionProps {
+interface IngredientsFormSectionProps {
   control: Control<RecipeFormValues>;
   register: UseFormRegister<RecipeFormValues>;
+  errors: Record<string, any>;
 }
 
-const IngredientsSection: React.FC<IngredientsFormSectionProps> = ({ control, register }) => {
-  const { fields, append, remove } = useFieldArray<RecipeFormValues>({
+const IngredientsSection: React.FC<IngredientsFormSectionProps> = ({ control, register, errors }) => {
+  const { fields, append, remove } = useFieldArray({
     control,
     name: "ingredients"
   });
@@ -26,7 +27,7 @@ const IngredientsSection: React.FC<IngredientsFormSectionProps> = ({ control, re
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append('')}
+          onClick={() => append("")}
           className="flex items-center gap-1"
         >
           <Plus className="h-4 w-4" /> Add Ingredient
