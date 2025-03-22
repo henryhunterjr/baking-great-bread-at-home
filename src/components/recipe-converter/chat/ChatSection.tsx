@@ -7,6 +7,8 @@ import ChatBubble from './ChatBubble';
 import ChatForm from './ChatForm';
 import SuggestedQuestions from './SuggestedQuestions';
 import { RecipeData } from '@/pages/RecipeConverter';
+import { useToast } from '@/hooks/use-toast';
+import { AI_CONFIG } from '@/services/aiService';
 
 interface ChatSectionProps {
   recipe: RecipeData;
@@ -21,6 +23,7 @@ const ChatSection: React.FC<ChatSectionProps> = ({ recipe }) => {
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
   
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,24 +39,9 @@ const ChatSection: React.FC<ChatSectionProps> = ({ recipe }) => {
       // Simulate AI thinking time
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Generate response based on the question
-      let response = "I'm not sure about that. Could you provide more details?";
-      
-      // Simple pattern matching for demo purposes
-      // In a real implementation, this would call an AI service
-      if (message.toLowerCase().includes('buttermilk substitute')) {
-        response = "You can make a buttermilk substitute by adding 1 tablespoon of lemon juice or vinegar to 1 cup of milk. Let it sit for 5-10 minutes before using.";
-      } else if (message.toLowerCase().includes('gluten free')) {
-        response = "To make this recipe gluten-free, you can substitute the bread flour with a gluten-free flour blend. Look for one that contains xanthan gum, or add 1/4 teaspoon of xanthan gum per cup of flour to help with binding.";
-      } else if (message.toLowerCase().includes('double')) {
-        response = "You can double all ingredients in this recipe. The preparation steps remain the same, but you might need to adjust baking time by 5-10 minutes longer. Also consider if your mixing bowl and baking vessel are large enough to handle the increased volume.";
-      } else if (message.toLowerCase().includes('overnight') || message.toLowerCase().includes('finish tomorrow')) {
-        response = "Yes, you can pause this recipe overnight! After shaping the dough, place it in a banneton or bowl, cover it, and refrigerate. The cold fermentation will actually improve flavor. The next day, let it come to room temperature for about 1 hour before baking.";
-      } else if (recipe.title && message.toLowerCase().includes('ingredient')) {
-        response = `For this ${recipe.title} recipe, make sure all ingredients are at room temperature for best results. The most critical ingredient is the flour - use bread flour if specified as it has higher protein content which helps develop gluten structure.`;
-      } else {
-        response = "I'm happy to help with your baking questions! Feel free to ask about ingredient substitutions, timing adjustments, technique advice, or recipe modifications.";
-      }
+      // In a real implementation, this would call the AI service
+      // For now, we'll use simple pattern matching for responses
+      let response = generateResponse(message, recipe);
       
       // Add assistant response to history
       setChatHistory([
@@ -71,8 +59,40 @@ const ChatSection: React.FC<ChatSectionProps> = ({ recipe }) => {
           content: "I'm sorry, I'm having trouble responding right now. Please try again later." 
         }
       ]);
+      
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to generate a response. Please try again.",
+      });
     } finally {
       setIsLoading(false);
+    }
+  };
+  
+  const generateResponse = (query: string, recipe: RecipeData): string => {
+    const lowercaseQuery = query.toLowerCase();
+    
+    // Simple pattern matching for demo purposes
+    // In a real implementation, this would call an AI service
+    if (lowercaseQuery.includes('buttermilk substitute')) {
+      return "You can make a buttermilk substitute by adding 1 tablespoon of lemon juice or vinegar to 1 cup of milk. Let it sit for 5-10 minutes before using.";
+    } else if (lowercaseQuery.includes('gluten free')) {
+      return "To make this recipe gluten-free, you can substitute the bread flour with a gluten-free flour blend. Look for one that contains xanthan gum, or add 1/4 teaspoon of xanthan gum per cup of flour to help with binding.";
+    } else if (lowercaseQuery.includes('double')) {
+      return "You can double all ingredients in this recipe. The preparation steps remain the same, but you might need to adjust baking time by 5-10 minutes longer. Also consider if your mixing bowl and baking vessel are large enough to handle the increased volume.";
+    } else if (lowercaseQuery.includes('overnight') || lowercaseQuery.includes('finish tomorrow')) {
+      return "Yes, you can pause this recipe overnight! After shaping the dough, place it in a banneton or bowl, cover it, and refrigerate. The cold fermentation will actually improve flavor. The next day, let it come to room temperature for about 1 hour before baking.";
+    } else if (recipe.title && lowercaseQuery.includes('ingredient')) {
+      return `For this ${recipe.title} recipe, make sure all ingredients are at room temperature for best results. The most critical ingredient is the flour - use bread flour if specified as it has higher protein content which helps develop gluten structure.`;
+    } else if (lowercaseQuery.includes('how') && lowercaseQuery.includes('storage')) {
+      return "For optimal freshness, store bread at room temperature in a bread box or paper bag for 2-3 days. For longer storage, slice and freeze in an airtight container for up to 3 months. Thaw slices as needed at room temperature or toast from frozen.";
+    } else if (lowercaseQuery.includes('how') && lowercaseQuery.includes('knead')) {
+      return "To knead bread dough: 1) Push the dough away with the heel of your hand. 2) Fold it back toward you. 3) Rotate a quarter turn. 4) Repeat for 8-10 minutes until smooth and elastic. The dough should pass the 'windowpane test' - when stretched, it forms a translucent membrane without tearing.";
+    } else if (lowercaseQuery.includes('hello') || lowercaseQuery.includes('hi') || lowercaseQuery.includes('hey')) {
+      return "Hello! I'm happy to help with your baking questions. Feel free to ask about ingredient substitutions, timing adjustments, technique advice, or recipe modifications.";
+    } else {
+      return "I'm happy to help with your baking questions! Feel free to ask about ingredient substitutions, timing adjustments, technique advice, or recipe modifications.";
     }
   };
   

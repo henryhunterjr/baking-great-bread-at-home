@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { RecipeData } from '@/pages/RecipeConverter';
-import { convertRecipeText } from '@/services/RecipeService';
+import { processRecipeText } from '@/lib/ai-services/ai-service';
 
 export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) => void) => {
   const { toast } = useToast();
@@ -12,8 +12,27 @@ export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) =
     setIsConverting(true);
     
     try {
-      // Use our RecipeService to convert the text
-      const convertedRecipe = await convertRecipeText(text);
+      // Process the recipe text using the AI service
+      const result = await processRecipeText(text);
+      
+      // Map the AI service result to our RecipeData format
+      const convertedRecipe: RecipeData = {
+        title: result.title,
+        introduction: result.description,
+        ingredients: result.ingredients.map(ing => `${ing.quantity} ${ing.unit} ${ing.name}`.trim()),
+        prepTime: result.prepTime.toString(),
+        restTime: '',
+        bakeTime: result.cookTime ? result.cookTime.toString() : '',
+        totalTime: (result.prepTime + (result.cookTime || 0)).toString(),
+        instructions: result.steps,
+        tips: result.notes ? [result.notes] : [],
+        proTips: [],
+        equipmentNeeded: [],
+        imageUrl: result.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
+        tags: result.tags,
+        isPublic: false,
+        isConverted: true
+      };
       
       onConversionComplete(convertedRecipe);
       

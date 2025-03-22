@@ -6,6 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { ChatMessage } from '../types/chat';
+import { generateRecipe } from '@/lib/ai-services/ai-service';
+import { useToast } from '@/hooks/use-toast';
 
 interface RecipeGeneratorProps {
   addToChatHistory: (messages: ChatMessage[]) => void;
@@ -14,6 +16,7 @@ interface RecipeGeneratorProps {
 const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({ addToChatHistory }) => {
   const [recipePrompt, setRecipePrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const { toast } = useToast();
   
   const handleGenerateRecipe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,17 +25,28 @@ const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({ addToChatHistory }) =
     setIsGenerating(true);
     
     try {
-      // Simulate AI thinking time
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Add messages to chat history
+      // Add user message to chat history
       const userMessage = { role: 'user' as const, content: `Generate a recipe for: ${recipePrompt}` };
+      
+      // Call the AI service to generate a recipe
+      const generatedRecipe = await generateRecipe(recipePrompt);
+      
+      // Create assistant message with generated recipe info
       const assistantMessage = { 
         role: 'assistant' as const, 
-        content: `I've generated a new recipe idea for "${recipePrompt}"! Click the "Edit Recipe" button after conversion to view and customize it further.` 
+        content: `I've generated a new recipe for "${generatedRecipe.title}" based on your request for "${recipePrompt}". It has been saved to your recipes. You can edit it further or start cooking right away!` 
       };
       
+      // Add messages to chat history
       addToChatHistory([userMessage, assistantMessage]);
+      
+      // Show success notification
+      toast({
+        title: "Recipe Generated!",
+        description: `Your recipe for "${generatedRecipe.title}" has been created.`,
+      });
+      
+      // Reset the prompt
       setRecipePrompt('');
       
     } catch (error) {
@@ -44,6 +58,12 @@ const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({ addToChatHistory }) =
       };
       
       addToChatHistory([userMessage, errorMessage]);
+      
+      toast({
+        variant: "destructive",
+        title: "Generation Failed",
+        description: "There was a problem generating your recipe. Please try again.",
+      });
     } finally {
       setIsGenerating(false);
     }
