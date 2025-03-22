@@ -128,6 +128,16 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       link: "https://bit.ly/3QFQek8",
       discountCode: "",
       icon: "🪒"
+    },
+    {
+      id: 6,
+      brand: "Holland Bowl Mill",
+      name: "Wooden Mixing Bowls",
+      description: "Handcrafted wooden bowls perfect for dough proofing and serving.",
+      image: "/lovable-uploads/fbf6d08f-4f61-444c-91b8-03ffa5706eb8.png",
+      link: "https://hollandbowlmill.com/baking/?wpam_id=10",
+      discountCode: "LOVE",
+      icon: "🪵"
     }
   ];
 
