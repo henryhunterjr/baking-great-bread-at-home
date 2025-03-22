@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -20,19 +21,19 @@ const AffiliateCollection = () => {
           name: 'Baking Tools Starter Kit',
           price: '$56.41',
           link: 'https://collabs.shop/7k4ksj',
-          image: '/lovable-uploads/b7a58c43-c3fa-4067-b552-84b21a51bfcc.png'
+          image: '/lovable-uploads/ba810304-c645-4c8f-99ef-0993feaf7d3f.png'
         },
         {
           name: 'High Capacity Baking Scale',
           price: '$24.95',
           link: 'https://collabs.shop/hvryn6',
-          image: '/lovable-uploads/bd605a7a-18c1-4c34-9445-b91f2eb820b9.png'
+          image: '/lovable-uploads/1df776e0-0d83-476a-926c-349703bf4941.png'
         },
         {
           name: 'Dough Whisk',
           price: '$18.95',
           link: 'https://collabs.shop/6jalk7',
-          image: '/lovable-uploads/42db0924-1b5f-4c64-a48e-10f5ce28b6e7.png'
+          image: '/lovable-uploads/2bcb5c54-1a78-46ae-88ba-e228d7f27011.png'
         },
         {
           name: 'Folding Proofer & Slow Cooker',
