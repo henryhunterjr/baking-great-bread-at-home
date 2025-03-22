@@ -96,5 +96,6 @@ export function useBlogPosts(searchQuery: string = '') {
   return { posts, loading, error };
 }
 
-export { BlogPost };
+// Export BlogPost as a type to fix the re-export error with isolatedModules
+export type { BlogPost };
 export default BlogService;
