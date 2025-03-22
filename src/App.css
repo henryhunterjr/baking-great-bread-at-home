@@ -51,7 +51,7 @@
   filter: brightness(0.9);
 }
 
-/* Dark mode text improvements */
+/* Improved dark mode text for better contrast */
 .dark .section-title {
   @apply text-white;
 }
@@ -70,6 +70,25 @@
 }
 
 .dark .text-muted-foreground {
+  @apply text-gray-300;
+}
+
+/* Fix for buttons in dark mode */
+.dark button, 
+.dark .button {
+  @apply text-white border-bread-700;
+}
+
+/* Specific fix for Meet Henry section */
+.dark .bg-bread-50 {
+  @apply bg-bread-900;
+}
+
+.dark .bg-bread-50 p {
+  @apply text-gray-300;
+}
+
+.dark .bg-bread-50 .text-bread-800 {
   @apply text-gray-300;
 }
 

@@ -59,7 +59,7 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="font-serif text-3xl md:text-4xl font-medium mb-4">Books & Guides</h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground dark:text-gray-300 text-lg max-w-2xl mx-auto">
               Comprehensive resources to help you master the art and science of bread baking at any level.
             </p>
           </div>
@@ -80,7 +80,7 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
             <Button 
               variant="outline" 
               size="lg"
-              className="border-bread-200 text-bread-800 hover:bg-bread-50"
+              className="border-bread-200 text-bread-800 hover:bg-bread-50 dark:border-bread-700 dark:text-gray-300 dark:hover:bg-bread-800"
               asChild
             >
               <a href="http://bakinggreatbread.blog" target="_blank" rel="noopener noreferrer">

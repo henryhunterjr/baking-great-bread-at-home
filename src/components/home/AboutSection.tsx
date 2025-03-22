@@ -10,11 +10,11 @@ interface AboutSectionProps {
 
 const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
   return (
-    <section ref={sectionRef} className="py-16 md:py-24 bg-bread-50 opacity-0">
+    <section ref={sectionRef} className="py-16 md:py-24 bg-bread-50 dark:bg-bread-900 opacity-0">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="section-title">Meet Henry</h2>
-          <p className="section-subtitle">
+          <p className="section-subtitle dark:text-gray-300">
             Baker, author, and passionate advocate for the home baking community. Henry's journey from amateur enthusiast to bread expert spans over a decade of experimentation, learning, and sharing.
           </p>
         </div>
@@ -29,10 +29,10 @@ const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
           </div>
           <div className="space-y-6">
             <h3 className="font-serif text-2xl md:text-3xl font-medium">A Passion for Perfect Loaves</h3>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground dark:text-gray-300">
               What began as a weekend hobby quickly evolved into a lifelong passion. After years of perfecting recipes and techniques, Henry now dedicates his time to helping others discover the joy and satisfaction of creating beautiful, delicious bread at home.
             </p>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground dark:text-gray-300">
               Through books, online courses, and an active community, Henry has helped thousands of bakers overcome common challenges and achieve results they never thought possible in their own kitchens.
             </p>
             <div className="mt-6">
@@ -44,7 +44,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
             </div>
             <Button 
               variant="outline" 
-              className="border-bread-200 text-bread-800 hover:bg-bread-50 mt-4"
+              className="border-bread-200 text-bread-800 hover:bg-bread-50 dark:border-bread-700 dark:text-gray-300 dark:hover:bg-bread-800 mt-4"
               asChild
             >
               <Link to="/about">
