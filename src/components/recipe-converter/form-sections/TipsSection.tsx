@@ -17,23 +17,20 @@ const TipsSection: React.FC<TipsSectionProps> = ({
   register, 
   control
 }) => {
-  const { 
-    fields: tipFields, 
-    append: appendTip, 
-    remove: removeTip 
-  } = useFieldArray({
+  // Use separate typed useFieldArray hooks for tips and proTips
+  const tipFieldArray = useFieldArray({
     control,
-    name: "tips" as const
+    name: "tips"
   });
   
-  const { 
-    fields: proTipFields, 
-    append: appendProTip, 
-    remove: removeProTip 
-  } = useFieldArray({
+  const proTipFieldArray = useFieldArray({
     control,
-    name: "proTips" as const
+    name: "proTips"
   });
+
+  // Destructure for clarity
+  const { fields: tipFields, append: appendTip, remove: removeTip } = tipFieldArray;
+  const { fields: proTipFields, append: appendProTip, remove: removeProTip } = proTipFieldArray;
 
   const addTip = () => {
     appendTip("");

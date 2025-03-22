@@ -2,76 +2,105 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash } from 'lucide-react';
-import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
-import { RecipeFormValues, EquipmentItem } from '@/types/recipeTypes';
+import { Label } from '@/components/ui/label';
+import { UseFormRegister, FieldErrors, Control, useFieldArray } from 'react-hook-form';
+import { RecipeFormValues } from '@/types/recipeTypes';
+import { Plus, Trash2, Link } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 interface EquipmentSectionProps {
   register: UseFormRegister<RecipeFormValues>;
   control: Control<RecipeFormValues>;
-  errors: Record<string, any>;
+  errors: FieldErrors<RecipeFormValues>;
 }
 
-const EquipmentSection: React.FC<EquipmentSectionProps> = ({
-  register,
-  control,
-  errors
+const EquipmentSection: React.FC<EquipmentSectionProps> = ({ 
+  register, 
+  control, 
+  errors 
 }) => {
-  const { fields: equipmentFields, append, remove } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
-    name: "equipmentNeeded"
+    name: 'equipmentNeeded'
   });
-
-  const addEquipment = () => {
-    append({ id: uuidv4(), name: "", affiliateLink: "" });
+  
+  const handleAddEquipment = () => {
+    append({
+      id: uuidv4(),
+      name: '',
+      affiliateLink: ''
+    });
   };
-
+  
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium font-serif">Equipment Needed</h3>
-        <Button
+        <h3 className="text-lg font-medium">Equipment</h3>
+        <Button 
           type="button"
-          variant="outline"
           size="sm"
-          onClick={addEquipment}
+          variant="outline"
+          onClick={handleAddEquipment}
         >
-          <Plus className="h-4 w-4 mr-1" />
+          <Plus className="h-4 w-4 mr-2" />
           Add Equipment
         </Button>
       </div>
       
-      <div className="space-y-3">
-        {equipmentFields.map((field, index) => (
-          <div key={field.id} className="grid grid-cols-5 gap-2">
+      {fields.map((field, index) => (
+        <div key={field.id} className="grid grid-cols-12 gap-2 items-start">
+          <div className="col-span-5">
             <Input
-              {...register(`equipmentNeeded.${index}.name`)}
+              {...register(`equipmentNeeded.${index}.name` as const, {
+                required: "Equipment name is required"
+              })}
               placeholder="Equipment name"
-              className={`col-span-2 ${errors.equipmentNeeded?.[index]?.name ? "border-destructive" : ""}`}
             />
-            <Input
-              {...register(`equipmentNeeded.${index}.affiliateLink`)}
-              placeholder="Link to product (optional)"
-              className="col-span-2"
-            />
+            {errors.equipmentNeeded?.[index]?.name && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.equipmentNeeded[index]?.name?.message}
+              </p>
+            )}
+          </div>
+          
+          <div className="col-span-6">
+            <div className="flex items-center space-x-2">
+              <Link className="h-4 w-4 text-muted-foreground" />
+              <Input
+                {...register(`equipmentNeeded.${index}.affiliateLink` as const)}
+                placeholder="Affiliate link (optional)"
+              />
+            </div>
+          </div>
+          
+          <div className="col-span-1 flex justify-end">
             <Button
               type="button"
               variant="ghost"
               size="icon"
               onClick={() => remove(index)}
-              className="justify-self-end"
             >
-              <Trash className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+              <Trash2 className="h-4 w-4 text-red-500" />
             </Button>
           </div>
-        ))}
-        {equipmentFields.length === 0 && (
-          <p className="text-sm italic text-muted-foreground">
-            No equipment added yet
-          </p>
-        )}
-      </div>
+        </div>
+      ))}
+      
+      {fields.length === 0 && (
+        <div className="text-center py-4 border border-dashed rounded-lg">
+          <p className="text-muted-foreground">No equipment added yet</p>
+          <Button 
+            type="button" 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleAddEquipment}
+            className="mt-2"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add First Equipment
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
