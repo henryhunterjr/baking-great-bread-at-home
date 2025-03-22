@@ -21,6 +21,14 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
     },
     {
       id: 2,
+      title: "Yeast Wise Calculator",
+      image: "https://images.unsplash.com/photo-1622467827417-bbe2237067a9?q=80&w=1000&auto=format&fit=crop",
+      description: "Calculate precise yeast water ratios for consistent, perfectly risen dough every time.",
+      link: "https://lovable.dev/projects/b7b3c470-3ffe-4dc8-8e2a-48938c7b0d89",
+      isExternalLink: true
+    },
+    {
+      id: 3,
       title: "From Card to Kitchen",
       image: "https://images.unsplash.com/photo-1556911261-6bd341186b2f?q=80&w=1000&auto=format&fit=crop",
       description: "Convert old family recipes, scanned images, or digital clippings into clean, standardized recipe cards.",
@@ -28,7 +36,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       isExternalLink: false
     },
     {
-      id: 3,
+      id: 4,
       title: "Sourdough Calculator",
       image: "https://images.unsplash.com/photo-1585478259715-876a6a81fc08?q=80&w=1000&auto=format&fit=crop",
       description: "Calculate hydration, starter percentages, and timings for the perfect sourdough loaf.",
@@ -36,7 +44,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       isExternalLink: false
     },
     {
-      id: 4,
+      id: 5,
       title: "Flavor Pairing Guide",
       image: "https://images.unsplash.com/photo-1514517604298-cf80e0fb7f1e?q=80&w=1000&auto=format&fit=crop",
       description: "Discover unexpected flavor combinations that will elevate your breads and pastries.",
@@ -59,8 +67,8 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
           ))}
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6 mb-10 max-w-4xl mx-auto">
-          {tools.slice(3, 4).map(tool => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-10">
+          {tools.slice(3, 5).map(tool => (
             <ToolCard key={tool.id} tool={tool} />
           ))}
         </div>
