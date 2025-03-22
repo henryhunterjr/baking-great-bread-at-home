@@ -1,3 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 38% 98%;
+    --foreground: 30 10% 20%;
+
+    --card: 40 38% 98%;
+    --card-foreground: 30 10% 20%;
+
+    --popover: 40 38% 98%;
+    --popover-foreground: 30 10% 20%;
+
+    --primary: 30 33% 36%;
+    --primary-foreground: 40 38% 98%;
+
+    --secondary: 25 29% 90%;
+    --secondary-foreground: 30 10% 20%;
+
+    --muted: 25 29% 92%;
+    --muted-foreground: 30 10% 40%;
+
+    --accent: 35 80% 60%;
+    --accent-foreground: 40 38% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 40 38% 98%;
+
+    --border: 30, 10%, 88%;
+    --input: 30, 10%, 88%;
+    --ring: 30 33% 36%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 40 38% 98%;
+    --sidebar-foreground: 30 10% 20%;
+    --sidebar-primary: 30 33% 36%;
+    --sidebar-primary-foreground: 40 38% 98%;
+    --sidebar-accent: 25 29% 90%;
+    --sidebar-accent-foreground: 30 10% 20%;
+    --sidebar-border: 30 10% 88%;
+    --sidebar-ring: 30 33% 36%;
+  }
+
+  .dark {
+    --background: 30 15% 12%;
+    --foreground: 40 38% 98%;
+
+    --card: 30 15% 14%;
+    --card-foreground: 40 38% 98%;
+
+    --popover: 30 15% 12%;
+    --popover-foreground: 40 38% 98%;
+
+    --primary: 25 29% 80%;
+    --primary-foreground: 30 15% 12%;
+
+    --secondary: 30 15% 20%;
+    --secondary-foreground: 40 38% 98%;
+
+    --muted: 30 15% 20%;
+    --muted-foreground: 30 10% 80%;
+
+    --accent: 35 80% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 15% 25%;
+    --input: 30 15% 25%;
+    --ring: 25 29% 80%;
+
+    --sidebar-background: 30 15% 12%;
+    --sidebar-foreground: 40 38% 98%;
+    --sidebar-primary: 25 29% 80%;
+    --sidebar-primary-foreground: 30 15% 12%;
+    --sidebar-accent: 30 15% 20%;
+    --sidebar-accent-foreground: 40 38% 98%;
+    --sidebar-border: 30 15% 25%;
+    --sidebar-ring: 25 29% 80%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border antialiased;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight;
+  }
+  
+  p, a, li, span {
+    @apply font-sans;
+  }
+}
+
+@layer components {
+  .hero-image-container {
+    @apply relative overflow-hidden rounded-xl;
+  }
+  
+  .hero-image-container::after {
+    content: '';
+    @apply absolute inset-0 bg-bread-500/10 pointer-events-none;
+  }
+  
+  .hero-image {
+    @apply w-full h-full object-cover transition-transform duration-700 hover:scale-105;
+  }
+  
+  .nav-link {
+    @apply relative font-medium text-foreground/80 hover:text-foreground transition-colors duration-200 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent after:transition-all after:duration-300 hover:after:w-full;
+  }
+  
+  .active-nav-link {
+    @apply text-foreground after:w-full;
+  }
+  
+  .section-title {
+    @apply font-serif text-3xl md:text-4xl lg:text-5xl font-medium leading-tight mb-6;
+  }
+  
+  .section-subtitle {
+    @apply font-sans text-base md:text-lg text-muted-foreground mb-12 max-w-2xl mx-auto;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+  
+  .glass-card {
+    @apply bg-background/70 backdrop-blur-sm border border-border/50 rounded-xl shadow-sm;
+  }
+}
 
 #root {
   max-width: 1280px;
@@ -110,15 +255,14 @@ section.opacity-0 {
   opacity: 1 !important;
 }
 
-/* Animation for affiliate products */
-.affiliate-card-enter {
-  opacity: 0;
-  transform: translateY(20px);
+/* Animation classes */
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
 }
-.affiliate-card-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 500ms, transform 500ms;
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 /* Responsive optimizations */
