@@ -12,6 +12,7 @@ import ChallengesArchive from '@/pages/ChallengesArchive';
 import ComingSoon from '@/pages/ComingSoon';
 import NotFound from '@/pages/NotFound';
 import RecipeConverter from '@/pages/RecipeConverter';
+import AffiliateCollection from '@/pages/AffiliateCollection';
 
 import './App.css';
 
@@ -27,6 +28,7 @@ function App() {
         <Route path="/care-center" element={<CareCenter />} />
         <Route path="/challenges" element={<ChallengesArchive />} />
         <Route path="/recipe-converter" element={<RecipeConverter />} />
+        <Route path="/affiliate-collection" element={<AffiliateCollection />} />
         <Route path="/coming-soon" element={<ComingSoon />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

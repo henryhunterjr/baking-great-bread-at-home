@@ -188,10 +188,10 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
               variant="outline"
               className="border-bread-800 text-bread-800 hover:bg-bread-800 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-bread-900"
             >
-              <a href="https://collabs.shop/vutgu8" target="_blank" rel="noopener noreferrer">
+              <Link to="/affiliate-collection">
                 View Full Affiliate Collection
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
+              </Link>
             </Button>
           </div>
         </div>
