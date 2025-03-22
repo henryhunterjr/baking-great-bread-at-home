@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
@@ -30,6 +29,14 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
     },
     {
       id: 3,
+      title: "Loaf Logic",
+      image: "/lovable-uploads/05142b58-b1f4-4794-a927-326107122971.png",
+      description: "A comprehensive bread calculator and recipe manager for the serious home baker.",
+      link: "https://loaflogic.lovable.app/",
+      isExternalLink: true
+    },
+    {
+      id: 4,
       title: "Yeast Water Mastery Quiz",
       image: "/lovable-uploads/17b70a1a-f9a7-4791-8af6-344e2750b6c1.png", 
       description: "Test your knowledge and master the art of yeast water cultivation with our interactive quiz.",
@@ -37,7 +44,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       isExternalLink: true
     },
     {
-      id: 4,
+      id: 5,
       title: "Sourdough for the Rest of Us",
       image: "/lovable-uploads/9c1c5006-46ce-47e5-8b43-615ce7e14ecc.png",
       description: "A simple, stress-free guide that makes sourdough baking accessible to everyone.",
@@ -45,7 +52,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       isExternalLink: true
     },
     {
-      id: 5,
+      id: 6,
       title: "Bread Baker's Quiz",
       image: "/lovable-uploads/529a2d4b-da6e-4e91-8d1a-6aa2a8c198e0.png",
       description: "Test your bread baking knowledge with our comprehensive and fun interactive quiz.",
@@ -53,7 +60,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       isExternalLink: true
     },
     {
-      id: 6,
+      id: 7,
       title: "From Card to Kitchen",
       image: "https://images.unsplash.com/photo-1556911261-6bd341186b2f?q=80&w=1000&auto=format&fit=crop",
       description: "Convert old family recipes, scanned images, or digital clippings into clean, standardized recipe cards.",
@@ -61,18 +68,10 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       isExternalLink: false
     },
     {
-      id: 7,
+      id: 8,
       title: "Sourdough Calculator",
       image: "https://images.unsplash.com/photo-1585478259715-876a6a81fc08?q=80&w=1000&auto=format&fit=crop",
       description: "Calculate hydration, starter percentages, and timings for the perfect sourdough loaf.",
-      link: "/tools",
-      isExternalLink: false
-    },
-    {
-      id: 8,
-      title: "Flavor Pairing Guide",
-      image: "https://images.unsplash.com/photo-1514517604298-cf80e0fb7f1e?q=80&w=1000&auto=format&fit=crop",
-      description: "Discover unexpected flavor combinations that will elevate your breads and pastries.",
       link: "/tools",
       isExternalLink: false
     }

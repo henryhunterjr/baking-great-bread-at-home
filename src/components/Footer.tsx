@@ -21,7 +21,7 @@ const Footer = () => {
             <Input 
               type="email" 
               placeholder="Your email address" 
-              className="bg-background border-border dark:bg-bread-800 dark:border-bread-700 dark:text-white dark:placeholder:text-gray-300"
+              className="bg-background border-border dark:bg-bread-800/70 dark:border-bread-700 dark:text-white dark:placeholder:text-gray-300"
             />
             <Button className="bg-bread-800 hover:bg-bread-900 text-white">
               Subscribe

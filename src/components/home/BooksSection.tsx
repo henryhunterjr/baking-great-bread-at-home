@@ -29,6 +29,14 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
     },
     {
       id: 3,
+      title: "Baking Great Bread at Home: A Journey Through the Seasons",
+      image: "/lovable-uploads/bdd5d8b1-3208-448b-882e-339b7adb271d.png",
+      description: "My upcoming cookbook featuring seasonal bread recipes and techniques.",
+      link: "/coming-soon",
+      isExternalLink: false
+    },
+    {
+      id: 4,
       title: "Yeast Water Handbook",
       image: "/lovable-uploads/b3f7f1bf-daa4-44ab-b699-a894e6b9d759.png",
       description: "A comprehensive guide to yeast water fermentation.",
@@ -36,7 +44,7 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
       isExternalLink: true
     },
     {
-      id: 4,
+      id: 5,
       title: "From Oven to Market",
       image: "/lovable-uploads/702a0b38-fa2b-45fc-82e8-9098fe010f62.png",
       description: "Your complete guide to turning your baking passion into a thriving business.",
@@ -44,7 +52,7 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
       isExternalLink: true
     },
     {
-      id: 5,
+      id: 6,
       title: "Sourdough for the Rest of Us",
       image: "/lovable-uploads/1da6a5af-6269-4a91-ad2e-8d6bbb3bfd5d.png",
       description: "Perfection Not Required - A free guide to get you started with sourdough baking.",
@@ -70,8 +78,8 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
             ))}
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10 max-w-4xl mx-auto">
-            {books.slice(3, 5).map((book) => (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+            {books.slice(3, 6).map((book) => (
               <BookCard key={book.id} book={book} />
             ))}
           </div>
