@@ -27,6 +27,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
   });
   
   const isPublic = watch('isPublic');
+  const tags = watch('tags');
 
   const handleAddTag = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,8 +37,8 @@ const TagsSection: React.FC<TagsSectionProps> = ({
     const formattedTag = tagInput.toLowerCase().replace(/[^a-z0-9]/g, '');
     
     // Check if tag already exists
-    if (!fields.some(field => field.id && field.value === formattedTag) && formattedTag) {
-      append(formattedTag as any);
+    if (!tags.includes(formattedTag) && formattedTag) {
+      append(formattedTag);
       setTagInput('');
     }
   };
@@ -48,8 +49,8 @@ const TagsSection: React.FC<TagsSectionProps> = ({
   ];
   
   const handleCommonTagClick = (tag: string) => {
-    if (!fields.some(field => field.value === tag)) {
-      append(tag as any);
+    if (!tags.includes(tag)) {
+      append(tag);
     }
   };
   
@@ -85,7 +86,7 @@ const TagsSection: React.FC<TagsSectionProps> = ({
               variant="secondary"
               className="flex items-center gap-1"
             >
-              {Array.isArray(watch('tags')) && watch('tags')[index]}
+              {tags[index]}
               <button 
                 type="button" 
                 className="hover:text-accent-foreground"
