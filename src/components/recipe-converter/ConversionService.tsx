@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import RecipeUploader from './RecipeUploader';
 import { RecipeData } from '@/pages/RecipeConverter';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ConversionServiceProps {
   onConversionComplete: (recipe: RecipeData) => void;
@@ -54,10 +55,10 @@ const ConversionService: React.FC<ConversionServiceProps> = ({ onConversionCompl
           'Use rice flour for dusting your banneton to prevent sticking.'
         ],
         equipmentNeeded: [
-          { name: 'Dutch Oven', affiliateLink: '/tools/dutch-oven' },
-          { name: 'Banneton Basket', affiliateLink: '/tools/banneton' },
-          { name: 'Bread Lame', affiliateLink: '/tools/bread-lame' },
-          { name: 'Kitchen Scale', affiliateLink: '/tools/kitchen-scale' }
+          { id: uuidv4(), name: 'Dutch Oven', affiliateLink: '/tools/dutch-oven' },
+          { id: uuidv4(), name: 'Banneton Basket', affiliateLink: '/tools/banneton' },
+          { id: uuidv4(), name: 'Bread Lame', affiliateLink: '/tools/bread-lame' },
+          { id: uuidv4(), name: 'Kitchen Scale', affiliateLink: '/tools/kitchen-scale' }
         ],
         imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
         tags: ['sourdough', 'bread', 'artisan', 'traditional'],
