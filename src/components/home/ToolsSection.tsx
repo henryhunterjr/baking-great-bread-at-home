@@ -45,6 +45,14 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
     },
     {
       id: 5,
+      title: "Bread Baker's Quiz",
+      image: "/lovable-uploads/529a2d4b-da6e-4e91-8d1a-6aa2a8c198e0.png",
+      description: "Test your bread baking knowledge with our comprehensive and fun interactive quiz.",
+      link: "https://bakers-quizfest.lovable.app/",
+      isExternalLink: true
+    },
+    {
+      id: 6,
       title: "From Card to Kitchen",
       image: "https://images.unsplash.com/photo-1556911261-6bd341186b2f?q=80&w=1000&auto=format&fit=crop",
       description: "Convert old family recipes, scanned images, or digital clippings into clean, standardized recipe cards.",
@@ -52,7 +60,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       isExternalLink: false
     },
     {
-      id: 6,
+      id: 7,
       title: "Sourdough Calculator",
       image: "https://images.unsplash.com/photo-1585478259715-876a6a81fc08?q=80&w=1000&auto=format&fit=crop",
       description: "Calculate hydration, starter percentages, and timings for the perfect sourdough loaf.",
@@ -60,7 +68,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       isExternalLink: false
     },
     {
-      id: 7,
+      id: 8,
       title: "Flavor Pairing Guide",
       image: "https://images.unsplash.com/photo-1514517604298-cf80e0fb7f1e?q=80&w=1000&auto=format&fit=crop",
       description: "Discover unexpected flavor combinations that will elevate your breads and pastries.",
