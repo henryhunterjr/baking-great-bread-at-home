@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ToolCard, { Tool } from './ToolCard';
+import AffiliateProductCard from './AffiliateProductCard';
 
 interface ToolsSectionProps {
   sectionRef: React.RefObject<HTMLElement>;
@@ -77,11 +78,64 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
     }
   ];
 
+  const affiliateProducts = [
+    {
+      id: 1,
+      brand: "Brød & Taylor",
+      name: "Bread Proofer & Slow Cooker",
+      description: "Perfect temperature control for optimal fermentation and rising.",
+      image: "/lovable-uploads/be2abfc8-3126-4aab-9ffd-f5b1d9c195e7.png",
+      link: "https://collabs.shop/vutgu8",
+      discountCode: "",
+      icon: "🛠"
+    },
+    {
+      id: 2,
+      brand: "SourHouse",
+      name: "Goldie Starter Home",
+      description: "A warm, safe home for your sourdough starter.",
+      image: "/lovable-uploads/253833f0-ddae-446a-9b3c-79a5d2f4917d.png",
+      link: "https://bit.ly/Sourhouse",
+      discountCode: "HBK23",
+      icon: "🧂"
+    },
+    {
+      id: 3,
+      brand: "ModKitchn",
+      name: "Bread Baking Kit",
+      description: "Essential tools to elevate your bread baking game.",
+      image: "/lovable-uploads/c32c2cba-ad10-4ec1-bd25-98452273364b.png",
+      link: "https://modkitchn.com/discount/BAKINGGREATBREAD10",
+      discountCode: "BAKINGGREATBREAD10",
+      icon: "🍽"
+    },
+    {
+      id: 4,
+      brand: "Challenger Breadware",
+      name: "Bread Pan",
+      description: "Cast iron bread pan for perfectly baked artisan loaves.",
+      image: "/lovable-uploads/422bd558-2b88-4654-aa81-6423405f3a70.png",
+      link: "https://challengerbreadware.com/?ref=henryhunterjr",
+      discountCode: "",
+      icon: "🔥"
+    },
+    {
+      id: 5,
+      brand: "Wire Monkey",
+      name: "Bread Lame",
+      description: "Precision scoring tool for beautiful bread designs.",
+      image: "/lovable-uploads/16a49c70-55f0-4a53-a90a-138492562ba8.png",
+      link: "https://bit.ly/3QFQek8",
+      discountCode: "",
+      icon: "🪒"
+    }
+  ];
+
   return (
     <section ref={sectionRef} className="py-16 md:py-24 bg-bread-50 dark:bg-bread-900/30 opacity-0">
       <div className="container max-w-6xl mx-auto px-4">
         <h2 className="section-title text-center dark:text-white">Baking Tools & Resources</h2>
-        <p className="section-subtitle text-center dark:text-gray-300">
+        <p className="section-subtitle text-center dark:text-gray-300 mb-12">
           Free tools and resources to help you on your baking journey
         </p>
         
@@ -91,7 +145,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
           ))}
         </div>
         
-        <div className="text-center">
+        <div className="text-center mb-16">
           <Button 
             asChild
             variant="outline"
@@ -102,6 +156,35 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
+        </div>
+
+        <div className="mt-20">
+          <h2 className="section-title text-center dark:text-white">Recommended Products</h2>
+          <p className="section-subtitle text-center dark:text-gray-300 mb-3">
+            Quality baking equipment I personally recommend and use
+          </p>
+          <p className="text-center text-sm text-muted-foreground dark:text-gray-400 mb-10">
+            <span className="bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded-md">Affiliate Disclosure: I may earn a commission from purchases made through these links.</span>
+          </p>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+            {affiliateProducts.map(product => (
+              <AffiliateProductCard key={product.id} product={product} />
+            ))}
+          </div>
+          
+          <div className="text-center">
+            <Button 
+              asChild
+              variant="outline"
+              className="border-bread-800 text-bread-800 hover:bg-bread-800 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-bread-900"
+            >
+              <a href="https://collabs.shop/vutgu8" target="_blank" rel="noopener noreferrer">
+                View Full Affiliate Collection
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </a>
+            </Button>
+          </div>
         </div>
       </div>
     </section>

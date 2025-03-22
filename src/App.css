@@ -110,6 +110,17 @@ section.opacity-0 {
   opacity: 1 !important;
 }
 
+/* Animation for affiliate products */
+.affiliate-card-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.affiliate-card-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 500ms, transform 500ms;
+}
+
 /* Responsive optimizations */
 @media (max-width: 768px) {
   #root {
