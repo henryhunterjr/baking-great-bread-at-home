@@ -1,8 +1,7 @@
-
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { RecipeData } from '@/pages/RecipeConverter';
-import { processRecipeText } from '@/lib/ai-services/ai-service';
+import { processRecipeText } from '@/lib/ai-services';
 
 export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) => void) => {
   const { toast } = useToast();

@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { ChatMessage } from '../types/chat';
-import { generateRecipe } from '@/lib/ai-services/ai-service';
+import { generateRecipe } from '@/lib/ai-services'; // Updated import
 import { useToast } from '@/hooks/use-toast';
 
 interface RecipeGeneratorProps {
