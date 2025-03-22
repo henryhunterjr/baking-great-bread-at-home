@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
+import { UseFormRegister, Control, useFieldArray, FieldArrayPath } from 'react-hook-form';
 import { RecipeFormValues } from '@/types/recipeTypes';
 import { Plus, Trash2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -24,7 +24,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
     remove: removeTip 
   } = useFieldArray({
     control,
-    name: "tips" as const // Use as const to ensure proper type narrowing
+    name: "tips" as FieldArrayPath<RecipeFormValues>
   });
   
   const { 
@@ -33,7 +33,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
     remove: removeProTip 
   } = useFieldArray({
     control,
-    name: "proTips" as const // Use as const to ensure proper type narrowing
+    name: "proTips" as FieldArrayPath<RecipeFormValues>
   });
 
   const addTip = () => {
