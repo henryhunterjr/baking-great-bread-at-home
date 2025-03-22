@@ -23,7 +23,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
     remove: removeTip 
   } = useFieldArray({
     control,
-    name: "tips"
+    name: "tips" as const
   });
   
   const { 
@@ -32,7 +32,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
     remove: removeProTip 
   } = useFieldArray({
     control,
-    name: "proTips"
+    name: "proTips" as const
   });
 
   const addTip = () => {
