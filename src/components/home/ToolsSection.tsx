@@ -94,7 +94,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       brand: "SourHouse",
       name: "Goldie Starter Home",
       description: "A warm, safe home for your sourdough starter.",
-      image: "/lovable-uploads/253833f0-ddae-446a-9b3c-79a5d2f4917d.png",
+      image: "/lovable-uploads/c32c2cba-ad10-4ec1-bd25-98452273364b.png",
       link: "https://bit.ly/Sourhouse",
       discountCode: "HBK23",
       icon: "🧂"
@@ -104,7 +104,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       brand: "ModKitchn",
       name: "Bread Baking Kit",
       description: "Essential tools to elevate your bread baking game.",
-      image: "/lovable-uploads/c32c2cba-ad10-4ec1-bd25-98452273364b.png",
+      image: "/lovable-uploads/16a49c70-55f0-4a53-a90a-138492562ba8.png",
       link: "https://modkitchn.com/discount/BAKINGGREATBREAD10",
       discountCode: "BAKINGGREATBREAD10",
       icon: "🍽"
@@ -124,7 +124,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       brand: "Wire Monkey",
       name: "Bread Lame",
       description: "Precision scoring tool for beautiful bread designs.",
-      image: "/lovable-uploads/16a49c70-55f0-4a53-a90a-138492562ba8.png",
+      image: "/lovable-uploads/253833f0-ddae-446a-9b3c-79a5d2f4917d.png",
       link: "https://bit.ly/3QFQek8",
       discountCode: "",
       icon: "🪒"
