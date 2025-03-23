@@ -24,7 +24,7 @@ const ChatForm: React.FC<ChatFormProps> = ({
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         disabled={isLoading}
-        className="bg-secondary/50 border-2 border-accent/30 focus:border-bread-700 shadow-sm"
+        className="bg-white/90 dark:bg-slate-800/90 border-2 border-bread-700/40 focus:border-bread-700 focus:ring-2 focus:ring-bread-600/30 shadow-md placeholder:text-slate-500 dark:placeholder:text-slate-400"
       />
       <Button 
         type="submit"

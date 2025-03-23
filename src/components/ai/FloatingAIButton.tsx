@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Sparkles } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sparkles, X } from 'lucide-react';
 import AIAssistant from './AIAssistant';
 import './floating-button.css';
 
@@ -13,6 +14,7 @@ const FloatingAIButton = () => {
   const [position, setPosition] = useState({ right: 20, bottom: 20 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [useSheet, setUseSheet] = useState(true);
 
   // Stop pulsing animation after 5 seconds
   useEffect(() => {
@@ -36,7 +38,7 @@ const FloatingAIButton = () => {
           }
         }, 5000);
       }
-    }, 30 * 1000); // Changed from 60 seconds to 30 seconds
+    }, 30 * 1000);
 
     return () => clearInterval(interval);
   }, [isHovered]);
@@ -104,7 +106,7 @@ const FloatingAIButton = () => {
   return (
     <>
       <Button
-        className={`fixed rounded-full w-16 h-16 flex items-center justify-center shadow-lg z-50 bg-bread-800 hover:bg-bread-700 transition-all
+        className={`fixed rounded-full w-16 h-16 flex items-center justify-center shadow-lg z-40 bg-bread-800 hover:bg-bread-700 transition-all
           ${pulseAnimation ? 'animate-pulse-glow' : ''}
           ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         style={{ 
@@ -124,16 +126,51 @@ const FloatingAIButton = () => {
         <Sparkles className="h-7 w-7 text-white z-10" />
       </Button>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-[800px] h-[600px] p-0">
-          <DialogHeader className="p-4 border-b">
-            <DialogTitle>Baking Assistant</DialogTitle>
-          </DialogHeader>
-          <div className="h-full overflow-hidden">
-            <AIAssistant />
-          </div>
-        </DialogContent>
-      </Dialog>
+      {useSheet ? (
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetContent 
+            side="right" 
+            className="w-[85vw] sm:w-[500px] md:w-[600px] lg:w-[800px] p-0 border-l-2 border-bread-600/30"
+          >
+            <SheetHeader className="p-4 border-b flex flex-row items-center justify-between">
+              <SheetTitle>Baking Assistant</SheetTitle>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => setIsOpen(false)} 
+                className="rounded-full h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </SheetHeader>
+            <div className="h-[calc(100vh-6rem)] overflow-hidden">
+              <AIAssistant />
+            </div>
+          </SheetContent>
+        </Sheet>
+      ) : (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogContent className="max-w-[800px] h-[600px] p-0">
+            <DialogHeader className="p-4 border-b flex flex-row items-center justify-between">
+              <DialogTitle>Baking Assistant</DialogTitle>
+              <DialogDescription className="sr-only">
+                AI-powered baking assistant to help with recipes and techniques
+              </DialogDescription>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => setIsOpen(false)} 
+                className="rounded-full h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </DialogHeader>
+            <div className="h-full overflow-hidden">
+              <AIAssistant />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

@@ -471,61 +471,65 @@ const AIAssistant = () => {
           </Button>
         </TabsContent>
         
-        <TabsContent value="generate" className="flex-1 p-4 space-y-6 overflow-y-auto">
-          <div className="space-y-2">
-            <Label htmlFor="recipe-prompt">Describe Your Ideal Recipe</Label>
-            <Textarea
-              id="recipe-prompt"
-              placeholder="Describe the bread recipe you want me to create..."
-              className="min-h-[150px] bg-secondary/50 border-2 border-accent/30 focus:border-bread-700 shadow-sm"
-              value={recipePrompt}
-              onChange={(e) => setRecipePrompt(e.target.value)}
-              disabled={isProcessing}
-            />
-          </div>
-          
-          <Alert className="bg-accent/20 border-accent">
-            <AlertDescription className="text-xs">
-              Be specific about ingredients, flavors, or techniques you'd like to include.
-              The more details you provide, the better your recipe will be!
-            </AlertDescription>
-          </Alert>
-          
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Recipe ideas:</p>
-            <div className="flex flex-wrap gap-2">
-              {recipeExamples.map((example, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setRecipePrompt(example)}
-                  className="text-xs"
-                  disabled={isProcessing}
-                >
-                  {example}
-                </Button>
-              ))}
+        <TabsContent value="generate" className="flex-1 p-4 flex flex-col h-full">
+          <div className="flex-1 overflow-y-auto space-y-6 pb-20">
+            <div className="space-y-2">
+              <Label htmlFor="recipe-prompt">Describe Your Ideal Recipe</Label>
+              <Textarea
+                id="recipe-prompt"
+                placeholder="Describe the bread recipe you want me to create..."
+                className="min-h-[150px] bg-white/90 dark:bg-slate-800/90 border-2 border-bread-700/40 focus:border-bread-700 focus:ring-2 focus:ring-bread-600/30 shadow-md"
+                value={recipePrompt}
+                onChange={(e) => setRecipePrompt(e.target.value)}
+                disabled={isProcessing}
+              />
+            </div>
+            
+            <Alert className="bg-accent/20 border-accent">
+              <AlertDescription className="text-xs">
+                Be specific about ingredients, flavors, or techniques you'd like to include.
+                The more details you provide, the better your recipe will be!
+              </AlertDescription>
+            </Alert>
+            
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">Recipe ideas:</p>
+              <div className="flex flex-wrap gap-2">
+                {recipeExamples.map((example, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setRecipePrompt(example)}
+                    className="text-xs"
+                    disabled={isProcessing}
+                  >
+                    {example}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
           
-          <Button 
-            onClick={handleGenerateRecipe}
-            disabled={!recipePrompt.trim() || isProcessing}
-            className="w-full bg-bread-800 hover:bg-bread-700 shadow-md sticky bottom-4"
-          >
-            {isProcessing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating Recipe...
-              </>
-            ) : (
-              <>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Generate Recipe
-              </>
-            )}
-          </Button>
+          <div className="absolute bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-sm border-t">
+            <Button 
+              onClick={handleGenerateRecipe}
+              disabled={!recipePrompt.trim() || isProcessing}
+              className="w-full bg-bread-800 hover:bg-bread-700 shadow-md"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating Recipe...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Generate Recipe
+                </>
+              )}
+            </Button>
+          </div>
         </TabsContent>
         
         <TabsContent value="settings" className="flex-1 p-4 space-y-6">
