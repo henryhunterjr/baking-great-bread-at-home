@@ -18,9 +18,9 @@ const About = () => {
             {/* Breadcrumb / back navigation */}
             <div className="mb-8">
               <Button 
-                variant="link" 
+                variant="ghost"
                 size="sm" 
-                className="group flex items-center text-accent hover:text-accent/80 transition-colors" 
+                className="group flex items-center bg-accent text-white hover:bg-accent/90 transition-colors" 
                 asChild
               >
                 <Link to="/">
