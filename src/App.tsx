@@ -1,8 +1,9 @@
 
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/hooks/use-theme';
 import FloatingAIButton from '@/components/ai/FloatingAIButton';
+import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 
 import Index from '@/pages/Index';
 import AppStore from '@/pages/AppStore';
@@ -21,6 +22,9 @@ import Books from '@/pages/Books';
 import './App.css';
 
 function App() {
+  // Use the scroll to top hook
+  useScrollToTop();
+  
   return (
     <ThemeProvider defaultTheme="dark" storageKey="bread-theme">
       <Toaster />

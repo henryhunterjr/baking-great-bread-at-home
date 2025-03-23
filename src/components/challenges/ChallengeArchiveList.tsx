@@ -3,7 +3,7 @@ import React from 'react';
 import { Challenge } from '@/types/challengeTypes';
 import ChallengeCard from './ChallengeCard';
 import { Separator } from '@/components/ui/separator';
-import { format } from 'date-fns';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ChallengeArchiveListProps {
   groupedChallenges: Record<number, Challenge[]>;
@@ -13,10 +13,6 @@ interface ChallengeArchiveListProps {
 const ChallengeArchiveList = ({ groupedChallenges, years }: ChallengeArchiveListProps) => {
   // Get current year
   const currentYear = new Date().getFullYear();
-  
-  // Check which years need grid layout
-  const needs2025GridLayout = years.includes(2025);
-  const needs2024GridLayout = years.includes(2024);
   
   return (
     <div className="mt-16 space-y-16">
@@ -37,13 +33,11 @@ const ChallengeArchiveList = ({ groupedChallenges, years }: ChallengeArchiveList
                   </span>
                 )}
               </h2>
-              
-              {/* Optional: Add a toggle button here */}
             </div>
             
             <Separator className="bg-bread-100" />
             
-            {is2025 || is2024 ? (
+            {(is2025 || is2024) ? (
               // Modern grid layout for 2025 and 2024 challenges
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {challenges.map(challenge => (
@@ -55,7 +49,7 @@ const ChallengeArchiveList = ({ groupedChallenges, years }: ChallengeArchiveList
                 ))}
               </div>
             ) : (
-              // Default layout for other years
+              // Default layout for other years (though we shouldn't have any now)
               <div className="space-y-6">
                 {challenges.map(challenge => (
                   <ChallengeCard key={challenge.id} challenge={challenge} />
