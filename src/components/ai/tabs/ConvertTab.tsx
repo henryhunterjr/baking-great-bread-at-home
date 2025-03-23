@@ -13,7 +13,7 @@ import {
   Loader2, 
   Wand2, 
   Download,
-  FilePdf,
+  FileIcon,
   FileText as FileTextIcon
 } from 'lucide-react';
 import { extractTextFromImage, processRecipeText } from '@/lib/ai-services/recipe-processor';
@@ -346,7 +346,7 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
               <DropdownMenuContent className="w-56">
                 <DropdownMenuGroup>
                   <DropdownMenuItem onClick={handleDownloadPDF}>
-                    <FilePdf className="mr-2 h-4 w-4" />
+                    <FileIcon className="mr-2 h-4 w-4" />
                     <span>Download as PDF</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleDownloadText}>

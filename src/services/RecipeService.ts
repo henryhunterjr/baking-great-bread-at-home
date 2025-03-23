@@ -1,6 +1,5 @@
-
 import { RecipeData } from '@/pages/RecipeConverter';
-import { Recipe, Ingredient } from '@/types/recipe';
+import { Recipe } from '@/types/recipe';
 import { v4 as uuidv4 } from 'uuid';
 
 type ProcessSource = File | string;
@@ -86,7 +85,12 @@ export const processRecipe = async (
       'Cool completely on a wire rack before slicing.'
     ],
     tags: ['sourdough', 'bread', 'artisan', 'dutch oven'],
-    imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop'
+    imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
+    notes: 'For best results, use a kitchen scale to measure ingredients precisely.',
+    author: 'Henry',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    isPublic: true
   };
 
   // Add some tips and pro tips that weren't in the original recipe-processor

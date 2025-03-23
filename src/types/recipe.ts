@@ -1,13 +1,15 @@
 
+export interface Ingredient {
+  name: string;
+  quantity: string;
+  unit: string;
+}
+
 export interface Recipe {
   id?: string;
   title: string;
   description: string;
-  ingredients: {
-    name: string;
-    quantity: string;
-    unit: string;
-  }[];
+  ingredients: Ingredient[];
   steps: string[];
   prepTime: number;
   cookTime: number;

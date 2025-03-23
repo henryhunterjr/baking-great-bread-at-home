@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,7 +9,7 @@ import {
   Sparkles, 
   Download, 
   Heart,
-  FilePdf,
+  FileIcon,
   FileText
 } from 'lucide-react';
 import { recipeExamples } from '../utils/data';
@@ -79,7 +78,6 @@ const GenerateTab: React.FC<GenerateTabProps> = ({
         description: "Your recipe has been generated successfully.",
       });
       
-      // Reset favorite status for new recipe
       setIsFavorite(false);
       
     } catch (error) {
@@ -231,7 +229,7 @@ const GenerateTab: React.FC<GenerateTabProps> = ({
                 <DropdownMenuContent className="w-56">
                   <DropdownMenuGroup>
                     <DropdownMenuItem onClick={handleDownloadPDF}>
-                      <FilePdf className="mr-2 h-4 w-4" />
+                      <FileIcon className="mr-2 h-4 w-4" />
                       <span>Download as PDF</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleDownloadText}>
