@@ -51,13 +51,13 @@ const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => 
               </div>
             )}
             
-            {/* Overlay with challenge info even when image loads - REVERSED gradient direction */}
+            {/* Image overlay with dark color at the TOP for better text visibility */}
             {!imageError && (
-              <div className="absolute inset-0 bg-gradient-to-b from-bread-950/80 to-transparent flex flex-col justify-start p-4 text-white">
+              <div className="absolute inset-0 bg-gradient-to-b from-bread-950/90 via-bread-900/60 to-transparent flex flex-col justify-start p-4 text-white">
                 <p className="text-white/90 text-sm md:text-base font-medium">{formattedDate}</p>
-                <h4 className="font-serif font-medium text-lg md:text-xl">{challenge.title}</h4>
+                <h4 className="font-serif font-medium text-xl md:text-2xl text-white">{challenge.title}</h4>
                 {challenge.hashtag && (
-                  <p className="text-white/90 font-medium text-sm md:text-base mt-1">{challenge.hashtag}</p>
+                  <p className="text-white/90 font-medium text-sm md:text-base mt-1">#{challenge.hashtag}</p>
                 )}
               </div>
             )}
@@ -74,7 +74,7 @@ const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => 
             </h3>
             {challenge.hashtag && (
               <div className={`text-bread-700 font-medium text-base mb-3`}>
-                {challenge.hashtag}
+                #{challenge.hashtag}
               </div>
             )}
             <p className={`text-muted-foreground text-${isLarge ? 'base' : 'sm'} ${isLarge ? 'mb-6' : ''}`}>
