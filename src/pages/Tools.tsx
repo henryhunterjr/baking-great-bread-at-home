@@ -9,11 +9,22 @@ import { ArrowLeft, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Input } from '@/components/ui/input';
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from '@/components/ui/pagination';
+
+const ITEMS_PER_PAGE = 6;
 
 const Tools = () => {
   const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredTools, setFilteredTools] = useState(toolsData);
+  const [currentPage, setCurrentPage] = useState(1);
   
   useEffect(() => {
     // Filter tools based on search term
@@ -26,13 +37,28 @@ const Tools = () => {
       );
       setFilteredTools(filtered);
     }
+    
+    // Reset to first page when search changes
+    setCurrentPage(1);
   }, [searchTerm]);
+  
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredTools.length / ITEMS_PER_PAGE);
+  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+  const currentItems = filteredTools.slice(indexOfFirstItem, indexOfLastItem);
+  
+  const handlePageChange = (pageNumber: number) => {
+    // Smooth scroll to top when changing pages
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setCurrentPage(pageNumber);
+  };
   
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-grow pt-12 pb-6 md:pt-24 md:pb-12">
+      <main className="flex-grow pt-12 pb-6 md:pt-24 md:pb-12 animate-fade-in">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-7xl mx-auto">
             <Button asChild variant="ghost" className="mb-2 md:mb-3 -ml-2 h-8 md:h-10">
@@ -54,28 +80,62 @@ const Tools = () => {
                 placeholder="Search tools..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 h-10 text-sm md:text-base"
+                className="pl-9 h-10 text-sm md:text-base transition-all duration-300 focus:ring-2"
               />
             </div>
             
             {filteredTools.length === 0 ? (
-              <div className="text-center py-10">
+              <div className="text-center py-10 animate-fade-in">
                 <p className="text-muted-foreground">No tools found matching your search.</p>
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onClick={() => setSearchTerm('')}
-                  className="mt-2"
+                  className="mt-2 hover-scale"
                 >
                   Clear Search
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 mb-8 md:mb-16">
-                {filteredTools.map(tool => (
-                  <ToolCard key={tool.id} tool={tool} />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 mb-8 md:mb-16">
+                  {currentItems.map(tool => (
+                    <div key={tool.id} className="animate-fade-in">
+                      <ToolCard tool={tool} />
+                    </div>
+                  ))}
+                </div>
+                
+                {filteredTools.length > ITEMS_PER_PAGE && (
+                  <Pagination className="my-6">
+                    <PaginationContent>
+                      {currentPage > 1 && (
+                        <PaginationItem>
+                          <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
+                        </PaginationItem>
+                      )}
+                      
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                        <PaginationItem key={page}>
+                          <PaginationLink 
+                            onClick={() => handlePageChange(page)}
+                            isActive={page === currentPage}
+                            className={page === currentPage ? "bg-bread-800 text-white hover:bg-bread-900" : ""}
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                      
+                      {currentPage < totalPages && (
+                        <PaginationItem>
+                          <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+                        </PaginationItem>
+                      )}
+                    </PaginationContent>
+                  </Pagination>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -87,3 +147,4 @@ const Tools = () => {
 };
 
 export default Tools;
+
