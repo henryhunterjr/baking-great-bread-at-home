@@ -33,6 +33,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
               src={tool.image} 
               alt={tool.title} 
               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+              loading="lazy"
             />
           </div>
           <div className="sm:w-2/3 p-3 sm:p-4 flex flex-col justify-between">
@@ -64,7 +65,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
   }
 
   return (
-    <Card key={tool.id} className="overflow-hidden card-hover border-bread-100 glass-card">
+    <Card key={tool.id} className="overflow-hidden card-hover border-bread-100 glass-card transition-all">
       <AspectRatio ratio={16/9} className="overflow-hidden">
         <img 
           src={tool.image} 
@@ -74,20 +75,20 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
         />
       </AspectRatio>
       <CardContent className="p-3 sm:p-4 md:p-6">
-        <h3 className="font-serif text-base sm:text-lg md:text-xl font-medium mb-1 sm:mb-2">{tool.title}</h3>
-        <p className="text-muted-foreground text-xs sm:text-sm mb-2 sm:mb-3 md:mb-4 line-clamp-3">{tool.description}</p>
+        <h3 className="font-serif text-base sm:text-lg md:text-xl font-medium mb-1 sm:mb-2 line-clamp-1">{tool.title}</h3>
+        <p className="text-muted-foreground text-xs sm:text-sm mb-2 sm:mb-3 md:mb-4 line-clamp-3 min-h-[3em]">{tool.description}</p>
         <Button 
           size={isMobile ? "sm" : "default"} 
           className="w-full bg-bread-800 hover:bg-bread-900 text-white text-xs sm:text-sm"
           asChild
         >
           {tool.isExternalLink ? (
-            <a href={tool.link} target="_blank" rel="noopener noreferrer">
+            <a href={tool.link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
               Explore
               <ArrowRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
             </a>
           ) : (
-            <Link to={tool.link}>
+            <Link to={tool.link} className="flex items-center justify-center">
               Explore
               <ArrowRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
             </Link>

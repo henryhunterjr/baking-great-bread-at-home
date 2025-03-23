@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import ToolsList from './ToolsList';
 import AffiliateProductsList from './AffiliateProductsList';
 import { toolsData, affiliateProductsData } from './toolsData';
@@ -13,8 +13,33 @@ interface ToolsSectionProps {
 const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
   const isMobile = useIsMobile();
   
+  useEffect(() => {
+    // Apply intersection observer animation
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-fade-in');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, [sectionRef]);
+  
   return (
-    <section ref={sectionRef} className="py-8 md:py-16 lg:py-24 bg-[#F6F6F7] dark:bg-bread-900/40 opacity-0">
+    <section ref={sectionRef} className="py-8 md:py-16 lg:py-24 bg-[#F6F6F7] dark:bg-bread-900/40">
       <div className="container max-w-6xl mx-auto px-4">
         <div className="mb-6 md:mb-10 bg-white/80 dark:bg-bread-900/60 p-3 md:p-6 rounded-lg shadow-sm">
           <h2 className="section-title text-center dark:text-white text-xl md:text-3xl lg:text-4xl mb-2 md:mb-6">Baking Tools & Resources</h2>

@@ -29,7 +29,7 @@ const ToolsList: React.FC<ToolsListProps> = ({ tools, displayCount = 6 }) => {
           size={isMobile ? "sm" : "default"}
           className="border-bread-800 text-bread-800 hover:bg-bread-800 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-bread-900 text-xs sm:text-sm"
         >
-          <Link to="/tools">
+          <Link to="/tools" className="flex items-center">
             View All Tools
             <ArrowRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
           </Link>
