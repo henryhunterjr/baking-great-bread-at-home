@@ -22,13 +22,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
 
   // Reset image states when recipe changes
   useEffect(() => {
     setImageError(false);
-    setRetryCount(0);
     setImageLoaded(false);
   }, [recipe.id, recipe.imageUrl]);
 
@@ -56,13 +54,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       return defaultFallbackImage;
     }
     
-    // For local images (those from our server), ensure they're properly formatted
-    if (recipe.imageUrl && recipe.imageUrl.startsWith('/lovable-uploads/')) {
-      // Local path should be used as is
-      return recipe.imageUrl;
-    }
-    
-    // Return the recipe image URL (remote URLs)
     return recipe.imageUrl;
   };
 
@@ -70,33 +61,13 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     console.log(`Image error for recipe ${recipe.id}: ${recipe.title}`);
     console.log(`Image URL that failed: ${recipe.imageUrl}`);
     
-    if (retryCount < 2) {
-      // Try again with a slight delay (sometimes network hiccups happen)
-      setRetryCount(retryCount + 1);
-      console.log(`Retry attempt #${retryCount + 1} for ${recipe.title}`);
-      
-      // For this retry, don't immediately set imageError to true
-      setTimeout(() => {
-        const imgElement = document.getElementById(`recipe-img-${recipe.id}`) as HTMLImageElement;
-        if (imgElement) {
-          // Force a reload by adding a cache-busting parameter
-          const cacheBuster = `?retry=${Date.now()}`;
-          imgElement.src = recipe.imageUrl.includes('?') 
-            ? `${recipe.imageUrl}&retry=${Date.now()}`
-            : `${recipe.imageUrl}${cacheBuster}`;
-        }
-      }, 1000);
-    } else {
-      // After retries, if still failing, use fallback
-      console.log(`All retries failed for ${recipe.title}, using fallback image`);
-      setImageError(true);
-    }
+    // Set image error state immediately to stop the blinking effect
+    setImageError(true);
   };
 
   const handleImageLoad = () => {
     console.log(`Image loaded successfully for recipe ${recipe.id}: ${recipe.title}`);
     setImageLoaded(true);
-    setImageError(false);
   };
 
   return (

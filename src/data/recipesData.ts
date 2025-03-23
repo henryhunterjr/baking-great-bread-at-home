@@ -39,7 +39,7 @@ export const recipesData: Recipe[] = [
     id: '5',
     title: 'Baking Science Behind Crusty Breads',
     description: 'An in-depth look at the science behind achieving perfectly crusty bread.',
-    imageUrl: 'https://images.unsplash.com/photo-1603135008591-d90e082c1bef?q=80&w=1000&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
     date: 'January 22, 2024',
     link: 'https://bakinggreatbread.blog/2024/01/22/baking-science-behind-crusty-breads/',
   },
