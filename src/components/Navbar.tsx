@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Sun, Moon } from 'lucide-react';
@@ -14,6 +13,8 @@ const Navbar = () => {
   const location = useLocation();
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
+  
+  const isHomePage = location.pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,12 +51,12 @@ const Navbar = () => {
   return (
     <header 
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out",
+        "top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out",
+        isHomePage ? "relative" : "fixed",
         isScrolled ? "bg-background/80 backdrop-blur-md shadow-sm" : "bg-transparent"
       )}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top row with logo and dark mode toggle */}
         <div className="flex items-center justify-between h-16 py-3">
           <div className="flex-shrink-0 font-serif font-medium tracking-tight text-lg sm:text-xl md:text-2xl">
             <Link to="/" className="flex items-center gap-2" onClick={closeMobileMenu}>
@@ -63,7 +64,6 @@ const Navbar = () => {
             </Link>
           </div>
           
-          {/* Dark mode toggle (visible on all screen sizes) */}
           <div className="flex items-center gap-2">
             <Toggle 
               pressed={theme === 'dark'} 
@@ -77,7 +77,6 @@ const Navbar = () => {
               )}
             </Toggle>
             
-            {/* Mobile menu button - only visible on mobile */}
             <div className="md:hidden ml-2">
               <Button 
                 variant="ghost" 
@@ -95,7 +94,6 @@ const Navbar = () => {
           </div>
         </div>
         
-        {/* Second row with navigation - hidden on mobile */}
         <div className="hidden md:block border-t border-muted/30 py-2 mb-1">
           <nav className="flex justify-center space-x-6 lg:space-x-8 items-center">
             {navLinks.map((link) => (
@@ -114,7 +112,6 @@ const Navbar = () => {
         </div>
       </div>
       
-      {/* Mobile menu */}
       <div 
         className={cn(
           "fixed inset-0 bg-background/95 backdrop-blur-sm z-40 flex flex-col pt-24 px-6 transition-all duration-300 ease-in-out md:hidden",
