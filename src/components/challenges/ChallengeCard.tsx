@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ExternalLink, Image as ImageIcon, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { getChallengeImage, getEnhancedChallengeImage } from '@/services/blog/imageUtils';
+import { getChallengeImage } from '@/services/blog/imageUtils';
+import { DEFAULT_CHALLENGE_IMAGE } from '@/data/challengeImages';
 import { Challenge } from '@/types/challengeTypes';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 
@@ -27,46 +27,55 @@ const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => 
   const isLarge = variant === 'large';
   const [imageError, setImageError] = useState(false);
   const [imageSrc, setImageSrc] = useState('');
-  const [imageTier, setImageTier] = useState<'local' | 'gamma' | 'unsplash' | 'error'>('unsplash');
+  const [imageTier, setImageTier] = useState<'configured' | 'gamma' | 'default' | 'error'>('default');
   const [isLoading, setIsLoading] = useState(true);
   
   // Format the date for better readability
   const formattedDate = format(challenge.date, 'MMMM yyyy');
 
-  // Multi-tiered image loading strategy
+  // Simplified image loading strategy
   useEffect(() => {
     const loadImage = async () => {
       setIsLoading(true);
       
-      // First tier: Try local PNG
-      const localImagePath = `/challenges/images/${challenge.id}.png`;
-      const localExists = await checkImageExists(localImagePath);
+      // First check the configured image
+      const configuredImage = getChallengeImage(challenge.id);
       
-      if (localExists) {
-        console.log(`✅ [Challenge ${challenge.id}] Using local PNG image`);
-        setImageSrc(localImagePath);
-        setImageTier('local');
+      // Check if the configured image exists
+      try {
+        const exists = await checkImageExists(configuredImage);
+        
+        if (exists) {
+          console.log(`✅ [Challenge ${challenge.id}] Successfully loaded image`);
+          setImageSrc(configuredImage);
+          setImageTier(configuredImage === DEFAULT_CHALLENGE_IMAGE ? 'default' : 'configured');
+          setIsLoading(false);
+          return;
+        } else if (configuredImage !== DEFAULT_CHALLENGE_IMAGE) {
+          // If we're here, the configured image doesn't exist, try gamma
+          const gammaScreenshotPath = `/challenges/gamma/${challenge.id}-screenshot.jpg`;
+          const gammaExists = await checkImageExists(gammaScreenshotPath);
+          
+          if (gammaExists) {
+            console.log(`🔄 [Challenge ${challenge.id}] Using Gamma screenshot fallback`);
+            setImageSrc(gammaScreenshotPath);
+            setImageTier('gamma');
+            setIsLoading(false);
+            return;
+          }
+        }
+        
+        // If all else fails, use the default image
+        console.log(`🌐 [Challenge ${challenge.id}] Using default challenge image`);
+        setImageSrc(DEFAULT_CHALLENGE_IMAGE);
+        setImageTier('default');
         setIsLoading(false);
-        return;
-      }
-      
-      // Second tier: Try Gamma screenshot
-      const gammaScreenshotPath = `/challenges/gamma/${challenge.id}-screenshot.jpg`;
-      const gammaExists = await checkImageExists(gammaScreenshotPath);
-      
-      if (gammaExists) {
-        console.log(`🔄 [Challenge ${challenge.id}] Using Gamma screenshot fallback`);
-        setImageSrc(gammaScreenshotPath);
-        setImageTier('gamma');
+      } catch (err) {
+        console.error(`❌ Error checking image for challenge: ${challenge.id}`, err);
+        setImageSrc(DEFAULT_CHALLENGE_IMAGE);
+        setImageTier('default');
         setIsLoading(false);
-        return;
       }
-      
-      // Third tier: Fall back to Unsplash images
-      console.log(`🌐 [Challenge ${challenge.id}] Using Unsplash fallback image`);
-      setImageSrc(getChallengeImage(challenge.id));
-      setImageTier('unsplash');
-      setIsLoading(false);
     };
     
     loadImage();

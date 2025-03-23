@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -7,16 +6,27 @@ import ChallengeArchiveList from '@/components/challenges/ChallengeArchiveList';
 import { challenges } from '@/data/challengesData';
 
 const ChallengesArchive = () => {
-  // Log folder structure requirements on component mount
+  // Log information about the new image configuration approach
   useEffect(() => {
     console.info(`
-      Challenge Image Path Structure:
+      Challenge Images Configuration:
       ------------------------------
-      1. Local PNG images:    /public/challenges/images/{challenge-id}.png
-                             (e.g., /public/challenges/images/march-2025.png)
-                      
-      2. Gamma screenshots:   /public/challenges/gamma/{challenge-id}-screenshot.jpg
-                             (e.g., /public/challenges/gamma/march-2025-screenshot.jpg)
+      Images are now managed through a central configuration file:
+      - src/data/challengeImages.ts
+      
+      To add or update challenge images, simply edit the challengeImages object
+      in this file with the mapping from challenge ID to image path.
+      
+      Example:
+      {
+        "march-2025": "/challenges/march-2025-challenge.png",
+        "february-2025": "/challenges/custom-name-whatever-you-want.png"
+      }
+      
+      The fallback order is:
+      1. Configured image from challengeImages.ts
+      2. Gamma screenshot at /challenges/gamma/{challenge-id}-screenshot.jpg
+      3. Default image (Unsplash bread image)
     `);
   }, []);
 

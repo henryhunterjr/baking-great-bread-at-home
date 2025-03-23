@@ -1,3 +1,5 @@
+import { challengeImages, DEFAULT_CHALLENGE_IMAGE } from '@/data/challengeImages';
+
 // Helper function to get placeholder image for a blog post
 export const getPlaceholderImage = (id: number): string => {
   // Array of bread-related Unsplash images to use as placeholders
@@ -19,108 +21,57 @@ export const getPlaceholderImage = (id: number): string => {
 };
 
 /**
- * Multi-tiered image loading strategy for challenge images
- * 1. Try local PNG in public/challenges/images/
+ * Simplified challenge image loading strategy:
+ * 1. Check for image in the challengeImages config map
  * 2. Try Gamma screenshot fallback
- * 3. Fall back to Unsplash images
+ * 3. Fall back to default Unsplash image
  */
 export const getChallengeImage = (id: string): string => {
-  // First tier: Check for locally uploaded PNG based on challenge ID
-  const localImagePath = `/challenges/images/${id}.png`;
-  
-  // Second tier: Gamma Challenge screenshots (pre-generated static images)
-  const gammaScreenshotPath = `/challenges/gamma/${id}-screenshot.jpg`;
-  
-  // Third tier: Use reliable Unsplash bread images as final fallback
-  const reliableImages = {
-    // More recent challenges - use most reliable high-quality images
-    'march-2025': 'https://images.unsplash.com/photo-1598373182133-52452f7691ef', // Dark bread
-    'february-2025': 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7c', // Dark bread
-    'january-2025': 'https://images.unsplash.com/photo-1555507036-ab1f4038808a', // Light bread
-    
-    // Themed challenges
-    'cultural': 'https://images.unsplash.com/photo-1568254183919-78a4f43a2877',  // Dark background
-    'love': 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7c',  // Dark rustic bread
-    'healthy': 'https://images.unsplash.com/photo-1586444248879-bc604cbd555a', // Dark grain bread
-    'gift': 'https://images.unsplash.com/photo-1482930172332-2293d7138235', // Dark background
-    'enriched': 'https://images.unsplash.com/photo-1509440159596-0249088772ff', // Dark bread
-    'halloween': 'https://images.unsplash.com/photo-1476883852536-61979a5cdac9', // Dark pumpkin
-    'basic': 'https://images.unsplash.com/photo-1590137876181-2a5a7e340de2', // Dark rustic loaf
-    'lunch': 'https://images.unsplash.com/photo-1592151450128-62f8a61aad8a', // Dark sandwich
-    'challah': 'https://images.unsplash.com/photo-1591401911894-7e8f0f3dd4a5', // Dark braided bread
-    'freshstart': 'https://images.unsplash.com/photo-1598373182133-52452f7691ef', // Dark grain bread
-    'default': 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7c' // Dark rustic bread
-  };
-  
-  // First check if we have a direct match for the challenge ID
-  if (reliableImages[id]) {
-    return `${reliableImages[id]}?q=85&w=1200&auto=format&fit=crop`;
+  // First tier: Check for image in the configuration map
+  if (challengeImages[id]) {
+    console.log(`✅ [Challenge ${id}] Using configured image path`);
+    return challengeImages[id];
   }
   
-  // Challenge ID to theme mapping (for older challenges)
-  const challengeThemes: Record<string, string> = {
-    'december-2024': 'gift',
-    'november-2024': 'enriched',
-    'halloween-2024': 'halloween',
-    'october-2024': 'basic',
-    'september-2024': 'lunch',
-    'challah-2024': 'challah',
-    'march-2024': 'cultural',
-    'february-2024': 'love',
-    'january-2024': 'freshstart',
-    'december-2023': 'gift',
-    'november-2023': 'enriched',
-    'october-2023': 'basic',
-    'september-2023': 'lunch'
-  };
+  // Second tier: Try Gamma screenshot
+  const gammaScreenshotPath = `/challenges/gamma/${id}-screenshot.jpg`;
   
-  // Get theme for this challenge, or use default
-  const theme = challengeThemes[id] || 'default';
+  // For now, we'll skip checking if the gamma image exists here
+  // This will be checked at runtime in the component
+  console.log(`🔄 [Challenge ${id}] Configured image not found, trying Gamma screenshot`);
   
-  // Return themed image with quality parameters
-  return `${reliableImages[theme]}?q=85&w=1200&auto=format&fit=crop`;
+  // Third tier: Use default fallback image
+  console.log(`🌐 [Challenge ${id}] Using default fallback image`);
+  return DEFAULT_CHALLENGE_IMAGE;
 };
 
 /**
- * Enhanced challenge image loading with multi-tier fallback strategy
+ * Enhanced challenge image loading with metadata
  * Returns an object with image path and metadata to help with debugging
  */
 export const getEnhancedChallengeImage = (id: string): { 
   src: string, 
-  tier: 'local' | 'gamma' | 'unsplash',
+  tier: 'configured' | 'gamma' | 'default',
   fallbackAvailable: boolean
 } => {
-  // First tier: Try local PNG
-  const localImagePath = `/challenges/images/${id}.png`;
-  
-  // Check if local image exists by creating a test Image object
-  const localImageExists = false; // Will be checked at runtime in component
-  
-  if (localImageExists) {
+  // First tier: Check for image in the configuration map
+  if (challengeImages[id]) {
     return {
-      src: localImagePath,
-      tier: 'local',
+      src: challengeImages[id],
+      tier: 'configured',
       fallbackAvailable: true
     };
   }
   
   // Second tier: Try Gamma screenshot
   const gammaScreenshotPath = `/challenges/gamma/${id}-screenshot.jpg`;
-  const gammaImageExists = false; // Will be checked at runtime in component
   
-  if (gammaImageExists) {
-    return {
-      src: gammaScreenshotPath,
-      tier: 'gamma',
-      fallbackAvailable: true
-    };
-  }
-  
-  // Third tier: Fall back to Unsplash images
-  const unsplashSrc = getChallengeImage(id);
+  // We'll return the gamma path, but the actual existence check will happen in the component
   return {
-    src: unsplashSrc,
-    tier: 'unsplash',
-    fallbackAvailable: false
+    src: gammaScreenshotPath,
+    tier: 'gamma',
+    fallbackAvailable: true
   };
+  
+  // The fallback to default will happen in the component if both configured and gamma fail
 };
