@@ -21,7 +21,7 @@ const recipesData: Recipe[] = [
   {
     id: '2',
     title: 'Homemade Multigrain Bread',
-    description: 'A hearty and nutritious multigrain bread that's perfect for sandwiches or toasting.',
+    description: 'A hearty and nutritious multigrain bread that\'s perfect for sandwiches or toasting.',
     imageUrl: 'https://images.unsplash.com/photo-1598373182133-52452f7691ef?q=80&w=1000&auto=format&fit=crop',
     date: 'February 2, 2024',
     link: 'https://bakinggreatbread.blog/2024/02/02/homemade-multigrain-bread/',
