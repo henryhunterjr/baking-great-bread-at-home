@@ -63,3 +63,28 @@
   opacity: 0;
   transform: translateY(10px);
 }
+
+/* Mobile optimization classes */
+.mobile-touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Improve touch areas for mobile */
+@media (max-width: 768px) {
+  button, 
+  a.button,
+  .nav-link,
+  [role="button"] {
+    @apply px-3 py-2 touch-manipulation;
+  }
+  
+  /* Reduce unneeded spacing on mobile */
+  .container {
+    @apply px-3;
+  }
+  
+  section {
+    @apply py-6;
+  }
+}
