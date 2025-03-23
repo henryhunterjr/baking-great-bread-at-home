@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Users } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 
 interface HeroSectionProps {
   heroRef: React.RefObject<HTMLDivElement>;
@@ -22,12 +21,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ heroRef }) => {
                 Artisanal Baking
               </span>
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-medium leading-tight">
-                Learn to Bake <br />
-                <span className="text-bread-800">World-Class Bread</span>
-                <br /> in Your Own Kitchen
+                Master the Art <br />
+                of <span className="text-bread-800">Exceptional Bread</span>
               </h1>
               <p className="text-muted-foreground text-lg max-w-md">
-                Join the community that's been mastering artisanal bread at home for 5 years — with simple techniques anyone can learn.
+                Join our passionate community of home bakers and learn the secrets to creating bakery-quality bread at home, with simple techniques anyone can master.
               </p>
               <div className="pt-2 flex flex-wrap gap-4">
                 <Button 
@@ -44,17 +42,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({ heroRef }) => {
                 >
                   Join Community
                 </Button>
-              </div>
-              
-              {/* Social Proof Badge */}
-              <div className="flex items-center gap-3 bg-bread-50 dark:bg-bread-800/50 p-3 rounded-lg border border-bread-100 dark:border-bread-700 max-w-fit">
-                <div className="flex items-center gap-1 text-bread-800 dark:text-bread-200">
-                  <Users className="h-4 w-4" />
-                  <span className="text-sm font-medium">8,500+</span>
-                </div>
-                <div className="text-sm text-muted-foreground dark:text-gray-300">
-                  <span className="font-medium">Bakers in our community</span> creating amazing bread at home
-                </div>
               </div>
             </div>
             <div className="hero-image-container">
