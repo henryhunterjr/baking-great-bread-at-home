@@ -15,7 +15,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="section-title">Meet Henry</h2>
           <p className="section-subtitle dark:text-gray-300">
-            Baker, author, and passionate advocate for the home baking community. Henry's journey from amateur enthusiast to bread expert spans over a decade of experimentation, learning, and sharing.
+            Baker, author, and community builder.
           </p>
         </div>
         
@@ -29,11 +29,14 @@ const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
           </div>
           <div className="space-y-6">
             <h3 className="font-serif text-2xl md:text-3xl font-medium">A Passion for Perfect Loaves</h3>
-            <p className="text-muted-foreground dark:text-gray-300">
-              What began as a weekend hobby quickly evolved into a lifelong passion. After years of perfecting recipes and techniques, Henry now dedicates his time to helping others discover the joy and satisfaction of creating beautiful, delicious bread at home.
+            <p className="text-muted-foreground dark:text-gray-300 mb-3">
+              Hi, I'm Henry. I didn't set out to become a bread baker. It started with a need, rent money, and a kind old baker named Mr. Sherman. I was stationed in Germany, just a young American soldier trying to stay afloat. Mr. Sherman was my landlord, a stout, spirited man who ran a small bakery downstairs.
+            </p>
+            <p className="text-muted-foreground dark:text-gray-300 mb-3">
+              What began as survival turned into a calling. When my tour of duty ended, I came back to the States and worked in radio and television marketing, eventually retiring from CBS. But the lessons Mr. Sherman taught me never left.
             </p>
             <p className="text-muted-foreground dark:text-gray-300">
-              Through books, online courses, and an active community, Henry has helped thousands of bakers overcome common challenges and achieve results they never thought possible in their own kitchens.
+              During COVID, I started a Saturday morning bake-along and created a Facebook group called <strong>Baking Great Bread at Home</strong>. Within weeks, we had hundreds of members. What began as a small community has grown into something much bigger—a passion, a calling, and a thriving community of home bakers.
             </p>
             <div className="mt-6">
               <img 
@@ -48,7 +51,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
               asChild
             >
               <Link to="/about">
-                Learn More About Henry
+                Read Henry's Full Story
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
