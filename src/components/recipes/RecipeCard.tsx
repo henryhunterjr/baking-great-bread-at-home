@@ -11,6 +11,7 @@ export interface Recipe {
   imageUrl: string;
   date: string;
   link: string;
+  blogPostId?: string; // Added to link to the original blog post
 }
 
 interface RecipeCardProps {
@@ -20,6 +21,7 @@ interface RecipeCardProps {
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -34,6 +36,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       }
     });
   };
+
+  // Use the correct image URL prioritizing blog post images
+  const displayImageUrl = imageError ? 
+    "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop" : 
+    recipe.imageUrl;
 
   return (
     <Card 
@@ -68,12 +75,14 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       >
         <div className="aspect-video overflow-hidden">
           <img
-            src={recipe.imageUrl}
+            src={displayImageUrl}
             alt={recipe.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             onError={(e) => {
-              // Fallback image if the original fails to load
-              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop";
+              // Only try to set fallback image once to avoid infinite loop
+              if (!imageError) {
+                setImageError(true);
+              }
             }}
           />
         </div>

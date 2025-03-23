@@ -9,6 +9,7 @@ import { useBlogPosts } from '@/services/BlogService';
 import BlogService from '@/services/BlogService';
 import { recipesData } from '@/data/recipesData';
 import { toast } from 'sonner';
+import FloatingAIButton from '@/components/ai/FloatingAIButton';
 
 const Recipes = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,21 +31,53 @@ const Recipes = () => {
         const blogService = BlogService.getInstance();
         const allBlogPosts = await blogService.getPosts();
         
-        // Convert blog posts to recipes
+        // Convert blog posts to recipes with better image handling
         const recipesFromAllPosts = allBlogPosts.map(post => ({
           id: post.id.toString(),
           title: post.title,
           description: post.excerpt,
           imageUrl: post.imageUrl,
           date: post.date,
-          link: post.link
+          link: post.link,
+          blogPostId: post.id.toString() // Store the original blog post ID for reference
         }));
         
         // Combine with hardcoded recipes data for more comprehensive results
-        const combinedRecipes = [...recipesFromAllPosts, ...recipesData];
+        // For hardcoded recipes, try to match them with actual blog posts when possible
+        const enhancedRecipesData = recipesData.map(recipe => {
+          // Try to find a matching blog post based on title similarity
+          const matchingPost = allBlogPosts.find(post => 
+            post.title.toLowerCase().includes(recipe.title.toLowerCase()) ||
+            recipe.title.toLowerCase().includes(post.title.toLowerCase())
+          );
+          
+          if (matchingPost) {
+            return {
+              ...recipe,
+              imageUrl: matchingPost.imageUrl, // Use the blog post image
+              blogPostId: matchingPost.id.toString()
+            };
+          }
+          
+          return recipe;
+        });
         
-        setAllPosts(combinedRecipes);
-        setFilteredRecipes(combinedRecipes);
+        const combinedRecipes = [...recipesFromAllPosts, ...enhancedRecipesData];
+        
+        // Remove duplicates by title
+        const uniqueRecipes = combinedRecipes.reduce((acc, current) => {
+          const isDuplicate = acc.find(item => item.title === current.title);
+          if (!isDuplicate) {
+            acc.push(current);
+          } else if (isDuplicate && !isDuplicate.imageUrl && current.imageUrl) {
+            // If duplicate exists but doesn't have an image, use this one's image
+            isDuplicate.imageUrl = current.imageUrl;
+          }
+          return acc;
+        }, [] as Recipe[]);
+        
+        setAllPosts(uniqueRecipes);
+        setFilteredRecipes(uniqueRecipes);
         setIsLoading(false);
       } catch (err) {
         console.error("Error fetching all blog posts:", err);
@@ -244,6 +277,7 @@ const Recipes = () => {
       
       <div className="flex-grow"></div>
       <Footer />
+      <FloatingAIButton />
     </div>
   );
 };
