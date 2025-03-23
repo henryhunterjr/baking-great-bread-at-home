@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CurrentChallenge from '@/components/challenges/CurrentChallenge';
@@ -7,6 +7,19 @@ import ChallengeArchiveList from '@/components/challenges/ChallengeArchiveList';
 import { challenges } from '@/data/challengesData';
 
 const ChallengesArchive = () => {
+  // Log folder structure requirements on component mount
+  useEffect(() => {
+    console.info(`
+      Challenge Image Path Structure:
+      ------------------------------
+      1. Local PNG images:    /public/challenges/images/{challenge-id}.png
+                             (e.g., /public/challenges/images/march-2025.png)
+                      
+      2. Gamma screenshots:   /public/challenges/gamma/{challenge-id}-screenshot.jpg
+                             (e.g., /public/challenges/gamma/march-2025-screenshot.jpg)
+    `);
+  }, []);
+
   // Group challenges by year
   const groupedChallenges: Record<number, typeof challenges> = {};
   

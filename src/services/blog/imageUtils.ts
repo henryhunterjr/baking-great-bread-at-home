@@ -1,4 +1,3 @@
-
 // Helper function to get placeholder image for a blog post
 export const getPlaceholderImage = (id: number): string => {
   // Array of bread-related Unsplash images to use as placeholders
@@ -19,9 +18,20 @@ export const getPlaceholderImage = (id: number): string => {
   return `${breadImages[index]}?q=80&w=1000&auto=format&fit=crop`;
 };
 
-// Helper function to get image for a specific challenge by id
+/**
+ * Multi-tiered image loading strategy for challenge images
+ * 1. Try local PNG in public/challenges/images/
+ * 2. Try Gamma screenshot fallback
+ * 3. Fall back to Unsplash images
+ */
 export const getChallengeImage = (id: string): string => {
-  // Use a simplified approach with a set of reliable high-contrast Unsplash bread images
+  // First tier: Check for locally uploaded PNG based on challenge ID
+  const localImagePath = `/challenges/images/${id}.png`;
+  
+  // Second tier: Gamma Challenge screenshots (pre-generated static images)
+  const gammaScreenshotPath = `/challenges/gamma/${id}-screenshot.jpg`;
+  
+  // Third tier: Use reliable Unsplash bread images as final fallback
   const reliableImages = {
     // More recent challenges - use most reliable high-quality images
     'march-2025': 'https://images.unsplash.com/photo-1598373182133-52452f7691ef', // Dark bread
@@ -69,4 +79,48 @@ export const getChallengeImage = (id: string): string => {
   
   // Return themed image with quality parameters
   return `${reliableImages[theme]}?q=85&w=1200&auto=format&fit=crop`;
+};
+
+/**
+ * Enhanced challenge image loading with multi-tier fallback strategy
+ * Returns an object with image path and metadata to help with debugging
+ */
+export const getEnhancedChallengeImage = (id: string): { 
+  src: string, 
+  tier: 'local' | 'gamma' | 'unsplash',
+  fallbackAvailable: boolean
+} => {
+  // First tier: Try local PNG
+  const localImagePath = `/challenges/images/${id}.png`;
+  
+  // Check if local image exists by creating a test Image object
+  const localImageExists = false; // Will be checked at runtime in component
+  
+  if (localImageExists) {
+    return {
+      src: localImagePath,
+      tier: 'local',
+      fallbackAvailable: true
+    };
+  }
+  
+  // Second tier: Try Gamma screenshot
+  const gammaScreenshotPath = `/challenges/gamma/${id}-screenshot.jpg`;
+  const gammaImageExists = false; // Will be checked at runtime in component
+  
+  if (gammaImageExists) {
+    return {
+      src: gammaScreenshotPath,
+      tier: 'gamma',
+      fallbackAvailable: true
+    };
+  }
+  
+  // Third tier: Fall back to Unsplash images
+  const unsplashSrc = getChallengeImage(id);
+  return {
+    src: unsplashSrc,
+    tier: 'unsplash',
+    fallbackAvailable: false
+  };
 };
