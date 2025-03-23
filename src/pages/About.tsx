@@ -17,7 +17,7 @@ const About = () => {
           <div className="max-w-3xl mx-auto">
             {/* Breadcrumb / back navigation */}
             <div className="mb-8">
-              <Button variant="ghost" size="sm" className="group flex items-center" asChild>
+              <Button variant="ghost" size="sm" className="group flex items-center text-accent" asChild>
                 <Link to="/">
                   <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
                   Back to Home
@@ -31,7 +31,7 @@ const About = () => {
             {/* Image */}
             <div className="mb-10 border rounded-lg overflow-hidden">
               <img 
-                src="/lovable-uploads/b7572677-0e3f-4952-b3a2-114cc5726d98.png" 
+                src="/lovable-uploads/e1081420-d617-4779-a0ae-b2d2647d1b78.png" 
                 alt="Henry in chef whites" 
                 className="w-full h-auto object-cover mx-auto"
               />
