@@ -62,13 +62,14 @@ const Books = () => {
     <div className="min-h-screen bg-bread-50 dark:bg-bread-900">
       <Navbar />
       
-      {/* Hero Section */}
+      {/* Hero Section - Adjusted image positioning with object-position */}
       <div className="relative w-full">
         <div className="relative w-full h-[550px] overflow-hidden">
           <img 
             src="/lovable-uploads/4475b57a-8ff3-4c99-ac6d-24d1e49f0ad1.png" 
             alt="Baking Great Bread at Home - Books and Guides" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center object-position-y-top"
+            style={{ objectPosition: "center 30%" }}  /* This shifts the image up */
           />
           <div className="absolute inset-0 bg-bread-950/60"></div>
         </div>
