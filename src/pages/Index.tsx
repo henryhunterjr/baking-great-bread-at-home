@@ -63,35 +63,38 @@ const Index = () => {
       
       <HeroSection heroRef={heroRef} />
       
+      {/* Section divider for both mobile and desktop */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
+      
       <AboutSection sectionRef={aboutRef} />
       
-      {/* Mobile-only section divider */}
-      {isMobile && <div className="section-divider" role="presentation" aria-hidden="true" />}
+      {/* Section divider for both mobile and desktop */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
       
       <BooksSection sectionRef={booksRef} />
       
-      {/* Mobile-only section divider */}
-      {isMobile && <div className="section-divider" role="presentation" aria-hidden="true" />}
+      {/* Section divider for both mobile and desktop */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
       
       <ToolsSection sectionRef={toolsRef} />
       
-      {/* Mobile-only section divider */}
-      {isMobile && <div className="section-divider" role="presentation" aria-hidden="true" />}
+      {/* Section divider for both mobile and desktop */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
       
       <CareCenterPreview sectionRef={careCenterRef} />
       
-      {/* Mobile-only section divider */}
-      {isMobile && <div className="section-divider" role="presentation" aria-hidden="true" />}
+      {/* Section divider for both mobile and desktop */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
       
       <BlogPreviewSection sectionRef={blogRef} />
       
-      {/* Mobile-only section divider */}
-      {isMobile && <div className="section-divider" role="presentation" aria-hidden="true" />}
+      {/* Section divider for both mobile and desktop */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
       
       <CTASection sectionRef={ctaRef} />
       
-      {/* Mobile-only section divider */}
-      {isMobile && <div className="section-divider" role="presentation" aria-hidden="true" />}
+      {/* Section divider for both mobile and desktop */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
       
       <AppPromoSection sectionRef={appPromoRef} />
       

@@ -11,9 +11,9 @@ interface ChatBubbleProps {
 const ChatBubble: React.FC<ChatBubbleProps> = ({ message, isLoading = false }) => {
   return (
     <div 
-      className={`p-3 rounded-lg ${
+      className={`p-3 rounded-lg shadow-sm ${
         message.role === 'assistant' 
-          ? 'bg-background border border-border' 
+          ? 'bg-white border border-border' 
           : 'bg-bread-800 text-white ml-4'
       }`}
     >

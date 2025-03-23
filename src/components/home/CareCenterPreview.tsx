@@ -43,7 +43,7 @@ const CareCenterPreview: React.FC<CareCenterPreviewProps> = ({ sectionRef }) => 
   return (
     <section 
       ref={sectionRef} 
-      className="py-12 md:py-24 opacity-0 bg-bread-100/50 dark:bg-bread-800/40"
+      className="py-12 md:py-24 opacity-0 bg-[#F3F3F3] dark:bg-bread-800/40"
     >
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto relative">
@@ -54,7 +54,7 @@ const CareCenterPreview: React.FC<CareCenterPreviewProps> = ({ sectionRef }) => 
             </svg>
           </div>
           
-          <div className="mt-8 bg-white/80 dark:bg-bread-950/60 rounded-lg shadow-md p-8 mb-10 md:mb-12 text-center">
+          <div className="mt-8 bg-white/90 dark:bg-bread-950/60 rounded-lg shadow-md p-8 mb-10 md:mb-12 text-center">
             <h2 className="font-serif text-3xl md:text-4xl font-medium mb-4">The Care Center</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Videos, podcasts, and conversations to help you on your bread-making journey
@@ -71,7 +71,7 @@ const CareCenterPreview: React.FC<CareCenterPreviewProps> = ({ sectionRef }) => 
             <Button 
               variant="outline" 
               size="lg"
-              className="border-bread-200 text-bread-800 bg-white/60 hover:bg-bread-50 dark:border-bread-700 dark:text-white dark:bg-bread-900/60 dark:hover:bg-bread-800"
+              className="border-bread-200 text-bread-800 bg-white/80 hover:bg-bread-50 dark:border-bread-700 dark:text-white dark:bg-bread-900/60 dark:hover:bg-bread-800"
               asChild
             >
               <Link to="/care-center">

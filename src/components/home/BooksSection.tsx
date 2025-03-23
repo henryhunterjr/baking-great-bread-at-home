@@ -65,10 +65,10 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
   ];
 
   return (
-    <section ref={sectionRef} className="py-16 md:py-24 opacity-0 section-alt-3">
+    <section ref={sectionRef} className="py-16 md:py-24 opacity-0 bg-[#eee] dark:bg-bread-950/50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white/80 dark:bg-bread-900/60 rounded-lg shadow-md p-6 md:p-8 text-center mb-8 md:mb-12">
+          <div className="bg-white/90 dark:bg-bread-900/60 rounded-lg shadow-md p-6 md:p-8 text-center mb-8 md:mb-12">
             <h2 className="font-serif text-3xl md:text-4xl font-medium mb-4">Books & Guides</h2>
             <p className="text-muted-foreground dark:text-gray-300 text-lg max-w-2xl mx-auto">
               Comprehensive resources to help you master the art and science of bread baking at any level.
@@ -91,7 +91,7 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
             <Button 
               variant="outline" 
               size="lg"
-              className="border-bread-200 text-bread-800 hover:bg-bread-50 bg-white/60 dark:border-bread-700 dark:text-gray-300 dark:hover:bg-bread-800 dark:bg-bread-900/50"
+              className="border-bread-200 text-bread-800 hover:bg-bread-50 bg-white/80 dark:border-bread-700 dark:text-gray-300 dark:hover:bg-bread-800 dark:bg-bread-900/50"
               asChild
             >
               <a href="http://bakinggreatbread.blog" target="_blank" rel="noopener noreferrer">

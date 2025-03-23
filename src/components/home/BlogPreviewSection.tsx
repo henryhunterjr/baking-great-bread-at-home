@@ -14,7 +14,7 @@ const BlogPreviewSection: React.FC<BlogPreviewSectionProps> = ({ sectionRef }) =
   const { posts, loading, error } = useBlogPosts();
   
   return (
-    <section ref={sectionRef} className="py-16 md:py-24 bg-bread-50 dark:bg-bread-900/30">
+    <section ref={sectionRef} className="py-16 md:py-24 bg-[#F1F0FB] dark:bg-bread-900/30">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
@@ -54,7 +54,7 @@ const BlogPreviewSection: React.FC<BlogPreviewSectionProps> = ({ sectionRef }) =
             <Button 
               variant="outline" 
               size="lg"
-              className="border-bread-200 text-bread-800 hover:bg-bread-50 dark:border-bread-700 dark:text-white dark:hover:bg-bread-800"
+              className="border-bread-200 text-bread-800 hover:bg-bread-50 bg-white/60 dark:border-bread-700 dark:text-white dark:hover:bg-bread-800"
               asChild
             >
               <Link to="/blog">

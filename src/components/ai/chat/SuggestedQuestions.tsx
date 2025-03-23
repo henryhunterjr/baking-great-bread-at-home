@@ -17,7 +17,7 @@ const SuggestedQuestions: React.FC<SuggestedQuestionsProps> = ({ onQuestionSelec
         {suggestedQuestions.map((question, index) => (
           <button
             key={index}
-            className="text-xs md:text-sm bg-secondary/80 rounded-full px-3 py-1.5 hover:bg-bread-100 transition-colors text-left"
+            className="text-xs md:text-sm bg-[#F1F0FB] dark:bg-secondary/80 rounded-full px-3 py-1.5 hover:bg-bread-100 transition-colors text-left shadow-sm"
             onClick={() => onQuestionSelect(question)}
           >
             {question}
