@@ -1,0 +1,68 @@
+
+/* Dark mode optimizations */
+.dark .card-hover {
+  @apply border-bread-800 bg-bread-950/30;
+}
+
+.dark img {
+  filter: brightness(0.9);
+}
+
+/* Improved dark mode text for better contrast */
+.dark .section-title {
+  @apply text-white;
+}
+
+.dark .section-subtitle {
+  @apply text-gray-300;
+}
+
+.dark h1, 
+.dark h2, 
+.dark h3, 
+.dark h4, 
+.dark h5, 
+.dark h6 {
+  @apply text-white;
+}
+
+.dark .text-muted-foreground {
+  @apply text-gray-300;
+}
+
+/* Fix for buttons in dark mode */
+.dark button, 
+.dark .button {
+  @apply text-white border-bread-700;
+}
+
+/* Specific fix for Meet Henry section */
+.dark .bg-bread-50 {
+  @apply bg-bread-900;
+}
+
+.dark .bg-bread-50 p {
+  @apply text-gray-300;
+}
+
+.dark .bg-bread-50 .text-bread-800 {
+  @apply text-gray-300;
+}
+
+/* Fix for Footer subscription section in dark mode */
+.dark .bg-bread-50 .max-w-3xl h3 {
+  @apply text-white;
+}
+
+.dark .bg-bread-50 .max-w-3xl p {
+  @apply text-gray-200;
+}
+
+.dark .bg-bread-50 .max-w-3xl .bg-background {
+  @apply bg-bread-800 border-bread-700 text-white;
+}
+
+/* Fix for the blog section to ensure visibility */
+section.opacity-0 {
+  opacity: 1 !important;
+}

@@ -5,3 +5,9 @@
 @import './animations.css';
 @import './dark-mode.css';
 @import './responsive.css';
+@import './typography.css';
+@import './ui-components.css';
+@import './layout.css';
+@import './contrast-fixes.css';
+@import './dark-mode-fixes.css';
+@import './responsive-fixes.css';
