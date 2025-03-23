@@ -22,14 +22,14 @@ const FloatingAIButton = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Periodically pulse every 5 minutes to remind users
+  // Periodically pulse every 1 minute to remind users
   useEffect(() => {
     const interval = setInterval(() => {
       setPulseAnimation(true);
       setTimeout(() => {
         setPulseAnimation(false);
       }, 5000);
-    }, 5 * 60 * 1000);
+    }, 60 * 1000); // Changed from 5 minutes to 1 minute (60 seconds)
 
     return () => clearInterval(interval);
   }, []);
