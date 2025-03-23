@@ -24,11 +24,12 @@ const ChatForm: React.FC<ChatFormProps> = ({
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         disabled={isLoading}
+        className="bg-secondary/50 border-2 border-accent/30 focus:border-bread-700 shadow-sm"
       />
       <Button 
         type="submit"
         disabled={!message.trim() || isLoading}
-        className="bg-bread-800 hover:bg-bread-900"
+        className="bg-bread-800 hover:bg-bread-900 shadow-md"
       >
         <ArrowRight className="h-4 w-4" />
       </Button>

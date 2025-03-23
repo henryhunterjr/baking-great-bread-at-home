@@ -89,12 +89,12 @@ const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({ addToChatHistory }) =
             value={recipePrompt}
             onChange={(e) => setRecipePrompt(e.target.value)}
             disabled={isGenerating}
-            className="min-h-[80px]"
+            className="min-h-[80px] bg-secondary/50 border-2 border-accent/30 focus:border-bread-700 shadow-sm"
           />
           <Button 
             type="submit"
             disabled={!recipePrompt.trim() || isGenerating}
-            className="w-full bg-bread-800 hover:bg-bread-900"
+            className="w-full bg-bread-800 hover:bg-bread-700 shadow-md sticky bottom-0"
           >
             {isGenerating ? (
               <>

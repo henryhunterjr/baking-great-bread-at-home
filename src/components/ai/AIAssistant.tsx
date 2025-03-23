@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -48,7 +47,6 @@ const AIAssistant = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
-  // Settings
   const [useAI, setUseAI] = useState(true);
   const [saveHistory, setSaveHistory] = useState(true);
   const [enhanceRecipes, setEnhanceRecipes] = useState(true);
@@ -72,8 +70,6 @@ const AIAssistant = () => {
     setIsProcessing(true);
     
     try {
-      // In a real implementation, this would call an AI API
-      // For demo purposes, we'll simulate an AI response
       await new Promise(resolve => setTimeout(resolve, 1200));
       
       let response = '';
@@ -121,17 +117,12 @@ const AIAssistant = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    // In a real implementation, this would use OCR to extract text from the image
-    // For demo purposes, we'll simulate processing
-    
     setIsProcessing(true);
     
-    // Simulate processing time
     setTimeout(() => {
       setActiveTab('convert');
       setRecipeText("Classic Sourdough Bread\n\nIngredients:\n- 500g bread flour\n- 350g water\n- 100g active sourdough starter\n- 10g salt\n\nInstructions:\n1. Mix flour and water, rest 30 minutes (autolyse)\n2. Add starter and salt, mix well\n3. Perform 4 sets of stretch and folds, 30 minutes apart\n4. Bulk ferment 4-6 hours or until 30% increase in volume\n5. Shape and place in banneton\n6. Cold proof in refrigerator 12-16 hours\n7. Preheat oven to 500°F with Dutch oven inside\n8. Score and bake covered for 20 minutes\n9. Remove lid and bake additional 20-25 minutes until golden brown");
       
-      // Add a message to the chat
       const assistantMessage: ChatMessage = {
         role: 'assistant',
         content: "I've processed your recipe image and extracted the text. You can now edit it in the Recipe Converter tab.",
@@ -147,15 +138,12 @@ const AIAssistant = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    // Similar to file processing, but from camera
     setIsProcessing(true);
     
-    // Simulate processing time
     setTimeout(() => {
       setActiveTab('convert');
       setRecipeText("Rustic Country Loaf\n\nIngredients:\n- 400g bread flour\n- 100g whole wheat flour\n- 375g water\n- 10g salt\n- 5g instant yeast\n\nInstructions:\n1. Mix all ingredients until no dry flour remains\n2. Rest 15 minutes, then knead for 5-7 minutes\n3. Bulk ferment 2-3 hours or until doubled\n4. Shape into boule and place in proofing basket\n5. Final proof 1 hour or until 50% larger\n6. Preheat oven to 450°F with Dutch oven\n7. Score and bake covered 25 minutes\n8. Uncover and bake 15-20 minutes more");
       
-      // Add a message to the chat
       const assistantMessage: ChatMessage = {
         role: 'assistant',
         content: "I've processed your recipe photo and extracted the text. You can now edit it in the Recipe Converter tab.",
@@ -174,7 +162,6 @@ const AIAssistant = () => {
       setRecipeText(clipboardText || "");
       
       if (clipboardText) {
-        // Add a message to the chat
         const assistantMessage: ChatMessage = {
           role: 'assistant',
           content: "I've pasted the recipe from your clipboard. You can now edit it in the Recipe Converter tab.",
@@ -206,13 +193,10 @@ const AIAssistant = () => {
     setIsProcessing(true);
     
     try {
-      // Call the AI service to process the recipe text
       const convertedRecipe: Recipe = await processRecipeText(recipeText);
       
-      // Reset the form and show success message
       setRecipeText('');
       
-      // Add a message to the chat
       const assistantMessage: ChatMessage = {
         role: 'assistant',
         content: `I've successfully converted your recipe for "${convertedRecipe.title}". You can find it in your saved recipes.`,
@@ -221,13 +205,11 @@ const AIAssistant = () => {
       
       setMessages(prev => [...prev, assistantMessage]);
       
-      // Show success toast
       toast({
         title: "Recipe Converted",
         description: "Your recipe has been successfully converted and saved.",
       });
       
-      // Switch back to chat tab
       setActiveTab('chat');
     } catch (error) {
       console.error('Error converting recipe:', error);
@@ -254,13 +236,10 @@ const AIAssistant = () => {
     setIsProcessing(true);
     
     try {
-      // Call the AI service to generate a recipe
       const recipe = await generateRecipe(recipePrompt);
       
-      // Reset prompt
       setRecipePrompt('');
       
-      // Add a message to the chat
       const assistantMessage: ChatMessage = {
         role: 'assistant',
         content: `I've generated a recipe for "${recipe.title}" based on your request for "${recipePrompt}". You can find it in your saved recipes.`,
@@ -269,13 +248,11 @@ const AIAssistant = () => {
       
       setMessages(prev => [...prev, assistantMessage]);
       
-      // Show success toast
       toast({
         title: "Recipe Generated",
         description: "Your recipe has been generated and saved.",
       });
       
-      // Switch back to chat tab
       setActiveTab('chat');
     } catch (error) {
       console.error('Error generating recipe:', error);
@@ -387,12 +364,13 @@ const AIAssistant = () => {
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 disabled={isProcessing}
+                className="bg-secondary/50 border-2 border-accent/30 focus:border-bread-700 shadow-sm"
               />
               <Button 
                 type="submit" 
                 size="icon"
                 disabled={!chatInput.trim() || isProcessing}
-                className="bg-bread-800 hover:bg-bread-700"
+                className="bg-bread-800 hover:bg-bread-700 shadow-md"
               >
                 <Send className="h-4 w-4" />
               </Button>
@@ -400,7 +378,7 @@ const AIAssistant = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="convert" className="flex-1 p-4 space-y-6">
+        <TabsContent value="convert" className="flex-1 p-4 space-y-6 overflow-y-auto">
           <div className="grid grid-cols-4 gap-2 mb-4">
             <Button 
               variant="outline" 
@@ -460,7 +438,7 @@ const AIAssistant = () => {
             <Textarea
               id="recipe-text"
               placeholder="Paste or type your recipe here..."
-              className="min-h-[200px]"
+              className="min-h-[200px] bg-secondary/50 border-2 border-accent/30 focus:border-bread-700 shadow-sm"
               value={recipeText}
               onChange={(e) => setRecipeText(e.target.value)}
               disabled={isProcessing}
@@ -477,7 +455,7 @@ const AIAssistant = () => {
           <Button 
             onClick={handleConvertRecipe}
             disabled={!recipeText.trim() || isProcessing}
-            className="w-full bg-bread-800 hover:bg-bread-700"
+            className="w-full bg-bread-800 hover:bg-bread-700 shadow-md"
           >
             {isProcessing ? (
               <>
@@ -493,13 +471,13 @@ const AIAssistant = () => {
           </Button>
         </TabsContent>
         
-        <TabsContent value="generate" className="flex-1 p-4 space-y-6">
+        <TabsContent value="generate" className="flex-1 p-4 space-y-6 overflow-y-auto">
           <div className="space-y-2">
             <Label htmlFor="recipe-prompt">Describe Your Ideal Recipe</Label>
             <Textarea
               id="recipe-prompt"
               placeholder="Describe the bread recipe you want me to create..."
-              className="min-h-[150px]"
+              className="min-h-[150px] bg-secondary/50 border-2 border-accent/30 focus:border-bread-700 shadow-sm"
               value={recipePrompt}
               onChange={(e) => setRecipePrompt(e.target.value)}
               disabled={isProcessing}
@@ -534,7 +512,7 @@ const AIAssistant = () => {
           <Button 
             onClick={handleGenerateRecipe}
             disabled={!recipePrompt.trim() || isProcessing}
-            className="w-full bg-bread-800 hover:bg-bread-700"
+            className="w-full bg-bread-800 hover:bg-bread-700 shadow-md sticky bottom-4"
           >
             {isProcessing ? (
               <>
