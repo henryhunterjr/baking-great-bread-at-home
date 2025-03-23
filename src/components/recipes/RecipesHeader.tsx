@@ -4,6 +4,7 @@ import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Badge } from '@/components/ui/badge';
 
 interface RecipesHeaderProps {
   searchQuery: string;
@@ -15,9 +16,9 @@ const RecipesHeader = ({ searchQuery, setSearchQuery }: RecipesHeaderProps) => {
     <section className="pt-32 pb-16 md:pt-40 md:pb-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center mb-12">
-          <span className="inline-block text-xs font-medium tracking-wider uppercase py-1 px-3 border border-bread-200 rounded-full text-bread-800 bg-bread-50 mb-6 dark:bg-bread-800 dark:text-white dark:border-bread-700">
+          <Badge variant="outline" className="mb-6 bg-bread-50 text-bread-800 border-bread-200 dark:bg-bread-800 dark:text-white dark:border-bread-700 uppercase text-xs font-medium tracking-wider px-3 py-1">
             RECIPES
-          </span>
+          </Badge>
           <h1 className="section-title text-4xl md:text-5xl font-serif font-medium mb-4">
             Explore Our Bread Recipes
           </h1>

@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
 
 interface HeroSectionProps {
   heroRef: React.RefObject<HTMLDivElement>;
@@ -18,9 +19,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ heroRef }) => {
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="space-y-6">
-              <span className="inline-block text-xs font-medium tracking-wider uppercase py-1 px-3 border border-bread-200 rounded-full text-bread-800 bg-bread-50 dark:bg-bread-800 dark:text-white dark:border-bread-700">
+              <Badge variant="outline" className="bg-bread-50 text-bread-800 border-bread-200 dark:bg-bread-800 dark:text-white dark:border-bread-700 uppercase text-xs font-medium tracking-wider px-3 py-1">
                 Artisanal Baking
-              </span>
+              </Badge>
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-medium leading-tight">
                 Master the Art of <br />
                 <span className="text-bread-800">Baking Great Bread</span>
@@ -64,4 +65,3 @@ const HeroSection: React.FC<HeroSectionProps> = ({ heroRef }) => {
 };
 
 export default HeroSection;
-
