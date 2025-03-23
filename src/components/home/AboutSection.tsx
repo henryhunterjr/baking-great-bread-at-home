@@ -1,10 +1,14 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
+
 interface AboutSectionProps {
   sectionRef: React.RefObject<HTMLElement>;
 }
+
 const AboutSection: React.FC<AboutSectionProps> = ({
   sectionRef
 }) => {
@@ -26,11 +30,9 @@ const AboutSection: React.FC<AboutSectionProps> = ({
           {/* Grid for Image and Passion for Perfect Loaves */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
             <div className="flex flex-col">
-              <div className="hero-image-container mb-8">
+              <div className="hero-image-container mb-6">
                 <img src="/lovable-uploads/e08c08a0-e721-449e-b524-01fa739a37e5.png" alt="Henry smiling in chef whites and black hat with bread dough" className="hero-image rounded-lg" />
               </div>
-              
-              
             </div>
             
             <div className="space-y-6">
@@ -42,6 +44,15 @@ const AboutSection: React.FC<AboutSectionProps> = ({
               <p className="text-muted-foreground dark:text-gray-300 mb-6">
                 After a week or two of doing nothing, I decided to give my customers something to do. I launched a Saturday morning bake-along and started a Facebook group called <strong>Baking Great Bread at Home</strong>, with help from my daughter Payton. Within a few weeks, we had 300 members and 13 people watching us live. We were so excited, we celebrated with sushi. Look at us now.
               </p>
+              
+              {/* Henry's Signature */}
+              <div className="flex justify-end mt-6 mb-4">
+                <img 
+                  src="/lovable-uploads/8f0a3cc3-7574-4a47-854c-9690df491ed5.png" 
+                  alt="Henry M. Hunter Jr. signature" 
+                  className="h-24 w-auto" 
+                />
+              </div>
             </div>
           </div>
           
@@ -58,4 +69,5 @@ const AboutSection: React.FC<AboutSectionProps> = ({
       </div>
     </section>;
 };
+
 export default AboutSection;
