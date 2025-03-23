@@ -5,8 +5,10 @@ import { ExternalLink } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BookCard, { Book } from '@/components/home/BookCard';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Books = () => {
+  const isMobile = useIsMobile();
   const books: Book[] = [
     {
       id: 1,
@@ -62,46 +64,48 @@ const Books = () => {
     <div className="min-h-screen bg-bread-50 dark:bg-bread-900">
       <Navbar />
       
-      {/* Hero Section - Adjusted image positioning with object-position */}
+      {/* Hero Section - With mobile-specific adjustments */}
       <div className="relative w-full">
-        <div className="relative w-full h-[550px] overflow-hidden">
+        <div className="relative w-full h-[400px] md:h-[550px] overflow-hidden">
           <img 
             src="/lovable-uploads/4475b57a-8ff3-4c99-ac6d-24d1e49f0ad1.png" 
             alt="Baking Great Bread at Home - Books and Guides" 
             className="w-full h-full object-cover object-center object-position-y-top"
-            style={{ objectPosition: "center 65%" }}  /* Fine-tuned adjustment to show more of the bottom */
+            style={{ objectPosition: isMobile ? "center 55%" : "center 65%" }}
           />
           <div className="absolute inset-0 bg-bread-950/60"></div>
         </div>
         
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
-          <div className="bg-bread-950/70 p-6 rounded-lg backdrop-blur-sm max-w-4xl">
-            <h1 className="text-4xl md:text-6xl font-serif text-white mb-8">
+          <div className="bg-bread-950/70 p-4 md:p-6 rounded-lg backdrop-blur-sm max-w-4xl">
+            <h1 className="text-3xl md:text-6xl font-serif text-white mb-4 md:mb-8">
               Books & Guides
             </h1>
-            <p className="text-xl text-white mb-8">
+            <p className="text-lg md:text-xl text-white mb-4 md:mb-8">
               Explore our collection of books and guides to help you master the art of bread baking.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Books Section */}
-      <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-serif text-bread-900 dark:text-white mb-4">Our Books & Guides</h2>
-          <p className="text-bread-700 dark:text-bread-200 max-w-3xl mx-auto text-lg">
+      {/* Books Section - With responsive grid adjustments */}
+      <div className="max-w-7xl mx-auto py-10 md:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8 md:mb-16">
+          <h2 className="text-2xl md:text-4xl font-serif text-bread-900 dark:text-white mb-3 md:mb-4">Our Books & Guides</h2>
+          <p className="text-bread-700 dark:text-bread-200 max-w-3xl mx-auto text-base md:text-lg">
             Comprehensive resources to help you master the art and science of bread baking at any level.
           </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        {/* First row - adjusted for mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-8 md:mb-12">
           {books.slice(0, 3).map((book) => (
             <BookCard key={book.id} book={book} />
           ))}
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-12">
+        {/* Second row - adjusted for mobile and responsive grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-8 md:mb-12">
           {books.slice(3, 6).map((book) => (
             <BookCard key={book.id} book={book} />
           ))}
@@ -110,7 +114,7 @@ const Books = () => {
         <div className="text-center mt-8">
           <Button 
             variant="outline" 
-            size="lg"
+            size={isMobile ? "default" : "lg"}
             className="border-bread-200 text-bread-800 hover:bg-bread-50 bg-white/80 dark:border-bread-700 dark:text-gray-300 dark:hover:bg-bread-800 dark:bg-bread-900/50"
             asChild
           >
