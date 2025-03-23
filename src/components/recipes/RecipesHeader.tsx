@@ -11,7 +11,7 @@ interface RecipesHeaderProps {
 
 const RecipesHeader = ({ searchQuery, setSearchQuery }: RecipesHeaderProps) => {
   return (
-    <section className="pt-32 pb-16 md:pt-40 md:pb-20 opacity-0">
+    <section className="pt-32 pb-16 md:pt-40 md:pb-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center mb-12">
           <span className="inline-block text-xs font-medium tracking-wider uppercase py-1 px-3 border border-bread-200 rounded-full text-bread-800 bg-bread-50 mb-6 dark:bg-bread-800 dark:text-white dark:border-bread-700">

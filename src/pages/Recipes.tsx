@@ -7,6 +7,7 @@ import RecipesHeader from '@/components/recipes/RecipesHeader';
 import RecipeGrid from '@/components/recipes/RecipeGrid';
 import { useBlogPosts } from '@/services/BlogService';
 import BlogService from '@/services/BlogService';
+import { recipesData } from '@/data/recipesData';
 
 const Recipes = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -15,7 +16,7 @@ const Recipes = () => {
   const [allPosts, setAllPosts] = useState<Recipe[]>([]);
   
   // Fetch blog posts using the service
-  const { posts, loading, error } = useBlogPosts();
+  const { posts, loading, error } = useBlogPosts(searchQuery);
   
   // Set up refs for animation elements
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
@@ -29,7 +30,7 @@ const Recipes = () => {
         
         // Convert blog posts to recipes
         const recipesFromAllPosts = allBlogPosts.map(post => ({
-          id: post.id,
+          id: post.id.toString(),
           title: post.title,
           description: post.excerpt,
           imageUrl: post.imageUrl,
@@ -37,25 +38,27 @@ const Recipes = () => {
           link: post.link
         }));
         
-        setAllPosts(recipesFromAllPosts);
-        setFilteredRecipes(recipesFromAllPosts);
+        // Combine with hardcoded recipes data for more comprehensive results
+        const combinedRecipes = [...recipesFromAllPosts, ...recipesData];
+        
+        setAllPosts(combinedRecipes);
+        setFilteredRecipes(combinedRecipes);
         setIsLoading(false);
       } catch (err) {
         console.error("Error fetching all blog posts:", err);
-        // Fallback to the posts from the hook if direct fetching fails
-        if (posts.length > 0) {
-          const recipesFromPosts = posts.map(post => ({
-            id: post.id,
-            title: post.title,
-            description: post.excerpt,
-            imageUrl: post.imageUrl,
-            date: post.date,
-            link: post.link
-          }));
-          
-          setAllPosts(recipesFromPosts);
-          setFilteredRecipes(recipesFromPosts);
-        }
+        // Fallback to the static recipes data and posts from the hook
+        const recipesFromPosts = posts.map(post => ({
+          id: post.id.toString(),
+          title: post.title,
+          description: post.excerpt,
+          imageUrl: post.imageUrl,
+          date: post.date,
+          link: post.link
+        }));
+        
+        const combinedRecipes = [...recipesFromPosts, ...recipesData];
+        setAllPosts(combinedRecipes);
+        setFilteredRecipes(combinedRecipes);
         setIsLoading(false);
       }
     };
@@ -65,21 +68,36 @@ const Recipes = () => {
   
   // Filter recipes based on search query
   useEffect(() => {
-    if (allPosts.length === 0) return;
-    
     if (searchQuery.trim() === '') {
       setFilteredRecipes(allPosts);
       return;
     }
     
-    const query = searchQuery.toLowerCase();
+    // Use search results from the API if available
+    if (posts.length > 0 && searchQuery.trim() !== '') {
+      const searchResults = posts.map(post => ({
+        id: post.id.toString(),
+        title: post.title,
+        description: post.excerpt,
+        imageUrl: post.imageUrl,
+        date: post.date,
+        link: post.link
+      }));
+      
+      setFilteredRecipes(searchResults);
+      return;
+    }
+    
+    // Fallback to client-side search
+    const query = searchQuery.toLowerCase().trim();
     const filtered = allPosts.filter(recipe => 
       recipe.title.toLowerCase().includes(query) || 
-      recipe.description.toLowerCase().includes(query)
+      recipe.description.toLowerCase().includes(query) ||
+      recipe.link.toLowerCase().includes(query)
     );
     
     setFilteredRecipes(filtered);
-  }, [searchQuery, allPosts]);
+  }, [searchQuery, allPosts, posts]);
   
   // Observer setup for animations
   useEffect(() => {
@@ -101,7 +119,6 @@ const Recipes = () => {
     // Observe sections
     sectionRefs.current.forEach((el) => {
       if (el) {
-        el.classList.add('opacity-0');
         observer.observe(el);
       }
     });
