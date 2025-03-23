@@ -6,8 +6,8 @@
 export const challengeImages: Record<string, string> = {
   // Updated paths to use the uploaded images
   "march-2025": "/lovable-uploads/77f6e22c-2ac2-4763-845e-39c5793b127d.png", // Updated March image
-  "february-2025": "/lovable-uploads/92681740-cb01-4776-ab1d-fac0fb76acd6.png",
-  "january-2025": "/lovable-uploads/a1e8e454-b660-424a-a223-abcf52875470.png",
+  "february-2025": "/lovable-uploads/273f5757-c7b7-4bbf-a8d5-cbd5874d4798.png", // Updated February image
+  "january-2025": "/lovable-uploads/a7b11bfd-dfbd-48f6-8a26-8de8b68087d0.png", // Updated January image
   "december-2024": "/lovable-uploads/413db4c6-cdcc-4610-9e79-89f4a4aca97f.png",
   "november-2024": "/lovable-uploads/9617c8fa-0274-4499-9a97-ef063adb2d83.png",
   "halloween-2024": "/lovable-uploads/d2fca566-ffbc-49ea-9201-c97fb9ed3c3a.png",

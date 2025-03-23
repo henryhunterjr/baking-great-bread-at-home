@@ -29,10 +29,14 @@ const checkImageExists = (imageSrc: string): Promise<boolean> => {
   });
 };
 
-// Determine if we should hide overlay text - specifically for the March 2025 challenge image
+// Determine if we should hide overlay text - for challenges with text baked into the image
 const shouldHideOverlayText = (challengeId: string, imageSrc: string) => {
-  // Currently only the March 2025 challenge has text baked into the image
-  return challengeId === 'march-2025' && imageSrc.includes('77f6e22c-2ac2-4763-845e-39c5793b127d');
+  // Add February and January 2025 to the list of challenges with text baked into the image
+  return (
+    (challengeId === 'march-2025' && imageSrc.includes('77f6e22c-2ac2-4763-845e-39c5793b127d')) ||
+    (challengeId === 'february-2025' && imageSrc.includes('273f5757-c7b7-4bbf-a8d5-cbd5874d4798')) ||
+    (challengeId === 'january-2025' && imageSrc.includes('a7b11bfd-dfbd-48f6-8a26-8de8b68087d0'))
+  );
 };
 
 const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => {
