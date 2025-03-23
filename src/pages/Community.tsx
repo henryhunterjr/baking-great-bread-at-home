@@ -7,7 +7,7 @@ const Community = () => {
   const FACEBOOK_GROUP_LINK = 'https://www.facebook.com/groups/1082865755403754';
   
   return (
-    <div className="min-h-screen bg-bread-50">
+    <div className="min-h-screen bg-bread-50 dark:bg-bread-900">
       {/* Hero Section with improved text legibility */}
       <div className="relative w-full">
         <div className="relative w-full h-[550px] overflow-hidden">
@@ -44,26 +44,26 @@ const Community = () => {
       {/* Community Benefits Section with improved contrast */}
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-serif text-bread-900 mb-4">Why Join Our Community?</h2>
-          <p className="text-bread-700 max-w-3xl mx-auto text-lg">
+          <h2 className="text-3xl md:text-4xl font-serif text-bread-900 dark:text-white mb-4">Why Join Our Community?</h2>
+          <p className="text-bread-700 dark:text-bread-200 max-w-3xl mx-auto text-lg">
             Being part of our bread baking community comes with many benefits that will help you improve your skills and enjoy the journey.
           </p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-lg shadow-sm border border-bread-100">
-            <h3 className="text-2xl font-serif text-bread-800 mb-4">Learn Together</h3>
-            <p className="text-bread-700">Share tips, ask questions, and learn from both beginners and experienced bakers in a supportive environment.</p>
+          <div className="bg-white dark:bg-bread-800 p-8 rounded-lg shadow-sm border border-bread-100 dark:border-bread-700">
+            <h3 className="text-2xl font-serif text-bread-800 dark:text-white mb-4">Learn Together</h3>
+            <p className="text-bread-700 dark:text-bread-200">Share tips, ask questions, and learn from both beginners and experienced bakers in a supportive environment.</p>
           </div>
           
-          <div className="bg-white p-8 rounded-lg shadow-sm border border-bread-100">
-            <h3 className="text-2xl font-serif text-bread-800 mb-4">Monthly Challenges</h3>
-            <p className="text-bread-700">Participate in our monthly baking challenges to try new recipes and techniques while getting feedback from the community.</p>
+          <div className="bg-white dark:bg-bread-800 p-8 rounded-lg shadow-sm border border-bread-100 dark:border-bread-700">
+            <h3 className="text-2xl font-serif text-bread-800 dark:text-white mb-4">Monthly Challenges</h3>
+            <p className="text-bread-700 dark:text-bread-200">Participate in our monthly baking challenges to try new recipes and techniques while getting feedback from the community.</p>
           </div>
           
-          <div className="bg-white p-8 rounded-lg shadow-sm border border-bread-100">
-            <h3 className="text-2xl font-serif text-bread-800 mb-4">Showcase Your Creations</h3>
-            <p className="text-bread-700">Proud of what you've baked? Share photos of your bread and get recognized for your achievements.</p>
+          <div className="bg-white dark:bg-bread-800 p-8 rounded-lg shadow-sm border border-bread-100 dark:border-bread-700">
+            <h3 className="text-2xl font-serif text-bread-800 dark:text-white mb-4">Showcase Your Creations</h3>
+            <p className="text-bread-700 dark:text-bread-200">Proud of what you've baked? Share photos of your bread and get recognized for your achievements.</p>
           </div>
         </div>
         
@@ -82,32 +82,53 @@ const Community = () => {
       </div>
       
       {/* Testimonials Section with improved contrast */}
-      <div className="bg-bread-100 py-16">
+      <div className="bg-bread-100 dark:bg-bread-800 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-serif text-bread-900 mb-12 text-center">
+          <h2 className="text-3xl md:text-4xl font-serif text-bread-900 dark:text-white mb-12 text-center">
             What Our Community Members Say
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <p className="italic text-bread-700 mb-4">
-                "Joining this community has transformed my bread baking. The support and knowledge sharing is incredible, and I've made friends who share my passion."
+            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm">
+              <p className="text-bread-700 dark:text-white mb-4 font-medium">
+                "Thank you Henry Hunter! Your encouragement and help have been invaluable!"
               </p>
-              <p className="font-medium text-bread-900">- Sarah J.</p>
+              <p className="font-bold text-bread-900 dark:text-bread-100">- Joseph Librizzi</p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <p className="italic text-bread-700 mb-4">
-                "As a beginner, I was intimidated at first, but everyone was so welcoming. Now I'm baking bread I never thought I could make!"
+            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm">
+              <p className="text-bread-700 dark:text-white mb-4 font-medium">
+                "Happy Anniversary!! Your dedication to this community is inspiring! Here's to many more years of baking and connection."
               </p>
-              <p className="font-medium text-bread-900">- Michael T.</p>
+              <p className="font-bold text-bread-900 dark:text-bread-100">- Debbie Eckstein</p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <p className="italic text-bread-700 mb-4">
-                "The monthly challenges pushed me to try new techniques and recipes. It's made bread baking even more fun and I look forward to each new challenge."
+            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm">
+              <p className="text-bread-700 dark:text-white mb-4 font-medium">
+                "Wow, 5 years! I remember your first Saturday teaching us how to bake bread. You mentioned at one point that you thought if you got 25 followers you'd be thrilled! 😊 So, what do you think now, Henry?"
               </p>
-              <p className="font-medium text-bread-900">- Emma L.</p>
+              <p className="font-bold text-bread-900 dark:text-bread-100">- Nikki Carriere</p>
+            </div>
+            
+            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm">
+              <p className="text-bread-700 dark:text-white mb-4 font-medium">
+                "I have learned so much from this community. Your leadership and expertise along with the kindness of it members have turned this into a welcoming family."
+              </p>
+              <p className="font-bold text-bread-900 dark:text-bread-100">- Christina Smith</p>
+            </div>
+            
+            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm">
+              <p className="text-bread-700 dark:text-white mb-4 font-medium">
+                "Congratulations 🎉 Thank you all for your hard work to create this wonderful group! It's been such a pleasure to be part of this terrific community. Always professional, friendly and kind and so very empathetic and supportive- it's much appreciated."
+              </p>
+              <p className="font-bold text-bread-900 dark:text-bread-100">- Imke Borawski</p>
+            </div>
+            
+            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm">
+              <p className="text-bread-700 dark:text-white mb-4 font-medium">
+                "In contrast to other groups, this Community created by Henry Hunter feels like a family to me. I'm no longer afraid of being kicked out, as Henry is always kind enough to guide me on the group's rules. His name is well-known among my family and friends, and I feel incredibly fortunate to be part of this community. I want to take this opportunity to thank you all. Congratulations and Happy Anniversary!✨💛"
+              </p>
+              <p className="font-bold text-bread-900 dark:text-bread-100">- Aldrina Yun</p>
             </div>
           </div>
         </div>
@@ -138,3 +159,4 @@ const Community = () => {
 };
 
 export default Community;
+
