@@ -6,7 +6,6 @@ import FloatingAIButton from '@/components/ai/FloatingAIButton';
 import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 
 import Index from '@/pages/Index';
-import About from '@/pages/About';
 import AppStore from '@/pages/AppStore';
 import Blog from '@/pages/Blog';
 import CareCenter from '@/pages/CareCenter';
@@ -32,7 +31,6 @@ function App() {
       <FloatingAIButton />
       <Routes>
         <Route path="/" element={<Index />} />
-        <Route path="/about" element={<About />} />
         <Route path="/app" element={<AppStore />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/books" element={<Books />} />
