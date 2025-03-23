@@ -26,9 +26,11 @@
 
 .animate-pulse-glow {
   animation: pulse-glow 2s infinite;
+  transition: animation 0.8s ease-out;
 }
 
 .animate-gradient-spin {
   animation: gradient-spin 3s linear infinite;
   background-size: 200% 200%;
+  transition: animation 0.8s ease-out;
 }

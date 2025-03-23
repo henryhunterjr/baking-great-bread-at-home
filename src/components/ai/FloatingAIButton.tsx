@@ -9,6 +9,7 @@ import './floating-button.css';
 const FloatingAIButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [pulseAnimation, setPulseAnimation] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
   const [position, setPosition] = useState({ right: 20, bottom: 20 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -16,23 +17,45 @@ const FloatingAIButton = () => {
   // Stop pulsing animation after 5 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
-      setPulseAnimation(false);
+      if (!isHovered) {
+        setPulseAnimation(false);
+      }
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isHovered]);
 
-  // Periodically pulse every 1 minute to remind users
+  // Periodically pulse every 30 seconds to remind users
   useEffect(() => {
     const interval = setInterval(() => {
-      setPulseAnimation(true);
-      setTimeout(() => {
-        setPulseAnimation(false);
-      }, 5000);
-    }, 60 * 1000); // Changed from 5 minutes to 1 minute (60 seconds)
+      if (!isHovered) {
+        setPulseAnimation(true);
+        setTimeout(() => {
+          if (!isHovered) {
+            setPulseAnimation(false);
+          }
+        }, 5000);
+      }
+    }, 30 * 1000); // Changed from 60 seconds to 30 seconds
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isHovered]);
+
+  // Mouse enter/leave handlers for hover glow effect
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    setPulseAnimation(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    // Only disable the pulse animation after a smooth transition
+    setTimeout(() => {
+      if (!isHovered) {
+        setPulseAnimation(false);
+      }
+    }, 1000);
+  };
 
   // Mouse down handler for dragging
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -87,10 +110,13 @@ const FloatingAIButton = () => {
         style={{ 
           right: `${position.right}px`, 
           bottom: `${position.bottom}px`,
-          boxShadow: pulseAnimation ? '0 0 15px 5px rgba(229, 168, 95, 0.7)' : '0 4px 14px 0 rgba(0, 0, 0, 0.2)'
+          boxShadow: pulseAnimation ? '0 0 15px 5px rgba(229, 168, 95, 0.7)' : '0 4px 14px 0 rgba(0, 0, 0, 0.2)',
+          transition: 'box-shadow 0.8s ease-out, background-color 0.3s ease'
         }}
         onClick={() => setIsOpen(true)}
         onMouseDown={handleMouseDown}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <div className="absolute inset-0 rounded-full overflow-hidden">
           <div className={`w-full h-full bg-gradient-to-br from-bread-600 to-bread-900 ${pulseAnimation ? 'animate-gradient-spin' : ''}`}></div>
