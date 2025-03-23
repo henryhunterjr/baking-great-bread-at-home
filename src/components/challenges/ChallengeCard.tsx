@@ -19,8 +19,8 @@ const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => 
   // Get the image source based on the challenge ID
   const imageSrc = getChallengeImage(challenge.id);
   
-  // Default fallback image
-  const fallbackImage = '/lovable-uploads/01322383-b0e6-4164-a9e3-a69f15399df4.png';
+  // Reliable fallback image from Unsplash
+  const fallbackImage = 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7c?q=80&w=2000&auto=format&fit=crop';
 
   return (
     <Card className="overflow-hidden border-bread-100">
