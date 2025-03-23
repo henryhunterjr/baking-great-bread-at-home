@@ -14,7 +14,7 @@ interface RecipeGridProps {
 
 const RecipeGrid = ({ isLoading, searchQuery, filteredRecipes, setSearchQuery }: RecipeGridProps) => {
   return (
-    <section className="pb-20 opacity-0">
+    <section className="pb-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {searchQuery && (
           <div className="mb-8 text-center">

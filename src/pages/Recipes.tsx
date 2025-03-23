@@ -6,70 +6,80 @@ import { Recipe } from '@/components/recipes/RecipeCard';
 import RecipesHeader from '@/components/recipes/RecipesHeader';
 import RecipeGrid from '@/components/recipes/RecipeGrid';
 import { useBlogPosts } from '@/services/BlogService';
+import BlogService from '@/services/BlogService';
 
 const Recipes = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [allPosts, setAllPosts] = useState<Recipe[]>([]);
   
-  // Fetch blog posts using the same service as the blog section
+  // Fetch blog posts using the service
   const { posts, loading, error } = useBlogPosts();
   
   // Set up refs for animation elements
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   
-  // Convert blog posts to recipes when they're loaded
+  // Fetch all posts directly using the service instance to ensure we get everything
   useEffect(() => {
-    if (!loading && posts.length > 0) {
-      const recipesFromPosts = posts.map(post => ({
-        id: post.id,
-        title: post.title,
-        description: post.excerpt,
-        imageUrl: post.imageUrl,
-        date: post.date,
-        link: post.link
-      }));
-      
-      setFilteredRecipes(recipesFromPosts);
-      setIsLoading(false);
-    }
-  }, [posts, loading]);
+    const fetchAllPosts = async () => {
+      try {
+        const blogService = BlogService.getInstance();
+        const allBlogPosts = await blogService.getPosts();
+        
+        // Convert blog posts to recipes
+        const recipesFromAllPosts = allBlogPosts.map(post => ({
+          id: post.id,
+          title: post.title,
+          description: post.excerpt,
+          imageUrl: post.imageUrl,
+          date: post.date,
+          link: post.link
+        }));
+        
+        setAllPosts(recipesFromAllPosts);
+        setFilteredRecipes(recipesFromAllPosts);
+        setIsLoading(false);
+      } catch (err) {
+        console.error("Error fetching all blog posts:", err);
+        // Fallback to the posts from the hook if direct fetching fails
+        if (posts.length > 0) {
+          const recipesFromPosts = posts.map(post => ({
+            id: post.id,
+            title: post.title,
+            description: post.excerpt,
+            imageUrl: post.imageUrl,
+            date: post.date,
+            link: post.link
+          }));
+          
+          setAllPosts(recipesFromPosts);
+          setFilteredRecipes(recipesFromPosts);
+        }
+        setIsLoading(false);
+      }
+    };
+    
+    fetchAllPosts();
+  }, []);
   
   // Filter recipes based on search query
   useEffect(() => {
-    if (!posts.length) return;
+    if (allPosts.length === 0) return;
     
     if (searchQuery.trim() === '') {
-      const recipesFromPosts = posts.map(post => ({
-        id: post.id,
-        title: post.title,
-        description: post.excerpt,
-        imageUrl: post.imageUrl,
-        date: post.date,
-        link: post.link
-      }));
-      
-      setFilteredRecipes(recipesFromPosts);
+      setFilteredRecipes(allPosts);
       return;
     }
     
     const query = searchQuery.toLowerCase();
-    const filteredPosts = posts.filter(post => 
-      post.title.toLowerCase().includes(query) || 
-      post.excerpt.toLowerCase().includes(query)
+    const filtered = allPosts.filter(recipe => 
+      recipe.title.toLowerCase().includes(query) || 
+      recipe.description.toLowerCase().includes(query)
     );
     
-    const recipesFromFilteredPosts = filteredPosts.map(post => ({
-      id: post.id,
-      title: post.title,
-      description: post.excerpt,
-      imageUrl: post.imageUrl,
-      date: post.date,
-      link: post.link
-    }));
-    
-    setFilteredRecipes(recipesFromFilteredPosts);
-  }, [searchQuery, posts]);
+    setFilteredRecipes(filtered);
+  }, [searchQuery, allPosts]);
   
   // Observer setup for animations
   useEffect(() => {
@@ -90,7 +100,10 @@ const Recipes = () => {
     
     // Observe sections
     sectionRefs.current.forEach((el) => {
-      if (el) observer.observe(el);
+      if (el) {
+        el.classList.add('opacity-0');
+        observer.observe(el);
+      }
     });
     
     return () => {
