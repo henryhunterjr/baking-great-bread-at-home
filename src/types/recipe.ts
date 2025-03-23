@@ -1,29 +1,22 @@
 
-export interface Ingredient {
-  name: string;
-  quantity: string;
-  unit: string;
-}
-
-export interface EquipmentItem {
-  id: string;
-  name: string;
-  affiliateLink?: string;
-}
-
 export interface Recipe {
+  id?: string;
   title: string;
   description: string;
-  servings: number;
-  prepTime: number; // in minutes
-  cookTime?: number; // in minutes
-  ingredients: Ingredient[];
+  ingredients: {
+    name: string;
+    quantity: string;
+    unit: string;
+  }[];
   steps: string[];
+  prepTime: number;
+  cookTime: number;
+  servings: number;
   tags: string[];
-  notes?: string;
-  imageUrl?: string;
-  author?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  isPublic?: boolean;
+  notes: string;
+  imageUrl: string;
+  author: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isPublic: boolean;
 }

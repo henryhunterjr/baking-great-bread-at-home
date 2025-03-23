@@ -1,62 +1,61 @@
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Component-specific styles */
+
 @layer components {
-  .hero-image-container {
-    @apply relative overflow-hidden rounded-xl;
+  /* Button variants */
+  .btn-bread {
+    @apply bg-bread-700 text-white hover:bg-bread-800 transition-colors;
   }
   
-  .hero-image-container::after {
-    content: '';
-    @apply absolute inset-0 bg-bread-500/10 pointer-events-none;
+  .btn-bread-outline {
+    @apply border-2 border-bread-700 text-bread-800 hover:bg-bread-100 transition-colors;
   }
   
-  .hero-image {
-    @apply w-full h-full object-cover transition-transform duration-700 hover:scale-105;
+  /* Cards */
+  .recipe-card {
+    @apply bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow;
   }
   
-  .nav-link {
-    @apply relative font-medium text-foreground/80 hover:text-foreground transition-colors duration-200 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent after:transition-all after:duration-300 hover:after:w-full;
+  .recipe-card-img {
+    @apply h-48 w-full object-cover;
   }
   
-  .active-nav-link {
-    @apply text-foreground after:w-full;
+  .recipe-card-content {
+    @apply p-4;
   }
   
-  .section-title {
-    @apply font-serif text-3xl md:text-4xl lg:text-5xl font-medium leading-tight mb-6;
+  /* Recipe details */
+  .recipe-header {
+    @apply py-8 bg-bread-100 border-b border-bread-200;
   }
   
-  .section-subtitle {
-    @apply font-sans text-base md:text-lg text-muted-foreground mb-12 max-w-2xl mx-auto;
+  .recipe-section {
+    @apply py-6 border-b border-gray-200;
   }
   
-  .card-hover {
-    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  /* Ingredient list */
+  .ingredient-list {
+    @apply space-y-2;
   }
   
-  .glass-card {
-    @apply bg-background/70 backdrop-blur-sm border border-border/50 rounded-xl shadow-sm;
+  .ingredient-item {
+    @apply flex items-start;
   }
   
-  /* Mobile section dividers */
-  .section-divider {
-    @apply h-4 bg-gradient-to-r from-bread-200 via-bread-300 to-bread-200 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800;
+  /* Instructions */
+  .instruction-list {
+    @apply space-y-4;
   }
   
-  /* Mobile section padding optimization */
-  .mobile-section {
-    @apply py-8 md:py-16;
+  .instruction-item {
+    @apply flex;
   }
   
-  /* Section color alternation */
-  .section-alt-1 {
-    @apply bg-bread-50 dark:bg-bread-900/30;
-  }
-  
-  .section-alt-2 {
-    @apply bg-bread-100/50 dark:bg-bread-800/40;
-  }
-  
-  .section-alt-3 {
-    @apply bg-background dark:bg-bread-950/50;
+  .instruction-number {
+    @apply flex-shrink-0 h-8 w-8 rounded-full bg-bread-100 flex items-center justify-center text-bread-800 font-bold mr-3;
   }
 }

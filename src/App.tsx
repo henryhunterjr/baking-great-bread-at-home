@@ -1,46 +1,47 @@
 
-import { Routes, Route } from 'react-router-dom';
-import { Toaster } from '@/components/ui/sonner';
-import { ThemeProvider } from '@/hooks/use-theme';
-import FloatingAIButton from '@/components/ai/FloatingAIButton';
+import { useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from './contexts/AuthContext';
+import FloatingAIButton from './components/ai/FloatingAIButton';
+import UserMenu from './components/auth/UserMenu';
 
-import Index from '@/pages/Index';
-import AppStore from '@/pages/AppStore';
-import Blog from '@/pages/Blog';
-import CareCenter from '@/pages/CareCenter';
-import ChallengesArchive from '@/pages/ChallengesArchive';
-import Community from '@/pages/Community';
-import ComingSoon from '@/pages/ComingSoon';
-import NotFound from '@/pages/NotFound';
-import RecipeConverter from '@/pages/RecipeConverter';
-import AffiliateCollection from '@/pages/AffiliateCollection';
-import Tools from '@/pages/Tools';
-import Recipes from '@/pages/Recipes';
-import Books from '@/pages/Books';
-
-import './App.css';
+// Import pages as needed
+// This is a placeholder for your actual pages
+const Home = () => <div className="container mx-auto p-4">Home Page</div>;
+const MyRecipes = () => <div className="container mx-auto p-4">My Recipes Page</div>;
+const Favorites = () => <div className="container mx-auto p-4">Favorites Page</div>;
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="bread-theme">
-      <Toaster />
-      <FloatingAIButton />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/app" element={<AppStore />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/books" element={<Books />} />
-        <Route path="/care-center" element={<CareCenter />} />
-        <Route path="/challenges" element={<ChallengesArchive />} />
-        <Route path="/community" element={<Community />} />
-        <Route path="/recipe-converter" element={<RecipeConverter />} />
-        <Route path="/affiliate-collection" element={<AffiliateCollection />} />
-        <Route path="/tools" element={<Tools />} />
-        <Route path="/recipes" element={<Recipes />} />
-        <Route path="/coming-soon" element={<ComingSoon />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </ThemeProvider>
+    <AuthProvider>
+      <div className="min-h-screen flex flex-col">
+        <header className="border-b py-3 px-4 sm:px-6 md:px-8 bg-white">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center">
+              <a href="/" className="text-xl font-serif font-bold text-bread-800">
+                Baking Great Bread
+              </a>
+            </div>
+            
+            <nav className="flex items-center space-x-4">
+              <UserMenu />
+            </nav>
+          </div>
+        </header>
+        
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/my-recipes" element={<MyRecipes />} />
+            <Route path="/favorites" element={<Favorites />} />
+          </Routes>
+        </main>
+        
+        <FloatingAIButton />
+        <Toaster />
+      </div>
+    </AuthProvider>
   );
 }
 

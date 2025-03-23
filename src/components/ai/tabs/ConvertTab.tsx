@@ -1,12 +1,32 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, Camera, Clipboard, FileText, Loader2, Wand2 } from 'lucide-react';
-import { processRecipeText } from '@/lib/ai-services/ai-service';
+import { 
+  Upload, 
+  Camera, 
+  Clipboard, 
+  FileText, 
+  Loader2, 
+  Wand2, 
+  Download,
+  FilePdf,
+  FileText as FileTextIcon
+} from 'lucide-react';
+import { extractTextFromImage, processRecipeText } from '@/lib/ai-services/recipe-processor';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { downloadRecipePDF, downloadRecipeText } from '@/lib/pdf/pdf-generator';
+import { Recipe } from '@/types/recipe';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ConvertTabProps {
   recipeText: string;
@@ -28,37 +48,54 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const [convertedRecipe, setConvertedRecipe] = useState<Recipe | null>(null);
+  const { isAuthenticated, saveUserRecipe } = useAuth();
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
     setIsProcessing(true);
     
-    setTimeout(() => {
-      setActiveTab('convert');
-      setRecipeText("Classic Sourdough Bread\n\nIngredients:\n- 500g bread flour\n- 350g water\n- 100g active sourdough starter\n- 10g salt\n\nInstructions:\n1. Mix flour and water, rest 30 minutes (autolyse)\n2. Add starter and salt, mix well\n3. Perform 4 sets of stretch and folds, 30 minutes apart\n4. Bulk ferment 4-6 hours or until 30% increase in volume\n5. Shape and place in banneton\n6. Cold proof in refrigerator 12-16 hours\n7. Preheat oven to 500°F with Dutch oven inside\n8. Score and bake covered for 20 minutes\n9. Remove lid and bake additional 20-25 minutes until golden brown");
+    try {
+      // Check if it's an image file
+      if (file.type.startsWith('image/')) {
+        const extractedText = await extractTextFromImage(file);
+        setRecipeText(extractedText);
+      } else {
+        // Handle text files
+        const text = await file.text();
+        setRecipeText(text);
+      }
       
       const assistantMessage = {
         role: 'assistant',
-        content: "I've processed your recipe image and extracted the text. You can now edit it in the Recipe Converter tab.",
+        content: "I've processed your recipe file and extracted the text. You can now edit it in the Recipe Converter tab.",
         timestamp: new Date()
       };
       
       setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error processing file:', error);
+      toast({
+        variant: "destructive",
+        title: "File Processing Error",
+        description: error instanceof Error ? error.message : "Failed to process file",
+      });
+    } finally {
       setIsProcessing(false);
-    }, 2000);
+    }
   };
   
-  const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
     setIsProcessing(true);
     
-    setTimeout(() => {
-      setActiveTab('convert');
-      setRecipeText("Rustic Country Loaf\n\nIngredients:\n- 400g bread flour\n- 100g whole wheat flour\n- 375g water\n- 10g salt\n- 5g instant yeast\n\nInstructions:\n1. Mix all ingredients until no dry flour remains\n2. Rest 15 minutes, then knead for 5-7 minutes\n3. Bulk ferment 2-3 hours or until doubled\n4. Shape into boule and place in proofing basket\n5. Final proof 1 hour or until 50% larger\n6. Preheat oven to 450°F with Dutch oven\n7. Score and bake covered 25 minutes\n8. Uncover and bake 15-20 minutes more");
+    try {
+      const extractedText = await extractTextFromImage(file);
+      setRecipeText(extractedText);
       
       const assistantMessage = {
         role: 'assistant',
@@ -67,8 +104,16 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
       };
       
       setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error processing camera image:', error);
+      toast({
+        variant: "destructive",
+        title: "Image Processing Error",
+        description: error instanceof Error ? error.message : "Failed to process image",
+      });
+    } finally {
       setIsProcessing(false);
-    }, 2000);
+    }
   };
   
   const handlePasteFromClipboard = async () => {
@@ -111,12 +156,13 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
     try {
       const convertedRecipe = await processRecipeText(recipeText);
       
+      setConvertedRecipe(convertedRecipe);
       setRecipeText('');
       
       const henryComments = [
-        `I've successfully converted your recipe for "${convertedRecipe.title}". It's now in Henry's preferred format with clear instructions and measurements. You can find it in your saved recipes.`,
-        `Your "${convertedRecipe.title}" recipe has been converted! I've structured it in the way Henry recommends for maximum clarity and success. It's now saved in your recipes.`,
-        `I've transformed your recipe for "${convertedRecipe.title}" following Henry's approach to recipe organization. Remember, as Henry says, "The best recipes are the ones you can follow without having to read them twice." It's now in your saved recipes.`
+        `I've successfully converted your recipe for "${convertedRecipe.title}". It's now in Henry's preferred format with clear instructions and measurements.`,
+        `Your "${convertedRecipe.title}" recipe has been converted! I've structured it in the way Henry recommends for maximum clarity and success.`,
+        `I've transformed your recipe for "${convertedRecipe.title}" following Henry's approach to recipe organization. Remember, as Henry says, "The best recipes are the ones you can follow without having to read them twice."`
       ];
       
       const randomComment = henryComments[Math.floor(Math.random() * henryComments.length)];
@@ -131,10 +177,9 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
       
       toast({
         title: "Recipe Converted",
-        description: "Your recipe has been successfully converted and saved.",
+        description: "Your recipe has been successfully converted.",
       });
       
-      setActiveTab('chat');
     } catch (error) {
       console.error('Error converting recipe:', error);
       toast({
@@ -145,6 +190,43 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
     } finally {
       setIsProcessing(false);
     }
+  };
+  
+  const handleSaveRecipe = async () => {
+    if (!convertedRecipe) return;
+    
+    try {
+      await saveUserRecipe(convertedRecipe);
+      toast({
+        title: "Recipe Saved",
+        description: "Recipe has been saved to your collection.",
+      });
+      setActiveTab('chat');
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Not authenticated') {
+        toast({
+          variant: "destructive",
+          title: "Authentication Required",
+          description: "Please log in to save recipes to your collection.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Save Error",
+          description: "Failed to save recipe. Please try again.",
+        });
+      }
+    }
+  };
+  
+  const handleDownloadPDF = () => {
+    if (!convertedRecipe) return;
+    downloadRecipePDF(convertedRecipe);
+  };
+  
+  const handleDownloadText = () => {
+    if (!convertedRecipe) return;
+    downloadRecipeText(convertedRecipe);
   };
 
   return (
@@ -222,23 +304,61 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
         </AlertDescription>
       </Alert>
       
-      <Button 
-        onClick={handleConvertRecipe}
-        disabled={!recipeText.trim() || isProcessing}
-        className="w-full bg-bread-800 hover:bg-bread-700 shadow-md"
-      >
-        {isProcessing ? (
+      <div className="flex flex-col md:flex-row gap-3">
+        <Button 
+          onClick={handleConvertRecipe}
+          disabled={!recipeText.trim() || isProcessing}
+          className="w-full bg-bread-800 hover:bg-bread-700 shadow-md"
+        >
+          {isProcessing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Converting Recipe...
+            </>
+          ) : (
+            <>
+              <Wand2 className="mr-2 h-4 w-4" />
+              Convert Recipe
+            </>
+          )}
+        </Button>
+        
+        {convertedRecipe && (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Converting Recipe...
-          </>
-        ) : (
-          <>
-            <Wand2 className="mr-2 h-4 w-4" />
-            Convert Recipe
+            <Button 
+              onClick={handleSaveRecipe}
+              className="w-full bg-blue-600 hover:bg-blue-700 shadow-md"
+              disabled={isProcessing}
+            >
+              Save Recipe
+            </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  className="w-full md:w-auto bg-green-600 hover:bg-green-700 shadow-md"
+                  disabled={isProcessing}
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuGroup>
+                  <DropdownMenuItem onClick={handleDownloadPDF}>
+                    <FilePdf className="mr-2 h-4 w-4" />
+                    <span>Download as PDF</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDownloadText}>
+                    <FileTextIcon className="mr-2 h-4 w-4" />
+                    <span>Download as Text</span>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </>
         )}
-      </Button>
+      </div>
     </div>
   );
 };

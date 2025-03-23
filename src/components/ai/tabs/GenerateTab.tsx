@@ -1,13 +1,30 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Sparkles } from 'lucide-react';
+import { 
+  Loader2, 
+  Sparkles, 
+  Download, 
+  Heart,
+  FilePdf,
+  FileText
+} from 'lucide-react';
 import { recipeExamples } from '../utils/data';
-import { handleGenerateRecipe } from '../utils/aiHelpers';
+import { generateRecipe } from '@/lib/ai-services/recipe-generator';
+import { Recipe } from '@/types/recipe';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { downloadRecipePDF, downloadRecipeText } from '@/lib/pdf/pdf-generator';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface GenerateTabProps {
   recipePrompt: string;
@@ -27,6 +44,9 @@ const GenerateTab: React.FC<GenerateTabProps> = ({
   setActiveTab
 }) => {
   const { toast } = useToast();
+  const [generatedRecipe, setGeneratedRecipe] = useState<Recipe | null>(null);
+  const { isAuthenticated, saveUserRecipe, toggleRecipeFavorite, isRecipeFavorite } = useAuth();
+  const [isFavorite, setIsFavorite] = useState(false);
   
   const handleGenerateRecipeClick = async () => {
     if (!recipePrompt.trim()) {
@@ -41,13 +61,14 @@ const GenerateTab: React.FC<GenerateTabProps> = ({
     setIsProcessing(true);
     
     try {
-      const recipe = await handleGenerateRecipe(recipePrompt);
+      const recipe = await generateRecipe(recipePrompt);
       
+      setGeneratedRecipe(recipe);
       setRecipePrompt('');
       
       const assistantMessage = {
         role: 'assistant',
-        content: `I've generated a recipe for "${recipe.title}" based on your request for "${recipePrompt}". You can find it in your saved recipes.`,
+        content: `I've generated a recipe for "${recipe.title}" based on your request for "${recipePrompt}".`,
         timestamp: new Date()
       };
       
@@ -55,10 +76,12 @@ const GenerateTab: React.FC<GenerateTabProps> = ({
       
       toast({
         title: "Recipe Generated",
-        description: "Your recipe has been generated and saved.",
+        description: "Your recipe has been generated successfully.",
       });
       
-      setActiveTab('chat');
+      // Reset favorite status for new recipe
+      setIsFavorite(false);
+      
     } catch (error) {
       console.error('Error generating recipe:', error);
       toast({
@@ -69,6 +92,80 @@ const GenerateTab: React.FC<GenerateTabProps> = ({
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleSaveRecipe = async () => {
+    if (!generatedRecipe) return;
+    
+    try {
+      await saveUserRecipe(generatedRecipe);
+      toast({
+        title: "Recipe Saved",
+        description: "Recipe has been saved to your collection.",
+      });
+      setActiveTab('chat');
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Not authenticated') {
+        toast({
+          variant: "destructive",
+          title: "Authentication Required",
+          description: "Please log in to save recipes to your collection.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Save Error",
+          description: "Failed to save recipe. Please try again.",
+        });
+      }
+    }
+  };
+  
+  const handleToggleFavorite = async () => {
+    if (!generatedRecipe?.id) {
+      toast({
+        variant: "destructive",
+        title: "Save Required",
+        description: "Please save the recipe before adding it to favorites.",
+      });
+      return;
+    }
+    
+    try {
+      const newFavoriteState = await toggleRecipeFavorite(generatedRecipe.id);
+      setIsFavorite(newFavoriteState);
+      
+      toast({
+        title: newFavoriteState ? "Added to Favorites" : "Removed from Favorites",
+        description: newFavoriteState 
+          ? "Recipe has been added to your favorites." 
+          : "Recipe has been removed from your favorites.",
+      });
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Not authenticated') {
+        toast({
+          variant: "destructive",
+          title: "Authentication Required",
+          description: "Please log in to manage your favorites.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to update favorites. Please try again.",
+        });
+      }
+    }
+  };
+  
+  const handleDownloadPDF = () => {
+    if (!generatedRecipe) return;
+    downloadRecipePDF(generatedRecipe);
+  };
+  
+  const handleDownloadText = () => {
+    if (!generatedRecipe) return;
+    downloadRecipeText(generatedRecipe);
   };
 
   return (
@@ -108,6 +205,60 @@ const GenerateTab: React.FC<GenerateTabProps> = ({
             ))}
           </div>
         </div>
+        
+        {generatedRecipe && (
+          <div className="bg-secondary/30 p-4 rounded-lg border border-bread-200 space-y-3">
+            <h3 className="font-bold text-lg text-bread-800">{generatedRecipe.title}</h3>
+            <p className="text-sm">{generatedRecipe.description}</p>
+            
+            <div className="flex flex-wrap gap-3 mt-4">
+              <Button 
+                onClick={handleSaveRecipe}
+                className="bg-blue-600 hover:bg-blue-700 shadow-sm"
+              >
+                Save Recipe
+              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    className="bg-green-600 hover:bg-green-700 shadow-sm"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem onClick={handleDownloadPDF}>
+                      <FilePdf className="mr-2 h-4 w-4" />
+                      <span>Download as PDF</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleDownloadText}>
+                      <FileText className="mr-2 h-4 w-4" />
+                      <span>Download as Text</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              {generatedRecipe.id && (
+                <Button
+                  variant="outline"
+                  onClick={handleToggleFavorite}
+                  className={`${
+                    isFavorite ? 'bg-pink-100 border-pink-300 text-pink-700' : 'bg-white'
+                  }`}
+                >
+                  <Heart
+                    className={`mr-2 h-4 w-4 ${isFavorite ? 'fill-pink-500 text-pink-500' : ''}`}
+                  />
+                  {isFavorite ? 'Favorited' : 'Add to Favorites'}
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
       
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-background/90 backdrop-blur-sm border-t">

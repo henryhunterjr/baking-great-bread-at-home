@@ -1,8 +1,11 @@
 
+import { Recipe } from '@/types/recipe';
+
 /**
  * Helper function to generate simulated ingredients based on prompt
+ * Note: This is only used as a fallback if the OpenAI API is not configured
  */
-export function generateIngredientsBasedOnPrompt(prompt: string): string[] {
+export const generateIngredientsBasedOnPrompt = (prompt: string): string[] => {
   const isVegetarian = prompt.toLowerCase().includes('vegetarian');
   const isDessert = prompt.toLowerCase().includes('dessert');
   const isQuick = prompt.toLowerCase().includes('quick') || prompt.toLowerCase().includes('30-minute');
@@ -83,12 +86,13 @@ export function generateIngredientsBasedOnPrompt(prompt: string): string[] {
       '2 tablespoons fresh parsley, chopped'
     ];
   }
-}
+};
 
 /**
  * Helper function to generate simulated instructions based on prompt
+ * Note: This is only used as a fallback if the OpenAI API is not configured
  */
-export function generateInstructionsBasedOnPrompt(prompt: string): string[] {
+export const generateInstructionsBasedOnPrompt = (prompt: string): string[] => {
   const isVegetarian = prompt.toLowerCase().includes('vegetarian');
   const isDessert = prompt.toLowerCase().includes('dessert');
   const isQuick = prompt.toLowerCase().includes('quick') || prompt.toLowerCase().includes('30-minute');
@@ -155,4 +159,4 @@ export function generateInstructionsBasedOnPrompt(prompt: string): string[] {
       'Sprinkle with crumbled feta cheese, fresh lemon juice, and chopped parsley before serving.'
     ];
   }
-}
+};
