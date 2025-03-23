@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const CTAContent = () => {
@@ -28,9 +28,10 @@ const CTAContent = () => {
           className="border-bread-100 text-white hover:bg-bread-700"
           asChild
         >
-          <Link to="/challenges">
-            View Baking Challenges
-          </Link>
+          <a href="https://bakinggreatbread.blog/https-bakinggreatbread-blog-subscribe/" target="_blank" rel="noopener noreferrer">
+            Subscribe to our Blog
+            <ExternalLink className="ml-2 h-4 w-4" />
+          </a>
         </Button>
       </div>
     </div>
