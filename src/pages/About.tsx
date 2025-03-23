@@ -17,7 +17,12 @@ const About = () => {
           <div className="max-w-3xl mx-auto">
             {/* Breadcrumb / back navigation */}
             <div className="mb-8">
-              <Button variant="ghost" size="sm" className="group flex items-center text-accent" asChild>
+              <Button 
+                variant="link" 
+                size="sm" 
+                className="group flex items-center text-accent hover:text-accent/80 transition-colors" 
+                asChild
+              >
                 <Link to="/">
                   <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
                   Back to Home
