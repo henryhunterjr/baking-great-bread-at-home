@@ -16,6 +16,7 @@ import RecipeConverter from '@/pages/RecipeConverter';
 import AffiliateCollection from '@/pages/AffiliateCollection';
 import Tools from '@/pages/Tools';
 import Recipes from '@/pages/Recipes';
+import Books from '@/pages/Books';
 
 import './App.css';
 
@@ -28,6 +29,7 @@ function App() {
         <Route path="/" element={<Index />} />
         <Route path="/app" element={<AppStore />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/books" element={<Books />} />
         <Route path="/care-center" element={<CareCenter />} />
         <Route path="/challenges" element={<ChallengesArchive />} />
         <Route path="/community" element={<Community />} />
