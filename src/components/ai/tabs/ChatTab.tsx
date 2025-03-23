@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -110,7 +109,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
         attachedChallenge = {
           title: currentChallenge.title,
           description: currentChallenge.description,
-          imageUrl: currentChallenge.image,
+          imageUrl: currentChallenge.link,
           link: "/challenges"
         };
         

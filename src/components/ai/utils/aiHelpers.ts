@@ -13,7 +13,7 @@ export const getCurrentChallenge = () => challenges[0];
 export const searchRecipes = async (query: string): Promise<RecipeSearchResult[]> => {
   try {
     const blogService = BlogService.getInstance();
-    const blogPosts = await blogService.getPosts(query);
+    const blogPosts = await blogService.getPosts();
     
     const recipeMatches = recipesData.filter(recipe => 
       recipe.title.toLowerCase().includes(query.toLowerCase()) ||
