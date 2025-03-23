@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,19 +14,26 @@ interface ChallengeCardProps {
 
 const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => {
   const isLarge = variant === 'large';
+  const [imageError, setImageError] = useState(false);
+  
+  // Get the image source based on the challenge ID
+  const imageSrc = getChallengeImage(challenge.id);
+  
+  // Default fallback image
+  const fallbackImage = '/lovable-uploads/01322383-b0e6-4164-a9e3-a69f15399df4.png';
 
   return (
     <Card className="overflow-hidden border-bread-100">
       <div className={`${isLarge ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'flex flex-col sm:flex-row h-full'}`}>
         <div className={`${isLarge ? 'aspect-video' : 'sm:w-1/3 aspect-video sm:aspect-auto'} overflow-hidden bg-bread-50`}>
           <img 
-            src={getChallengeImage(challenge.id)} 
+            src={imageError ? fallbackImage : imageSrc} 
             alt={challenge.title} 
             className="w-full h-full object-cover"
             onError={(e) => {
               console.log(`Error loading image for challenge: ${challenge.id}`);
-              // Fallback to a default image in case of errors
-              e.currentTarget.src = 'https://images.unsplash.com/photo-1557499305-bd68da733355?q=80&w=2000&auto=format&fit=crop';
+              setImageError(true);
+              e.currentTarget.src = fallbackImage;
             }}
           />
         </div>

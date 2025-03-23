@@ -24,11 +24,14 @@ export const getChallengeImage = (id: string): string => {
   console.log(`Looking for image with id: ${id}`);
   
   // Map of challenge IDs to their corresponding images
+  // Using local image paths for the uploaded images
   const challengeImages: Record<string, string> = {
-    // 2025 Challenges
-    'march-2025': 'https://images.unsplash.com/photo-1557499305-bd68da733355?q=80&w=2000&auto=format&fit=crop',
-    'february-2025': 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=2000&auto=format&fit=crop',
-    'january-2025': 'https://images.unsplash.com/photo-1606101273945-e9eba91c0dc4?q=80&w=2000&auto=format&fit=crop',
+    // 2025 Challenges - using local uploaded images
+    'march-2025': '/lovable-uploads/01322383-b0e6-4164-a9e3-a69f15399df4.png',
+    'february-2025': '/lovable-uploads/f2829807-c30e-4674-8cdf-1eba413e8e2f.png',
+    'january-2025': '/lovable-uploads/08cba8e2-d01a-415c-864e-13353fff689f.png',
+    
+    // Using Unsplash images as fallbacks for other challenges
     'december-2024': 'https://images.unsplash.com/photo-1482930172332-2293d7138235?q=80&w=2000&auto=format&fit=crop',
     'november-2024': 'https://images.unsplash.com/photo-1586444248879-bc592f5dc49c?q=80&w=2000&auto=format&fit=crop',
     'halloween-2024': 'https://images.unsplash.com/photo-1476883852536-61979a5cdac9?q=80&w=2000&auto=format&fit=crop',
@@ -49,6 +52,8 @@ export const getChallengeImage = (id: string): string => {
   const imagePath = challengeImages[id];
   console.log(`Resolved image path: ${imagePath}`);
   
-  // Return the image URL for the challenge ID, or a fallback image if not found
-  return imagePath || 'https://images.unsplash.com/photo-1557499305-bd68da733355?q=80&w=2000&auto=format&fit=crop';
+  // Using a default fallback image
+  const fallbackImage = '/lovable-uploads/01322383-b0e6-4164-a9e3-a69f15399df4.png';
+  
+  return imagePath || fallbackImage;
 };
