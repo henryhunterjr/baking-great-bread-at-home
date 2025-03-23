@@ -7,10 +7,12 @@ import { getChallengeImage } from '@/services/blog/imageUtils';
 import { DEFAULT_CHALLENGE_IMAGE } from '@/data/challengeImages';
 import { Challenge } from '@/types/challengeTypes';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { cn } from '@/lib/utils';
 
 interface ChallengeCardProps {
   challenge: Challenge;
   variant?: 'large' | 'small';
+  isNewestYear?: boolean;
 }
 
 // Helper to check if an image exists
@@ -31,7 +33,6 @@ const checkImageExists = (imageSrc: string): Promise<boolean> => {
 
 // Determine if we should hide overlay text - for challenges with text baked into the image
 const shouldHideOverlayText = (challengeId: string, imageSrc: string) => {
-  // Add February and January 2025 to the list of challenges with text baked into the image
   return (
     (challengeId === 'march-2025' && imageSrc.includes('77f6e22c-2ac2-4763-845e-39c5793b127d')) ||
     (challengeId === 'february-2025' && imageSrc.includes('273f5757-c7b7-4bbf-a8d5-cbd5874d4798')) ||
@@ -39,7 +40,11 @@ const shouldHideOverlayText = (challengeId: string, imageSrc: string) => {
   );
 };
 
-const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => {
+const ChallengeCard = ({ 
+  challenge, 
+  variant = 'small',
+  isNewestYear = false
+}: ChallengeCardProps) => {
   const isLarge = variant === 'large';
   const [imageError, setImageError] = useState(false);
   const [imageSrc, setImageSrc] = useState('');
@@ -49,6 +54,10 @@ const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => 
   
   // Format the date for better readability
   const formattedDate = format(challenge.date, 'MMMM yyyy');
+  const formattedYear = format(challenge.date, 'yyyy');
+  
+  // Check if this is a 2025 challenge
+  const is2025Challenge = formattedYear === '2025';
 
   // Simplified image loading strategy
   useEffect(() => {
@@ -111,6 +120,72 @@ const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => 
     setImageSrc(DEFAULT_CHALLENGE_IMAGE);
     setImageTier('default');
   };
+
+  // Special styling for 2025 challenges
+  if (is2025Challenge && !isLarge) {
+    return (
+      <Card className={cn(
+        "overflow-hidden transition-all duration-300 h-full",
+        isNewestYear ? "border-bread-200 hover:shadow-lg hover:border-bread-300" : "border-bread-100 hover:shadow-md"
+      )}>
+        <div className="flex flex-col h-full">
+          <div className="relative overflow-hidden bg-bread-50">
+            <AspectRatio ratio={16/9} className="bg-bread-50">
+              {isLoading ? (
+                <div className="w-full h-full flex items-center justify-center bg-bread-100">
+                  <div className="animate-pulse w-12 h-12 rounded-full bg-bread-200"></div>
+                </div>
+              ) : !imageError ? (
+                <img 
+                  src={imageSrc}
+                  alt={challenge.title} 
+                  className="w-full h-full object-cover transition-all duration-300 hover:scale-105"
+                  onError={handleImageError}
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-bread-100 p-4">
+                  <AlertTriangle className="h-8 w-8 text-bread-400 mb-2" />
+                  <p className="text-bread-600 text-sm font-medium">{formattedDate}</p>
+                </div>
+              )}
+            </AspectRatio>
+          </div>
+          
+          <CardContent className="p-5 flex-grow flex flex-col">
+            <div className="mb-2 text-bread-600/90 text-sm font-medium">
+              {formattedDate}
+            </div>
+            
+            <h3 className="font-serif text-xl font-medium mb-2 text-bread-900">
+              {challenge.title}
+            </h3>
+            
+            {challenge.hashtag && (
+              <div className="text-bread-700 font-medium text-sm mb-3">
+                #{challenge.hashtag}
+              </div>
+            )}
+            
+            <p className="text-bread-700 text-sm mb-4 flex-grow">
+              {challenge.description}
+            </p>
+            
+            <Button 
+              variant="outline"
+              size="sm"
+              className="mt-auto border-bread-200 text-bread-800 hover:bg-bread-50 w-fit"
+              asChild
+            >
+              <a href={challenge.link} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                View Challenge
+                <ExternalLink className="ml-2 h-4 w-4" />
+              </a>
+            </Button>
+          </CardContent>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="overflow-hidden border-bread-100 hover:shadow-md transition-all duration-300">
