@@ -193,7 +193,7 @@
   }
   
   section {
-    @apply py-10;
+    @apply py-8;
   }
   
   .section-title {
@@ -206,13 +206,28 @@
   
   /* Add space between sections */
   section + section {
-    @apply relative mt-8;
+    @apply relative mt-4;
   }
   
   /* Visible section dividers on mobile */
   section + section::before {
     content: "";
     @apply absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-bread-200 via-bread-400 to-bread-200 dark:from-bread-800 dark:via-bread-600 dark:to-bread-800;
+  }
+  
+  /* Prevent header from bumping into content */
+  header {
+    @apply mb-0;
+  }
+  
+  /* Fix mobile menu overlay */
+  .fixed.inset-0 {
+    @apply bg-background;
+  }
+  
+  /* Improve mobile nav menu legibility */
+  .fixed.inset-0 nav a {
+    @apply bg-background/95 mb-1 rounded-md backdrop-blur-sm;
   }
 }
 
@@ -242,7 +257,7 @@
 /* Responsive optimizations */
 @media (max-width: 768px) {
   #root {
-    padding: 1rem;
+    padding: 0.5rem;
   }
   
   .card {
@@ -262,5 +277,10 @@
   
   p {
     font-size: 0.95rem;
+  }
+  
+  /* Extra space for toggle and menu buttons */
+  .flex.items-center.gap-4 {
+    @apply gap-3;
   }
 }

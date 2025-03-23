@@ -87,4 +87,30 @@
   section {
     @apply py-6;
   }
+  
+  /* Fix for mobile menu text legibility */
+  .fixed.bg-background\/95 {
+    @apply bg-background;
+  }
+  
+  /* Ensure touch targets are accessible */
+  .nav-link, button, a {
+    @apply min-h-[36px] min-w-[36px];
+  }
+}
+
+/* Fix for smaller screens text overlap */
+@media (max-width: 480px) {
+  .font-serif.text-lg {
+    @apply text-base;
+  }
+  
+  h1.font-serif {
+    @apply text-2xl leading-snug;
+  }
+  
+  /* Ensure mobile elements don't run into each other */
+  .flex.items-center.gap-2 {
+    @apply gap-3;
+  }
 }

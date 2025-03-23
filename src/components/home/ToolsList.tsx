@@ -16,13 +16,13 @@ const ToolsList: React.FC<ToolsListProps> = ({ tools, displayCount = 6 }) => {
   
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-10">
-        {tools.slice(0, isMobile ? 4 : displayCount).map(tool => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-10">
+        {tools.slice(0, isMobile ? 3 : displayCount).map(tool => (
           <ToolCard key={tool.id} tool={tool} />
         ))}
       </div>
       
-      <div className="text-center mb-8 md:mb-12">
+      <div className="text-center mb-6 md:mb-10">
         <Button 
           asChild
           variant="outline"

@@ -65,7 +65,7 @@ const Navbar = () => {
             </Link>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <Toggle 
               pressed={theme === 'dark'} 
               onPressedChange={(pressed) => setTheme(pressed ? 'dark' : 'light')}
@@ -78,7 +78,7 @@ const Navbar = () => {
               )}
             </Toggle>
             
-            <div className="md:hidden ml-2">
+            <div className="md:hidden">
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -113,28 +113,28 @@ const Navbar = () => {
         </div>
       </div>
       
-      <div 
-        className={cn(
-          "fixed inset-0 bg-background/95 backdrop-blur-sm z-40 flex flex-col pt-24 px-6 transition-all duration-300 ease-in-out md:hidden",
-          isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-full pointer-events-none"
-        )}
-      >
-        <nav className="flex flex-col space-y-6 items-center">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              to={link.path}
-              className={cn(
-                "text-xl py-2 px-4 w-full text-center transition-colors font-serif",
-                isActiveLink(link.path) ? "text-accent font-medium" : "text-foreground/80 hover:text-accent"
-              )}
-              onClick={closeMobileMenu}
-            >
-              {link.name}
-            </Link>
-          ))}
-        </nav>
-      </div>
+      {/* Mobile menu - using a conditional render to prevent content overlap */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-background/95 backdrop-blur-sm z-40 flex flex-col pt-24 px-6 transition-all duration-300 ease-in-out md:hidden"
+        >
+          <nav className="flex flex-col space-y-6 items-center">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.path}
+                className={cn(
+                  "text-xl py-2 px-4 w-full text-center transition-colors font-serif",
+                  isActiveLink(link.path) ? "text-accent font-medium" : "text-foreground/80 hover:text-accent"
+                )}
+                onClick={closeMobileMenu}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
