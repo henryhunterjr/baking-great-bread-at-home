@@ -1,6 +1,5 @@
-
 import { useState, useEffect, useRef } from 'react';
-import { Recipe } from '@/components/recipes/RecipeCard';
+import { Recipe } from '@/components/recipes/types';
 import { useBlogPosts } from '@/services/BlogService';
 import BlogService from '@/services/BlogService';
 import { recipesData } from '@/data/recipesData';

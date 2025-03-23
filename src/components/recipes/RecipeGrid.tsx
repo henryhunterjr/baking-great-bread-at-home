@@ -2,8 +2,9 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import RecipeCard, { Recipe } from '@/components/recipes/RecipeCard';
+import RecipeCard from '@/components/recipes/RecipeCard';
 import RecipeCardSkeleton from '@/components/recipes/RecipeCardSkeleton';
+import { Recipe } from '@/components/recipes/types';
 
 interface RecipeGridProps {
   isLoading: boolean;

@@ -1,5 +1,4 @@
-
-import { Recipe } from '@/components/recipes/RecipeCard';
+import { Recipe } from '@/components/recipes/types';
 
 // Sample recipes data
 export const recipesData: Recipe[] = [
