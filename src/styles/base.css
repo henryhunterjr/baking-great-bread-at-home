@@ -36,14 +36,18 @@ body {
 
 @layer base {
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif;
+    @apply font-serif text-bread-900 dark:text-gray-100;
+  }
+  
+  p, span, a, li {
+    @apply text-bread-800 dark:text-gray-200;
   }
   
   .section-title {
-    @apply text-3xl md:text-4xl font-bold text-bread-900;
+    @apply text-3xl md:text-4xl font-bold text-bread-900 dark:text-gray-100;
   }
   
   .section-subtitle {
-    @apply text-lg text-bread-700 max-w-3xl mx-auto;
+    @apply text-lg text-bread-700 dark:text-gray-300 max-w-3xl mx-auto;
   }
 }

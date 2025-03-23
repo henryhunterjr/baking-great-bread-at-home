@@ -12,12 +12,12 @@
   }
   
   .btn-bread-outline {
-    @apply border-2 border-bread-700 text-bread-800 hover:bg-bread-100 transition-colors;
+    @apply border-2 border-bread-700 text-bread-800 dark:text-bread-200 hover:bg-bread-100 dark:hover:bg-bread-800/50 transition-colors;
   }
   
   /* Cards */
   .recipe-card {
-    @apply bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow;
+    @apply bg-white dark:bg-bread-900 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow text-bread-900 dark:text-white;
   }
   
   .recipe-card-img {
@@ -30,11 +30,11 @@
   
   /* Recipe details */
   .recipe-header {
-    @apply py-8 bg-bread-100 border-b border-bread-200;
+    @apply py-8 bg-bread-100 dark:bg-bread-800 border-b border-bread-200 dark:border-bread-700 text-bread-900 dark:text-white;
   }
   
   .recipe-section {
-    @apply py-6 border-b border-gray-200;
+    @apply py-6 border-b border-gray-200 dark:border-gray-700 text-bread-800 dark:text-gray-200;
   }
   
   /* Ingredient list */
@@ -43,7 +43,7 @@
   }
   
   .ingredient-item {
-    @apply flex items-start;
+    @apply flex items-start text-bread-800 dark:text-gray-200;
   }
   
   /* Instructions */
@@ -52,10 +52,10 @@
   }
   
   .instruction-item {
-    @apply flex;
+    @apply flex text-bread-800 dark:text-gray-200;
   }
   
   .instruction-number {
-    @apply flex-shrink-0 h-8 w-8 rounded-full bg-bread-100 flex items-center justify-center text-bread-800 font-bold mr-3;
+    @apply flex-shrink-0 h-8 w-8 rounded-full bg-bread-100 dark:bg-bread-700 flex items-center justify-center text-bread-800 dark:text-white font-bold mr-3;
   }
 }
