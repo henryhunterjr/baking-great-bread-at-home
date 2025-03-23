@@ -4,50 +4,50 @@ import { AffiliateProduct } from './AffiliateProductCard';
 export const toolsData: Tool[] = [
   {
     id: 1,
-    title: "Sourdough Starter 101",
-    image: "/lovable-uploads/4eecc1c5-81f0-4a97-a8db-4a4abbe118b3.png",
-    description: "Our no-nonsense guide to creating and maintaining the perfect sourdough starter.",
-    link: "https://gamma.app/docs/Sourdough-Starter-101-i2pocnfzmhtzwva?mode=doc",
-    isExternalLink: true
-  },
-  {
-    id: 2,
-    title: "Yeast Wise Calculator",
-    image: "/lovable-uploads/c8be269c-8418-443a-a406-cdee0b40739f.png",
-    description: "Calculate precise yeast water ratios for consistent, perfectly risen dough every time.",
-    link: "https://lovable.dev/projects/b7b3c470-3ffe-4dc8-8e2a-48938c7b0d89",
-    isExternalLink: true
-  },
-  {
-    id: 3,
-    title: "Loaf Logic",
-    image: "/lovable-uploads/05142b58-b1f4-4794-a927-326107122971.png",
-    description: "A comprehensive bread calculator and recipe manager for the serious home baker.",
-    link: "https://loaflogic.lovable.app/",
-    isExternalLink: true
-  },
-  {
-    id: 4,
     title: "Yeast Water Mastery Quiz",
-    image: "/lovable-uploads/17b70a1a-f9a7-4791-8af6-344e2750b6c1.png", 
+    image: "/lovable-uploads/b9db2710-1497-4a21-b305-c29ebe05af4c.png",
     description: "Test your knowledge and master the art of yeast water cultivation with our interactive quiz.",
     link: "https://yeast-water-wisdom.vercel.app",
     isExternalLink: true
   },
   {
+    id: 2,
+    title: "Loaf Logic",
+    image: "/lovable-uploads/52620bca-626b-437f-b87c-fbaf76026a26.png",
+    description: "A comprehensive bread calculator and recipe manager for the serious home baker.",
+    link: "https://loaflogic.lovable.app/",
+    isExternalLink: true
+  },
+  {
+    id: 3,
+    title: "Crust & Crumb",
+    image: "/lovable-uploads/2fc62c54-8a7b-4d6c-b985-d1682a483f47.png",
+    description: "Comprehensive suite of baking calculation tools for professionals and home bakers.",
+    link: "https://bit.ly/4e6FEyf",
+    isExternalLink: true
+  },
+  {
+    id: 4,
+    title: "Yeast Converter",
+    image: "/lovable-uploads/b67e2b91-a93b-466a-aa1d-4e506050d524.png",
+    description: "Calculate precise yeast water ratios for consistent, perfectly risen dough every time.",
+    link: "https://lovable.dev/projects/b7b3c470-3ffe-4dc8-8e2a-48938c7b0d89",
+    isExternalLink: true
+  },
+  {
     id: 5,
-    title: "Sourdough for the Rest of Us",
-    image: "/lovable-uploads/9c1c5006-46ce-47e5-8b43-615ce7e14ecc.png",
-    description: "A simple, stress-free guide that makes sourdough baking accessible to everyone.",
-    link: "https://sourdough-simplified-gift.lovable.app/sourdough-for-the-rest",
+    title: "Baker's Quiz",
+    image: "/lovable-uploads/43096bea-2727-4df7-ab45-0e160b2c1f73.png",
+    description: "Test your bread baking knowledge with our comprehensive and fun interactive quiz.",
+    link: "https://bakers-quizfest.lovable.app/",
     isExternalLink: true
   },
   {
     id: 6,
-    title: "Bread Baker's Quiz",
-    image: "/lovable-uploads/529a2d4b-da6e-4e91-8d1a-6aa2a8c198e0.png",
-    description: "Test your bread baking knowledge with our comprehensive and fun interactive quiz.",
-    link: "https://bakers-quizfest.lovable.app/",
+    title: "Sourdough for the Rest of Us",
+    image: "/lovable-uploads/9c1c5006-46ce-47e5-8b43-615ce7e14ecc.png",
+    description: "A simple, stress-free guide that makes sourdough baking accessible to everyone.",
+    link: "https://sourdough-simplified-gift.lovable.app/sourdough-for-the-rest",
     isExternalLink: true
   },
   {

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ExternalLink, Smartphone } from 'lucide-react';
@@ -61,7 +60,7 @@ const AppStore = () => {
       description: "Quiz testing yeast water knowledge",
       link: "https://yeast-water-wisdom.vercel.app",
       isExternalLink: true,
-      image: "https://images.unsplash.com/photo-1590983151523-5b49668717c6?q=80&w=1000&auto=format&fit=crop"
+      image: "/lovable-uploads/b9db2710-1497-4a21-b305-c29ebe05af4c.png"
     },
     {
       id: 2,
@@ -69,7 +68,7 @@ const AppStore = () => {
       description: "Calculator for yeast-related conversions",
       link: "https://yeast-helper-101.vercel.app",
       isExternalLink: true,
-      image: "https://images.unsplash.com/photo-1598373182133-52452f7691ef?q=80&w=1000&auto=format&fit=crop"
+      image: "/lovable-uploads/b67e2b91-a93b-466a-aa1d-4e506050d524.png"
     },
     {
       id: 3,
@@ -77,15 +76,15 @@ const AppStore = () => {
       description: "Comprehensive suite of baking calculation tools for professionals and home bakers",
       link: "https://bit.ly/4e6FEyf",
       isExternalLink: true,
-      image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1000&auto=format&fit=crop"
+      image: "/lovable-uploads/2fc62c54-8a7b-4d6c-b985-d1682a483f47.png"
     },
     {
       id: 4,
-      title: "Sourdough Hydration Calculator",
-      description: "Quick and accurate hydration calculator for sourdough recipes",
-      link: "https://bit.ly/48Hrpod",
+      title: "Loaf Logic",
+      description: "A comprehensive bread calculator and recipe manager for the serious home baker",
+      link: "https://loaflogic.lovable.app/",
       isExternalLink: true,
-      image: "https://images.unsplash.com/photo-1612200133897-3ac5c9296c7e?q=80&w=1000&auto=format&fit=crop"
+      image: "/lovable-uploads/52620bca-626b-437f-b87c-fbaf76026a26.png"
     },
     {
       id: 5,
@@ -97,11 +96,11 @@ const AppStore = () => {
     },
     {
       id: 6,
-      title: "The Bread Bakers Quiz",
+      title: "The Baker's Quiz",
       description: "Interactive quiz for assessing your bread baking knowledge and skills",
       link: "https://bakers-quizfest.lovable.app/",
       isExternalLink: true,
-      image: "https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?q=80&w=1000&auto=format&fit=crop"
+      image: "/lovable-uploads/43096bea-2727-4df7-ab45-0e160b2c1f73.png"
     },
     {
       id: 7,
