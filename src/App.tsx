@@ -9,6 +9,7 @@ import AppStore from '@/pages/AppStore';
 import Blog from '@/pages/Blog';
 import CareCenter from '@/pages/CareCenter';
 import ChallengesArchive from '@/pages/ChallengesArchive';
+import Community from '@/pages/Community';
 import ComingSoon from '@/pages/ComingSoon';
 import NotFound from '@/pages/NotFound';
 import RecipeConverter from '@/pages/RecipeConverter';
@@ -29,6 +30,7 @@ function App() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/care-center" element={<CareCenter />} />
         <Route path="/challenges" element={<ChallengesArchive />} />
+        <Route path="/community" element={<Community />} />
         <Route path="/recipe-converter" element={<RecipeConverter />} />
         <Route path="/affiliate-collection" element={<AffiliateCollection />} />
         <Route path="/tools" element={<Tools />} />

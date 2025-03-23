@@ -27,6 +27,9 @@ export const challengeImages: Record<string, string> = {
   "2023-autumn-bake": "/lovable-uploads/1cf97fbb-e14d-4580-8a1e-d48c344281ec.png",
   "2023-summer-bread": "/lovable-uploads/583f35cf-db1d-4d0e-8cc0-c693029b3b50.png",
   "2023-spring-sourdough": "/lovable-uploads/2220ae62-3d16-4e36-83c1-cd18e6b2180b.png",
+  
+  // Community image
+  "community-hero": "/lovable-uploads/9e1512bf-af30-4ae1-a9ad-ed5a5d8cd667.png",
 };
 
 /**
