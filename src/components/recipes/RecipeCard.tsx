@@ -44,24 +44,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     });
   };
 
-  // Default fallback image if all else fails
+  // Fallback images - we'll use consistent ones that are known to work
   const defaultFallbackImage = "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop";
   
-  // Determine the correct image URL to display
-  const getDisplayImageUrl = () => {
-    if (imageError) {
-      // If there was an error loading the image, use fallback
-      return defaultFallbackImage;
-    }
-    
-    return recipe.imageUrl;
-  };
-
   const handleImageError = () => {
     console.log(`Image error for recipe ${recipe.id}: ${recipe.title}`);
     console.log(`Image URL that failed: ${recipe.imageUrl}`);
-    
-    // Set image error state immediately to stop the blinking effect
     setImageError(true);
   };
 
@@ -117,7 +105,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
           
           <img
             id={`recipe-img-${recipe.id}`}
-            src={getDisplayImageUrl()}
+            src={imageError ? defaultFallbackImage : recipe.imageUrl}
             alt={recipe.title}
             className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
               !imageLoaded && !imageError ? 'opacity-0' : 'opacity-100'
