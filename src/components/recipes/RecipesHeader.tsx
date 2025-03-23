@@ -3,6 +3,7 @@ import React from 'react';
 import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 interface RecipesHeaderProps {
   searchQuery: string;
@@ -13,7 +14,7 @@ const RecipesHeader = ({ searchQuery, setSearchQuery }: RecipesHeaderProps) => {
   return (
     <section className="pt-32 pb-16 md:pt-40 md:pb-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto text-center mb-12">
+        <div className="max-w-4xl mx-auto text-center mb-12">
           <span className="inline-block text-xs font-medium tracking-wider uppercase py-1 px-3 border border-bread-200 rounded-full text-bread-800 bg-bread-50 mb-6 dark:bg-bread-800 dark:text-white dark:border-bread-700">
             RECIPES
           </span>
@@ -23,11 +24,16 @@ const RecipesHeader = ({ searchQuery, setSearchQuery }: RecipesHeaderProps) => {
           <p className="section-subtitle text-xl text-muted-foreground">
             From beginner-friendly to artisan techniques.
           </p>
-          <img 
-            src="/lovable-uploads/8d2c0e57-1ea7-49b7-862c-3a2e056b5f05.png" 
-            alt="Recipe Revue - Your recipes beautifully transformed" 
-            className="mx-auto mt-6 max-h-32 object-contain"
-          />
+          
+          <div className="max-w-md mx-auto mt-6 mb-8">
+            <AspectRatio ratio={3/1} className="bg-muted rounded-md overflow-hidden">
+              <img 
+                src="/lovable-uploads/8d2c0e57-1ea7-49b7-862c-3a2e056b5f05.png" 
+                alt="Recipe Revue - Your recipes beautifully transformed" 
+                className="w-full h-full object-cover"
+              />
+            </AspectRatio>
+          </div>
         </div>
         
         {/* Search and Filter */}
