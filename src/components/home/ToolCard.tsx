@@ -1,12 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { Skeleton } from '@/components/ui/skeleton';
 
 export interface Tool {
   id: number;
@@ -20,60 +17,39 @@ export interface Tool {
 interface ToolCardProps {
   tool: Tool;
   compact?: boolean;
-  animationDelay?: number;
 }
 
-const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false, animationDelay = 0 }) => {
-  const isMobile = useIsMobile();
-  const [imageLoaded, setImageLoaded] = useState(false);
-  
-  const handleImageLoad = () => {
-    setImageLoaded(true);
-  };
-  
-  const cardStyle = {
-    animationDelay: `${animationDelay}ms`,
-  };
-  
+const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
   if (compact) {
     return (
-      <Card 
-        key={tool.id} 
-        className="overflow-hidden card-hover border-bread-100 glass-card animate-fade-in opacity-0"
-        style={cardStyle}
-      >
-        <div className="flex flex-col sm:flex-row">
-          <div className="sm:w-1/3 h-32 sm:h-auto overflow-hidden relative">
-            {!imageLoaded && (
-              <div className="absolute inset-0 bg-slate-200 dark:bg-slate-800 animate-pulse" />
-            )}
+      <Card key={tool.id} className="overflow-hidden card-hover border-bread-100 glass-card">
+        <div className="flex flex-col md:flex-row">
+          <div className="md:w-1/3 aspect-square md:aspect-auto overflow-hidden">
             <img 
               src={tool.image} 
               alt={tool.title} 
-              className={`w-full h-full object-cover transition-all duration-500 hover:scale-110 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-              loading="lazy"
-              onLoad={handleImageLoad}
+              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
             />
           </div>
-          <div className="sm:w-2/3 p-3 sm:p-4 flex flex-col justify-between">
+          <div className="md:w-2/3 p-6 flex flex-col justify-between">
             <div>
-              <h3 className="font-serif text-base sm:text-lg font-medium mb-1">{tool.title}</h3>
-              <p className="text-muted-foreground text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">{tool.description}</p>
+              <h3 className="font-serif text-xl font-medium mb-2">{tool.title}</h3>
+              <p className="text-muted-foreground text-sm mb-4">{tool.description}</p>
             </div>
             <Button 
               size="sm" 
-              className="bg-bread-800 hover:bg-bread-900 text-white text-xs transition-all duration-300 hover:translate-x-1"
+              className="bg-bread-800 hover:bg-bread-900 text-white"
               asChild
             >
               {tool.isExternalLink ? (
-                <a href={tool.link} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                <a href={tool.link} target="_blank" rel="noopener noreferrer">
                   Explore
-                  <ArrowRight className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="ml-2 h-3 w-3" />
                 </a>
               ) : (
-                <Link to={tool.link} className="flex items-center">
+                <Link to={tool.link}>
                   Explore
-                  <ArrowRight className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="ml-2 h-3 w-3" />
                 </Link>
               )}
             </Button>
@@ -84,42 +60,31 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false, animationDel
   }
 
   return (
-    <Card 
-      key={tool.id} 
-      className="overflow-hidden card-hover border-bread-100 glass-card transition-all h-full flex flex-col animate-fade-in opacity-0"
-      style={cardStyle}
-    >
-      <AspectRatio ratio={16/9} className="overflow-hidden relative">
-        {!imageLoaded && (
-          <div className="absolute inset-0">
-            <Skeleton className="w-full h-full" />
-          </div>
-        )}
+    <Card key={tool.id} className="overflow-hidden card-hover border-bread-100 glass-card">
+      <div className="aspect-video overflow-hidden">
         <img 
           src={tool.image} 
           alt={tool.title} 
-          className={`w-full h-full object-cover transition-transform duration-500 hover:scale-110 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-          loading="lazy"
-          onLoad={handleImageLoad}
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
         />
-      </AspectRatio>
-      <CardContent className="p-3 sm:p-4 md:p-6 flex flex-col flex-grow">
-        <h3 className="font-serif text-base sm:text-lg md:text-xl font-medium mb-1 sm:mb-2 line-clamp-1">{tool.title}</h3>
-        <p className="text-muted-foreground text-xs sm:text-sm mb-2 sm:mb-3 md:mb-4 line-clamp-3 flex-grow">{tool.description}</p>
+      </div>
+      <CardContent className="p-6">
+        <h3 className="font-serif text-xl font-medium mb-2">{tool.title}</h3>
+        <p className="text-muted-foreground text-sm mb-4">{tool.description}</p>
         <Button 
-          size={isMobile ? "sm" : "default"} 
-          className="w-full bg-bread-800 hover:bg-bread-900 text-white text-xs sm:text-sm transition-all duration-300 mt-auto group"
+          size="sm" 
+          className="w-full bg-bread-800 hover:bg-bread-900 text-white"
           asChild
         >
           {tool.isExternalLink ? (
-            <a href={tool.link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
+            <a href={tool.link} target="_blank" rel="noopener noreferrer">
               Explore
-              <ArrowRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="ml-2 h-3 w-3" />
             </a>
           ) : (
-            <Link to={tool.link} className="flex items-center justify-center">
+            <Link to={tool.link}>
               Explore
-              <ArrowRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="ml-2 h-3 w-3" />
             </Link>
           )}
         </Button>

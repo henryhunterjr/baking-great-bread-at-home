@@ -1,78 +1,70 @@
 
 # Baking Great Bread with Henry
 
-![Bread Hero Image](https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2070&auto=format&fit=crop)
+## Project info
 
-## Overview
+**URL**: https://lovable.dev/projects/5f4bc309-8393-496d-814c-2639f650b295
 
-"Baking Great Bread with Henry" is a comprehensive web application dedicated to the art and science of bread baking. Created by Henry Vitale, a passionate baker with decades of experience, this platform offers resources, tools, and a vibrant community for bread enthusiasts of all skill levels.
+## How can I edit this code?
 
-## Features
+There are several ways of editing your application.
 
-### 📚 Educational Resources
+**Use Lovable**
 
-- **Blog**: Regular posts with tips, techniques, and insights into bread baking
-- **Books**: Collection of Henry's published works on bread baking
-- **Care Center**: Video tutorials and podcast appearances to enhance your baking knowledge
+Simply visit the [Lovable Project](https://lovable.dev/projects/5f4bc309-8393-496d-814c-2639f650b295) and start prompting.
 
-### 🧰 Baking Tools
+Changes made via Lovable will be committed automatically to this repo.
 
-- **Recipe Converter**: Convert recipes between different units and scale up/down for your needs
-- **Affiliate Collection**: Curated selection of recommended baking equipment
-- **Monthly Challenges**: Join the community in tackling new bread baking techniques each month
+**Use your preferred IDE**
 
-### 🤖 AI-Powered Features
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-- **Baking Assistant**: Get immediate answers to your baking questions
-- **Recipe Generator**: Create custom bread recipes based on your preferences
-- **Recipe Converter**: Intelligent conversion of recipes from various formats
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-### 👨‍🍳 Community
+Follow these steps:
 
-- **Baking Challenges**: Monthly community challenges to develop your skills
-- **Forums**: Connect with fellow bread enthusiasts
-- **Mobile App**: Take Henry's guidance with you wherever you bake
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone <YOUR_GIT_URL>
 
-## Getting Started
+# Step 2: Navigate to the project directory.
+cd baking-great-bread-with-henry
 
-1. **Explore the Blog**: Begin by browsing through our blog posts to get familiar with bread baking fundamentals
-2. **Join a Challenge**: Participate in this month's baking challenge to practice new techniques
-3. **Try the Tools**: Use our recipe converter and other tools to enhance your baking experience
-4. **Connect**: Join the community to share your creations and learn from others
+# Step 3: Install the necessary dependencies.
+npm i
 
-## Key Sections
+# Step 4: Start the development server with auto-reloading and an instant preview.
+npm run dev
+```
 
-- **Home**: Introduction to Henry and the bread baking community
-- **Blog**: Articles, tips, and stories about bread baking
-- **Books**: Henry's published works on bread baking
-- **Tools**: Useful tools for bread bakers
-- **Care Center**: Educational videos and podcasts
-- **Challenges**: Monthly baking challenges with community participation
-- **Recipe Converter**: Tool to convert and scale bread recipes
-- **Affiliate Collection**: Recommended baking equipment
+**Edit a file directly in GitHub**
 
-## Technology
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
 
-This application is built with modern web technologies:
+**Use GitHub Codespaces**
 
-- React for the user interface
-- TypeScript for type safety
-- Tailwind CSS for styling
-- shadcn/ui for UI components
-- Responsive design for all devices
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
 
-## Feedback and Support
+## What technologies are used for this project?
 
-Have suggestions or need help? Contact us through:
+This project is built with .
 
-- Email: henry@bakinggreatbread.com
-- Twitter: [@BakingWithHenry](https://twitter.com/BakingWithHenry)
-- Instagram: [@baking_great_bread](https://instagram.com/baking_great_bread)
+- Vite
+- TypeScript
+- React
+- shadcn-ui
+- Tailwind CSS
 
-## License
+## How can I deploy this project?
 
-© 2024 Henry Vitale. All rights reserved.
+Simply open [Lovable](https://lovable.dev/projects/5f4bc309-8393-496d-814c-2639f650b295) and click on Share -> Publish.
 
----
+## I want to use a custom domain - is that possible?
 
-*"The best bread is the one that brings people together at the table." - Henry Vitale*
+We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
