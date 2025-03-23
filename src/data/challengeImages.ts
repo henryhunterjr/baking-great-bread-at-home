@@ -15,7 +15,7 @@ export const challengeImages: Record<string, string> = {
   "halloween-2024": "/lovable-uploads/fb623033-8695-478f-94fb-d255e6d62813.png", // Bewitching Breads
   "october-2024": "/lovable-uploads/78a30c83-7d6c-480e-b2d3-c759f597e89d.png", // Basic Bread Baking
   "challah-2024": "/lovable-uploads/54241cef-9291-4e07-895d-1a29aaf5f357.png", // Challah Challenge
-  "september-2024": "/lovable-uploads/9617c8fa-0274-4499-9a97-ef063adb2d83.png",
+  "september-2024": "/lovable-uploads/d7e1e2c7-9248-4cf1-b554-b6579aa9c2a7.png", // #KICKUPLUNCH Challenge
   
   // 2023 entries
   "march-2024": "/challenges/images/march-2024-challenge.png",

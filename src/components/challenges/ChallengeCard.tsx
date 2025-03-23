@@ -38,7 +38,7 @@ const shouldHideOverlayText = (challengeId: string, imageSrc: string) => {
   const challengesWithTextInImage = [
     'march-2025', 'february-2025', 'january-2025',
     'december-2024', 'november-2024', 'halloween-2024', 
-    'october-2024', 'challah-2024'
+    'october-2024', 'challah-2024', 'september-2024'
   ];
   
   return challengesWithTextInImage.includes(challengeId);
