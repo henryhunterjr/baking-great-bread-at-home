@@ -40,6 +40,24 @@
   .glass-card {
     @apply bg-background/70 backdrop-blur-sm border border-border/50 rounded-xl shadow-sm;
   }
+  
+  /* Main content padding */
+  main {
+    @apply px-4 py-6 md:py-8 lg:py-12;
+  }
+  
+  /* Page header styles */
+  .page-header {
+    @apply mb-8 md:mb-12;
+  }
+  
+  .page-title {
+    @apply font-serif text-3xl md:text-4xl font-medium leading-tight mb-3;
+  }
+  
+  .page-description {
+    @apply text-muted-foreground max-w-3xl;
+  }
 }
 
 .card {
