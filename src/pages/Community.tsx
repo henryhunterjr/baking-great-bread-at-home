@@ -15,7 +15,7 @@ const Community = () => {
       <div className="relative w-full">
         <div className="relative w-full h-[550px] overflow-hidden">
           <img 
-            src="/lovable-uploads/9e1512bf-af30-4ae1-a9ad-ed5a5d8cd667.png" 
+            src="/lovable-uploads/786795e9-6433-4bbd-b76c-f6bde36e7e30.png" 
             alt="Baking Great Bread at Home - Community" 
             className="w-full h-full object-cover"
           />
