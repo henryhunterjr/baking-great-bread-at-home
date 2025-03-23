@@ -34,7 +34,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
               </p>
             </div>
             
-            <div className="mb-8">
+            <div>
               <h3 className="font-serif text-2xl md:text-3xl font-medium mb-4">A Passion for Perfect Loaves</h3>
               <p className="text-muted-foreground dark:text-gray-300 mb-4">
                 What began as survival turned into a calling. When my tour of duty in Germany ended, I came back to the States and started working in radio advertising and marketing. I eventually moved into television, first with Fox, and later retired from CBS. But the lessons Mr. Sherman taught me never left.
@@ -42,19 +42,12 @@ const AboutSection: React.FC<AboutSectionProps> = ({ sectionRef }) => {
               <p className="text-muted-foreground dark:text-gray-300 mb-4">
                 When I started baking again, it was just for fun. But like most of you know, once you get going, the bread starts piling up—your freezer's full and there's more than you can eat. That's when my kids suggested I try selling at farmers markets. It went better than expected. I had a solid customer base and was baking from a small, makeshift bakery. Just as I was about to go all in—sign the lease, get the insurance—our governor shut the state down for COVID.
               </p>
-              <p className="text-muted-foreground dark:text-gray-300">
+              <p className="text-muted-foreground dark:text-gray-300 mb-6">
                 After a week or two of doing nothing, I decided to give my customers something to do. I launched a Saturday morning bake-along and started a Facebook group called <strong>Baking Great Bread at Home</strong>, with help from my daughter Payton. Within a few weeks, we had 300 members and 13 people watching us live. We were so excited, we celebrated with sushi. Look at us now.
               </p>
             </div>
             
-            <div className="mb-6">
-              <h3 className="font-serif text-2xl md:text-3xl font-medium mb-4">The Story Behind the Loaf</h3>
-              <p className="text-muted-foreground dark:text-gray-300">
-                At first, I just moved bags of flour and cleaned up after the day's baking. It may as well have been Home Depot for all I knew about bread at the time. But every Thursday, I'd watch Mr. Sherman make his challah...
-              </p>
-            </div>
-            
-            <div className="mt-6">
+            <div className="mt-8">
               <img 
                 src="/lovable-uploads/4e1336b3-7d4d-4a63-a658-6fbb456160fd.png" 
                 alt="Henry M. Hunter Jr. signature with whisk icon" 
