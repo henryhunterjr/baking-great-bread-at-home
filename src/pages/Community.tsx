@@ -1,12 +1,16 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
+import Navbar from '@/components/Navbar';
 
 const Community = () => {
   const FACEBOOK_GROUP_LINK = 'https://www.facebook.com/groups/1082865755403754';
   
   return (
     <div className="min-h-screen bg-bread-50 dark:bg-bread-900">
+      <Navbar />
+      
       {/* Hero Section with improved text legibility */}
       <div className="relative w-full">
         <div className="relative w-full h-[550px] overflow-hidden">
