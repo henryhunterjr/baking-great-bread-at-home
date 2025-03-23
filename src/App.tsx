@@ -18,6 +18,7 @@ import AffiliateCollection from '@/pages/AffiliateCollection';
 import Tools from '@/pages/Tools';
 import Recipes from '@/pages/Recipes';
 import Books from '@/pages/Books';
+import About from '@/pages/About';
 
 import './App.css';
 
@@ -41,6 +42,7 @@ function App() {
         <Route path="/affiliate-collection" element={<AffiliateCollection />} />
         <Route path="/tools" element={<Tools />} />
         <Route path="/recipes" element={<Recipes />} />
+        <Route path="/about" element={<About />} />
         <Route path="/coming-soon" element={<ComingSoon />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
