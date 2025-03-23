@@ -18,3 +18,32 @@ export const getPlaceholderImage = (id: number): string => {
   const index = id % breadImages.length;
   return `${breadImages[index]}?q=80&w=1000&auto=format&fit=crop`;
 };
+
+// Helper function to get image for a specific challenge by id or month name
+export const getChallengeImage = (id: string): string => {
+  // Map of challenge IDs to their corresponding images
+  const challengeImages: Record<string, string> = {
+    // 2025 Challenges
+    'march-2025': '/lovable-uploads/1e407bcf-74d0-4432-aaca-4dc0bdc1c2b8.png',
+    'february-2025': '/lovable-uploads/b4852fbb-a5f0-4548-bbec-d15ee71ae6a6.png',
+    'january-2025': '/lovable-uploads/317a7c52-2c9c-43d9-a98f-773feaff7a94.png',
+    'december-2024': '/lovable-uploads/c13b1e43-5e99-40eb-bb51-b6db477dc9c6.png',
+    'november-2024': '/lovable-uploads/173c9c4d-985b-49b7-8d6f-c3d91e6a95af.png',
+    'halloween-2024': '/lovable-uploads/25b8756b-e2d1-4f10-b5b7-dbc209154ed7.png',
+    'october-2024': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2000&auto=format&fit=crop',
+    'september-2024': 'https://images.unsplash.com/photo-1592151450128-62f8a61aad8a?q=80&w=2000&auto=format&fit=crop',
+    'challah-2024': 'https://images.unsplash.com/photo-1591401911894-7e8f0f3dd4a5?q=80&w=2000&auto=format&fit=crop',
+    
+    // Fallbacks for older challenges
+    'march-2024': 'https://images.unsplash.com/photo-1598373182133-52452f7691ef?q=80&w=2000&auto=format&fit=crop',
+    'february-2024': 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7c?q=80&w=2000&auto=format&fit=crop',
+    'january-2024': 'https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?q=80&w=2000&auto=format&fit=crop',
+    'december-2023': 'https://images.unsplash.com/photo-1482930172332-2293d7138235?q=80&w=2000&auto=format&fit=crop',
+    'november-2023': 'https://images.unsplash.com/photo-1586444248879-bc592f5dc49c?q=80&w=2000&auto=format&fit=crop',
+    'october-2023': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2000&auto=format&fit=crop',
+    'september-2023': 'https://images.unsplash.com/photo-1592151450128-62f8a61aad8a?q=80&w=2000&auto=format&fit=crop',
+  };
+  
+  // Return the image URL for the challenge ID, or a fallback image if not found
+  return challengeImages[id] || 'https://images.unsplash.com/photo-1557499305-bd68da733355?q=80&w=2000&auto=format&fit=crop';
+};
