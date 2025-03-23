@@ -51,9 +51,9 @@ const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => 
               </div>
             )}
             
-            {/* Overlay with challenge info even when image loads */}
+            {/* Overlay with challenge info even when image loads - REVERSED gradient direction */}
             {!imageError && (
-              <div className="absolute inset-0 bg-gradient-to-t from-bread-950/80 to-transparent flex flex-col justify-end p-4 text-white">
+              <div className="absolute inset-0 bg-gradient-to-b from-bread-950/80 to-transparent flex flex-col justify-start p-4 text-white">
                 <p className="text-white/90 text-sm md:text-base font-medium">{formattedDate}</p>
                 <h4 className="font-serif font-medium text-lg md:text-xl">{challenge.title}</h4>
                 {challenge.hashtag && (
