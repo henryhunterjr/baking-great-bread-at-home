@@ -30,7 +30,7 @@ const RecipesHeader = ({ searchQuery, setSearchQuery }: RecipesHeaderProps) => {
               <img 
                 src="/lovable-uploads/8d2c0e57-1ea7-49b7-862c-3a2e056b5f05.png" 
                 alt="Recipe Revue - Your recipes beautifully transformed" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-center object-[center_top]"
               />
             </AspectRatio>
           </div>
