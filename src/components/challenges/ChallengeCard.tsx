@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ExternalLink, Image as ImageIcon, AlertTriangle } from 'lucide-react';
@@ -30,12 +29,19 @@ const checkImageExists = (imageSrc: string): Promise<boolean> => {
   });
 };
 
+// Determine if we should hide overlay text - specifically for the March 2025 challenge image
+const shouldHideOverlayText = (challengeId: string, imageSrc: string) => {
+  // Currently only the March 2025 challenge has text baked into the image
+  return challengeId === 'march-2025' && imageSrc.includes('77f6e22c-2ac2-4763-845e-39c5793b127d');
+};
+
 const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => {
   const isLarge = variant === 'large';
   const [imageError, setImageError] = useState(false);
   const [imageSrc, setImageSrc] = useState('');
   const [imageTier, setImageTier] = useState<'configured' | 'gamma' | 'default' | 'error'>('default');
   const [isLoading, setIsLoading] = useState(true);
+  const [hideOverlayText, setHideOverlayText] = useState(false);
   
   // Format the date for better readability
   const formattedDate = format(challenge.date, 'MMMM yyyy');
@@ -55,6 +61,9 @@ const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => 
       try {
         // If the configured image exists, use it
         setImageSrc(configuredImage);
+        
+        // Check if we should hide the overlay text
+        setHideOverlayText(shouldHideOverlayText(challenge.id, configuredImage));
         
         // Determine the tier based on the image path
         if (configuredImage.includes('/lovable-uploads/')) {
@@ -130,7 +139,7 @@ const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => 
             )}
             
             {/* Image overlay with dark color at the TOP for better text visibility */}
-            {!imageError && !isLoading && (
+            {!imageError && !isLoading && !hideOverlayText && (
               <div className="absolute inset-0 bg-gradient-to-b from-bread-950/90 via-bread-900/60 to-transparent flex flex-col justify-start p-4 text-white">
                 <div className="space-y-1">
                   <p className="text-white/90 text-sm md:text-base font-medium">{formattedDate}</p>
