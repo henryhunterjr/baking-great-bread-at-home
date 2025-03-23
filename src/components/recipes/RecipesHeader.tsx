@@ -24,8 +24,8 @@ const RecipesHeader = ({ searchQuery, setSearchQuery }: RecipesHeaderProps) => {
             From beginner-friendly to artisan techniques.
           </p>
           <img 
-            src="/lovable-uploads/a1b2c671-db0a-4699-9e70-ac6f138b43f1.png" 
-            alt="Bread Recipes Collection" 
+            src="/lovable-uploads/8d2c0e57-1ea7-49b7-862c-3a2e056b5f05.png" 
+            alt="Recipe Revue - Your recipes beautifully transformed" 
             className="mx-auto mt-6 max-h-32 object-contain"
           />
         </div>
