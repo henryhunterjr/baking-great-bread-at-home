@@ -1,0 +1,107 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 38% 98%;
+    --foreground: 30 10% 20%;
+
+    --card: 40 38% 98%;
+    --card-foreground: 30 10% 20%;
+
+    --popover: 40 38% 98%;
+    --popover-foreground: 30 10% 20%;
+
+    --primary: 30 33% 36%;
+    --primary-foreground: 40 38% 98%;
+
+    --secondary: 25 29% 90%;
+    --secondary-foreground: 30 10% 20%;
+
+    --muted: 25 29% 92%;
+    --muted-foreground: 30 10% 40%;
+
+    --accent: 35 80% 60%;
+    --accent-foreground: 40 38% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 40 38% 98%;
+
+    --border: 30, 10%, 88%;
+    --input: 30, 10%, 88%;
+    --ring: 30 33% 36%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 40 38% 98%;
+    --sidebar-foreground: 30 10% 20%;
+    --sidebar-primary: 30 33% 36%;
+    --sidebar-primary-foreground: 40 38% 98%;
+    --sidebar-accent: 25 29% 90%;
+    --sidebar-accent-foreground: 30 10% 20%;
+    --sidebar-border: 30 10% 88%;
+    --sidebar-ring: 30 33% 36%;
+  }
+
+  .dark {
+    --background: 30 15% 12%;
+    --foreground: 40 38% 98%;
+
+    --card: 30 15% 14%;
+    --card-foreground: 40 38% 98%;
+
+    --popover: 30 15% 12%;
+    --popover-foreground: 40 38% 98%;
+
+    --primary: 25 29% 80%;
+    --primary-foreground: 30 15% 12%;
+
+    --secondary: 30 15% 20%;
+    --secondary-foreground: 40 38% 98%;
+
+    --muted: 30 15% 20%;
+    --muted-foreground: 30 10% 80%;
+
+    --accent: 35 80% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 15% 25%;
+    --input: 30 15% 25%;
+    --ring: 25 29% 80%;
+
+    --sidebar-background: 30 15% 12%;
+    --sidebar-foreground: 40 38% 98%;
+    --sidebar-primary: 25 29% 80%;
+    --sidebar-primary-foreground: 30 15% 12%;
+    --sidebar-accent: 30 15% 20%;
+    --sidebar-accent-foreground: 40 38% 98%;
+    --sidebar-border: 30 15% 25%;
+    --sidebar-ring: 25 29% 80%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border antialiased;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight;
+  }
+  
+  p, a, li, span {
+    @apply font-sans;
+  }
+}
