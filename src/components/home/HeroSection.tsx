@@ -27,7 +27,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ heroRef }) => {
                 <br /> at Home
               </h1>
               <p className="text-muted-foreground text-lg max-w-md">
-                Join Henry's community of passionate home bakers and discover the simple joy of creating artisanal bread with your own hands.
+                Join my community of passionate home bakers and discover the simple joy of creating artisanal bread with your own hands.
               </p>
               <div className="pt-2 flex flex-wrap gap-4">
                 <Button 
@@ -64,3 +64,4 @@ const HeroSection: React.FC<HeroSectionProps> = ({ heroRef }) => {
 };
 
 export default HeroSection;
+
