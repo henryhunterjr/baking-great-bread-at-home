@@ -14,6 +14,7 @@ import NotFound from '@/pages/NotFound';
 import RecipeConverter from '@/pages/RecipeConverter';
 import AffiliateCollection from '@/pages/AffiliateCollection';
 import Tools from '@/pages/Tools';
+import Recipes from '@/pages/Recipes';
 
 import './App.css';
 
@@ -31,6 +32,7 @@ function App() {
         <Route path="/recipe-converter" element={<RecipeConverter />} />
         <Route path="/affiliate-collection" element={<AffiliateCollection />} />
         <Route path="/tools" element={<Tools />} />
+        <Route path="/recipes" element={<Recipes />} />
         <Route path="/coming-soon" element={<ComingSoon />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

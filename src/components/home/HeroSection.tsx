@@ -33,9 +33,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({ heroRef }) => {
                 <Button 
                   size="lg" 
                   className="bg-bread-800 hover:bg-bread-900 text-white"
+                  asChild
                 >
-                  Explore Recipes
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <Link to="/recipes">
+                    Explore Recipes
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
                 </Button>
                 <Button 
                   variant="outline" 
