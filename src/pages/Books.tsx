@@ -69,7 +69,7 @@ const Books = () => {
             src="/lovable-uploads/4475b57a-8ff3-4c99-ac6d-24d1e49f0ad1.png" 
             alt="Baking Great Bread at Home - Books and Guides" 
             className="w-full h-full object-cover object-center object-position-y-top"
-            style={{ objectPosition: "center 10%" }}  /* This shifts the image up instead of down */
+            style={{ objectPosition: "center 20%" }}  /* Reversed: Moving focus point up so more of bottom is shown */
           />
           <div className="absolute inset-0 bg-bread-950/60"></div>
         </div>
