@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Heart, ArrowRight } from 'lucide-react';
+import { Heart, ArrowRight, ImageOff } from 'lucide-react';
 import { toast } from 'sonner';
 
 export interface Recipe {
@@ -23,6 +23,14 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  // Reset image states when recipe changes
+  useEffect(() => {
+    setImageError(false);
+    setRetryCount(0);
+    setImageLoaded(false);
+  }, [recipe.id, recipe.imageUrl]);
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -48,28 +56,40 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       return defaultFallbackImage;
     }
     
-    // Check if the image URL is a local path and ensure it starts with the correct prefix
-    if (recipe.imageUrl && !recipe.imageUrl.startsWith('http')) {
-      return recipe.imageUrl; // Local path should be used as is
-    }
-    
+    // Return the recipe image URL (either local or remote)
     return recipe.imageUrl;
   };
 
   const handleImageError = () => {
-    if (retryCount < 1) {
-      // Try once more with a slight delay (sometimes network hiccups happen)
+    console.log(`Image error for recipe ${recipe.id}: ${recipe.title}`);
+    console.log(`Image URL that failed: ${recipe.imageUrl}`);
+    
+    if (retryCount < 2) {
+      // Try again with a slight delay (sometimes network hiccups happen)
       setRetryCount(retryCount + 1);
+      console.log(`Retry attempt #${retryCount + 1} for ${recipe.title}`);
+      
       setTimeout(() => {
         const imgElement = document.getElementById(`recipe-img-${recipe.id}`) as HTMLImageElement;
         if (imgElement) {
-          imgElement.src = recipe.imageUrl;
+          // Force a reload by adding a cache-busting parameter
+          const cacheBuster = `?retry=${Date.now()}`;
+          imgElement.src = recipe.imageUrl.includes('?') 
+            ? `${recipe.imageUrl}&retry=${Date.now()}`
+            : `${recipe.imageUrl}${cacheBuster}`;
         }
       }, 1000);
     } else {
-      // After retry, if still failing, use fallback
+      // After retries, if still failing, use fallback
+      console.log(`All retries failed for ${recipe.title}, using fallback image`);
       setImageError(true);
     }
+  };
+
+  const handleImageLoad = () => {
+    console.log(`Image loaded successfully for recipe ${recipe.id}: ${recipe.title}`);
+    setImageLoaded(true);
+    setImageError(false);
   };
 
   return (
@@ -103,13 +123,29 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         rel="noopener noreferrer"
         className="flex flex-col h-full"
       >
-        <div className="aspect-video overflow-hidden bg-bread-100">
+        <div className="aspect-video overflow-hidden bg-bread-100 relative">
+          {!imageLoaded && !imageError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-bread-100">
+              <div className="w-10 h-10 border-4 border-bread-300 border-t-bread-800 rounded-full animate-spin"></div>
+            </div>
+          )}
+          
+          {imageError && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-bread-100">
+              <ImageOff className="h-10 w-10 text-bread-400 mb-2" />
+              <p className="text-sm text-bread-500">Image unavailable</p>
+            </div>
+          )}
+          
           <img
             id={`recipe-img-${recipe.id}`}
             src={getDisplayImageUrl()}
             alt={recipe.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
+              !imageLoaded && !imageError ? 'opacity-0' : 'opacity-100'
+            }`}
             onError={handleImageError}
+            onLoad={handleImageLoad}
           />
         </div>
         <CardContent className="p-6 flex-grow flex flex-col">
