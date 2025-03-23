@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -19,14 +20,18 @@ const ChallengesArchive = () => {
       
       Example:
       {
-        "march-2025": "/challenges/march-2025-challenge.png",
-        "february-2025": "/challenges/custom-name-whatever-you-want.png"
+        "march-2025": "/challenges/images/march-2025-challenge.png",
+        "february-2025": "/challenges/images/custom-name-whatever-you-want.png"
       }
       
       The fallback order is:
       1. Configured image from challengeImages.ts
       2. Gamma screenshot at /challenges/gamma/{challenge-id}-screenshot.jpg
       3. Default image (Unsplash bread image)
+      
+      NOTE: Make sure to create the directory structure:
+      /public/challenges/images/ - for your custom challenge images
+      /public/challenges/gamma/ - for gamma screenshots
     `);
   }, []);
 

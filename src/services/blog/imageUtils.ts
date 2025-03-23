@@ -1,3 +1,4 @@
+
 import { challengeImages, DEFAULT_CHALLENGE_IMAGE } from '@/data/challengeImages';
 
 // Helper function to get placeholder image for a blog post
