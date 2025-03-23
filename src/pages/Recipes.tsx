@@ -5,40 +5,71 @@ import Footer from '@/components/Footer';
 import { Recipe } from '@/components/recipes/RecipeCard';
 import RecipesHeader from '@/components/recipes/RecipesHeader';
 import RecipeGrid from '@/components/recipes/RecipeGrid';
-import { recipesData } from '@/data/recipesData';
+import { useBlogPosts } from '@/services/BlogService';
 
 const Recipes = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>(recipesData);
+  const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Fetch blog posts using the same service as the blog section
+  const { posts, loading, error } = useBlogPosts();
   
   // Set up refs for animation elements
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   
-  // Simulate loading for demo purposes
+  // Convert blog posts to recipes when they're loaded
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (!loading && posts.length > 0) {
+      const recipesFromPosts = posts.map(post => ({
+        id: post.id,
+        title: post.title,
+        description: post.excerpt,
+        imageUrl: post.imageUrl,
+        date: post.date,
+        link: post.link
+      }));
+      
+      setFilteredRecipes(recipesFromPosts);
       setIsLoading(false);
-    }, 1200);
-    
-    return () => clearTimeout(timer);
-  }, []);
+    }
+  }, [posts, loading]);
   
   // Filter recipes based on search query
   useEffect(() => {
+    if (!posts.length) return;
+    
     if (searchQuery.trim() === '') {
-      setFilteredRecipes(recipesData);
+      const recipesFromPosts = posts.map(post => ({
+        id: post.id,
+        title: post.title,
+        description: post.excerpt,
+        imageUrl: post.imageUrl,
+        date: post.date,
+        link: post.link
+      }));
+      
+      setFilteredRecipes(recipesFromPosts);
       return;
     }
     
     const query = searchQuery.toLowerCase();
-    const results = recipesData.filter(recipe => 
-      recipe.title.toLowerCase().includes(query) || 
-      recipe.description.toLowerCase().includes(query)
+    const filteredPosts = posts.filter(post => 
+      post.title.toLowerCase().includes(query) || 
+      post.excerpt.toLowerCase().includes(query)
     );
     
-    setFilteredRecipes(results);
-  }, [searchQuery]);
+    const recipesFromFilteredPosts = filteredPosts.map(post => ({
+      id: post.id,
+      title: post.title,
+      description: post.excerpt,
+      imageUrl: post.imageUrl,
+      date: post.date,
+      link: post.link
+    }));
+    
+    setFilteredRecipes(recipesFromFilteredPosts);
+  }, [searchQuery, posts]);
   
   // Observer setup for animations
   useEffect(() => {
@@ -82,7 +113,7 @@ const Recipes = () => {
       {/* Recipes Grid Section */}
       <div ref={(el) => sectionRefs.current[1] = el}>
         <RecipeGrid 
-          isLoading={isLoading}
+          isLoading={isLoading || loading}
           searchQuery={searchQuery}
           filteredRecipes={filteredRecipes}
           setSearchQuery={setSearchQuery}

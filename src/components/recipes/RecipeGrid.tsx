@@ -45,7 +45,7 @@ const RecipeGrid = ({ isLoading, searchQuery, filteredRecipes, setSearchQuery }:
           <div className="text-center py-12 max-w-lg mx-auto">
             <h3 className="font-serif text-xl mb-2">No Recipes Found</h3>
             <p className="text-muted-foreground mb-6">
-              We couldn't find any recipes matching your search. Try using different keywords or browse our popular categories below.
+              We couldn't find any recipes matching your search. Try using different keywords or browse our blog for more content.
             </p>
             <Button 
               variant="outline" 

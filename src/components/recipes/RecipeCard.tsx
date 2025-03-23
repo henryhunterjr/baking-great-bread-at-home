@@ -5,7 +5,7 @@ import { Heart, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 export interface Recipe {
-  id: string;
+  id: string | number;
   title: string;
   description: string;
   imageUrl: string;
