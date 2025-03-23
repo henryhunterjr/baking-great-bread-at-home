@@ -30,9 +30,7 @@ const ToolsList: React.FC<ToolsListProps> = ({ tools, displayCount = 6 }) => {
     );
 
     const cards = listRef.current?.querySelectorAll('.tool-card-container') || [];
-    cards.forEach((card, index) => {
-      // Add a staggered delay
-      (card as HTMLElement).style.animationDelay = `${index * 100}ms`;
+    cards.forEach((card) => {
       observer.observe(card);
     });
 
@@ -47,9 +45,9 @@ const ToolsList: React.FC<ToolsListProps> = ({ tools, displayCount = 6 }) => {
         ref={listRef}
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-10"
       >
-        {tools.slice(0, displayCount).map(tool => (
-          <div key={tool.id} className="tool-card-container opacity-0">
-            <ToolCard tool={tool} />
+        {tools.slice(0, displayCount).map((tool, index) => (
+          <div key={tool.id} className="tool-card-container h-full">
+            <ToolCard tool={tool} animationDelay={index * 100} />
           </div>
         ))}
       </div>
@@ -59,7 +57,7 @@ const ToolsList: React.FC<ToolsListProps> = ({ tools, displayCount = 6 }) => {
           asChild
           variant="outline"
           size={isMobile ? "sm" : "default"}
-          className="border-bread-800 text-bread-800 hover:bg-bread-800 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-bread-900 text-xs sm:text-sm hover-scale transition-all duration-300"
+          className="border-bread-800 text-bread-800 hover:bg-bread-800 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-bread-900 text-xs sm:text-sm hover-scale transition-all duration-300 group"
         >
           <Link to="/tools" className="flex items-center">
             View All Tools
@@ -72,4 +70,3 @@ const ToolsList: React.FC<ToolsListProps> = ({ tools, displayCount = 6 }) => {
 };
 
 export default ToolsList;
-

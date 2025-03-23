@@ -17,6 +17,7 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from '@/components/ui/pagination';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -25,6 +26,17 @@ const Tools = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredTools, setFilteredTools] = useState(toolsData);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    // Simulate loading state for better UX
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, []);
   
   useEffect(() => {
     // Filter tools based on search term
@@ -54,6 +66,46 @@ const Tools = () => {
     setCurrentPage(pageNumber);
   };
   
+  // Generate array of page numbers to display
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxPageButtons = isMobile ? 3 : 5;
+    
+    if (totalPages <= maxPageButtons) {
+      // Show all pages if there are fewer than the max
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Always show first page
+      pageNumbers.push(1);
+      
+      // Calculate start and end of page range around current page
+      let startPage = Math.max(2, currentPage - Math.floor(maxPageButtons / 2));
+      let endPage = Math.min(totalPages - 1, startPage + maxPageButtons - 3);
+      
+      // Adjust if at the beginning or end
+      if (startPage > 2) {
+        pageNumbers.push("ellipsis-start");
+      }
+      
+      // Add middle pages
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i);
+      }
+      
+      // Add ellipsis if needed
+      if (endPage < totalPages - 1) {
+        pageNumbers.push("ellipsis-end");
+      }
+      
+      // Always show last page
+      pageNumbers.push(totalPages);
+    }
+    
+    return pageNumbers;
+  };
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -62,8 +114,8 @@ const Tools = () => {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-7xl mx-auto">
             <Button asChild variant="ghost" className="mb-2 md:mb-3 -ml-2 h-8 md:h-10">
-              <Link to="/">
-                <ArrowLeft className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+              <Link to="/" className="group">
+                <ArrowLeft className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4 transition-transform group-hover:-translate-x-1" />
                 <span className="text-xs md:text-base">Back to Home</span>
               </Link>
             </Button>
@@ -84,9 +136,25 @@ const Tools = () => {
               />
             </div>
             
-            {filteredTools.length === 0 ? (
+            {isLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 mb-8 md:mb-16">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <div key={index} className="flex flex-col h-full animate-fade-in opacity-0" style={{ animationDelay: `${index * 100}ms` }}>
+                    <div className="rounded-lg overflow-hidden">
+                      <Skeleton className="aspect-video w-full" />
+                    </div>
+                    <div className="mt-3">
+                      <Skeleton className="h-6 w-3/4 mb-2" />
+                      <Skeleton className="h-4 w-full mb-1" />
+                      <Skeleton className="h-4 w-2/3 mb-4" />
+                      <Skeleton className="h-9 w-full rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredTools.length === 0 ? (
               <div className="text-center py-10 animate-fade-in">
-                <p className="text-muted-foreground">No tools found matching your search.</p>
+                <p className="text-muted-foreground mb-3">No tools found matching your search.</p>
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -99,9 +167,9 @@ const Tools = () => {
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 mb-8 md:mb-16">
-                  {currentItems.map(tool => (
-                    <div key={tool.id} className="animate-fade-in">
-                      <ToolCard tool={tool} />
+                  {currentItems.map((tool, index) => (
+                    <div key={tool.id} className="h-full">
+                      <ToolCard tool={tool} animationDelay={index * 100} />
                     </div>
                   ))}
                 </div>
@@ -111,25 +179,43 @@ const Tools = () => {
                     <PaginationContent>
                       {currentPage > 1 && (
                         <PaginationItem>
-                          <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
+                          <PaginationPrevious 
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            className="hover-scale transition-all duration-300"
+                          />
                         </PaginationItem>
                       )}
                       
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                        <PaginationItem key={page}>
-                          <PaginationLink 
-                            onClick={() => handlePageChange(page)}
-                            isActive={page === currentPage}
-                            className={page === currentPage ? "bg-bread-800 text-white hover:bg-bread-900" : ""}
-                          >
-                            {page}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ))}
+                      {getPageNumbers().map((page, index) => {
+                        if (page === "ellipsis-start" || page === "ellipsis-end") {
+                          return (
+                            <PaginationItem key={`ellipsis-${index}`}>
+                              <span className="flex h-9 w-9 items-center justify-center">...</span>
+                            </PaginationItem>
+                          );
+                        }
+                        
+                        return (
+                          <PaginationItem key={`page-${page}`}>
+                            <PaginationLink 
+                              onClick={() => handlePageChange(page as number)}
+                              isActive={page === currentPage}
+                              className={`transition-all duration-300 hover-scale ${
+                                page === currentPage ? "bg-bread-800 text-white hover:bg-bread-900" : ""
+                              }`}
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
                       
                       {currentPage < totalPages && (
                         <PaginationItem>
-                          <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+                          <PaginationNext 
+                            onClick={() => handlePageChange(currentPage + 1)} 
+                            className="hover-scale transition-all duration-300"
+                          />
                         </PaginationItem>
                       )}
                     </PaginationContent>
@@ -147,4 +233,3 @@ const Tools = () => {
 };
 
 export default Tools;
-

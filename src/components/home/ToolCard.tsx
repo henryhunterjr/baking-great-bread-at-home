@@ -6,6 +6,7 @@ import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export interface Tool {
   id: number;
@@ -19,9 +20,10 @@ export interface Tool {
 interface ToolCardProps {
   tool: Tool;
   compact?: boolean;
+  animationDelay?: number;
 }
 
-const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
+const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false, animationDelay = 0 }) => {
   const isMobile = useIsMobile();
   const [imageLoaded, setImageLoaded] = useState(false);
   
@@ -29,9 +31,17 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
     setImageLoaded(true);
   };
   
+  const cardStyle = {
+    animationDelay: `${animationDelay}ms`,
+  };
+  
   if (compact) {
     return (
-      <Card key={tool.id} className="overflow-hidden card-hover border-bread-100 glass-card">
+      <Card 
+        key={tool.id} 
+        className="overflow-hidden card-hover border-bread-100 glass-card animate-fade-in opacity-0"
+        style={cardStyle}
+      >
         <div className="flex flex-col sm:flex-row">
           <div className="sm:w-1/3 h-32 sm:h-auto overflow-hidden relative">
             {!imageLoaded && (
@@ -74,10 +84,16 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
   }
 
   return (
-    <Card key={tool.id} className="overflow-hidden card-hover border-bread-100 glass-card transition-all h-full flex flex-col">
+    <Card 
+      key={tool.id} 
+      className="overflow-hidden card-hover border-bread-100 glass-card transition-all h-full flex flex-col animate-fade-in opacity-0"
+      style={cardStyle}
+    >
       <AspectRatio ratio={16/9} className="overflow-hidden relative">
         {!imageLoaded && (
-          <div className="absolute inset-0 bg-slate-200 dark:bg-slate-800 animate-pulse" />
+          <div className="absolute inset-0">
+            <Skeleton className="w-full h-full" />
+          </div>
         )}
         <img 
           src={tool.image} 
@@ -92,16 +108,16 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
         <p className="text-muted-foreground text-xs sm:text-sm mb-2 sm:mb-3 md:mb-4 line-clamp-3 flex-grow">{tool.description}</p>
         <Button 
           size={isMobile ? "sm" : "default"} 
-          className="w-full bg-bread-800 hover:bg-bread-900 text-white text-xs sm:text-sm transition-all duration-300 mt-auto"
+          className="w-full bg-bread-800 hover:bg-bread-900 text-white text-xs sm:text-sm transition-all duration-300 mt-auto group"
           asChild
         >
           {tool.isExternalLink ? (
-            <a href={tool.link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center group">
+            <a href={tool.link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
               Explore
               <ArrowRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4 transition-transform group-hover:translate-x-1" />
             </a>
           ) : (
-            <Link to={tool.link} className="flex items-center justify-center group">
+            <Link to={tool.link} className="flex items-center justify-center">
               Explore
               <ArrowRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4 transition-transform group-hover:translate-x-1" />
             </Link>
@@ -113,4 +129,3 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
 };
 
 export default ToolCard;
-
