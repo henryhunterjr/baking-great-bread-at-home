@@ -27,12 +27,14 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
       { threshold: 0.1 }
     );
 
-    if (sectionRef.current) {
+    // Only observe if sectionRef and sectionRef.current exist
+    if (sectionRef && sectionRef.current) {
       observer.observe(sectionRef.current);
     }
 
     return () => {
-      if (sectionRef.current) {
+      // Only unobserve if sectionRef and sectionRef.current exist
+      if (sectionRef && sectionRef.current) {
         observer.unobserve(sectionRef.current);
       }
     };
