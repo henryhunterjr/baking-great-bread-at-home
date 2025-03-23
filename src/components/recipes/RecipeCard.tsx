@@ -22,6 +22,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -37,10 +38,39 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     });
   };
 
-  // Use the correct image URL prioritizing blog post images
-  const displayImageUrl = imageError ? 
-    "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop" : 
-    recipe.imageUrl;
+  // Default fallback image if all else fails
+  const defaultFallbackImage = "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop";
+  
+  // Determine the correct image URL to display
+  const getDisplayImageUrl = () => {
+    if (imageError) {
+      // If there was an error loading the image, use fallback
+      return defaultFallbackImage;
+    }
+    
+    // Check if the image URL is a local path and ensure it starts with the correct prefix
+    if (recipe.imageUrl && !recipe.imageUrl.startsWith('http')) {
+      return recipe.imageUrl; // Local path should be used as is
+    }
+    
+    return recipe.imageUrl;
+  };
+
+  const handleImageError = () => {
+    if (retryCount < 1) {
+      // Try once more with a slight delay (sometimes network hiccups happen)
+      setRetryCount(retryCount + 1);
+      setTimeout(() => {
+        const imgElement = document.getElementById(`recipe-img-${recipe.id}`) as HTMLImageElement;
+        if (imgElement) {
+          imgElement.src = recipe.imageUrl;
+        }
+      }, 1000);
+    } else {
+      // After retry, if still failing, use fallback
+      setImageError(true);
+    }
+  };
 
   return (
     <Card 
@@ -73,17 +103,13 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         rel="noopener noreferrer"
         className="flex flex-col h-full"
       >
-        <div className="aspect-video overflow-hidden">
+        <div className="aspect-video overflow-hidden bg-bread-100">
           <img
-            src={displayImageUrl}
+            id={`recipe-img-${recipe.id}`}
+            src={getDisplayImageUrl()}
             alt={recipe.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            onError={(e) => {
-              // Only try to set fallback image once to avoid infinite loop
-              if (!imageError) {
-                setImageError(true);
-              }
-            }}
+            onError={handleImageError}
           />
         </div>
         <CardContent className="p-6 flex-grow flex flex-col">

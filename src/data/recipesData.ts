@@ -63,7 +63,7 @@ export const recipesData: Recipe[] = [
     id: '8',
     title: 'Cardamom-Infused Cinnamon Rolls',
     description: 'Indulgent cinnamon rolls with a unique cardamom twist.',
-    imageUrl: 'https://images.unsplash.com/photo-1673698934271-4cb674032c4b?q=80&w=1000&auto=format&fit=crop',
+    imageUrl: '/lovable-uploads/458ba364-c751-45d4-acc5-4d86d0650fc4.png',
     date: 'December 19, 2023',
     link: 'https://bakinggreatbread.blog/2023/12/19/cardamom-infused-cinnamon-rolls/',
   },
