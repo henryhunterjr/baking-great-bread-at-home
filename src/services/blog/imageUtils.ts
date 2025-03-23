@@ -21,13 +21,19 @@ export const getPlaceholderImage = (id: number): string => {
 
 // Helper function to get image for a specific challenge by id
 export const getChallengeImage = (id: string): string => {
-  // Map of challenge themes to appropriate bread images
-  const themeImages = {
+  // Use a simplified approach with a set of reliable Unsplash bread images
+  const reliableImages = {
+    // More recent challenges - use most reliable high-quality images
+    'march-2025': 'https://images.unsplash.com/photo-1509440159596-0249088772ff',
+    'february-2025': 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7c',
+    'january-2025': 'https://images.unsplash.com/photo-1555507036-ab1f4038808a',
+    
+    // Themed challenges
     'cultural': 'https://images.unsplash.com/photo-1568254183919-78a4f43a2877',
     'love': 'https://images.unsplash.com/photo-1559622214-f4a29c302d72',
     'healthy': 'https://images.unsplash.com/photo-1586444248879-bc604cbd555a',
     'gift': 'https://images.unsplash.com/photo-1482930172332-2293d7138235',
-    'enriched': 'https://images.unsplash.com/photo-1586444248879-bc592f5dc49c',
+    'enriched': 'https://images.unsplash.com/photo-1509440159596-0249088772ff',
     'halloween': 'https://images.unsplash.com/photo-1476883852536-61979a5cdac9',
     'basic': 'https://images.unsplash.com/photo-1509440159596-0249088772ff',
     'lunch': 'https://images.unsplash.com/photo-1592151450128-62f8a61aad8a',
@@ -35,11 +41,13 @@ export const getChallengeImage = (id: string): string => {
     'default': 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7c'
   };
   
-  // Challenge ID to theme mapping
-  const challengeThemes = {
-    'march-2025': 'cultural',
-    'february-2025': 'love',
-    'january-2025': 'healthy',
+  // First check if we have a direct match for the challenge ID
+  if (reliableImages[id]) {
+    return `${reliableImages[id]}?q=80&w=1000&auto=format&fit=crop`;
+  }
+  
+  // Challenge ID to theme mapping (for older challenges)
+  const challengeThemes: Record<string, string> = {
     'december-2024': 'gift',
     'november-2024': 'enriched',
     'halloween-2024': 'halloween',
@@ -59,5 +67,5 @@ export const getChallengeImage = (id: string): string => {
   const theme = challengeThemes[id] || 'default';
   
   // Return themed image with quality parameters
-  return `${themeImages[theme]}?q=80&w=2000&auto=format&fit=crop`;
+  return `${reliableImages[theme]}?q=80&w=1000&auto=format&fit=crop`;
 };
