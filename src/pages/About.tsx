@@ -30,8 +30,8 @@ const About = () => {
             {/* Image */}
             <div className="mb-10">
               <img 
-                src="/lovable-uploads/e08c08a0-e721-449e-b524-01fa739a37e5.png" 
-                alt="Henry smiling in chef whites and black hat with bread dough" 
+                src="/lovable-uploads/d4e82bc8-8af0-4473-9860-c035b4c2d09f.png" 
+                alt="Henry in chef whites with a Superman-themed apron" 
                 className="rounded-lg w-full h-auto max-h-[400px] object-cover object-center"
               />
             </div>
