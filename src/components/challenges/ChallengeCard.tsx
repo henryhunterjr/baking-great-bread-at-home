@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Image as ImageIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getChallengeImage } from '@/services/blog/imageUtils';
@@ -18,24 +18,32 @@ const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => 
   
   // Get the image source based on the challenge ID
   const imageSrc = getChallengeImage(challenge.id);
-  
-  // Reliable fallback image from Unsplash
-  const fallbackImage = 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7c?q=80&w=2000&auto=format&fit=crop';
 
   return (
     <Card className="overflow-hidden border-bread-100">
       <div className={`${isLarge ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'flex flex-col sm:flex-row h-full'}`}>
-        <div className={`${isLarge ? 'aspect-video' : 'sm:w-1/3 aspect-video sm:aspect-auto'} overflow-hidden bg-bread-50`}>
-          <img 
-            src={imageError ? fallbackImage : imageSrc} 
-            alt={challenge.title} 
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              console.log(`Error loading image for challenge: ${challenge.id}`);
-              setImageError(true);
-              e.currentTarget.src = fallbackImage;
-            }}
-          />
+        <div className={`${isLarge ? 'aspect-video' : 'sm:w-1/3 aspect-video sm:aspect-auto'} overflow-hidden bg-bread-50 relative`}>
+          {!imageError ? (
+            <img 
+              src={imageSrc}
+              alt={challenge.title} 
+              className="w-full h-full object-cover"
+              onError={() => {
+                console.log(`Error loading image for challenge: ${challenge.id}`);
+                setImageError(true);
+              }}
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center bg-bread-100 p-4">
+              <ImageIcon className="h-12 w-12 text-bread-400 mb-2" />
+              <div className="text-center">
+                <h4 className="font-medium text-bread-800">{challenge.title}</h4>
+                {challenge.hashtag && (
+                  <p className="text-bread-600 text-sm mt-1">{challenge.hashtag}</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
         <CardContent className={`p-${isLarge ? '6' : '4'} ${isLarge ? '' : 'sm:w-2/3'} flex flex-col justify-between`}>
           <div>

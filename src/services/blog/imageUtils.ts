@@ -19,40 +19,45 @@ export const getPlaceholderImage = (id: number): string => {
   return `${breadImages[index]}?q=80&w=1000&auto=format&fit=crop`;
 };
 
-// Helper function to get image for a specific challenge by id or month name
+// Helper function to get image for a specific challenge by id
 export const getChallengeImage = (id: string): string => {
-  console.log(`Looking for image with id: ${id}`);
-  
-  // Map challenge IDs to reliable Unsplash bread-related images
-  const challengeImages: Record<string, string> = {
-    // 2025 Challenges - using reliable Unsplash images
-    'march-2025': 'https://images.unsplash.com/photo-1568254183919-78a4f43a2877?q=80&w=2000&auto=format&fit=crop',
-    'february-2025': 'https://images.unsplash.com/photo-1559622214-f4a29c302d72?q=80&w=2000&auto=format&fit=crop',
-    'january-2025': 'https://images.unsplash.com/photo-1586444248879-bc604cbd555a?q=80&w=2000&auto=format&fit=crop',
-    
-    // Using Unsplash images for other challenges
-    'december-2024': 'https://images.unsplash.com/photo-1482930172332-2293d7138235?q=80&w=2000&auto=format&fit=crop',
-    'november-2024': 'https://images.unsplash.com/photo-1586444248879-bc592f5dc49c?q=80&w=2000&auto=format&fit=crop',
-    'halloween-2024': 'https://images.unsplash.com/photo-1476883852536-61979a5cdac9?q=80&w=2000&auto=format&fit=crop',
-    'october-2024': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2000&auto=format&fit=crop',
-    'september-2024': 'https://images.unsplash.com/photo-1592151450128-62f8a61aad8a?q=80&w=2000&auto=format&fit=crop',
-    'challah-2024': 'https://images.unsplash.com/photo-1591401911894-7e8f0f3dd4a5?q=80&w=2000&auto=format&fit=crop',
-    
-    // Fallbacks for older challenges
-    'march-2024': 'https://images.unsplash.com/photo-1598373182133-52452f7691ef?q=80&w=2000&auto=format&fit=crop',
-    'february-2024': 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7c?q=80&w=2000&auto=format&fit=crop',
-    'january-2024': 'https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?q=80&w=2000&auto=format&fit=crop',
-    'december-2023': 'https://images.unsplash.com/photo-1482930172332-2293d7138235?q=80&w=2000&auto=format&fit=crop',
-    'november-2023': 'https://images.unsplash.com/photo-1586444248879-bc592f5dc49c?q=80&w=2000&auto=format&fit=crop',
-    'october-2023': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=2000&auto=format&fit=crop',
-    'september-2023': 'https://images.unsplash.com/photo-1592151450128-62f8a61aad8a?q=80&w=2000&auto=format&fit=crop',
+  // Map of challenge themes to appropriate bread images
+  const themeImages = {
+    'cultural': 'https://images.unsplash.com/photo-1568254183919-78a4f43a2877',
+    'love': 'https://images.unsplash.com/photo-1559622214-f4a29c302d72',
+    'healthy': 'https://images.unsplash.com/photo-1586444248879-bc604cbd555a',
+    'gift': 'https://images.unsplash.com/photo-1482930172332-2293d7138235',
+    'enriched': 'https://images.unsplash.com/photo-1586444248879-bc592f5dc49c',
+    'halloween': 'https://images.unsplash.com/photo-1476883852536-61979a5cdac9',
+    'basic': 'https://images.unsplash.com/photo-1509440159596-0249088772ff',
+    'lunch': 'https://images.unsplash.com/photo-1592151450128-62f8a61aad8a',
+    'challah': 'https://images.unsplash.com/photo-1591401911894-7e8f0f3dd4a5',
+    'default': 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7c'
   };
   
-  const imagePath = challengeImages[id];
-  console.log(`Resolved image path: ${imagePath}`);
+  // Challenge ID to theme mapping
+  const challengeThemes = {
+    'march-2025': 'cultural',
+    'february-2025': 'love',
+    'january-2025': 'healthy',
+    'december-2024': 'gift',
+    'november-2024': 'enriched',
+    'halloween-2024': 'halloween',
+    'october-2024': 'basic',
+    'september-2024': 'lunch',
+    'challah-2024': 'challah',
+    'march-2024': 'cultural',
+    'february-2024': 'love',
+    'january-2024': 'healthy',
+    'december-2023': 'gift',
+    'november-2023': 'enriched',
+    'october-2023': 'basic',
+    'september-2023': 'lunch'
+  };
   
-  // Using a reliable default fallback image from Unsplash
-  const fallbackImage = 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7c?q=80&w=2000&auto=format&fit=crop';
+  // Get theme for this challenge, or use default
+  const theme = challengeThemes[id] || 'default';
   
-  return imagePath || fallbackImage;
+  // Return themed image with quality parameters
+  return `${themeImages[theme]}?q=80&w=2000&auto=format&fit=crop`;
 };
