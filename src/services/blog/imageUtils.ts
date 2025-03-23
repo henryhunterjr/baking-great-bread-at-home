@@ -1,4 +1,3 @@
-
 import { challengeImages, DEFAULT_CHALLENGE_IMAGE } from '@/data/challengeImages';
 
 // Helper function to get placeholder image for a blog post
@@ -30,7 +29,7 @@ export const getPlaceholderImage = (id: number): string => {
 export const getChallengeImage = (id: string): string => {
   // First tier: Check for image in the configuration map
   if (challengeImages[id]) {
-    console.log(`✅ [Challenge ${id}] Using configured image path`);
+    console.log(`✅ [Challenge ${id}] Using configured image path: ${challengeImages[id]}`);
     return challengeImages[id];
   }
   
@@ -39,7 +38,7 @@ export const getChallengeImage = (id: string): string => {
   
   // Note: We're returning the gamma path here directly now
   // The existence check will happen in the component
-  console.log(`🔄 [Challenge ${id}] Configured image not found, trying Gamma screenshot`);
+  console.log(`🔄 [Challenge ${id}] Configured image not found, trying Gamma screenshot at: ${gammaScreenshotPath}`);
   return gammaScreenshotPath;
   
   // Third tier (default) will be handled in the component if gamma fails
@@ -75,4 +74,3 @@ export const getEnhancedChallengeImage = (id: string): {
   
   // The fallback to default will happen in the component if both configured and gamma fail
 };
-
