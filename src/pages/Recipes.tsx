@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Search, Filter, ArrowRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Sample recipes data based on the provided image
+// Sample recipes data
 const recipesData: Recipe[] = [
   {
     id: '1',
