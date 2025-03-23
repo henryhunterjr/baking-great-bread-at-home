@@ -27,33 +27,33 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
   if (compact) {
     return (
       <Card key={tool.id} className="overflow-hidden card-hover border-bread-100 glass-card">
-        <div className="flex flex-col md:flex-row">
-          <div className="md:w-1/3 aspect-square md:aspect-auto overflow-hidden">
+        <div className="flex flex-col sm:flex-row">
+          <div className="sm:w-1/3 h-32 sm:h-auto overflow-hidden">
             <img 
               src={tool.image} 
               alt={tool.title} 
               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
             />
           </div>
-          <div className="md:w-2/3 p-4 md:p-6 flex flex-col justify-between">
+          <div className="sm:w-2/3 p-3 sm:p-4 flex flex-col justify-between">
             <div>
-              <h3 className="font-serif text-lg md:text-xl font-medium mb-1 md:mb-2">{tool.title}</h3>
-              <p className="text-muted-foreground text-sm mb-3 md:mb-4 line-clamp-3">{tool.description}</p>
+              <h3 className="font-serif text-base sm:text-lg font-medium mb-1">{tool.title}</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">{tool.description}</p>
             </div>
             <Button 
               size="sm" 
-              className="bg-bread-800 hover:bg-bread-900 text-white"
+              className="bg-bread-800 hover:bg-bread-900 text-white text-xs"
               asChild
             >
               {tool.isExternalLink ? (
                 <a href={tool.link} target="_blank" rel="noopener noreferrer">
                   Explore
-                  <ArrowRight className="ml-2 h-3 w-3" />
+                  <ArrowRight className="ml-1 h-3 w-3" />
                 </a>
               ) : (
                 <Link to={tool.link}>
                   Explore
-                  <ArrowRight className="ml-2 h-3 w-3" />
+                  <ArrowRight className="ml-1 h-3 w-3" />
                 </Link>
               )}
             </Button>
@@ -70,25 +70,26 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
           src={tool.image} 
           alt={tool.title} 
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+          loading="lazy"
         />
       </AspectRatio>
-      <CardContent className="p-4 md:p-6">
-        <h3 className="font-serif text-lg md:text-xl font-medium mb-1 md:mb-2">{tool.title}</h3>
-        <p className="text-muted-foreground text-sm mb-3 md:mb-4 line-clamp-3">{tool.description}</p>
+      <CardContent className="p-3 sm:p-4 md:p-6">
+        <h3 className="font-serif text-base sm:text-lg md:text-xl font-medium mb-1 sm:mb-2">{tool.title}</h3>
+        <p className="text-muted-foreground text-xs sm:text-sm mb-2 sm:mb-3 md:mb-4 line-clamp-3">{tool.description}</p>
         <Button 
           size={isMobile ? "sm" : "default"} 
-          className="w-full bg-bread-800 hover:bg-bread-900 text-white"
+          className="w-full bg-bread-800 hover:bg-bread-900 text-white text-xs sm:text-sm"
           asChild
         >
           {tool.isExternalLink ? (
             <a href={tool.link} target="_blank" rel="noopener noreferrer">
               Explore
-              <ArrowRight className="ml-2 h-3 w-3" />
+              <ArrowRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
             </a>
           ) : (
             <Link to={tool.link}>
               Explore
-              <ArrowRight className="ml-2 h-3 w-3" />
+              <ArrowRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
             </Link>
           )}
         </Button>
