@@ -56,7 +56,13 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       return defaultFallbackImage;
     }
     
-    // Return the recipe image URL (either local or remote)
+    // For local images (those from our server), ensure they're properly formatted
+    if (recipe.imageUrl && recipe.imageUrl.startsWith('/lovable-uploads/')) {
+      // Local path should be used as is
+      return recipe.imageUrl;
+    }
+    
+    // Return the recipe image URL (remote URLs)
     return recipe.imageUrl;
   };
 
@@ -69,6 +75,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       setRetryCount(retryCount + 1);
       console.log(`Retry attempt #${retryCount + 1} for ${recipe.title}`);
       
+      // For this retry, don't immediately set imageError to true
       setTimeout(() => {
         const imgElement = document.getElementById(`recipe-img-${recipe.id}`) as HTMLImageElement;
         if (imgElement) {
@@ -146,6 +153,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
             }`}
             onError={handleImageError}
             onLoad={handleImageLoad}
+            loading="lazy"
           />
         </div>
         <CardContent className="p-6 flex-grow flex flex-col">
