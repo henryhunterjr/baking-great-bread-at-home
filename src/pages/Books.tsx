@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
@@ -68,7 +69,7 @@ const Books = () => {
             src="/lovable-uploads/4475b57a-8ff3-4c99-ac6d-24d1e49f0ad1.png" 
             alt="Baking Great Bread at Home - Books and Guides" 
             className="w-full h-full object-cover object-center object-position-y-top"
-            style={{ objectPosition: "center 40%" }}  /* Moved further in opposite direction to show more of the bottom */
+            style={{ objectPosition: "center 60%" }}  /* Moved even further down to show more of the bottom */
           />
           <div className="absolute inset-0 bg-bread-950/60"></div>
         </div>
