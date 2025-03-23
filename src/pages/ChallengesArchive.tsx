@@ -20,7 +20,7 @@ const ChallengesArchive = () => {
       
       Example:
       {
-        "march-2025": "/challenges/images/march-2025-challenge.png",
+        "march-2025": "/lovable-uploads/image-file-name.png",
         "february-2025": "/challenges/images/custom-name-whatever-you-want.png"
       }
       
@@ -29,7 +29,10 @@ const ChallengesArchive = () => {
       2. Gamma screenshot at /challenges/gamma/{challenge-id}-screenshot.jpg
       3. Default image (Unsplash bread image)
       
-      NOTE: Make sure to create the directory structure:
+      NOTE: For custom uploads, use the Lovable Chat to upload images and use
+      the returned path in the challengeImages.ts file.
+      
+      For manual uploads, create these directories:
       /public/challenges/images/ - for your custom challenge images
       /public/challenges/gamma/ - for gamma screenshots
     `);

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ExternalLink, Image as ImageIcon, AlertTriangle } from 'lucide-react';
@@ -37,41 +38,27 @@ const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => 
   useEffect(() => {
     const loadImage = async () => {
       setIsLoading(true);
+      setImageError(false);
       
       // First check the configured image
       const configuredImage = getChallengeImage(challenge.id);
       
-      // Check if the configured image exists
       try {
-        const exists = await checkImageExists(configuredImage);
+        // If the configured image exists, use it
+        setImageSrc(configuredImage);
         
-        if (exists) {
-          console.log(`✅ [Challenge ${challenge.id}] Successfully loaded image`);
-          setImageSrc(configuredImage);
-          setImageTier(configuredImage === DEFAULT_CHALLENGE_IMAGE ? 'default' : 'configured');
-          setIsLoading(false);
-          return;
-        } else if (configuredImage !== DEFAULT_CHALLENGE_IMAGE) {
-          // If we're here, the configured image doesn't exist, try gamma
-          const gammaScreenshotPath = `/challenges/gamma/${challenge.id}-screenshot.jpg`;
-          const gammaExists = await checkImageExists(gammaScreenshotPath);
-          
-          if (gammaExists) {
-            console.log(`🔄 [Challenge ${challenge.id}] Using Gamma screenshot fallback`);
-            setImageSrc(gammaScreenshotPath);
-            setImageTier('gamma');
-            setIsLoading(false);
-            return;
-          }
+        // Determine the tier based on the image path
+        if (configuredImage.includes('/lovable-uploads/')) {
+          setImageTier('configured');
+        } else if (configuredImage.includes('/challenges/gamma/')) {
+          setImageTier('gamma');
+        } else {
+          setImageTier('default');
         }
         
-        // If all else fails, use the default image
-        console.log(`🌐 [Challenge ${challenge.id}] Using default challenge image`);
-        setImageSrc(DEFAULT_CHALLENGE_IMAGE);
-        setImageTier('default');
         setIsLoading(false);
       } catch (err) {
-        console.error(`❌ Error checking image for challenge: ${challenge.id}`, err);
+        console.error(`❌ Error setting up image for challenge: ${challenge.id}`, err);
         setImageSrc(DEFAULT_CHALLENGE_IMAGE);
         setImageTier('default');
         setIsLoading(false);
@@ -83,8 +70,17 @@ const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => 
 
   const handleImageError = () => {
     console.error(`❌ Error loading image for challenge: ${challenge.id}. Tier: ${imageTier}`);
-    setImageError(true);
-    setImageTier('error');
+    
+    // If we're already at the default tier and it failed, show error state
+    if (imageTier === 'default') {
+      setImageError(true);
+      setImageTier('error');
+      return;
+    }
+    
+    // Try the default image as a last resort
+    setImageSrc(DEFAULT_CHALLENGE_IMAGE);
+    setImageTier('default');
   };
 
   return (

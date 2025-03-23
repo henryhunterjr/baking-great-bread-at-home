@@ -37,13 +37,12 @@ export const getChallengeImage = (id: string): string => {
   // Second tier: Try Gamma screenshot
   const gammaScreenshotPath = `/challenges/gamma/${id}-screenshot.jpg`;
   
-  // For now, we'll skip checking if the gamma image exists here
-  // This will be checked at runtime in the component
+  // Note: We're returning the gamma path here directly now
+  // The existence check will happen in the component
   console.log(`🔄 [Challenge ${id}] Configured image not found, trying Gamma screenshot`);
+  return gammaScreenshotPath;
   
-  // Third tier: Use default fallback image
-  console.log(`🌐 [Challenge ${id}] Using default fallback image`);
-  return DEFAULT_CHALLENGE_IMAGE;
+  // Third tier (default) will be handled in the component if gamma fails
 };
 
 /**
@@ -76,3 +75,4 @@ export const getEnhancedChallengeImage = (id: string): {
   
   // The fallback to default will happen in the component if both configured and gamma fail
 };
+
