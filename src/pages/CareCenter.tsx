@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -14,6 +13,14 @@ import {
 
 const CareCenter = () => {
   const mediaItems: MediaItem[] = [
+    {
+      id: '7',
+      title: 'Bread at Halloween: Spooky Loaves and Traditions',
+      url: 'https://youtu.be/QXGqj6Uaa2M?si=E1pDiPdEo4gJB9UF',
+      type: 'video',
+      source: 'YouTube',
+      description: 'Explore the fascinating history and techniques behind Halloween-themed bread making traditions'
+    },
     {
       id: '1',
       title: 'My Foolproof Sourdough Recipe: Start to Finish',
@@ -67,7 +74,6 @@ const CareCenter = () => {
   const videos = mediaItems.filter(item => item.type === 'video');
   const podcasts = mediaItems.filter(item => item.type === 'podcast');
   
-  // Group podcasts by source
   const podcastsBySource = podcasts.reduce((acc, podcast) => {
     if (!acc[podcast.source]) {
       acc[podcast.source] = [];

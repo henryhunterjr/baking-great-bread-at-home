@@ -13,6 +13,14 @@ const CareCenterPreview: React.FC<CareCenterPreviewProps> = ({ sectionRef }) => 
   // Featured media items for the homepage preview
   const featuredMedia: MediaItem[] = [
     {
+      id: '7',
+      title: 'Bread at Halloween: Spooky Loaves and Traditions',
+      url: 'https://youtu.be/QXGqj6Uaa2M?si=E1pDiPdEo4gJB9UF',
+      type: 'video',
+      source: 'YouTube',
+      description: 'Explore the fascinating history and techniques behind Halloween-themed bread making traditions'
+    },
+    {
       id: '1',
       title: 'My Foolproof Sourdough Recipe: Start to Finish',
       url: 'https://youtu.be/ubJWmOAN684',
@@ -26,13 +34,6 @@ const CareCenterPreview: React.FC<CareCenterPreviewProps> = ({ sectionRef }) => 
       description: 'Discussion about Henry\'s latest book "Sourdough for the Rest of Us"',
       type: 'podcast',
       source: 'Breaking Bread'
-    },
-    {
-      id: '3',
-      title: 'Henry Hunter on Life, the Universe, and Bread',
-      url: 'https://youtu.be/49XtxfMlBgo',
-      type: 'podcast',
-      source: 'The Jar Podcast'
     }
   ];
 
