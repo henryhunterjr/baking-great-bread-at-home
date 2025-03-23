@@ -21,19 +21,19 @@ export const affiliateGroups: AffiliateGroup[] = [
         name: 'Baking Tools Starter Kit',
         price: '$56.41',
         link: 'https://collabs.shop/7k4ksj',
-        image: '/lovable-uploads/ba810304-c645-4c8f-99ef-0993feaf7d3f.png'
+        image: '/lovable-uploads/809e8e95-bd25-4afe-bc66-e13428d11632.png'
       },
       {
         name: 'High Capacity Baking Scale',
         price: '$24.95',
         link: 'https://collabs.shop/hvryn6',
-        image: '/lovable-uploads/1df776e0-0d83-476a-926c-349703bf4941.png'
+        image: '/lovable-uploads/4013d3e0-09d7-4274-af96-07fd2cfeb9bb.png'
       },
       {
         name: 'Dough Whisk',
         price: '$18.95',
         link: 'https://collabs.shop/6jalk7',
-        image: '/lovable-uploads/2bcb5c54-1a78-46ae-88ba-e228d7f27011.png'
+        image: '/lovable-uploads/86f58662-7751-4832-bf34-650b9d5aac7c.png'
       },
       {
         name: 'Folding Proofer & Slow Cooker',
@@ -45,25 +45,25 @@ export const affiliateGroups: AffiliateGroup[] = [
         name: 'Professional VG2 Knife Sharpener',
         price: '$129.00',
         link: 'https://collabs.shop/kpxkj2',
-        image: '/lovable-uploads/2841fba8-52f8-4000-b3d7-59bd37281cd6.png'
+        image: '/lovable-uploads/0f75b425-69a0-4751-9c8b-24f9164a8b8c.png'
       },
       {
         name: 'Precision Kitchen & Coffee Scale with Timer',
         price: '$24.95',
         link: 'https://collabs.shop/cuut37',
-        image: '/lovable-uploads/ba4b0512-fc0a-434b-b5b0-32f7173ff6d1.png'
+        image: '/lovable-uploads/0f75b425-69a0-4751-9c8b-24f9164a8b8c.png'
       },
       {
         name: 'Sahara Folding Dehydrator',
         price: '$199.00',
         link: 'https://collabs.shop/94zxfe',
-        image: '/lovable-uploads/7b1dd107-a286-4732-9d7c-a5080186c261.png'
+        image: '/lovable-uploads/86f58662-7751-4832-bf34-650b9d5aac7c.png'
       },
       {
         name: 'Compact Dough Sheeter 12" (Refurbished)',
         price: '$450.00',
         link: 'https://collabs.shop/mnrhy9',
-        image: '/lovable-uploads/b7a58c43-c3fa-4067-b552-84b21a51bfcc.png'
+        image: '/lovable-uploads/0f75b425-69a0-4751-9c8b-24f9164a8b8c.png'
       },
       {
         name: 'Water Kettle and French Press',
