@@ -8,7 +8,7 @@ const Community = () => {
   
   return (
     <div className="min-h-screen bg-bread-50">
-      {/* Hero Section */}
+      {/* Hero Section with improved text legibility */}
       <div className="relative w-full">
         <div className="relative w-full h-[550px] overflow-hidden">
           <img 
@@ -16,30 +16,32 @@ const Community = () => {
             alt="Baking Great Bread at Home - Community" 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-bread-950/30"></div>
+          <div className="absolute inset-0 bg-bread-950/60"></div>
         </div>
         
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
-          <h1 className="text-4xl md:text-6xl font-serif text-white mb-8 max-w-5xl">
-            Join Our Bread Baking Community
-          </h1>
-          <p className="text-xl text-white max-w-2xl mb-8">
-            Connect with fellow bread enthusiasts, share your creations, and learn from others in our supportive Facebook group.
-          </p>
-          <Button 
-            size="lg" 
-            className="bg-bread-800 hover:bg-bread-900 text-white"
-            asChild
-          >
-            <a href={FACEBOOK_GROUP_LINK} target="_blank" rel="noopener noreferrer" className="flex items-center">
-              Join Our Facebook Group
-              <ExternalLink className="ml-2 h-5 w-5" />
-            </a>
-          </Button>
+          <div className="bg-bread-950/70 p-6 rounded-lg backdrop-blur-sm max-w-4xl">
+            <h1 className="text-4xl md:text-6xl font-serif text-white mb-8">
+              Join Our Bread Baking Community
+            </h1>
+            <p className="text-xl text-white mb-8">
+              Connect with fellow bread enthusiasts, share your creations, and learn from others in our supportive Facebook group.
+            </p>
+            <Button 
+              size="lg" 
+              className="bg-bread-800 hover:bg-bread-900 text-white"
+              asChild
+            >
+              <a href={FACEBOOK_GROUP_LINK} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                Join Our Facebook Group
+                <ExternalLink className="ml-2 h-5 w-5" />
+              </a>
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Community Benefits Section */}
+      {/* Community Benefits Section with improved contrast */}
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-serif text-bread-900 mb-4">Why Join Our Community?</h2>
@@ -79,7 +81,7 @@ const Community = () => {
         </div>
       </div>
       
-      {/* Testimonials Section */}
+      {/* Testimonials Section with improved contrast */}
       <div className="bg-bread-100 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-serif text-bread-900 mb-12 text-center">
@@ -111,7 +113,7 @@ const Community = () => {
         </div>
       </div>
       
-      {/* Final CTA */}
+      {/* Final CTA with improved contrast */}
       <div className="bg-bread-800 text-white py-16 text-center">
         <div className="max-w-3xl mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-serif mb-6">Ready to Join Our Community?</h2>
