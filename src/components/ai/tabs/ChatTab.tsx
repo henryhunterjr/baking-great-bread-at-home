@@ -1,12 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Loader2, Send, ArrowRight, Book, Calendar } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import React from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessage } from '../utils/types';
-import { suggestedQuestions, henryQuotes, henryBio } from '../utils/data';
 import { searchRecipes, findRelevantBook, getCurrentChallenge } from '../utils/aiHelpers';
+import { henryQuotes } from '../utils/data';
+import MessageList from '../chat/MessageList';
+import MessageInputForm from '../chat/MessageInputForm';
 
 interface ChatTabProps {
   messages: ChatMessage[];
@@ -27,26 +25,18 @@ const ChatTab: React.FC<ChatTabProps> = ({
   isProcessing,
   setIsProcessing
 }) => {
-  const [chatInput, setChatInput] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-  
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chatInput.trim()) return;
+  const handleSendMessage = async (message: string) => {
+    if (!message.trim()) return;
     
     const userMessage: ChatMessage = {
       role: 'user',
-      content: chatInput,
+      content: message,
       timestamp: new Date()
     };
     
     setMessages(prev => [...prev, userMessage]);
-    setChatInput('');
     setIsProcessing(true);
     
     try {
@@ -57,7 +47,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
       let attachedBook: ChatMessage['attachedBook'] = undefined;
       let attachedChallenge: ChatMessage['attachedChallenge'] = undefined;
       
-      const lowercaseInput = chatInput.toLowerCase();
+      const lowercaseInput = message.toLowerCase();
       
       if (lowercaseInput.includes('recipe') && (lowercaseInput.includes('convert') || lowercaseInput.includes('transform'))) {
         response = "I'd be happy to convert a recipe for you! Please go to the Recipe Converter tab and upload an image or paste your recipe text. I'll format it properly for you and offer suggestions for improvements.";
@@ -66,7 +56,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
         response = "I can help generate a recipe idea! Head to the Recipe Generator tab, describe what you'd like to make, and I'll create a custom recipe for you based on Henry's techniques.";
       }
       else if (lowercaseInput.includes('recipe') && (lowercaseInput.includes('find') || lowercaseInput.includes('search') || lowercaseInput.includes('looking for'))) {
-        const searchTerms = chatInput.replace(/recipe|find|search|looking for|can you find|do you have|i want/gi, '').trim();
+        const searchTerms = message.replace(/recipe|find|search|looking for|can you find|do you have|i want/gi, '').trim();
         
         if (searchTerms.length > 2) {
           const searchResults = await searchRecipes(searchTerms);
@@ -116,10 +106,10 @@ const ChatTab: React.FC<ChatTabProps> = ({
         response = `This month's challenge is all about ${currentChallenge.title.toLowerCase()}! ${currentChallenge.description} Would you like to join or see what others are baking? You can click the link to see the challenge details and community submissions.`;
       }
       else if (lowercaseInput.includes('henry') || lowercaseInput.includes('vitale') || lowercaseInput.includes('who is') || lowercaseInput.includes('about the author')) {
-        response = henryBio.shortBio;
+        response = henryQuotes[0];
         
         if (lowercaseInput.includes('more') || lowercaseInput.includes('detail')) {
-          response = henryBio.longBio;
+          response = henryQuotes[1];
         }
       }
       else if (lowercaseInput.includes('hydration')) {
@@ -158,176 +148,20 @@ const ChatTab: React.FC<ChatTabProps> = ({
       setIsProcessing(false);
     }
   };
-  
-  const renderAttachment = (message: ChatMessage) => {
-    if (message.attachedRecipe) {
-      return (
-        <Card className="mt-3 overflow-hidden border-bread-100">
-          <div className="flex flex-col sm:flex-row">
-            <div className="sm:w-1/3 aspect-video">
-              <img
-                src={message.attachedRecipe.imageUrl}
-                alt={message.attachedRecipe.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop";
-                }}
-              />
-            </div>
-            <div className="p-4 sm:w-2/3">
-              <h4 className="font-serif text-lg font-medium mb-2">{message.attachedRecipe.title}</h4>
-              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{message.attachedRecipe.description}</p>
-              <a 
-                href={message.attachedRecipe.link} 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center text-bread-800 text-sm font-medium hover:underline"
-              >
-                View Full Recipe
-                <ArrowRight className="ml-2 h-3 w-3" />
-              </a>
-            </div>
-          </div>
-        </Card>
-      );
-    } else if (message.attachedBook) {
-      return (
-        <Card className="mt-3 overflow-hidden border-bread-100">
-          <div className="flex flex-col sm:flex-row">
-            <div className="sm:w-1/3 aspect-video">
-              <img
-                src={message.attachedBook.imageUrl}
-                alt={message.attachedBook.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1576063892619-7e154ed1e19c?q=80&w=1000&auto=format&fit=crop";
-                }}
-              />
-            </div>
-            <div className="p-4 sm:w-2/3">
-              <h4 className="font-serif text-lg font-medium mb-1">{message.attachedBook.title}</h4>
-              <p className="text-sm text-muted-foreground mb-2">by {message.attachedBook.author}</p>
-              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{message.attachedBook.description}</p>
-              <a 
-                href={message.attachedBook.link} 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center text-bread-800 text-sm font-medium hover:underline"
-              >
-                Explore Book
-                <Book className="ml-2 h-3 w-3" />
-              </a>
-            </div>
-          </div>
-        </Card>
-      );
-    } else if (message.attachedChallenge) {
-      return (
-        <Card className="mt-3 overflow-hidden border-bread-100">
-          <div className="flex flex-col sm:flex-row">
-            <div className="sm:w-1/3 aspect-video">
-              <img
-                src={message.attachedChallenge.imageUrl}
-                alt={message.attachedChallenge.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1549931319-a545dcf3bc7c?q=80&w=1000&auto=format&fit=crop";
-                }}
-              />
-            </div>
-            <div className="p-4 sm:w-2/3">
-              <h4 className="font-serif text-lg font-medium mb-1">Challenge: {message.attachedChallenge.title}</h4>
-              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{message.attachedChallenge.description}</p>
-              <a 
-                href={message.attachedChallenge.link} 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center text-bread-800 text-sm font-medium hover:underline"
-              >
-                Join Challenge
-                <Calendar className="ml-2 h-3 w-3" />
-              </a>
-            </div>
-          </div>
-        </Card>
-      );
-    }
-    
-    return null;
-  };
+
+  const showSuggestedQuestions = !messages.some(m => m.role === 'user');
 
   return (
     <div className="flex-1 flex flex-col p-0 h-full">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message, index) => (
-          <div 
-            key={index}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div 
-              className={`max-w-[90%] rounded-lg p-3 ${
-                message.role === 'user' 
-                  ? 'bg-bread-800 text-white' 
-                  : 'bg-muted border border-border'
-              }`}
-            >
-              <p className="text-sm whitespace-pre-line">{message.content}</p>
-              <p className="text-xs opacity-70 mt-1">
-                {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </p>
-              {message.role === 'assistant' && renderAttachment(message)}
-            </div>
-          </div>
-        ))}
-        {isProcessing && (
-          <div className="flex justify-start">
-            <div className="max-w-[80%] rounded-lg p-3 bg-muted border border-border">
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin text-bread-800" />
-                <p className="text-sm">Looking through Henry's knowledge...</p>
-              </div>
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      <div className="p-4 border-t">
-        {!messages.some(m => m.role === 'user') && (
-          <div className="mb-4">
-            <p className="text-sm text-muted-foreground mb-2">Try asking:</p>
-            <div className="flex flex-wrap gap-2">
-              {suggestedQuestions.map((question, index) => (
-                <button
-                  key={index}
-                  className="text-xs bg-secondary/80 rounded-full px-3 py-1.5 hover:bg-bread-100 transition-colors"
-                  onClick={() => setChatInput(question)}
-                >
-                  {question}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-          <Input
-            placeholder="Ask me about recipes, techniques, or challenges..."
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-            disabled={isProcessing}
-            className="bg-white/90 dark:bg-slate-800/90 border-2 border-bread-700/40 focus:border-bread-700 focus:ring-2 focus:ring-bread-600/30 shadow-md placeholder:text-slate-500 dark:placeholder:text-slate-400"
-          />
-          <Button 
-            type="submit" 
-            size="icon"
-            disabled={!chatInput.trim() || isProcessing}
-            className="bg-bread-800 hover:bg-bread-700 shadow-md"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
-      </div>
+      <MessageList 
+        messages={messages} 
+        isProcessing={isProcessing} 
+      />
+      <MessageInputForm 
+        onSendMessage={handleSendMessage} 
+        isProcessing={isProcessing}
+        showSuggestedQuestions={showSuggestedQuestions}
+      />
     </div>
   );
 };
