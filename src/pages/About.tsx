@@ -20,7 +20,7 @@ const About = () => {
               <Button 
                 variant="ghost"
                 size="sm" 
-                className="group flex items-center bg-accent text-white hover:bg-accent/90 transition-colors" 
+                className="group flex items-center bg-bread-700 text-white hover:bg-bread-800 transition-colors" 
                 asChild
               >
                 <Link to="/">
@@ -37,7 +37,7 @@ const About = () => {
             <div className="mb-10 border rounded-lg overflow-hidden">
               <img 
                 src="/lovable-uploads/e1081420-d617-4779-a0ae-b2d2647d1b78.png" 
-                alt="Henry in chef whites" 
+                alt="Henry" 
                 className="w-full h-auto object-cover mx-auto"
               />
             </div>
