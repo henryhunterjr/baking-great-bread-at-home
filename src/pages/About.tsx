@@ -46,25 +46,25 @@ const About = () => {
             <div className="prose prose-lg dark:prose-invert max-w-none">
               <h2 className="font-serif text-2xl md:text-3xl font-medium mb-4">How It All Started</h2>
               
-              <p>I didn't set out to become a bread baker. It started with a need, rent money, and a kind old baker named Mr. Sherman. I was stationed in Germany, just a young American soldier trying to stay afloat. Mr. Sherman was my landlord, a stout, spirited man who ran a small bakery downstairs. One day, he offered to lower my rent if I'd lend a hand in his shop. I think he saw more than just free labor, I think he saw someone who needed bread as much as bread needed him.</p>
+              <p>I never set out to become a bread baker—it all began out of necessity. As a young American soldier stationed in Germany, I was struggling to make rent until my kind landlord, Mr. Sherman, offered a deal: lower my rent if I helped out in his small bakery downstairs. I believe he saw in me not just a laborer, but someone who needed bread as much as bread needed him.</p>
               
-              <p>What began as survival turned into a calling. When my tour of duty in Germany ended, I came back to the States and started working in radio advertising and marketing. I eventually moved into television, first with Fox, and later retired from CBS. But the lessons Mr. Sherman taught me never left.</p>
+              <p>That experience transformed survival into a calling. When my tour ended, I returned to the States, delving into radio advertising and later television with Fox and CBS. But the lessons from Mr. Sherman—the craft, the care, and the magic of bread—remained with me.</p>
               
               <h2 className="font-serif text-2xl md:text-3xl font-medium mt-8 mb-4">Rediscovering My Passion</h2>
               
-              <p>When I started baking again, it was just for fun. But like most bakers know, once you get going, the bread starts piling up—your freezer's full and there's more than you can eat. That's when my kids suggested I try selling at farmers markets. It went better than expected. I had a solid customer base and was baking from a small, makeshift bakery. Just as I was about to go all in, sign the lease, get the insurance, our governor shut the state down for COVID.</p>
+              <p>Baking resumed as a fun hobby until I found myself with more bread than I could possibly eat. My kids then nudged me to sell at farmers markets. With a makeshift bakery and a growing customer base, I was on the brink of going all in—until COVID shut everything down.</p>
               
-              <p>After a week or two of doing nothing, I decided to give my customers something to do. I launched a Saturday morning bake-along and started a Facebook group called <strong>Baking Great Bread at Home</strong>, with help from my daughter Payton. Within a few weeks, we had 300 members and 13 people watching us live. We were so excited, we celebrated with sushi.</p>
+              <p>Determined not to let my customers down, I launched a Saturday morning bake-along and started the Facebook group <strong>Baking Great Bread at Home</strong>, with a little help from my daughter, Payton. In just a few weeks, our community blossomed with 300 members and live sessions drawing in dozens of viewers. We even celebrated our success with a round of sushi!</p>
               
-              <h2 className="font-serif text-2xl md:text-3xl font-medium mt-8 mb-4">Building A Community</h2>
+              <h2 className="font-serif text-2xl md:text-3xl font-medium mt-8 mb-4">Building a Community</h2>
               
-              <p>Fast forward to today, and our community has grown beyond anything I could have imagined. What started as a necessity has become a passion project that connects bakers from all walks of life. We share recipes, techniques, and the simple joy that comes from creating something with our hands.</p>
+              <p>Today, what began as a simple need has grown into a vibrant community of passionate bakers. Here, we share recipes, techniques, and the joy of creating something with our own hands. I've learned that bread is much more than just flour, water, salt, and yeast—it's a testament to tradition, patience, and community. Each loaf tells a story: of the hands that shape it, the ovens that bake it, and the moments we gather to share it.</p>
               
-              <p>I've learned that bread is more than just flour, water, salt, and yeast. It's about tradition, patience, and community. Every loaf tells a story—of the hands that shaped it, the oven that baked it, and the people who gather around to break it.</p>
+              <p>My mission is to pass on everything I've learned—from Mr. Sherman's time-honored methods to modern bread science—and help you discover the magic of baking great bread at home. Whether you're a novice or a seasoned baker, there's always something new to explore and someone to share your journey with.</p>
               
-              <p>My mission now is to share everything I've learned—from Mr. Sherman's old-world techniques to modern bread science—and help you discover the magic of baking great bread at home. Whether you're just starting out or you've been baking for years, there's always something new to learn and someone new to share it with.</p>
+              <h2 className="font-serif text-2xl md:text-3xl font-medium mt-8 mb-4">Thank You for Joining the Journey</h2>
               
-              <p>Thank you for being part of this journey. I can't wait to see what you bake next.</p>
+              <p>Thank you for being part of this incredible journey. I can't wait to see what you bake next. Join our community, share your story, and let's make bread together.</p>
               
               {/* Henry's Signature */}
               <div className="flex justify-end mt-10 mb-4">
