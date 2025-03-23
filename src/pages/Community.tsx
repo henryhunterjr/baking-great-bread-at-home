@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
@@ -41,7 +40,7 @@ const Community = () => {
         </div>
       </div>
 
-      {/* Community Benefits Section with improved contrast */}
+      {/* Community Benefits Section with improved contrast and hover animations */}
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-serif text-bread-900 dark:text-white mb-4">Why Join Our Community?</h2>
@@ -51,17 +50,17 @@ const Community = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white dark:bg-bread-800 p-8 rounded-lg shadow-sm border border-bread-100 dark:border-bread-700">
+          <div className="bg-white dark:bg-bread-800 p-8 rounded-lg shadow-sm border border-bread-100 dark:border-bread-700 transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:bg-bread-50 dark:hover:bg-bread-700">
             <h3 className="text-2xl font-serif text-bread-800 dark:text-white mb-4">Learn Together</h3>
             <p className="text-bread-700 dark:text-bread-200">Share tips, ask questions, and learn from both beginners and experienced bakers in a supportive environment.</p>
           </div>
           
-          <div className="bg-white dark:bg-bread-800 p-8 rounded-lg shadow-sm border border-bread-100 dark:border-bread-700">
+          <div className="bg-white dark:bg-bread-800 p-8 rounded-lg shadow-sm border border-bread-100 dark:border-bread-700 transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:bg-bread-50 dark:hover:bg-bread-700">
             <h3 className="text-2xl font-serif text-bread-800 dark:text-white mb-4">Monthly Challenges</h3>
             <p className="text-bread-700 dark:text-bread-200">Participate in our monthly baking challenges to try new recipes and techniques while getting feedback from the community.</p>
           </div>
           
-          <div className="bg-white dark:bg-bread-800 p-8 rounded-lg shadow-sm border border-bread-100 dark:border-bread-700">
+          <div className="bg-white dark:bg-bread-800 p-8 rounded-lg shadow-sm border border-bread-100 dark:border-bread-700 transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:bg-bread-50 dark:hover:bg-bread-700">
             <h3 className="text-2xl font-serif text-bread-800 dark:text-white mb-4">Showcase Your Creations</h3>
             <p className="text-bread-700 dark:text-bread-200">Proud of what you've baked? Share photos of your bread and get recognized for your achievements.</p>
           </div>
@@ -81,7 +80,7 @@ const Community = () => {
         </div>
       </div>
       
-      {/* Testimonials Section with improved contrast */}
+      {/* Testimonials Section with improved contrast and hover animations */}
       <div className="bg-bread-100 dark:bg-bread-800 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-serif text-bread-900 dark:text-white mb-12 text-center">
@@ -89,42 +88,42 @@ const Community = () => {
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm">
+            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:bg-bread-50 dark:hover:bg-bread-600">
               <p className="text-bread-700 dark:text-white mb-4 font-medium">
                 "Thank you Henry Hunter! Your encouragement and help have been invaluable!"
               </p>
               <p className="font-bold text-bread-900 dark:text-bread-100">- Joseph Librizzi</p>
             </div>
             
-            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm">
+            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:bg-bread-50 dark:hover:bg-bread-600">
               <p className="text-bread-700 dark:text-white mb-4 font-medium">
                 "Happy Anniversary!! Your dedication to this community is inspiring! Here's to many more years of baking and connection."
               </p>
               <p className="font-bold text-bread-900 dark:text-bread-100">- Debbie Eckstein</p>
             </div>
             
-            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm">
+            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:bg-bread-50 dark:hover:bg-bread-600">
               <p className="text-bread-700 dark:text-white mb-4 font-medium">
                 "Wow, 5 years! I remember your first Saturday teaching us how to bake bread. You mentioned at one point that you thought if you got 25 followers you'd be thrilled! 😊 So, what do you think now, Henry?"
               </p>
               <p className="font-bold text-bread-900 dark:text-bread-100">- Nikki Carriere</p>
             </div>
             
-            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm">
+            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:bg-bread-50 dark:hover:bg-bread-600">
               <p className="text-bread-700 dark:text-white mb-4 font-medium">
                 "I have learned so much from this community. Your leadership and expertise along with the kindness of it members have turned this into a welcoming family."
               </p>
               <p className="font-bold text-bread-900 dark:text-bread-100">- Christina Smith</p>
             </div>
             
-            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm">
+            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:bg-bread-50 dark:hover:bg-bread-600">
               <p className="text-bread-700 dark:text-white mb-4 font-medium">
                 "Congratulations 🎉 Thank you all for your hard work to create this wonderful group! It's been such a pleasure to be part of this terrific community. Always professional, friendly and kind and so very empathetic and supportive- it's much appreciated."
               </p>
               <p className="font-bold text-bread-900 dark:text-bread-100">- Imke Borawski</p>
             </div>
             
-            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm">
+            <div className="bg-white dark:bg-bread-700 p-6 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:bg-bread-50 dark:hover:bg-bread-600">
               <p className="text-bread-700 dark:text-white mb-4 font-medium">
                 "In contrast to other groups, this Community created by Henry Hunter feels like a family to me. I'm no longer afraid of being kicked out, as Henry is always kind enough to guide me on the group's rules. His name is well-known among my family and friends, and I feel incredibly fortunate to be part of this community. I want to take this opportunity to thank you all. Congratulations and Happy Anniversary!✨💛"
               </p>
@@ -159,4 +158,3 @@ const Community = () => {
 };
 
 export default Community;
-
