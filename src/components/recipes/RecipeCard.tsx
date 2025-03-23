@@ -21,14 +21,12 @@ interface RecipeCardProps {
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageStatus, setImageStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
 
-  // Reset image states when recipe changes
+  // Reset image status when recipe changes
   useEffect(() => {
-    setImageError(false);
-    setImageLoaded(false);
-  }, [recipe.id, recipe.imageUrl]);
+    setImageStatus('loading');
+  }, [recipe.id]);
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -43,20 +41,23 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       }
     });
   };
-
-  // Fallback images - we'll use consistent ones that are known to work
-  const defaultFallbackImage = "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop";
   
+  // Fallback image - we'll use a consistent one that is known to work
+  const fallbackImage = "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop";
+  
+  const handleImageLoad = () => {
+    console.log(`Image loaded successfully for recipe ${recipe.id}: ${recipe.title}`);
+    setImageStatus('loaded');
+  };
+
   const handleImageError = () => {
     console.log(`Image error for recipe ${recipe.id}: ${recipe.title}`);
     console.log(`Image URL that failed: ${recipe.imageUrl}`);
-    setImageError(true);
+    setImageStatus('error');
   };
 
-  const handleImageLoad = () => {
-    console.log(`Image loaded successfully for recipe ${recipe.id}: ${recipe.title}`);
-    setImageLoaded(true);
-  };
+  // Determine which image URL to use
+  const displayImageUrl = imageStatus === 'error' ? fallbackImage : recipe.imageUrl;
 
   return (
     <Card 
@@ -90,25 +91,28 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         className="flex flex-col h-full"
       >
         <div className="aspect-video overflow-hidden bg-bread-100 relative">
-          {!imageLoaded && !imageError && (
+          {/* Loading indicator shown only when in loading state */}
+          {imageStatus === 'loading' && (
             <div className="absolute inset-0 flex items-center justify-center bg-bread-100">
               <div className="w-10 h-10 border-4 border-bread-300 border-t-bread-800 rounded-full animate-spin"></div>
             </div>
           )}
           
-          {imageError && (
+          {/* Error state - only shown when image has failed to load */}
+          {imageStatus === 'error' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-bread-100">
               <ImageOff className="h-10 w-10 text-bread-400 mb-2" />
               <p className="text-sm text-bread-500">Image unavailable</p>
             </div>
           )}
           
+          {/* Image - we always render it but control opacity based on status */}
           <img
             id={`recipe-img-${recipe.id}`}
-            src={imageError ? defaultFallbackImage : recipe.imageUrl}
+            src={displayImageUrl}
             alt={recipe.title}
             className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
-              !imageLoaded && !imageError ? 'opacity-0' : 'opacity-100'
+              imageStatus === 'loaded' ? 'opacity-100' : 'opacity-0'
             }`}
             onError={handleImageError}
             onLoad={handleImageLoad}
