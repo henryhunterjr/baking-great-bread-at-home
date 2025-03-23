@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ExternalLink, Image as ImageIcon, AlertTriangle } from 'lucide-react';
@@ -33,11 +34,14 @@ const checkImageExists = (imageSrc: string): Promise<boolean> => {
 
 // Determine if we should hide overlay text - for challenges with text baked into the image
 const shouldHideOverlayText = (challengeId: string, imageSrc: string) => {
-  return (
-    (challengeId === 'march-2025' && imageSrc.includes('77f6e22c-2ac2-4763-845e-39c5793b127d')) ||
-    (challengeId === 'february-2025' && imageSrc.includes('273f5757-c7b7-4bbf-a8d5-cbd5874d4798')) ||
-    (challengeId === 'january-2025' && imageSrc.includes('a7b11bfd-dfbd-48f6-8a26-8de8b68087d0'))
-  );
+  // List of challenges that have text already in the image
+  const challengesWithTextInImage = [
+    'march-2025', 'february-2025', 'january-2025',
+    'december-2024', 'november-2024', 'halloween-2024', 
+    'october-2024', 'challah-2024'
+  ];
+  
+  return challengesWithTextInImage.includes(challengeId);
 };
 
 const ChallengeCard = ({ 
@@ -56,8 +60,10 @@ const ChallengeCard = ({
   const formattedDate = format(challenge.date, 'MMMM yyyy');
   const formattedYear = format(challenge.date, 'yyyy');
   
-  // Check if this is a 2025 challenge
+  // Check if this is a 2025 or 2024 challenge for special styling
   const is2025Challenge = formattedYear === '2025';
+  const is2024Challenge = formattedYear === '2024';
+  const needsSpecialStyling = is2025Challenge || is2024Challenge;
 
   // Simplified image loading strategy
   useEffect(() => {
@@ -121,8 +127,8 @@ const ChallengeCard = ({
     setImageTier('default');
   };
 
-  // Special styling for 2025 challenges
-  if (is2025Challenge && !isLarge) {
+  // Special styling for 2025/2024 challenges
+  if (needsSpecialStyling && !isLarge) {
     return (
       <Card className={cn(
         "overflow-hidden transition-all duration-300 h-full",

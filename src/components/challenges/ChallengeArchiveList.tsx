@@ -14,14 +14,16 @@ const ChallengeArchiveList = ({ groupedChallenges, years }: ChallengeArchiveList
   // Get current year
   const currentYear = new Date().getFullYear();
   
-  // Check if 2025 exists in our years array
-  const has2025 = years.includes(2025);
+  // Check which years need grid layout
+  const needs2025GridLayout = years.includes(2025);
+  const needs2024GridLayout = years.includes(2024);
   
   return (
     <div className="mt-16 space-y-16">
       {years.map(year => {
         const isCurrentYear = year === currentYear;
         const is2025 = year === 2025;
+        const is2024 = year === 2024;
         const challenges = groupedChallenges[year];
         
         return (
@@ -41,8 +43,8 @@ const ChallengeArchiveList = ({ groupedChallenges, years }: ChallengeArchiveList
             
             <Separator className="bg-bread-100" />
             
-            {is2025 ? (
-              // Special layout for 2025 challenges
+            {is2025 || is2024 ? (
+              // Modern grid layout for 2025 and 2024 challenges
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {challenges.map(challenge => (
                   <ChallengeCard 
