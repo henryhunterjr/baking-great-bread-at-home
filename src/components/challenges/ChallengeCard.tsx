@@ -18,11 +18,16 @@ const ChallengeCard = ({ challenge, variant = 'small' }: ChallengeCardProps) => 
   return (
     <Card className="overflow-hidden border-bread-100">
       <div className={`${isLarge ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'flex flex-col sm:flex-row h-full'}`}>
-        <div className={`${isLarge ? 'aspect-video' : 'sm:w-1/3 aspect-video sm:aspect-auto'} overflow-hidden`}>
+        <div className={`${isLarge ? 'aspect-video' : 'sm:w-1/3 aspect-video sm:aspect-auto'} overflow-hidden bg-bread-50`}>
           <img 
             src={getChallengeImage(challenge.id)} 
             alt={challenge.title} 
             className="w-full h-full object-cover"
+            onError={(e) => {
+              console.log(`Error loading image for challenge: ${challenge.id}`);
+              // Fallback to a default image in case of errors
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1557499305-bd68da733355?q=80&w=2000&auto=format&fit=crop';
+            }}
           />
         </div>
         <CardContent className={`p-${isLarge ? '6' : '4'} ${isLarge ? '' : 'sm:w-2/3'} flex flex-col justify-between`}>
