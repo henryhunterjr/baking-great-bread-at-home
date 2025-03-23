@@ -10,8 +10,11 @@ import CTASection from '@/components/home/CTASection';
 import BlogPreviewSection from '@/components/home/BlogPreviewSection';
 import AppPromoSection from '@/components/home/AppPromoSection';
 import CareCenterPreview from '@/components/home/CareCenterPreview';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
+  const isMobile = useIsMobile();
+  
   // Refs for animation elements
   const heroRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
@@ -59,12 +62,37 @@ const Index = () => {
       <Navbar />
       
       <HeroSection heroRef={heroRef} />
+      
       <AboutSection sectionRef={aboutRef} />
+      
+      {/* Mobile-only section divider */}
+      {isMobile && <div className="section-divider" role="presentation" aria-hidden="true" />}
+      
       <BooksSection sectionRef={booksRef} />
+      
+      {/* Mobile-only section divider */}
+      {isMobile && <div className="section-divider" role="presentation" aria-hidden="true" />}
+      
       <ToolsSection sectionRef={toolsRef} />
+      
+      {/* Mobile-only section divider */}
+      {isMobile && <div className="section-divider" role="presentation" aria-hidden="true" />}
+      
       <CareCenterPreview sectionRef={careCenterRef} />
+      
+      {/* Mobile-only section divider */}
+      {isMobile && <div className="section-divider" role="presentation" aria-hidden="true" />}
+      
       <BlogPreviewSection sectionRef={blogRef} />
+      
+      {/* Mobile-only section divider */}
+      {isMobile && <div className="section-divider" role="presentation" aria-hidden="true" />}
+      
       <CTASection sectionRef={ctaRef} />
+      
+      {/* Mobile-only section divider */}
+      {isMobile && <div className="section-divider" role="presentation" aria-hidden="true" />}
+      
       <AppPromoSection sectionRef={appPromoRef} />
       
       <Footer />

@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
 import SuggestedQuestions from './SuggestedQuestions';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MessageInputFormProps {
   onSendMessage: (message: string) => void;
@@ -17,6 +18,7 @@ const MessageInputForm: React.FC<MessageInputFormProps> = ({
   showSuggestedQuestions
 }) => {
   const [chatInput, setChatInput] = useState('');
+  const isMobile = useIsMobile();
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,17 +30,24 @@ const MessageInputForm: React.FC<MessageInputFormProps> = ({
   
   const handleSelectQuestion = (question: string) => {
     setChatInput(question);
+    // For mobile, auto-submit the question
+    if (isMobile) {
+      setTimeout(() => {
+        onSendMessage(question);
+        setChatInput('');
+      }, 100);
+    }
   };
   
   return (
-    <div className="p-4 border-t">
+    <div className="p-3 md:p-4 border-t bg-background sticky bottom-0 w-full z-10">
       {showSuggestedQuestions && (
         <SuggestedQuestions onQuestionSelect={handleSelectQuestion} />
       )}
 
       <form onSubmit={handleSubmit} className="flex items-center gap-2">
         <Input
-          placeholder="Ask me about recipes, techniques, or challenges..."
+          placeholder="Ask about recipes, techniques, or challenges..."
           value={chatInput}
           onChange={(e) => setChatInput(e.target.value)}
           disabled={isProcessing}
@@ -48,7 +57,7 @@ const MessageInputForm: React.FC<MessageInputFormProps> = ({
           type="submit" 
           size="icon"
           disabled={!chatInput.trim() || isProcessing}
-          className="bg-bread-800 hover:bg-bread-700 shadow-md"
+          className="bg-bread-800 hover:bg-bread-700 shadow-md flex-shrink-0"
         >
           <Send className="h-4 w-4" />
         </Button>

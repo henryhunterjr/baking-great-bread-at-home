@@ -3,6 +3,7 @@ import React, { useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { ChatMessage } from '../utils/types';
 import MessageAttachment from './MessageAttachment';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MessageListProps {
   messages: ChatMessage[];
@@ -11,20 +12,21 @@ interface MessageListProps {
 
 const MessageList: React.FC<MessageListProps> = ({ messages, isProcessing }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isProcessing]);
   
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4">
       {messages.map((message, index) => (
         <div 
           key={index}
           className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
         >
           <div 
-            className={`max-w-[90%] rounded-lg p-3 ${
+            className={`${isMobile ? 'max-w-[95%]' : 'max-w-[90%]'} rounded-lg p-2.5 md:p-3 ${
               message.role === 'user' 
                 ? 'bg-bread-800 text-white' 
                 : 'bg-muted border border-border'

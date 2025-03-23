@@ -143,4 +143,124 @@
   .glass-card {
     @apply bg-background/70 backdrop-blur-sm border border-border/50 rounded-xl shadow-sm;
   }
+  
+  /* Mobile section dividers */
+  .section-divider {
+    @apply h-4 bg-gradient-to-r from-bread-200 via-bread-300 to-bread-200 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800;
+  }
+  
+  /* Mobile section padding optimization */
+  .mobile-section {
+    @apply py-8 md:py-16;
+  }
+  
+  /* Section color alternation */
+  .section-alt-1 {
+    @apply bg-bread-50 dark:bg-bread-900/30;
+  }
+  
+  .section-alt-2 {
+    @apply bg-bread-100/50 dark:bg-bread-800/40;
+  }
+  
+  .section-alt-3 {
+    @apply bg-background dark:bg-bread-950/50;
+  }
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-bread-300 dark:bg-bread-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-bread-400 dark:bg-bread-600;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .container {
+    @apply px-4;
+  }
+  
+  section {
+    @apply py-10;
+  }
+  
+  .section-title {
+    @apply text-2xl mb-4;
+  }
+  
+  .section-subtitle {
+    @apply text-sm mb-8;
+  }
+  
+  /* Add space between sections */
+  section + section {
+    @apply relative mt-8;
+  }
+  
+  /* Visible section dividers on mobile */
+  section + section::before {
+    content: "";
+    @apply absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-bread-200 via-bread-400 to-bread-200 dark:from-bread-800 dark:via-bread-600 dark:to-bread-800;
+  }
+}
+
+/* Fix for Footer subscription section in dark mode */
+.dark .bg-bread-50 .max-w-3xl h3 {
+  @apply text-white;
+}
+
+.dark .bg-bread-50 .max-w-3xl p {
+  @apply text-gray-200;
+}
+
+.dark .bg-bread-50 .max-w-3xl .bg-background {
+  @apply bg-bread-800 border-bread-700 text-white;
+}
+
+/* Animation classes */
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive optimizations */
+@media (max-width: 768px) {
+  #root {
+    padding: 1rem;
+  }
+  
+  .card {
+    padding: 1em;
+  }
+}
+
+/* Ensure better text readability on smaller screens */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  p {
+    font-size: 0.95rem;
+  }
 }
