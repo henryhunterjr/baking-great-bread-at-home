@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 const About = () => {
   return (
@@ -28,11 +29,11 @@ const About = () => {
             <h1 className="font-serif text-3xl md:text-4xl font-medium mb-8">Henry's Story</h1>
             
             {/* Image */}
-            <div className="mb-10">
+            <div className="mb-10 border rounded-lg overflow-hidden">
               <img 
-                src="/lovable-uploads/latest-henry-image.png" 
-                alt="Henry in chef whites with a full view of shoulders and head" 
-                className="rounded-lg w-full h-auto max-h-[600px] object-contain object-center mx-auto"
+                src="/lovable-uploads/b7572677-0e3f-4952-b3a2-114cc5726d98.png" 
+                alt="Henry in chef whites" 
+                className="w-full h-auto object-cover mx-auto"
               />
             </div>
             
