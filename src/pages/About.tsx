@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -6,10 +5,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
-
 const About = () => {
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="flex-grow">
@@ -17,12 +14,7 @@ const About = () => {
           <div className="max-w-3xl mx-auto">
             {/* Breadcrumb / back navigation */}
             <div className="mb-8">
-              <Button 
-                variant="ghost"
-                size="sm" 
-                className="group flex items-center bg-bread-700 text-white hover:bg-bread-800 transition-colors" 
-                asChild
-              >
+              <Button variant="ghost" size="sm" className="group flex items-center bg-bread-700 text-white hover:bg-bread-800 transition-colors" asChild>
                 <Link to="/">
                   <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
                   Back to Home
@@ -35,18 +27,14 @@ const About = () => {
             
             {/* Image */}
             <div className="mb-10 border rounded-lg overflow-hidden">
-              <img 
-                src="/lovable-uploads/e1081420-d617-4779-a0ae-b2d2647d1b78.png" 
-                alt="Henry" 
-                className="w-full h-auto object-cover mx-auto"
-              />
+              <img src="/lovable-uploads/e1081420-d617-4779-a0ae-b2d2647d1b78.png" alt="Henry" className="w-full h-auto object-cover mx-auto" />
             </div>
             
             {/* Story content */}
             <div className="prose prose-lg dark:prose-invert max-w-none">
               <h2 className="font-serif text-2xl md:text-3xl font-medium mb-4">How It All Started</h2>
               
-              <p>I never set out to become a bread baker—it all began out of necessity. As a young American soldier stationed in Germany, I was struggling to make rent until my kind landlord, Mr. Sherman, offered a deal: lower my rent if I helped out in his small bakery downstairs. I believe he saw in me not just a laborer, but someone who needed bread as much as bread needed him.</p>
+              <p>I never set out to become a bread baker, it all began out of necessity. As a young American soldier stationed in Germany, I was struggling to make rent until my kind landlord, Mr. Sherman, offered a deal: lower my rent if I helped out in his small bakery downstairs. I believe he saw in me not just a laborer, but someone who needed bread as much as bread needed him.</p>
               
               <p>That experience transformed survival into a calling. When my tour ended, I returned to the States, delving into radio advertising and later television with Fox and CBS. But the lessons from Mr. Sherman—the craft, the care, and the magic of bread—remained with me.</p>
               
@@ -58,9 +46,9 @@ const About = () => {
               
               <h2 className="font-serif text-2xl md:text-3xl font-medium mt-8 mb-4">Building a Community</h2>
               
-              <p>Today, what began as a simple need has grown into a vibrant community of passionate bakers. Here, we share recipes, techniques, and the joy of creating something with our own hands. I've learned that bread is much more than just flour, water, salt, and yeast—it's a testament to tradition, patience, and community. Each loaf tells a story: of the hands that shape it, the ovens that bake it, and the moments we gather to share it.</p>
+              <p>Today, what began as a simple need has grown into a vibrant community of passionate bakers. Here, we share recipes, techniques, and the joy of creating something with our own hands. I've learned that bread is much more than just flour, water, salt, and yeast, it's a testament to tradition, patience, and community. Each loaf tells a story: of the hands that shape it, the ovens that bake it, and the moments we gather to share it.</p>
               
-              <p>My mission is to pass on everything I've learned—from Mr. Sherman's time-honored methods to modern bread science—and help you discover the magic of baking great bread at home. Whether you're a novice or a seasoned baker, there's always something new to explore and someone to share your journey with.</p>
+              <p>My mission is to pass on everything I've learned, from Mr. Sherman's time-honored methods to modern bread science, and help you discover the magic of baking great bread at home. Whether you're a novice or a seasoned baker, there's always something new to explore and someone to share your journey with.</p>
               
               <h2 className="font-serif text-2xl md:text-3xl font-medium mt-8 mb-4">Thank You for Joining the Journey</h2>
               
@@ -68,11 +56,7 @@ const About = () => {
               
               {/* Henry's Signature */}
               <div className="flex justify-end mt-10 mb-4">
-                <img 
-                  src="/lovable-uploads/8f0a3cc3-7574-4a47-854c-9690df491ed5.png" 
-                  alt="Henry M. Hunter Jr. signature" 
-                  className="h-24 w-auto" 
-                />
+                <img src="/lovable-uploads/8f0a3cc3-7574-4a47-854c-9690df491ed5.png" alt="Henry M. Hunter Jr. signature" className="h-24 w-auto" />
               </div>
             </div>
           </div>
@@ -80,8 +64,6 @@ const About = () => {
       </main>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default About;
