@@ -65,6 +65,14 @@ export const toolsData: Tool[] = [
     description: "Calculate hydration, starter percentages, and timings for the perfect sourdough loaf.",
     link: "/tools",
     isExternalLink: false
+  },
+  {
+    id: 9,
+    title: "Vitale Sourdough Mastery Quiz",
+    image: "/lovable-uploads/46ed338d-9a52-49da-8d38-1c86a20b37bc.png",
+    description: "Advanced quiz about sourdough baking techniques and principles.",
+    link: "https://websim.ai/c/9kOvx5voUJA6yAh",
+    isExternalLink: true
   }
 ];
 

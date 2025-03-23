@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ExternalLink, Smartphone } from 'lucide-react';
@@ -124,7 +125,7 @@ const AppStore = () => {
       description: "Advanced quiz about sourdough baking techniques and principles",
       link: "https://websim.ai/c/9kOvx5voUJA6yAh",
       isExternalLink: true,
-      image: "https://images.unsplash.com/photo-1586444248879-bc604cbd555a?q=80&w=1000&auto=format&fit=crop"
+      image: "/lovable-uploads/46ed338d-9a52-49da-8d38-1c86a20b37bc.png"
     }
   ];
 
