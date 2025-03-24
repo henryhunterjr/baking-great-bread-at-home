@@ -1,3 +1,4 @@
+
 import { Tool } from './ToolCard';
 import { AffiliateProduct } from './AffiliateProductCard';
 
@@ -53,7 +54,7 @@ export const toolsData: Tool[] = [
   {
     id: 7,
     title: "From Card to Kitchen",
-    image: "https://images.unsplash.com/photo-1556911261-6bd341186b2f?q=80&w=1000&auto=format&fit=crop",
+    image: "/lovable-uploads/6bd70716-b37b-49fa-8e85-78c9c1002c23.png",
     description: "Convert old family recipes, scanned images, or digital clippings into clean, standardized recipe cards.",
     link: "/recipe-converter",
     isExternalLink: false
