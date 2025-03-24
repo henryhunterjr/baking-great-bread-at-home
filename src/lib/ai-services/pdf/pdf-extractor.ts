@@ -47,7 +47,8 @@ export const extractTextFromPDF = async (
     
     if (progressCallback) progressCallback(20);
     
-    // Extract text from the PDF pages
+    // Fix: Pass the progressCallback properly
+    // extractTextFromPages expects a ProgressCallback, not a number
     const fullText = await extractTextFromPages(pdfDocument, progressCallback);
     
     // Clean up PDF document resources

@@ -18,9 +18,9 @@ export const extractTextWithOCR = async (
     progressCallback(10);
     logInfo("OCR: Initializing Tesseract worker");
     
-    // Create worker with proper language configuration for v6 API
+    // Fix: Use correct worker initialization for Tesseract.js v6
     worker = await createWorker({
-      langPath: 'https://tessdata.projectnaptha.com/4.0.0',
+      // Remove langPath that doesn't exist in v6 API
       logger: (m) => {
         if (m.status === 'recognizing text') {
           // Map progress (0-1) to our range (30-90%)
