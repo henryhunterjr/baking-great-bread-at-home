@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Twitter, Youtube, Mail, BookOpen, Monitor } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Youtube, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -45,12 +45,12 @@ const Footer = () => {
               </a>
               <a href="https://tiktok.com/@henryhunter12" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
                 <div title="TikTok @henryhunter12">
-                  <BookOpen size={20} />
+                  <span className="flex items-center justify-center w-5 h-5">TT1</span>
                 </div>
               </a>
               <a href="https://tiktok.com/@henrysbreadkitchen" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
                 <div title="TikTok @henrysbreadkitchen">
-                  <Monitor size={20} />
+                  <span className="flex items-center justify-center w-5 h-5">TT2</span>
                 </div>
               </a>
               <a href="https://www.youtube.com/@henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
