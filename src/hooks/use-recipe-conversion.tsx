@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { RecipeData } from '@/pages/RecipeConverter';
 import { processRecipeText } from '@/lib/ai-services';
+import { parseRecipeJson, convertFromStandardFormat } from '@/lib/ai-services/recipe-formatter';
 
 export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) => void) => {
   const { toast } = useToast();
@@ -12,6 +13,23 @@ export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) =
     setIsConverting(true);
     
     try {
+      // First check if this is a valid JSON recipe in our standard format
+      const standardRecipe = parseRecipeJson(text);
+      
+      if (standardRecipe) {
+        // If it's already in our standard JSON format, convert it directly
+        const convertedRecipe = convertFromStandardFormat(standardRecipe);
+        onConversionComplete(convertedRecipe);
+        
+        toast({
+          title: "Recipe Imported!",
+          description: "Your recipe has been successfully imported from JSON.",
+        });
+        
+        setIsConverting(false);
+        return;
+      }
+      
       // Clean up the text if it comes from OCR
       // OCR often produces extra newlines, strange spacing, etc.
       const cleanedText = cleanOCRText(text);
