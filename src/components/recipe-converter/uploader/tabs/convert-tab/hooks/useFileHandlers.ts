@@ -1,9 +1,11 @@
 
 import { useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { extractTextWithOCR } from '@/lib/ai-services/pdf/ocr-processor';
-import { extractTextFromPDF } from '@/lib/ai-services/pdf/pdf-extractor';
-import { logInfo, logError } from '@/utils/logger';
+import { logInfo } from '@/utils/logger';
+import { useImageProcessing } from './useImageProcessing';
+import { usePDFProcessing } from './usePDFProcessing';
+import { useTextProcessing } from './useTextProcessing';
+import { useClipboardUtils } from '../utils/clipboardUtils';
 
 interface UseFileHandlersProps {
   setRecipeText: (text: string) => void;
@@ -12,6 +14,12 @@ interface UseFileHandlersProps {
 export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Import specialized hooks
+  const { processImage } = useImageProcessing();
+  const { processPDF } = usePDFProcessing();
+  const { processTextFile } = useTextProcessing();
+  const { handlePasteFromClipboard } = useClipboardUtils();
   
   // Track any ongoing processing task to allow cancellation
   const processingTask = useRef<{ cancel?: () => void } | null>(null);
@@ -25,139 +33,69 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
   };
 
   const handleImageFile = async (file: File): Promise<void> => {
+    // Cancel any ongoing processing
+    cancelCurrentProcessing();
+    
+    setIsProcessing(true);
+    
     try {
-      // Cancel any ongoing processing
-      cancelCurrentProcessing();
-      
-      setIsProcessing(true);
-      
-      toast({
-        title: "Processing Image",
-        description: "Extracting text from your image with OCR...",
-      });
-      
-      // Progress callback to update UI
-      let lastProgress = 0;
-      const updateProgress = (progress: number) => {
-        if (progress > lastProgress + 5) {
-          lastProgress = progress;
-          logInfo(`OCR Progress: ${progress}%`);
+      const task = await processImage(
+        file,
+        (extractedText) => setRecipeText(extractedText),
+        (error) => {
+          toast({
+            variant: "destructive",
+            title: "OCR Error",
+            description: error,
+          });
+          throw new Error(error);
         }
-      };
+      );
       
-      // Use OCR to extract text from the image
-      const extractedText = await extractTextWithOCR(file, updateProgress);
-      
-      setRecipeText(extractedText);
-      
-      toast({
-        title: "Text Extracted",
-        description: "Successfully extracted text from your image.",
-      });
+      if (task?.cancel) {
+        processingTask.current = task;
+      }
     } catch (error) {
-      logError('OCR processing error:', error);
-      toast({
-        variant: "destructive",
-        title: "OCR Error",
-        description: error instanceof Error 
-          ? `Failed to extract text: ${error.message}`
-          : "Failed to extract text from the image.",
-      });
-      throw error;
+      // Error is already handled in processImage
     } finally {
       setIsProcessing(false);
-      processingTask.current = null;
+      if (!processingTask.current?.cancel) {
+        processingTask.current = null;
+      }
     }
   };
   
   const handlePDFFile = async (file: File): Promise<void> => {
+    // Cancel any ongoing processing
+    cancelCurrentProcessing();
+    
+    setIsProcessing(true);
+    
     try {
-      // Cancel any ongoing processing
-      cancelCurrentProcessing();
-      
-      setIsProcessing(true);
-      
-      toast({
-        title: "Processing PDF",
-        description: "Extracting text from your PDF...",
-      });
-      
-      // Progress callback to update UI with throttling
-      let lastToastProgress = 0;
-      const updateProgress = (progress: number) => {
-        // Only update toast if progress has increased by at least 10%
-        if (progress > lastToastProgress + 10) {
-          lastToastProgress = progress;
-          
-          // Update toast message based on progress
-          let message = "Extracting text from PDF...";
-          if (progress > 90) {
-            message = "Finalizing text extraction...";
-          } else if (progress > 50) {
-            message = "Analyzing PDF content...";
-          } else if (progress > 20) {
-            message = "Processing PDF pages...";
-          }
-          
+      const task = await processPDF(
+        file,
+        (extractedText) => setRecipeText(extractedText),
+        (error) => {
           toast({
-            title: `Processing PDF: ${progress}%`,
-            description: message,
+            variant: "destructive",
+            title: "PDF Error",
+            description: error,
           });
-          
-          logInfo(`PDF Progress: ${progress}%`);
+          throw new Error(error);
         }
-      };
+      );
       
-      // Extract text from PDF
-      const extractResult = await extractTextFromPDF(file, updateProgress);
-      
-      // Check if the result is a cancellable task object or null
-      if (extractResult === null) {
-        logInfo("PDF extraction returned null");
-        setRecipeText("");
-        return;
+      if (task?.cancel) {
+        processingTask.current = task;
       }
-      
-      // Check if the result is a cancellable task object
-      if (typeof extractResult === 'object' && extractResult !== null && 'cancel' in extractResult) {
-        processingTask.current = extractResult as { cancel: () => void };
-        return;
-      }
-      
-      // If we got text back, use it - with proper null handling
-      const extractedText = typeof extractResult === 'string' ? extractResult : '';
-      setRecipeText(extractedText);
-      
-      toast({
-        title: "Text Extracted",
-        description: "Successfully extracted text from your PDF.",
-      });
     } catch (error) {
-      logError('PDF processing error:', error);
-      toast({
-        variant: "destructive",
-        title: "PDF Error",
-        description: error instanceof Error 
-          ? `Failed to extract text: ${error.message}`
-          : "Failed to extract text from the PDF.",
-      });
-      throw error;
+      // Error is already handled in processPDF
     } finally {
       setIsProcessing(false);
-      processingTask.current = null;
-    }
-  };
-  
-  const readFileAsText = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => resolve(event.target?.result as string || "");
-      reader.onerror = (error) => {
-        logError('Error reading file as text:', error);
-        reject(new Error("Failed to read file"));
+      if (!processingTask.current?.cancel) {
+        processingTask.current = null;
       }
-      reader.readAsText(file);
-    });
+    }
   };
   
   const handleFileSelect = async (file: File): Promise<void> => {
@@ -172,13 +110,17 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
         await handlePDFFile(file);
       } else {
         // Handle text files and other formats
-        const text = await readFileAsText(file);
-        setRecipeText(text || "");
-        
-        toast({
-          title: "File Loaded",
-          description: "Text has been successfully loaded from the file.",
-        });
+        await processTextFile(
+          file,
+          (text) => setRecipeText(text),
+          (error) => {
+            toast({
+              variant: "destructive",
+              title: "File Error",
+              description: error,
+            });
+          }
+        );
       }
     } catch (error) {
       console.error('Error processing file:', error);
@@ -194,32 +136,17 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
     }
   };
   
-  const handlePasteFromClipboard = async (): Promise<void> => {
-    try {
-      const clipboardText = await navigator.clipboard.readText();
-      
-      if (clipboardText) {
-        setRecipeText(clipboardText);
-        
-        toast({
-          title: "Text Pasted",
-          description: "Recipe text pasted from clipboard.",
-        });
-      } else {
+  const pasteFromClipboard = async (): Promise<void> => {
+    await handlePasteFromClipboard(
+      (text) => setRecipeText(text),
+      (error) => {
         toast({
           variant: "destructive",
-          title: "Clipboard Empty",
-          description: "No text found in clipboard. Try copying some text first.",
+          title: "Clipboard Error",
+          description: error,
         });
       }
-    } catch (error) {
-      console.error('Failed to read clipboard:', error);
-      toast({
-        variant: "destructive",
-        title: "Clipboard Error",
-        description: "Unable to access clipboard. Please paste the text manually.",
-      });
-    }
+    );
   };
   
   const clearText = (): void => {
@@ -233,7 +160,7 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
   return {
     isProcessing,
     handleFileSelect,
-    handlePasteFromClipboard,
+    handlePasteFromClipboard: pasteFromClipboard,
     clearText,
     cancelCurrentProcessing
   };
