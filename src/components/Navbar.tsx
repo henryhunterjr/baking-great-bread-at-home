@@ -38,6 +38,7 @@ const Navbar = () => {
     { name: 'Home', path: '/' },
     { name: 'Books & Guides', path: '/books' },
     { name: 'Baking Tools', path: '/tools' },
+    { name: 'Recipe Converter', path: '/recipe-converter' },
     { name: 'Challenges', path: '/challenges' },
     { name: 'Blog', path: '/blog' },
     { name: 'App', path: '/app' },
