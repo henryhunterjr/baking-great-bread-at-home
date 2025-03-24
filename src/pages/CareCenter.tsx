@@ -10,7 +10,7 @@ import MediaPageHeader from '@/components/care-center/MediaPageHeader';
 
 const CareCenter = () => {
   const { allMedia, videos, podcasts, podcastsBySource } = getFilteredMedia();
-  const heroImageUrl = "/lovable-uploads/aeaf1ea3-9c07-4c5f-8d4d-56f6b391d643.png";
+  const heroImageUrl = "/lovable-uploads/00a98698-02e8-4406-a65f-702324e03138.png";
 
   return (
     <div className="min-h-screen flex flex-col">
