@@ -2,11 +2,12 @@
 import React, { useRef, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Upload, Loader2, FileText } from 'lucide-react';
-import { createWorker } from 'tesseract.js';
-import { Progress } from '@/components/ui/progress';
-import { extractTextFromPDF, cleanPDFText } from '@/lib/ai-services/pdf-processor';
+import { Upload, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ProgressBar from '../file-upload/ProgressBar';
+import SelectedFile from '../file-upload/SelectedFile';
+import FileUploadError from '../file-upload/FileUploadError';
+import { processImageFile, processPDFFile } from '../file-upload/FileProcessor';
 
 interface FileUploadTabProps {
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -47,34 +48,24 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
     setProcessingType('pdf');
     setProgress(0);
     
-    try {
-      // Extract text from the PDF
-      const extractedText = await extractTextFromPDF(file, (progressValue) => {
-        setProgress(progressValue);
-      });
-      
-      if (extractedText.trim().length === 0) {
-        setError("No text found in the PDF. Please try with a different file.");
-        return;
+    await processPDFFile(
+      file,
+      (progressValue) => setProgress(progressValue),
+      (cleanedText) => {
+        onTextExtracted(cleanedText);
+        toast({
+          title: "PDF Processed Successfully",
+          description: "We've extracted the recipe text from your PDF.",
+        });
+        setIsProcessing(false);
+        setProcessingType(null);
+      },
+      (errorMessage) => {
+        setError(errorMessage);
+        setIsProcessing(false);
+        setProcessingType(null);
       }
-      
-      // Clean the extracted text
-      const cleanedText = cleanPDFText(extractedText);
-      
-      // Pass the cleaned text to the parent component
-      onTextExtracted(cleanedText);
-      
-      toast({
-        title: "PDF Processed Successfully",
-        description: "We've extracted the recipe text from your PDF.",
-      });
-    } catch (err) {
-      console.error('PDF processing error:', err);
-      setError("Failed to process the PDF. Please try again with a different file.");
-    } finally {
-      setIsProcessing(false);
-      setProcessingType(null);
-    }
+    );
   };
   
   const handleImageFile = async (file: File) => {
@@ -82,40 +73,24 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
     setProcessingType('image');
     setProgress(0);
     
-    try {
-      // Create worker and monitor progress with the logger callback
-      const worker = await createWorker({
-        logger: m => {
-          if (m.status === 'recognizing text') {
-            setProgress(Math.floor((m.progress || 0) * 100));
-          }
-        },
-      } as any);
-      
-      // Recognize text from the image
-      const { data } = await worker.recognize(file);
-      
-      // Clean up the worker
-      await worker.terminate();
-      
-      // Pass the extracted text to the parent
-      if (data.text.trim().length > 0) {
-        onTextExtracted(data.text);
-        
+    await processImageFile(
+      file,
+      (progressValue) => setProgress(progressValue),
+      (extractedText) => {
+        onTextExtracted(extractedText);
         toast({
           title: "Image Processed Successfully",
           description: "We've extracted the recipe text from your image.",
         });
-      } else {
-        setError("No text found in the image. Please try with a clearer image.");
+        setIsProcessing(false);
+        setProcessingType(null);
+      },
+      (errorMessage) => {
+        setError(errorMessage);
+        setIsProcessing(false);
+        setProcessingType(null);
       }
-    } catch (err) {
-      console.error('OCR processing error:', err);
-      setError("Failed to process the image. Please try again with a different image.");
-    } finally {
-      setIsProcessing(false);
-      setProcessingType(null);
-    }
+    );
   };
   
   return (
@@ -145,29 +120,9 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
           {isProcessing ? 'Processing...' : 'Select File'}
         </Button>
         
-        {selectedFileName && (
-          <div className="mt-2 text-sm text-muted-foreground flex items-center justify-center">
-            <FileText className="h-4 w-4 mr-1" />
-            <p>Selected: {selectedFileName}</p>
-          </div>
-        )}
-        
-        {isProcessing && (
-          <div className="mt-4 space-y-2">
-            <Progress value={progress} className="h-2" />
-            <p className="text-sm text-muted-foreground">
-              {processingType === 'pdf' 
-                ? `Extracting text from PDF... ${progress}%` 
-                : `Extracting text from image... ${progress}%`}
-            </p>
-          </div>
-        )}
-        
-        {error && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
-            {error}
-          </div>
-        )}
+        <SelectedFile fileName={selectedFileName} />
+        <ProgressBar progress={progress} processingType={processingType} />
+        <FileUploadError error={error} />
       </div>
       
       <div className="text-center text-sm text-muted-foreground">
