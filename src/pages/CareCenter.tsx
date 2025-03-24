@@ -10,7 +10,7 @@ import MediaPageHeader from '@/components/care-center/MediaPageHeader';
 
 const CareCenter = () => {
   const { allMedia, videos, podcasts, podcastsBySource } = getFilteredMedia();
-  const heroImageUrl = "/lovable-uploads/dd02ec4d-ae66-418a-9a07-a592b4643ef5.png";
+  const heroImageUrl = "/lovable-uploads/57007845-1d1e-4e92-a52f-6e2bcf665935.png";
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -20,8 +20,8 @@ const CareCenter = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
             <MediaPageHeader 
-              title="Care Center"
-              description="Videos, podcasts, and resources to help you improve your bread baking skills"
+              title="The Baker's Bench"
+              description="Helping you improve your bread baking skills"
               heroImageUrl={heroImageUrl}
             />
             
