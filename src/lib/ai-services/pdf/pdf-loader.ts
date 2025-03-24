@@ -44,7 +44,7 @@ export const loadPdfDocument = async (file: File): Promise<pdfjsLib.PDFDocumentP
     
     return pdfDocument;
   } catch (error) {
-    logError('Error loading PDF document:', error);
+    logError('Error loading PDF document:', { error });
     throw new Error(`Failed to load PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };

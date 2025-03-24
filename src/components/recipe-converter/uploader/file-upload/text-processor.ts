@@ -64,7 +64,7 @@ export const processTextFile = async (
     };
   } catch (error) {
     if (!isCancelled) {
-      logError('Text file processing error:', error);
+      logError('Text file processing error:', { error });
       onError(`Failed to read text file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
     return null;
