@@ -5,6 +5,12 @@ import App from './App.tsx'
 import './index.css'
 import { runBrowserCompatibilityCheck } from './utils/crossBrowserTesting'
 import { logInfo } from './utils/logger';
+import { initDevErrorHandler, isDevelopmentEnvironment } from './utils/devErrorHandler';
+
+// Initialize development error handler in development environment
+if (isDevelopmentEnvironment()) {
+  initDevErrorHandler(true);
+}
 
 // Run compatibility check on startup
 const compatibilityResult = runBrowserCompatibilityCheck();

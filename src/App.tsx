@@ -1,4 +1,3 @@
-
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/hooks/use-theme';
@@ -7,6 +6,7 @@ import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import { lazy, Suspense } from 'react';
 import React from 'react';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import DevToolsToggle from '@/components/dev/DevToolsToggle';
 
 // Eagerly loaded components for critical paths
 import Index from '@/pages/Index';
@@ -44,6 +44,7 @@ function App() {
       <ThemeProvider defaultTheme="dark" storageKey="bread-theme">
         <Toaster />
         <FloatingAIButton />
+        <DevToolsToggle />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="*" element={<NotFound />} />
