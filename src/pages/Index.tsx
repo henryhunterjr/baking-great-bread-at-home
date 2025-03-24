@@ -11,7 +11,6 @@ import BlogPreviewSection from '@/components/home/BlogPreviewSection';
 import AppPromoSection from '@/components/home/AppPromoSection';
 import CareCenterPreview from '@/components/home/CareCenterPreview';
 import ChallengePreviewSection from '@/components/home/ChallengePreviewSection';
-import ImportantLinksSection from '@/components/home/ImportantLinksSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
@@ -27,7 +26,6 @@ const Index = () => {
   const blogRef = useRef<HTMLElement>(null);
   const ctaRef = useRef<HTMLElement>(null);
   const appPromoRef = useRef<HTMLElement>(null);
-  const importantLinksRef = useRef<HTMLElement>(null);
   
   // Observer setup for animations
   useEffect(() => {
@@ -52,7 +50,7 @@ const Index = () => {
     }
     
     // Observe other sections
-    [aboutRef, booksRef, toolsRef, careCenterRef, challengeRef, blogRef, ctaRef, appPromoRef, importantLinksRef].forEach(ref => {
+    [aboutRef, booksRef, toolsRef, careCenterRef, challengeRef, blogRef, ctaRef, appPromoRef].forEach(ref => {
       if (ref.current) observer.observe(ref.current);
     });
     
@@ -66,11 +64,6 @@ const Index = () => {
       <Navbar />
       
       <HeroSection heroRef={heroRef} />
-      
-      {/* Section divider for both mobile and desktop */}
-      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
-      
-      <ImportantLinksSection ref={importantLinksRef} />
       
       {/* Section divider for both mobile and desktop */}
       <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />

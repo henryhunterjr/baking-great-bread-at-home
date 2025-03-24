@@ -87,7 +87,7 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
             ))}
           </div>
           
-          <div className="text-center mt-8">
+          <div className="text-center mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
             <Button 
               variant="outline" 
               size="lg"
@@ -98,6 +98,18 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
                 Visit Blog
                 <ArrowRight className="ml-2 h-4 w-4" />
               </a>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              size="lg"
+              className="border-bread-200 text-bread-800 hover:bg-bread-50 bg-white/80 dark:border-bread-700 dark:text-gray-300 dark:hover:bg-bread-800 dark:bg-bread-900/50"
+              asChild
+            >
+              <Link to="/care-center">
+                Baker's Bench
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
           </div>
         </div>

@@ -22,7 +22,7 @@ const ToolsList: React.FC<ToolsListProps> = ({ tools, displayCount = 6 }) => {
         ))}
       </div>
       
-      <div className="text-center mb-6 md:mb-10">
+      <div className="text-center mb-6 md:mb-10 flex flex-col sm:flex-row justify-center items-center gap-4">
         <Button 
           asChild
           variant="outline"
@@ -30,6 +30,17 @@ const ToolsList: React.FC<ToolsListProps> = ({ tools, displayCount = 6 }) => {
         >
           <Link to="/tools" className="flex items-center">
             View All Tools
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
+        
+        <Button 
+          asChild
+          variant="outline"
+          className="border-bread-800 text-bread-800 hover:bg-bread-800 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-bread-900 transition-all duration-300"
+        >
+          <Link to="/recipe-converter" className="flex items-center">
+            Recipe Converter
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>

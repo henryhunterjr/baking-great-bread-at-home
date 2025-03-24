@@ -4,39 +4,45 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AffiliateProductCard, { AffiliateProduct } from './AffiliateProductCard';
-import { Badge } from '@/components/ui/badge';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AffiliateProductsListProps {
   products: AffiliateProduct[];
 }
 
 const AffiliateProductsList: React.FC<AffiliateProductsListProps> = ({ products }) => {
+  const isMobile = useIsMobile();
+  
+  // Show only first 3 products on mobile
+  const displayProducts = isMobile ? products.slice(0, 2) : products;
+  
   return (
     <div>
-      <h2 className="section-title text-center dark:text-white">Recommended Products</h2>
-      <p className="section-subtitle text-center dark:text-gray-300 mb-3">
-        Quality baking equipment I personally recommend and use
-      </p>
-      <p className="text-center text-sm text-muted-foreground dark:text-gray-400 mb-10">
-        <Badge variant="secondary" className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 px-2 py-1 border-amber-200 dark:border-amber-800">
-          Affiliate Disclosure: I may earn a commission from purchases made through these links.
-        </Badge>
-      </p>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-        {products.map(product => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 mb-8">
+        {displayProducts.map(product => (
           <AffiliateProductCard key={product.id} product={product} />
         ))}
       </div>
       
-      <div className="text-center">
+      <div className="text-center flex flex-col sm:flex-row justify-center items-center gap-4">
         <Button 
           asChild
           variant="outline"
-          className="border-bread-800 text-bread-800 hover:bg-bread-800 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-bread-900"
+          className="border-bread-800 text-bread-800 hover:bg-bread-800 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-bread-900 transition-all duration-300"
         >
-          <Link to="/affiliate-collection">
-            View Full Affiliate Collection
+          <Link to="/affiliate-collection" className="flex items-center">
+            View All Products
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
+        
+        <Button 
+          asChild
+          variant="outline"
+          className="border-bread-800 text-bread-800 hover:bg-bread-800 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-bread-900 transition-all duration-300"
+        >
+          <Link to="/testimonials" className="flex items-center">
+            Testimonials
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
