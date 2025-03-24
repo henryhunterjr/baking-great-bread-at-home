@@ -81,8 +81,8 @@ const Footer = () => {
                 BGBAH2023@Gmail.com
               </a>
             </p>
-            <Button asChild className="bg-bread-600 hover:bg-bread-700 text-white">
-              <Link to="/contact">Get in Touch</Link>
+            <Button asChild variant="outline" className="bg-bread-600 hover:bg-bread-700 text-white border-none">
+              <a href="mailto:BGBAH2023@Gmail.com">Get in Touch</a>
             </Button>
           </div>
         </div>
