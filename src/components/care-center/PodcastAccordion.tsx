@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { MediaItem } from '@/components/care-center/MediaCard';
-import MediaList from '@/components/care-center/MediaList';
+import MediaCard from '@/components/care-center/MediaCard';
 import {
   Accordion,
   AccordionContent,
