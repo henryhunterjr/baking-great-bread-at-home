@@ -21,7 +21,7 @@ const CareCenter = () => {
           <div className="max-w-7xl mx-auto">
             <MediaPageHeader 
               title="Care Center"
-              description="Videos, podcasts, and resources to help you improve your bread-making skills"
+              description="Videos, podcasts, and resources to help you improve your bread baking skills"
               heroImageUrl={heroImageUrl}
             />
             

@@ -23,11 +23,13 @@ const MediaPageHeader: React.FC<MediaPageHeaderProps> = ({
               alt={title}
               className="object-cover w-full h-full" 
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40 flex flex-col justify-end p-8">
-              <h1 className="font-serif text-4xl md:text-5xl font-medium mb-4 text-white">{title}</h1>
-              <p className="text-xl text-white/80 max-w-3xl">
-                {description}
-              </p>
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40 flex flex-col justify-end p-8 pt-28">
+              <div className="relative z-10 max-w-3xl">
+                <h1 className="font-serif text-4xl md:text-5xl font-medium mb-4 text-white">{title}</h1>
+                <p className="text-xl text-white/80">
+                  {description}
+                </p>
+              </div>
             </div>
           </AspectRatio>
         </div>
