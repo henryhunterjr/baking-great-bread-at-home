@@ -70,15 +70,15 @@ const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({ addToChatHistory }) =
   };
   
   return (
-    <Card className="bg-secondary/50">
+    <Card className="bg-secondary/50 dark:bg-slate-800/70 dark:border-slate-700">
       <CardContent className="pt-6">
-        <h3 className="font-serif text-xl font-medium mb-4 flex items-center">
-          <Sparkles className="h-5 w-5 mr-2 text-bread-800" />
+        <h3 className="font-serif text-xl font-medium mb-4 flex items-center dark:text-white">
+          <Sparkles className="h-5 w-5 mr-2 text-bread-800 dark:text-bread-400" />
           Generate New Recipe
         </h3>
         
-        <Alert className="mb-4 bg-accent/20 border-accent text-accent-foreground">
-          <AlertDescription className="text-xs">
+        <Alert className="mb-4 bg-accent/20 border-accent text-accent-foreground dark:bg-accent/10 dark:border-accent/40 dark:text-slate-200">
+          <AlertDescription className="text-xs dark:text-slate-300">
             Describe the recipe you want to create. Be specific about ingredients, flavors, or techniques you'd like to include.
           </AlertDescription>
         </Alert>
@@ -89,12 +89,12 @@ const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({ addToChatHistory }) =
             value={recipePrompt}
             onChange={(e) => setRecipePrompt(e.target.value)}
             disabled={isGenerating}
-            className="min-h-[80px] bg-secondary/50 border-2 border-accent/30 focus:border-bread-700 shadow-sm"
+            className="min-h-[80px] bg-secondary/50 dark:bg-slate-700 border-2 border-accent/30 dark:border-accent/20 focus:border-bread-700 shadow-sm dark:text-white"
           />
           <Button 
             type="submit"
             disabled={!recipePrompt.trim() || isGenerating}
-            className="w-full bg-bread-800 hover:bg-bread-700 shadow-md sticky bottom-0"
+            className="w-full bg-bread-800 hover:bg-bread-700 shadow-md dark:bg-bread-700 dark:hover:bg-bread-600"
           >
             {isGenerating ? (
               <>

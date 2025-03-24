@@ -104,10 +104,10 @@ const ChatSection: React.FC<ChatSectionProps> = ({ recipe }) => {
   ];
   
   return (
-    <Card className="bg-secondary/50">
+    <Card className="bg-secondary/50 dark:bg-slate-800/70 dark:border-slate-700">
       <CardContent className="pt-6 pb-3">
-        <h3 className="font-serif text-xl font-medium mb-4 flex items-center">
-          <MessageSquare className="h-5 w-5 mr-2 text-bread-800" />
+        <h3 className="font-serif text-xl font-medium mb-4 flex items-center dark:text-white">
+          <MessageSquare className="h-5 w-5 mr-2 text-bread-800 dark:text-bread-400" />
           Recipe Assistant
         </h3>
         
