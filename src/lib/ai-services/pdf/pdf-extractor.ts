@@ -4,8 +4,11 @@ import { extractTextWithOCR } from './ocr-processor';
 import { convertPDFPageToImage } from './pdf-image-converter';
 import { logDebug, logError, logInfo } from '@/utils/logger';
 
-// Make sure we set the worker path correctly
-pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.js`;
+// Make sure we use the CDN worker path (using the same configuration as in pdf-image-converter.ts)
+// No need to set it again if it's already set in pdf-image-converter
+if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+}
 
 /**
  * Extract text from a PDF file

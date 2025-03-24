@@ -2,10 +2,8 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { logError, logInfo } from '@/utils/logger';
 
-// Set local worker path explicitly if not already set
-if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.js`;
-}
+// Configure PDF.js to use a proper worker path - this is critical for browser environments
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 /**
  * Convert the first page of a PDF to an image using canvas
