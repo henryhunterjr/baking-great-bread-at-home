@@ -4,10 +4,14 @@ import { extractTextWithOCR } from './ocr-processor';
 import { convertPDFPageToImage } from './pdf-image-converter';
 import { logDebug, logError, logInfo } from '@/utils/logger';
 
-// We don't need to set the worker path again if it's already set in pdf-image-converter
-// Just make a reference to ensure the worker path is correctly configured
+// Set the worker source using CDN to avoid bundling issues
 if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
   pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+}
+
+// Create a cancellable task interface
+interface CancellableTask {
+  cancel: () => void;
 }
 
 /**
@@ -20,6 +24,23 @@ export const extractTextFromPDF = async (
   file: File,
   progressCallback?: (progress: number) => void
 ): Promise<string> => {
+  let isRequestCancelled = false;
+  let pdfDocument: pdfjsLib.PDFDocumentProxy | null = null;
+  
+  // Create a cancellable task
+  const cancellableTask: CancellableTask = {
+    cancel: () => {
+      isRequestCancelled = true;
+      if (pdfDocument) {
+        try {
+          pdfDocument.destroy();
+        } catch (e) {
+          logError("Error destroying PDF document", e);
+        }
+      }
+    }
+  };
+  
   try {
     // Convert the File to ArrayBuffer
     const arrayBuffer = await file.arrayBuffer();
@@ -32,26 +53,30 @@ export const extractTextFromPDF = async (
     // Initialize PDF.js with complete options
     const loadingTask = pdfjsLib.getDocument({
       data: arrayBuffer,
-      useWorkerFetch: false,
-      isEvalSupported: true,
       cMapUrl: 'https://unpkg.com/pdfjs-dist@5.0.375/cmaps/',
       cMapPacked: true
     });
     
     // Set a timeout for PDF loading to prevent hanging
-    const loadingPromise = Promise.race([
-      loadingTask.promise,
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('PDF loading timed out')), 20000)
-      )
-    ]);
+    const timeoutPromise = new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error('PDF loading timed out after 20 seconds')), 20000)
+    );
+    
+    const pdfDocumentPromise = loadingTask.promise;
+    
+    // Race between loading and timeout
+    pdfDocument = await Promise.race([
+      pdfDocumentPromise,
+      timeoutPromise
+    ]) as pdfjsLib.PDFDocumentProxy;
+    
+    if (isRequestCancelled) {
+      throw new Error('PDF processing was cancelled');
+    }
     
     if (progressCallback) progressCallback(20);
     
-    logInfo("PDF processing: Waiting for document to load...");
-    const pdf = await loadingPromise as pdfjsLib.PDFDocumentProxy;
-    
-    const numPages = pdf.numPages;
+    const numPages = pdfDocument.numPages;
     
     logInfo(`PDF processing: Document loaded with ${numPages} pages`);
     if (progressCallback) progressCallback(30);
@@ -62,6 +87,11 @@ export const extractTextFromPDF = async (
     const pagesToProcess = Math.min(numPages, 5);
     
     for (let i = 1; i <= pagesToProcess; i++) {
+      // Check if processing was cancelled
+      if (isRequestCancelled) {
+        throw new Error('PDF processing was cancelled');
+      }
+      
       // Update progress (distribute from 30% to 90% based on page count)
       if (progressCallback) {
         const pageProgress = 30 + Math.floor((i / pagesToProcess) * 60);
@@ -71,20 +101,18 @@ export const extractTextFromPDF = async (
       logInfo(`PDF processing: Getting page ${i}/${pagesToProcess}...`);
       
       try {
-        const page = await pdf.getPage(i);
+        const page = await pdfDocument.getPage(i);
         logInfo(`PDF processing: Got page ${i}, extracting text content...`);
         
+        // Use the correct types for PDF.js v5
         const textContent = await page.getTextContent();
         
-        // Handle PDF.js v5 types
+        // Handle items coming from getTextContent()
         const pageText = textContent.items
           .map(item => {
-            // Handle different item formats based on PDF.js version
+            // In PDF.js v5, TextItem has a 'str' property
             if ('str' in item) {
               return item.str;
-            } else if (typeof item === 'object' && item !== null) {
-              // @ts-ignore - Fallback for different versions
-              return item.string || '';
             }
             return '';
           })
@@ -92,9 +120,22 @@ export const extractTextFromPDF = async (
         
         logInfo(`PDF processing: Extracted ${pageText.length} characters from page ${i}`);
         fullText += pageText + '\n\n';
+        
+        // Always clean up page resources
+        page.cleanup();
       } catch (pageError) {
         logError(`Error extracting text from page ${i}:`, pageError);
         // Continue with next page instead of failing completely
+      }
+    }
+    
+    // Clean up PDF document resources
+    if (pdfDocument) {
+      try {
+        pdfDocument.destroy();
+        pdfDocument = null;
+      } catch (e) {
+        logError("Error destroying PDF document", e);
       }
     }
     
@@ -117,15 +158,31 @@ export const extractTextFromPDF = async (
         });
       } catch (ocrError) {
         logError('OCR fallback failed:', ocrError);
-        throw new Error('Failed to extract text from PDF');
+        throw new Error('Failed to extract text from PDF. The file may be corrupted or contain only images.');
       }
     }
     
     if (progressCallback) progressCallback(100);
     
-    return fullText || "No text could be extracted from this PDF.";
+    // Return extracted text or a message if nothing was found
+    return fullText.trim() || "No text could be extracted from this PDF. Try another file or input method.";
   } catch (error) {
+    // Clean up resources if they still exist
+    if (pdfDocument) {
+      try {
+        pdfDocument.destroy();
+      } catch (e) {
+        logError("Error destroying PDF document during error handling", e);
+      }
+    }
+    
+    // Log the error
     logError('Error extracting text from PDF:', error);
+    
+    // If cancelled, don't try OCR fallback
+    if (isRequestCancelled) {
+      throw new Error('PDF processing was cancelled');
+    }
     
     // Try OCR as fallback for any error
     try {
@@ -137,4 +194,7 @@ export const extractTextFromPDF = async (
       throw new Error('Failed to extract text from PDF: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
   }
+  
+  // Return the cancellable task for external cancellation
+  return cancellableTask as unknown as string;
 };

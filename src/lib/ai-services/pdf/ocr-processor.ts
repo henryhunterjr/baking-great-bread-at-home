@@ -1,5 +1,6 @@
 
-import { createWorker, createScheduler, type RecognizeResult } from 'tesseract.js';
+import { createWorker, type RecognizeResult } from 'tesseract.js';
+import { logInfo, logError } from '@/utils/logger';
 
 interface ProgressCallback {
   (progress: number): void;
@@ -12,12 +13,23 @@ export const extractTextWithOCR = async (
   imageSource: File | string,
   progressCallback: ProgressCallback = () => {}
 ): Promise<string> => {
+  let worker: any = null;
+  
   try {
     // Start progress at 10%
     progressCallback(10);
+    logInfo("OCR: Initializing Tesseract worker");
     
     // Initialize Tesseract worker with English language
-    const worker = await createWorker('eng');
+    worker = await createWorker('eng', 1, {
+      logger: m => {
+        // Log progress messages from Tesseract
+        if (m.status === 'recognizing text') {
+          const progress = Math.floor(20 + (m.progress * 70));
+          progressCallback(progress);
+        }
+      }
+    });
     
     // Process the image (can be File or string/dataURL)
     let imageData: string;
@@ -32,22 +44,10 @@ export const extractTextWithOCR = async (
     
     // Set progress to 20% after preparing image
     progressCallback(20);
+    logInfo("OCR: Image prepared, starting recognition");
     
-    // In Tesseract.js v6, progress monitoring is handled differently
-    // We'll set up a simple progress estimation
-    const startTime = Date.now();
-    const progressInterval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      // Estimate progress between 20-90% based on time (max 20 seconds)
-      const progress = Math.min(90, 20 + Math.floor((elapsed / 20000) * 70));
-      progressCallback(progress);
-    }, 500);
-    
-    // Recognize text from the image
+    // Recognize text from the image with Tesseract.js v6 API
     const result = await worker.recognize(imageData);
-    
-    // Clear progress interval
-    clearInterval(progressInterval);
     
     // Get text from the result
     const extractedText = result.data.text || '';
@@ -55,15 +55,29 @@ export const extractTextWithOCR = async (
     // Clean up the text
     const cleanedText = cleanUpOCRText(extractedText);
     
-    // Terminate the worker to free resources
-    await worker.terminate();
-    
     // Set to 100% complete
     progressCallback(100);
+    logInfo("OCR: Recognition complete");
+    
+    // Terminate the worker to free resources
+    if (worker) {
+      await worker.terminate();
+      worker = null;
+    }
     
     return cleanedText;
   } catch (error) {
-    console.error('OCR processing error:', error);
+    logError('OCR processing error:', error);
+    
+    // Always clean up resources on error
+    if (worker) {
+      try {
+        await worker.terminate();
+      } catch (e) {
+        logError('Error terminating Tesseract worker:', e);
+      }
+    }
+    
     throw new Error(`OCR processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
@@ -75,7 +89,10 @@ const readFileAsImageData = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
+    reader.onerror = (error) => {
+      logError('Error reading file as image data:', error);
+      reject(new Error('Failed to read image file'));
+    };
     reader.readAsDataURL(file);
   });
 };

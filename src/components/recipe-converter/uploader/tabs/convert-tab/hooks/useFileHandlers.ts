@@ -3,6 +3,7 @@ import { useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { extractTextWithOCR } from '@/lib/ai-services/pdf/ocr-processor';
 import { extractTextFromPDF } from '@/lib/ai-services/pdf/pdf-extractor';
+import { logInfo, logError } from '@/utils/logger';
 
 interface UseFileHandlersProps {
   setRecipeText: (text: string) => void;
@@ -19,6 +20,7 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
     if (processingTask.current?.cancel) {
       processingTask.current.cancel();
       processingTask.current = null;
+      logInfo("Cancelled current processing task");
     }
   };
 
@@ -31,7 +33,7 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
       
       toast({
         title: "Processing Image",
-        description: "Extracting text from your image...",
+        description: "Extracting text from your image with OCR...",
       });
       
       // Progress callback to update UI
@@ -39,10 +41,7 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
       const updateProgress = (progress: number) => {
         if (progress > lastProgress + 5) {
           lastProgress = progress;
-          toast({
-            title: "Processing Image",
-            description: `Extracting text: ${progress}% complete`,
-          });
+          logInfo(`OCR Progress: ${progress}%`);
         }
       };
       
@@ -56,7 +55,7 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
         description: "Successfully extracted text from your image.",
       });
     } catch (error) {
-      console.error('OCR processing error:', error);
+      logError('OCR processing error:', error);
       toast({
         variant: "destructive",
         title: "OCR Error",
@@ -83,21 +82,43 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
         description: "Extracting text from your PDF...",
       });
       
-      // Progress callback to update UI
+      // Progress callback to update UI with throttling
       let lastToastProgress = 0;
       const updateProgress = (progress: number) => {
+        // Only update toast if progress has increased by at least 10%
         if (progress > lastToastProgress + 10) {
           lastToastProgress = progress;
+          
+          // Update toast message based on progress
+          let message = "Extracting text from PDF...";
+          if (progress > 90) {
+            message = "Finalizing text extraction...";
+          } else if (progress > 50) {
+            message = "Analyzing PDF content...";
+          } else if (progress > 20) {
+            message = "Processing PDF pages...";
+          }
+          
           toast({
-            title: "Processing PDF",
-            description: `Extracting text: ${progress}% complete`,
+            title: `Processing PDF: ${progress}%`,
+            description: message,
           });
+          
+          logInfo(`PDF Progress: ${progress}%`);
         }
       };
       
       // Extract text from PDF
-      const extractedText = await extractTextFromPDF(file, updateProgress);
+      const extractResult = await extractTextFromPDF(file, updateProgress);
       
+      // Store the cancel method if available
+      if (typeof extractResult === 'object' && extractResult.cancel) {
+        processingTask.current = extractResult as unknown as { cancel: () => void };
+        return;
+      }
+      
+      // If we got text back, use it
+      const extractedText = typeof extractResult === 'string' ? extractResult : '';
       setRecipeText(extractedText);
       
       toast({
@@ -105,7 +126,7 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
         description: "Successfully extracted text from your PDF.",
       });
     } catch (error) {
-      console.error('PDF processing error:', error);
+      logError('PDF processing error:', error);
       toast({
         variant: "destructive",
         title: "PDF Error",
@@ -124,7 +145,10 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (event) => resolve(event.target?.result as string || "");
-      reader.onerror = (error) => reject(error);
+      reader.onerror = (error) => {
+        logError('Error reading file as text:', error);
+        reject(new Error("Failed to read file"));
+      }
       reader.readAsText(file);
     });
   };
@@ -132,6 +156,8 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
   const handleFileSelect = async (file: File): Promise<void> => {
     try {
       setIsProcessing(true);
+      
+      logInfo(`Processing file: ${file.name} (${file.type})`);
       
       if (file.type.includes('image/')) {
         await handleImageFile(file);
