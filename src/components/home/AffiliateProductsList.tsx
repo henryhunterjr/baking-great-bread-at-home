@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Tag } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AffiliateProductCard, { AffiliateProduct } from './AffiliateProductCard';
+import { Badge } from '@/components/ui/badge';
 
 interface AffiliateProductsListProps {
   products: AffiliateProduct[];
@@ -17,9 +18,9 @@ const AffiliateProductsList: React.FC<AffiliateProductsListProps> = ({ products 
         Quality baking equipment I personally recommend and use
       </p>
       <p className="text-center text-sm text-muted-foreground dark:text-gray-400 mb-10">
-        <span className="bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded-md">
+        <Badge variant="secondary" className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 px-2 py-1 border-amber-200 dark:border-amber-800">
           Affiliate Disclosure: I may earn a commission from purchases made through these links.
-        </span>
+        </Badge>
       </p>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">

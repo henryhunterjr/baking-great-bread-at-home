@@ -62,7 +62,7 @@ const Footer = () => {
               <li><Link to="/" className="text-gray-300 hover:text-white transition-colors">Home</Link></li>
               <li><Link to="/books" className="text-gray-300 hover:text-white transition-colors">Books & Guides</Link></li>
               <li><Link to="/tools" className="text-gray-300 hover:text-white transition-colors">Baking Tools</Link></li>
-              <li><Link to="/challenge" className="text-gray-300 hover:text-white transition-colors">Challenges & Giveaways</Link></li>
+              <li><Link to="/challenges" className="text-gray-300 hover:text-white transition-colors">Challenges & Giveaways</Link></li>
               <li><Link to="/coaching" className="text-gray-300 hover:text-white transition-colors">Coaching & Consulting</Link></li>
               <li><Link to="/blog" className="text-gray-300 hover:text-white transition-colors">Blog & Recipes</Link></li>
               <li><Link to="/app" className="text-gray-300 hover:text-white transition-colors">Crust & Crumb App</Link></li>

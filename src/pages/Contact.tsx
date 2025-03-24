@@ -1,12 +1,38 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Mail, MapPin, Facebook, Instagram, Youtube } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const Contact = () => {
+  const [formData, useState] = useState({
+    name: "",
+    email: "",
+    message: ""
+  });
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setState(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success("Message sent! We'll get back to you soon.");
+    // Reset form
+    setState({
+      name: "",
+      email: "",
+      message: ""
+    });
+  };
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -69,19 +95,19 @@ const Contact = () => {
                 </div>
                 
                 <div className="flex justify-center mt-8 space-x-4">
-                  <a href="https://www.facebook.com/henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors">
+                  <a href="https://www.facebook.com/henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors social-icon">
                     <Facebook size={24} />
                   </a>
-                  <a href="https://instagram.com/BakingGreatBreadatHome" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors">
+                  <a href="https://instagram.com/BakingGreatBreadatHome" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors social-icon">
                     <Instagram size={24} />
                   </a>
-                  <a href="https://tiktok.com/@HenryHunter12" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors p-1 border border-bread-200 rounded">
+                  <a href="https://tiktok.com/@HenryHunter12" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors p-1 border border-bread-200 rounded social-icon">
                     <span className="text-xs font-bold">TikTok</span>
                   </a>
-                  <a href="https://www.youtube.com/@henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors">
+                  <a href="https://www.youtube.com/@henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors social-icon">
                     <Youtube size={24} />
                   </a>
-                  <a href="mailto:BGBAH2023@Gmail.com" className="text-bread-200 hover:text-white transition-colors">
+                  <a href="mailto:BGBAH2023@Gmail.com" className="text-bread-200 hover:text-white transition-colors social-icon">
                     <Mail size={24} />
                   </a>
                 </div>
@@ -90,7 +116,7 @@ const Contact = () => {
               {/* Contact Form */}
               <div className="bg-bread-800/60 p-6 rounded-lg">
                 <h2 className="font-serif text-2xl mb-6 text-center">Send a Message</h2>
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-bread-100 mb-1">
                       Your Name
@@ -98,6 +124,9 @@ const Contact = () => {
                     <input
                       type="text"
                       id="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
                       className="w-full p-2 border border-bread-700 rounded-md bg-bread-900/50 text-white"
                     />
                   </div>
@@ -109,6 +138,9 @@ const Contact = () => {
                     <input
                       type="email"
                       id="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
                       className="w-full p-2 border border-bread-700 rounded-md bg-bread-900/50 text-white"
                     />
                   </div>
@@ -120,11 +152,14 @@ const Contact = () => {
                     <textarea
                       id="message"
                       rows={5}
+                      value={formData.message}
+                      onChange={handleChange}
+                      required
                       className="w-full p-2 border border-bread-700 rounded-md bg-bread-900/50 text-white"
                     ></textarea>
                   </div>
                   
-                  <Button className="w-full bg-bread-600 hover:bg-bread-700 text-white">
+                  <Button type="submit" className="w-full bg-bread-600 hover:bg-bread-700 text-white">
                     Send Message
                   </Button>
                 </form>
