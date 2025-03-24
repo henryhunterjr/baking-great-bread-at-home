@@ -98,9 +98,10 @@ export const extractTextWithOCR = async (
   try {
     if (progressCallback) progressCallback(40);
     
-    // Create a worker for OCR processing with fixed logger
-    const worker = await createWorker({
-      logger: (m) => {
+    // Create a worker for OCR processing with compatible configuration
+    // This fixes the logger property error by using the correct type expected by Tesseract.js
+    const worker = await createWorker('eng', 1, {
+      logger: m => {
         // Safe logging that won't cause circular reference issues
         console.log(m.status);
       }
