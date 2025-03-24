@@ -10,12 +10,14 @@ interface RecipeContentProps {
 
 const RecipeContent: React.FC<RecipeContentProps> = ({ recipe }) => {
   useEffect(() => {
+    if (!recipe) return;
+    
     // Log for analytics purposes when a recipe is viewed
     logInfo('Recipe content viewed', { 
       recipeId: recipe.id, 
       recipeTitle: recipe.title 
     });
-  }, [recipe.id, recipe.title]);
+  }, [recipe?.id, recipe?.title]);
 
   // Guard against missing data
   if (!recipe) {
@@ -29,7 +31,7 @@ const RecipeContent: React.FC<RecipeContentProps> = ({ recipe }) => {
   return (
     <div className="p-6 flex-grow flex flex-col">
       <div className="mb-3 text-xs text-muted-foreground" aria-label="Publication date">
-        {recipe.date}
+        {recipe.date || 'No date available'}
       </div>
       <h3 className="font-serif text-xl font-medium mb-2 group-hover:text-bread-800 transition-colors">
         {recipe.title}
