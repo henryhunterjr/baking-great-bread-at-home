@@ -38,7 +38,7 @@ const CareCenter = () => {
       url: 'https://youtu.be/sjBi05xW_PQ?si=3fdygdScC5iKsYBa',
       type: 'podcast',
       source: 'Breaking Bread',
-      thumbnailUrl: '/lovable-uploads/d5034ab6-b149-4eef-bf16-d3388e80d4cd.png',
+      thumbnailUrl: '/lovable-uploads/f9947cab-ad5a-4535-800f-b24e97a0fff0.png',
       description: 'Exploring the rich and flavorful traditions of holiday breads across Christmas and Hanukkah celebrations.'
     },
     {
