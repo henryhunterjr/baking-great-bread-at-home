@@ -94,14 +94,30 @@ export const processPDFFile = async (
       )
     ]);
     
-    const extractedText = await extractionPromise;
+    const extractResult = await extractionPromise;
     
     // If processing was cancelled, don't proceed
     if (isCancelled) return;
     
+    // Check the type of result we received
+    if (extractResult === null) {
+      onError("Failed to extract text from the PDF. The file may be empty or corrupted.");
+      return;
+    }
+    
+    // Handle the case where we got a cancellable task
+    if (typeof extractResult === 'object' && 'cancel' in extractResult) {
+      logInfo("PDF extraction returned a cancellable task instead of text");
+      onError("PDF extraction could not be completed. Please try with a different file.");
+      return;
+    }
+    
+    // At this point, we know extractResult is a string
+    const extractedText = extractResult as string;
+    
     logInfo("PDF extraction complete, text length:", { length: extractedText.length });
     
-    if (!extractedText || extractedText.trim().length === 0) {
+    if (extractedText.trim().length === 0) {
       onError("No text found in the PDF. Please try with a different file.");
       return;
     }

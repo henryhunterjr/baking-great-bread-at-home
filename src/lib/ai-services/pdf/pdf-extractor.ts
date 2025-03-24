@@ -1,4 +1,3 @@
-
 import * as pdfjsLib from 'pdfjs-dist';
 import { extractTextWithOCR } from './ocr-processor';
 import { convertPDFPageToImage } from './pdf-image-converter';
@@ -10,12 +9,12 @@ if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
 }
 
 // Create a cancellable task interface
-interface CancellableTask {
+export interface CancellableTask {
   cancel: () => void;
 }
 
 // Type for the return value: either a string with text content or a cancellable task
-type ExtractTextResult = string | CancellableTask | null;
+export type ExtractTextResult = string | CancellableTask | null;
 
 /**
  * Extract text from a PDF file
