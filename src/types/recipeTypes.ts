@@ -1,24 +1,28 @@
 
+import { ReactNode } from 'react';
+
 export interface EquipmentItem {
-  id: string;
+  id?: string;
   name: string;
   affiliateLink?: string;
 }
 
-export interface RecipeFormValues {
+export interface RecipeData {
   title: string;
-  introduction?: string;
+  introduction: string;
   ingredients: string[];
-  prepTime?: string;
-  restTime?: string;
-  bakeTime?: string;
-  totalTime?: string;
+  prepTime: string;
+  restTime: string;
+  bakeTime: string;
+  totalTime: string;
   instructions: string[];
   tips: string[];
   proTips: string[];
   equipmentNeeded: EquipmentItem[];
-  imageUrl?: string;
+  imageUrl: string;
   tags: string[];
   isPublic: boolean;
   isConverted: boolean;
 }
+
+export interface RecipeFormValues extends RecipeData {}
