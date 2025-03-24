@@ -35,13 +35,14 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
     setError(null);
     
     try {
-      // Create a worker with proper progress monitoring
-      const worker = await createWorker({
-        logger: progress => {
-          if (progress.status === 'recognizing text') {
-            setProgress(parseInt(String(progress.progress * 100)));
-          }
-        },
+      // Create a worker
+      const worker = await createWorker();
+      
+      // Set up progress tracking manually
+      worker.setProgressHandler((progressData: any) => {
+        if (progressData.status === 'recognizing text') {
+          setProgress(Math.floor(progressData.progress * 100));
+        }
       });
       
       // Recognize text from the image
@@ -101,7 +102,7 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
           <div className="mt-4 space-y-2">
             <Progress value={progress} className="h-2" />
             <p className="text-sm text-muted-foreground">
-              Extracting text from image... {Math.round(progress)}%
+              Extracting text from image... {progress}%
             </p>
           </div>
         )}
