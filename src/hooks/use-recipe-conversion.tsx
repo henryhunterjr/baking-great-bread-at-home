@@ -10,6 +10,15 @@ export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) =
   const [isConverting, setIsConverting] = useState(false);
 
   const handleConversion = async (text: string) => {
+    if (!text || text.trim().length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Empty Text",
+        description: "Please enter some recipe text to convert.",
+      });
+      return;
+    }
+    
     setIsConverting(true);
     
     try {
@@ -31,7 +40,6 @@ export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) =
       }
       
       // Clean up the text if it comes from OCR
-      // OCR often produces extra newlines, strange spacing, etc.
       const cleanedText = cleanOCRText(text);
       
       // Process the recipe text using the AI service
@@ -69,6 +77,7 @@ export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) =
         title: "Conversion Failed",
         description: "We couldn't convert your recipe. Please try again or use a different format.",
       });
+      throw error; // Re-throw to allow parent component to handle the error
     } finally {
       setIsConverting(false);
     }

@@ -2,9 +2,8 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { logError, logInfo } from '@/utils/logger';
 
-// Configure PDF.js to use a proper worker path - this is critical for browser environments
-// Use CDN version to avoid bundling issues
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Use the same worker configuration as pdf-loader.ts
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 /**
  * Convert the first page of a PDF to an image using canvas
@@ -15,9 +14,7 @@ export const convertPDFPageToImage = async (file: File): Promise<string> => {
     const arrayBuffer = await file.arrayBuffer();
     const loadingTask = pdfjsLib.getDocument({
       data: arrayBuffer,
-      useWorkerFetch: false,
-      isEvalSupported: true,
-      cMapUrl: 'https://unpkg.com/pdfjs-dist@5.0.375/cmaps/',
+      cMapUrl: '/cmaps/',
       cMapPacked: true
     });
     

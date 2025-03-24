@@ -2,9 +2,9 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { logInfo, logError } from '@/utils/logger';
 
-// Set worker source using CDN to avoid bundling issues
-// This is a more reliable CDN URL that should work consistently
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+// Configure PDF.js to use a locally hosted worker file instead of CDN
+// This resolves CORS issues and network reliability problems
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 /**
  * Load a PDF document from a file
@@ -18,10 +18,10 @@ export const loadPdfDocument = async (file: File): Promise<pdfjsLib.PDFDocumentP
     
     logInfo("PDF processing: Starting to load document...");
     
-    // Initialize PDF.js with complete options
+    // Initialize PDF.js with simplified options for better compatibility
     const loadingTask = pdfjsLib.getDocument({
       data: arrayBuffer,
-      cMapUrl: 'https://unpkg.com/pdfjs-dist@5.0.375/cmaps/',
+      cMapUrl: '/cmaps/',
       cMapPacked: true
     });
     

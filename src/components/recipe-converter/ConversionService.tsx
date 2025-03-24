@@ -21,11 +21,8 @@ const ConversionService: React.FC<ConversionServiceProps> = ({ onConversionCompl
     } catch (error) {
       console.error('Conversion error:', error);
       setConversionError(error instanceof Error ? error.message : 'An error occurred during conversion');
-      toast({
-        variant: "destructive",
-        title: "Conversion Failed",
-        description: "We couldn't convert your recipe. Please try again with a different format.",
-      });
+      
+      // Toast notification is already handled in useRecipeConversion
     }
   };
 
