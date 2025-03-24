@@ -31,13 +31,13 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onCameraPicture }) => {
     setError(null);
     
     try {
-      // Create worker with progress logging
-      const worker = await createWorker();
-      
-      // Set up progress monitoring
-      worker.setProgress((progress) => {
-        if (progress.status === 'recognizing text') {
-          setProgress(Math.floor(progress.progress * 100));
+      // Create worker with proper progress logging
+      const worker = await createWorker({
+        logger: m => {
+          if (m.status === 'recognizing text') {
+            const p = m.progress || 0;
+            setProgress(Math.floor(p * 100));
+          }
         }
       });
       
