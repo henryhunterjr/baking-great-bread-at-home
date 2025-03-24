@@ -44,10 +44,14 @@ const Footer = () => {
                 <Instagram size={20} />
               </a>
               <a href="https://tiktok.com/@henryhunter12" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
-                <BookOpen size={20} title="TikTok @henryhunter12" />
+                <div title="TikTok @henryhunter12">
+                  <BookOpen size={20} />
+                </div>
               </a>
               <a href="https://tiktok.com/@henrysbreadkitchen" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
-                <Monitor size={20} title="TikTok @henrysbreadkitchen" />
+                <div title="TikTok @henrysbreadkitchen">
+                  <Monitor size={20} />
+                </div>
               </a>
               <a href="https://www.youtube.com/@henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
                 <Youtube size={20} />
