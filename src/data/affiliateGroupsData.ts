@@ -1,4 +1,3 @@
-
 import { AffiliateProduct } from '@/components/affiliate/AffiliateGroup';
 
 export interface AffiliateGroup {
@@ -11,6 +10,20 @@ export interface AffiliateGroup {
 }
 
 export const affiliateGroups: AffiliateGroup[] = [
+  {
+    id: 'vitale-sourdough',
+    name: 'Vitale Sourdough Co.',
+    icon: '🥖',
+    description: "Let's Break Bread, Not Traditions",
+    products: [
+      {
+        name: 'Dehydrated Sourdough Starter',
+        price: '',
+        link: 'https://www.etsy.com/listing/1647278386/you-will-be-baking-bread-in-3-days-with?etsrc=sdt',
+        image: '/lovable-uploads/9c2cd88d-e851-487d-8f9d-7d6f60a1f117.png'
+      }
+    ]
+  },
   {
     id: 'brod-taylor',
     name: 'Brød & Taylor',
@@ -197,20 +210,6 @@ export const affiliateGroups: AffiliateGroup[] = [
         price: '',
         link: 'https://hollandbowlmill.com/baking/?wpam_id=10',
         image: '/lovable-uploads/fd49bda2-9c04-4fb3-be06-3409f4f33c2e.png'
-      }
-    ]
-  },
-  {
-    id: 'vitale-sourdough',
-    name: 'Vitale Sourdough Co.',
-    icon: '🥖',
-    description: "Let's Break Bread, Not Traditions",
-    products: [
-      {
-        name: 'Dehydrated Sourdough Starter',
-        price: '',
-        link: 'https://www.etsy.com/listing/1647278386/you-will-be-baking-bread-in-3-days-with?etsrc=sdt',
-        image: '/lovable-uploads/9c2cd88d-e851-487d-8f9d-7d6f60a1f117.png'
       }
     ]
   }

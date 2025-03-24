@@ -87,6 +87,16 @@ export const toolsData: Tool[] = [
 
 export const affiliateProductsData: AffiliateProduct[] = [
   {
+    id: 7,
+    brand: "Vitale Sourdough Co.",
+    name: "Dehydrated Sourdough Starter",
+    description: "You will be baking bread in 3-Days with Vitale Sourdough Starter.",
+    image: "/lovable-uploads/9c2cd88d-e851-487d-8f9d-7d6f60a1f117.png",
+    link: "https://www.etsy.com/listing/1647278386/you-will-be-baking-bread-in-3-days-with?etsrc=sdt",
+    discountCode: "",
+    icon: "🥖"
+  },
+  {
     id: 1,
     brand: "Brød & Taylor",
     name: "Bread Proofer & Slow Cooker",
@@ -145,15 +155,5 @@ export const affiliateProductsData: AffiliateProduct[] = [
     link: "https://hollandbowlmill.com/baking/?wpam_id=10",
     discountCode: "Use Code BREAD at Checkout to Save 10%",
     icon: "🪵"
-  },
-  {
-    id: 7,
-    brand: "Vitale Sourdough Co.",
-    name: "Dehydrated Sourdough Starter",
-    description: "You will be baking bread in 3-Days with Vitale Sourdough Starter.",
-    image: "/lovable-uploads/9c2cd88d-e851-487d-8f9d-7d6f60a1f117.png",
-    link: "https://www.etsy.com/listing/1647278386/you-will-be-baking-bread-in-3-days-with?etsrc=sdt",
-    discountCode: "",
-    icon: "🥖"
   }
 ];
