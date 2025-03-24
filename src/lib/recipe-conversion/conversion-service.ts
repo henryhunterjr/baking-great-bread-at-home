@@ -74,6 +74,5 @@ export const convertRecipeText = async (
   } catch (error) {
     logError("Recipe conversion failed", { error });
     onError(error instanceof Error ? error : new Error(String(error)));
-    throw error; // Re-throw to allow parent component to handle the error
   }
 };

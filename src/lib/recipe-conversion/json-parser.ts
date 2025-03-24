@@ -1,6 +1,6 @@
 
 import { logInfo, logError } from '@/utils/logger';
-import { StandardRecipe } from '@/types/standardRecipeFormat';
+import { StandardRecipe, EquipmentItem } from '@/types/standardRecipeFormat';
 import { RecipeData } from '@/types/recipeTypes';
 
 /**
@@ -69,7 +69,10 @@ export const convertFromStandardFormat = (standardRecipe: StandardRecipe): Recip
       tips: standardRecipe.notes ? 
         (Array.isArray(standardRecipe.notes) ? standardRecipe.notes : [standardRecipe.notes]) : [],
       proTips: [],
-      equipmentNeeded: standardRecipe.equipment || [],
+      equipmentNeeded: standardRecipe.equipment ? 
+        standardRecipe.equipment.map(item => 
+          typeof item === 'string' ? item : item.name
+        ) : [],
       imageUrl: standardRecipe.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
       tags: standardRecipe.tags || [],
       isPublic: false,

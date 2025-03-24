@@ -20,12 +20,13 @@ export const processImageFile = async (
     onProgress(10);
     
     try {
-      // Add timeout protection to ensure process doesn't hang
+      // Add timeout protection for the entire process
       const extractionPromise = Promise.race([
+        // Extract text from the PDF with progress reporting
         extractTextWithOCR(file, (progress) => {
-          if (!isAborted) {
-            onProgress(progress);
-          }
+          if (isAborted) return;
+          logInfo("OCR processing progress:", { progress });
+          onProgress(progress);
         }),
         new Promise<never>((_, reject) => 
           setTimeout(() => reject(new Error('OCR processing timed out')), 60000)

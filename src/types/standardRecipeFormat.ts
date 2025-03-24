@@ -1,36 +1,24 @@
 
-export interface StandardRecipeIngredientItem {
-  amount: string;
-  ingredient: string;
-}
-
-export interface StandardRecipeIngredientSection {
-  section: string;
-  items: StandardRecipeIngredientItem[];
-}
-
-export interface StandardRecipeInstructionStep {
-  step: number;
-  title: string;
-  description: string;
-}
-
-export interface StandardRecipeMetadata {
-  prep_time: string;
-  proof_time?: string;
-  bake_time: string;
-  total_time: string;
-  yield: string;
-  difficulty: string;
-}
-
+/**
+ * Standard recipe format used for JSON recipe interchange
+ */
 export interface StandardRecipe {
+  title: string;
+  description?: string;
+  ingredients: Array<string | { quantity?: string; unit?: string; name: string }>;
+  prepTime?: number;
+  cookTime?: number;
+  restTime?: number;
+  totalTime?: number;
+  steps: string[];
+  notes?: string | string[];
+  equipment?: Array<string | EquipmentItem>;
+  imageUrl?: string;
+  tags?: string[];
+}
+
+export interface EquipmentItem {
   name: string;
-  summary: string;
-  metadata: StandardRecipeMetadata;
-  ingredients: StandardRecipeIngredientSection[];
-  equipment: string[];
-  instructions: StandardRecipeInstructionStep[];
-  notes: string[];
-  tags: string[];
+  required?: boolean;
+  alternative?: string;
 }
