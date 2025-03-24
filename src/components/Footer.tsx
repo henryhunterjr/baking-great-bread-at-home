@@ -43,20 +43,16 @@ const Footer = () => {
               <a href="https://instagram.com/BakingGreatBreadatHome" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="https://tiktok.com/@henryhunter12" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
-                <div title="TikTok @henryhunter12">
-                  <span className="flex items-center justify-center w-5 h-5 font-bold">TT1</span>
-                </div>
+              <a href="https://tiktok.com/@henryhunter12" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors p-1 border border-gray-700 rounded">
+                <span className="text-xs font-bold">TikTok</span>
               </a>
-              <a href="https://tiktok.com/@henrysbreadkitchen" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
-                <div title="TikTok @henrysbreadkitchen">
-                  <span className="flex items-center justify-center w-5 h-5 font-bold">TT2</span>
-                </div>
+              <a href="https://tiktok.com/@henrysbreadkitchen" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors p-1 border border-gray-700 rounded">
+                <span className="text-xs font-bold">TikTok 2</span>
               </a>
               <a href="https://www.youtube.com/@henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Youtube size={20} />
               </a>
-              <a href="mailto:HenryHunterJr@Gmail.com" className="text-gray-300 hover:text-white transition-colors">
+              <a href="mailto:BGBAH2023@Gmail.com" className="text-gray-300 hover:text-white transition-colors">
                 <Mail size={20} />
               </a>
             </div>
@@ -84,8 +80,8 @@ const Footer = () => {
               Have questions or feedback? Reach out to us directly:
             </p>
             <p className="text-gray-300 mb-6">
-              <a href="mailto:HenryHunterJr@Gmail.com" className="hover:text-white transition-colors">
-                HenryHunterJr@Gmail.com
+              <a href="mailto:BGBAH2023@Gmail.com" className="hover:text-white transition-colors">
+                BGBAH2023@Gmail.com
               </a>
             </p>
             <Button asChild className="bg-bread-600 hover:bg-bread-700 text-white">

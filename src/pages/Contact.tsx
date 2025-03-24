@@ -29,8 +29,8 @@ const Contact = () => {
                     <Mail className="w-5 h-5 text-bread-200 flex-shrink-0" />
                     <div>
                       <h3 className="font-medium text-bread-100">Email</h3>
-                      <a href="mailto:HenryHunterJr@Gmail.com" className="text-bread-200 hover:text-white">
-                        HenryHunterJr@Gmail.com
+                      <a href="mailto:BGBAH2023@Gmail.com" className="text-bread-200 hover:text-white">
+                        BGBAH2023@Gmail.com
                       </a>
                     </div>
                   </div>
@@ -39,36 +39,42 @@ const Contact = () => {
                     <MapPin className="w-5 h-5 text-bread-200 mt-1 flex-shrink-0" />
                     <div>
                       <h3 className="font-medium text-bread-100">Social Media</h3>
-                      <ul className="space-y-2 mt-2">
-                        <li>
-                          <span className="font-medium">TikTok:</span>{" "}
-                          <a href="https://tiktok.com/@henryhunter12" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white">
-                            @henryhunter12
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                        <Button asChild variant="outline" size="sm" className="justify-start">
+                          <a href="https://tiktok.com/@henryhunter12" target="_blank" rel="noopener noreferrer">
+                            <span className="mr-2">TikTok</span>
+                            <span className="text-bread-200">@henryhunter12</span>
                           </a>
-                          {" & "}
-                          <a href="https://tiktok.com/@henrysbreadkitchen" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white">
-                            @henrysbreadkitchen
+                        </Button>
+                        
+                        <Button asChild variant="outline" size="sm" className="justify-start">
+                          <a href="https://tiktok.com/@henrysbreadkitchen" target="_blank" rel="noopener noreferrer">
+                            <span className="mr-2">TikTok</span>
+                            <span className="text-bread-200">@henrysbreadkitchen</span>
                           </a>
-                        </li>
-                        <li>
-                          <span className="font-medium">Instagram:</span>{" "}
-                          <a href="https://instagram.com/BakingGreatBreadatHome" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white">
-                            @BakingGreatBreadatHome
+                        </Button>
+                        
+                        <Button asChild variant="outline" size="sm" className="justify-start">
+                          <a href="https://instagram.com/BakingGreatBreadatHome" target="_blank" rel="noopener noreferrer">
+                            <span className="mr-2">Instagram</span>
+                            <span className="text-bread-200">@BakingGreatBreadatHome</span>
                           </a>
-                        </li>
-                        <li>
-                          <span className="font-medium">YouTube:</span>{" "}
-                          <a href="https://www.youtube.com/@henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white">
-                            @henryhunterjr
+                        </Button>
+                        
+                        <Button asChild variant="outline" size="sm" className="justify-start">
+                          <a href="https://www.youtube.com/@henryhunterjr" target="_blank" rel="noopener noreferrer">
+                            <span className="mr-2">YouTube</span>
+                            <span className="text-bread-200">@henryhunterjr</span>
                           </a>
-                        </li>
-                        <li>
-                          <span className="font-medium">Facebook:</span>{" "}
-                          <a href="https://www.facebook.com/henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white">
-                            Henry Hunter Jr
+                        </Button>
+                        
+                        <Button asChild variant="outline" size="sm" className="justify-start">
+                          <a href="https://www.facebook.com/henryhunterjr" target="_blank" rel="noopener noreferrer">
+                            <span className="mr-2">Facebook</span>
+                            <span className="text-bread-200">Henry Hunter Jr</span>
                           </a>
-                        </li>
-                      </ul>
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -80,20 +86,16 @@ const Contact = () => {
                   <a href="https://instagram.com/BakingGreatBreadatHome" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors">
                     <Instagram size={24} />
                   </a>
-                  <a href="https://tiktok.com/@henryhunter12" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors">
-                    <div title="TikTok @henryhunter12">
-                      <span className="flex items-center justify-center w-6 h-6 font-bold">TT1</span>
-                    </div>
+                  <a href="https://tiktok.com/@henryhunter12" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors p-1 border border-bread-200 rounded">
+                    <span className="text-xs font-bold">TikTok</span>
                   </a>
-                  <a href="https://tiktok.com/@henrysbreadkitchen" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors">
-                    <div title="TikTok @henrysbreadkitchen">
-                      <span className="flex items-center justify-center w-6 h-6 font-bold">TT2</span>
-                    </div>
+                  <a href="https://tiktok.com/@henrysbreadkitchen" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors p-1 border border-bread-200 rounded">
+                    <span className="text-xs font-bold">TikTok 2</span>
                   </a>
                   <a href="https://www.youtube.com/@henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors">
                     <Youtube size={24} />
                   </a>
-                  <a href="mailto:HenryHunterJr@Gmail.com" className="text-bread-200 hover:text-white transition-colors">
+                  <a href="mailto:BGBAH2023@Gmail.com" className="text-bread-200 hover:text-white transition-colors">
                     <Mail size={24} />
                   </a>
                 </div>
