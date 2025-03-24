@@ -107,9 +107,9 @@ export const extractTextFromPDF = async (
       if (progressCallback) progressCallback(90);
       
       try {
-        // Try OCR as fallback
-        const image = await convertPDFPageToImage(file);
-        fullText = await extractTextWithOCR(image, (ocrProgress) => {
+        // Try OCR as fallback by converting PDF to image first
+        const imageDataUrl = await convertPDFPageToImage(file);
+        fullText = await extractTextWithOCR(imageDataUrl, (ocrProgress) => {
           // Map OCR progress from 90% to 100%
           if (progressCallback) {
             progressCallback(90 + (ocrProgress / 10));
@@ -130,8 +130,8 @@ export const extractTextFromPDF = async (
     // Try OCR as fallback for any error
     try {
       logInfo("PDF processing: Primary extraction failed, trying OCR fallback");
-      const image = await convertPDFPageToImage(file);
-      return await extractTextWithOCR(image, progressCallback);
+      const imageDataUrl = await convertPDFPageToImage(file);
+      return await extractTextWithOCR(imageDataUrl, progressCallback);
     } catch (ocrError) {
       logError('OCR fallback also failed:', ocrError);
       throw new Error('Failed to extract text from PDF: ' + (error instanceof Error ? error.message : 'Unknown error'));

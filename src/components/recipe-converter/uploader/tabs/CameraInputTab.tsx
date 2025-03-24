@@ -31,12 +31,9 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onCameraPicture }) => {
     setError(null);
     
     try {
-      // Convert file to data URL for OCR processing
-      const fileDataUrl = await fileToDataUrl(file);
-      
-      // Extract text from the image
+      // Extract text from the image file directly (no conversion needed)
       const extractedText = await extractTextWithOCR(
-        fileDataUrl, 
+        file, 
         (progressValue) => {
           setProgress(progressValue);
         }
@@ -72,15 +69,6 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onCameraPicture }) => {
       setError("Failed to process the image. Please try again with a different image.");
       setIsProcessing(false);
     }
-  };
-  
-  const fileToDataUrl = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
   };
   
   const resetCapture = () => {

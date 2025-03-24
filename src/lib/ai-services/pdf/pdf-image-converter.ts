@@ -8,6 +8,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs
 
 /**
  * Convert the first page of a PDF to an image using canvas
+ * @returns A Data URL string with the image content
  */
 export const convertPDFPageToImage = async (file: File): Promise<string> => {
   try {
