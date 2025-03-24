@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -11,11 +11,16 @@ import { useIsMobile } from '@/hooks/use-mobile';
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const location = useLocation();
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const isHomePage = location.pathname === '/';
+
+  // Determine if we should apply auto-hide behavior (all pages except home)
+  const shouldAutoHide = !isHomePage;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,8 +31,59 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Auto-hide functionality
+  useEffect(() => {
+    const handleMouseMove = () => {
+      setIsVisible(true);
+      
+      // Clear any existing timeout
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+      
+      // Set a new timeout to hide the navbar after 2 seconds of inactivity
+      if (shouldAutoHide) {
+        hideTimeoutRef.current = setTimeout(() => {
+          setIsVisible(false);
+        }, 2000);
+      }
+    };
+    
+    // Always visible on home page
+    if (!shouldAutoHide) {
+      setIsVisible(true);
+      return;
+    }
+    
+    // Set initial timeout on component mount
+    hideTimeoutRef.current = setTimeout(() => {
+      if (shouldAutoHide) {
+        setIsVisible(false);
+      }
+    }, 2000);
+    
+    // Add mouse move event listener
+    window.addEventListener('mousemove', handleMouseMove);
+    
+    // Cleanup function
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+    };
+  }, [shouldAutoHide]);
+
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+    // When mobile menu is opened, make navbar visible
+    if (!isMobileMenuOpen) {
+      setIsVisible(true);
+      // Clear any existing timeout
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+    }
   };
 
   const closeMobileMenu = () => {
@@ -55,7 +111,8 @@ const Navbar = () => {
       className={cn(
         "top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out",
         isHomePage ? "relative" : "fixed",
-        isScrolled ? "bg-background/80 backdrop-blur-md shadow-sm" : "bg-transparent"
+        isScrolled ? "bg-background/80 backdrop-blur-md shadow-sm" : "bg-transparent",
+        !isVisible && !isHomePage ? "-translate-y-full" : "translate-y-0"
       )}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
