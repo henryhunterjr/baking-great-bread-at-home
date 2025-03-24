@@ -1,0 +1,62 @@
+
+# Recipe Converter Debugging Request
+
+## Issue Description
+I'm experiencing errors with the recipe converter across all input methods:
+- When I paste recipe text, I get an error message
+- When I add my own text, I get an error message
+- When I use the camera to capture a recipe, I get an error message
+- When I try to upload a file, it gets stuck at 10% processing
+
+## Technical Details
+
+### Environment
+- Web application using React, TypeScript, and Vite
+- PDF processing using PDF.js (pdfjs-dist v5.0.375)
+- OCR processing using Tesseract.js (v6.0.0)
+- UI components using shadcn/ui
+- Form handling with react-hook-form
+
+### Error Messages & Logs
+1. PDF processing timeout: "PDF loading timed out"
+2. OCR processing error: "Failed to execute 'postMessage' on 'Worker': [function] could not be cloned"
+3. Form-related error: "Cannot destructure property 'getFieldState' of 'useFormContext(...)' as it is null"
+
+### Components Involved
+- `RecipeUploader.tsx` - Main component for recipe input
+- `FileUploadTab.tsx` - File upload handling
+- `CameraInputTab.tsx` - Camera input handling
+- `TextInputTab.tsx` - Text input handling
+- `ClipboardTab.tsx` - Clipboard handling
+- `pdf-extractor.ts` - PDF text extraction
+- `ocr-processor.ts` - OCR processing with Tesseract.js
+- `FileProcessor.ts` - File processing logic
+
+### Recent Changes
+The codebase was refactored to split PDF processing into smaller modules:
+- Created specialized modules for PDF extraction, OCR processing, and text cleaning
+- Updated API calls to match Tesseract.js v6.0.0
+- Added timeouts and error handling for PDF processing
+
+### Potential Issues
+1. Incompatibility between Tesseract.js worker API and our implementation
+2. PDF.js worker configuration issue
+3. React form context not properly set up in some components
+4. Type mismatches after refactoring
+
+## Requested Help
+Please analyze the code and provide:
+1. A detailed diagnosis of what's causing the errors
+2. Specific code fixes for each identified issue
+3. Any recommended architectural changes to prevent similar issues
+4. Explanation of root causes for future prevention
+
+## Code Access
+All relevant files are accessible in the project. Key files to examine:
+- `src/components/recipe-converter/RecipeUploader.tsx`
+- `src/components/recipe-converter/uploader/tabs/*`
+- `src/lib/ai-services/pdf/*`
+- `src/components/recipe-converter/uploader/file-upload/FileProcessor.ts`
+- `src/hooks/use-recipe-conversion.tsx`
+
+Thank you for your help with this challenging debugging task!

@@ -1,6 +1,6 @@
 
 import { createWorker } from 'tesseract.js';
-import { extractTextFromPDF, cleanPDFText, convertPDFPageToImage, extractTextWithOCR } from '@/lib/ai-services';
+import { extractTextFromPDF } from '@/lib/ai-services';
 import { logError, logInfo } from '@/utils/logger';
 
 // Handle image file with OCR
@@ -150,7 +150,10 @@ export const processPDFFile = async (
     }
     
     // Clean the extracted text
-    const cleanedText = cleanPDFText(extractedText);
+    const cleanedText = extractedText.replace(/\r\n/g, '\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .replace(/[ \t]+/g, ' ')
+      .trim();
     
     // Pass the cleaned text to the callback
     onComplete(cleanedText);

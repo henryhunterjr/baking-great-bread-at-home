@@ -32,22 +32,29 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onCameraPicture }) => {
     
     try {
       // Create worker and monitor progress with the logger callback
-      const worker = await createWorker({
-        logger: m => {
-          if (m.status === 'recognizing text') {
-            setProgress(Math.floor((m.progress || 0) * 100));
-          }
-        },
-      } as any); // Using 'as any' to bypass the TypeScript error
+      const worker = await createWorker('eng');
+      
+      // Manual progress update
+      let progressValue = 0;
+      const progressInterval = setInterval(() => {
+        if (progressValue < 95) {
+          progressValue += 5;
+          setProgress(progressValue);
+        }
+      }, 1000);
       
       // Recognize text from the image
-      const { data } = await worker.recognize(file);
+      const result = await worker.recognize(file);
+      
+      // Clear progress interval
+      clearInterval(progressInterval);
+      setProgress(100);
       
       // Clean up the worker
       await worker.terminate();
       
       // Create a synthetic event to pass to the original handler
-      if (data.text.trim().length > 0) {
+      if (result.data.text.trim().length > 0) {
         // We need to create a synthetic change event with the extracted text
         // But since we can't easily do that, we'll call the original handler 
         // and then handle the actual OCR result in a separate component
