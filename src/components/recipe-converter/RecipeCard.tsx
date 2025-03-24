@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Edit, Printer, Clock, Users } from 'lucide-react';
 import { RecipeData } from '@/pages/RecipeConverter';
 import RecipeExport from './RecipeExport';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 interface RecipeCardProps {
   recipe: RecipeData;
@@ -21,12 +22,14 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
 }) => {
   return (
     <Card className="shadow-md overflow-hidden">
-      <div className="relative h-48 overflow-hidden bg-bread-100">
-        <img 
-          src={recipe.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop'} 
-          alt={recipe.title} 
-          className="w-full h-full object-cover" 
-        />
+      <div className="relative overflow-hidden bg-bread-100">
+        <AspectRatio ratio={16/9}>
+          <img 
+            src={recipe.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop'} 
+            alt={recipe.title} 
+            className="w-full h-full object-cover" 
+          />
+        </AspectRatio>
       </div>
       
       <CardContent className="p-6">

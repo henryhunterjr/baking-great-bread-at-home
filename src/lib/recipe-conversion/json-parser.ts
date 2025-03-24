@@ -2,38 +2,40 @@
 import { logInfo, logError } from '@/utils/logger';
 import { StandardRecipe, EquipmentItem } from '@/types/standardRecipeFormat';
 import { RecipeData } from '@/types/recipeTypes';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Attempt to parse a string as JSON into our standard recipe format
+ * Attempts to parse a string as JSON and validate it as a StandardRecipe
+ * @returns The parsed StandardRecipe or null if invalid
  */
 export const parseRecipeJson = (text: string): StandardRecipe | null => {
   try {
-    // Try to parse the text as JSON
-    const parsedData = JSON.parse(text);
+    // Attempt to parse the text as JSON
+    const possibleRecipe = JSON.parse(text);
     
-    // Check if it has the expected format (basic validation)
-    if (parsedData && 
-        typeof parsedData === 'object' && 
-        'title' in parsedData && 
-        'ingredients' in parsedData && 
-        Array.isArray(parsedData.ingredients)) {
+    // Basic validation to check if this is likely our recipe format
+    if (possibleRecipe && 
+        typeof possibleRecipe === 'object' && 
+        possibleRecipe.title && 
+        Array.isArray(possibleRecipe.ingredients) &&
+        Array.isArray(possibleRecipe.steps)) {
       
       logInfo("Successfully parsed recipe JSON", { 
-        title: parsedData.title 
+        title: possibleRecipe.title 
       });
       
-      return parsedData as StandardRecipe;
+      return possibleRecipe as StandardRecipe;
     }
     
     return null;
   } catch (error) {
-    // Not valid JSON, just return null (not an error case)
+    // Not valid JSON or not our format
     return null;
   }
 };
 
 /**
- * Convert a standardized recipe format to our application's RecipeData format
+ * Converts from standard recipe format to app RecipeData format
  */
 export const convertFromStandardFormat = (standardRecipe: StandardRecipe): RecipeData => {
   try {
@@ -41,65 +43,57 @@ export const convertFromStandardFormat = (standardRecipe: StandardRecipe): Recip
       title: standardRecipe.title 
     });
     
-    // Map ingredients to strings if they are objects
-    const ingredients = standardRecipe.ingredients.map(ing => {
-      if (typeof ing === 'string') {
-        return ing;
-      } else if (typeof ing === 'object' && ing !== null) {
-        // Handle case where ingredients are objects with quantity, unit, name
-        const quantity = 'quantity' in ing ? ing.quantity : '';
-        const unit = 'unit' in ing ? ing.unit : '';
-        const name = 'name' in ing ? ing.name : '';
-        return `${quantity} ${unit} ${name}`.trim();
+    // Format ingredients as strings
+    const ingredients = standardRecipe.ingredients.map(ingredient => {
+      if (typeof ingredient === 'string') {
+        return ingredient;
       }
-      return '';
+      
+      // Format structured ingredient
+      return `${ingredient.quantity || ''} ${ingredient.unit || ''} ${ingredient.name}`.trim();
     });
     
-    // Create recipe data with proper defaults for missing fields
-    const convertedRecipe: RecipeData = {
-      title: standardRecipe.title || 'Untitled Recipe',
+    // Convert equipment items
+    const equipmentNeeded = standardRecipe.equipment 
+      ? standardRecipe.equipment.map(item => {
+          if (typeof item === 'string') {
+            return {
+              id: uuidv4(),
+              name: item
+            };
+          } else {
+            return {
+              id: uuidv4(),
+              name: item.name,
+              affiliateLink: ''
+            };
+          }
+        }) 
+      : [];
+    
+    // Map to RecipeData format
+    const recipeData: RecipeData = {
+      title: standardRecipe.title,
       introduction: standardRecipe.description || '',
-      ingredients: ingredients.filter(i => i.trim() !== ''),
+      ingredients: ingredients,
       prepTime: standardRecipe.prepTime?.toString() || '',
       restTime: standardRecipe.restTime?.toString() || '',
       bakeTime: standardRecipe.cookTime?.toString() || '',
-      totalTime: standardRecipe.totalTime?.toString() || 
-        ((standardRecipe.prepTime || 0) + (standardRecipe.cookTime || 0)).toString(),
-      instructions: Array.isArray(standardRecipe.steps) ? standardRecipe.steps : [],
+      totalTime: standardRecipe.totalTime?.toString() || '',
+      instructions: standardRecipe.steps,
       tips: standardRecipe.notes ? 
         (Array.isArray(standardRecipe.notes) ? standardRecipe.notes : [standardRecipe.notes]) : [],
       proTips: [],
-      equipmentNeeded: standardRecipe.equipment ? 
-        standardRecipe.equipment.map(item => 
-          typeof item === 'string' ? item : item.name
-        ) : [],
+      equipmentNeeded: equipmentNeeded,
       imageUrl: standardRecipe.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
       tags: standardRecipe.tags || [],
       isPublic: false,
       isConverted: true
     };
     
-    return convertedRecipe;
+    return recipeData;
   } catch (error) {
     logError("Error converting from standard format", { error });
-    
-    // Return a minimal valid recipe if conversion fails
-    return {
-      title: standardRecipe.title || 'Conversion Error',
-      introduction: 'There was an error converting this recipe.',
-      ingredients: [],
-      prepTime: '',
-      restTime: '',
-      bakeTime: '',
-      totalTime: '',
-      instructions: [],
-      tips: [],
-      proTips: [],
-      equipmentNeeded: [],
-      imageUrl: '',
-      tags: [],
-      isPublic: false,
-      isConverted: true
-    };
+    throw error;
   }
 };

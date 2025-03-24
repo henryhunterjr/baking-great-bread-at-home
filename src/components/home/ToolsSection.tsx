@@ -10,8 +10,12 @@ interface ToolsSectionProps {
 }
 
 const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
-  // Use fewer products for improved performance
-  const limitedAffiliateProducts = affiliateProductsData.slice(0, 3);
+  // Filter for the 4 specific tools mentioned: dehydrated sourdough starter, wire monkey, Holland Bowl Mill, and Sourhouse
+  const featuredAffiliateIds = [7, 5, 6, 3]; // IDs for the specific tools
+  const featuredAffiliates = affiliateProductsData.filter(product => 
+    featuredAffiliateIds.includes(product.id)
+  );
+  
   // Use fewer tools for improved performance
   const limitedTools = toolsData.slice(0, 6);
 
@@ -39,7 +43,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
             </div>
           </div>
           
-          <AffiliateProductsList products={limitedAffiliateProducts} />
+          <AffiliateProductsList products={featuredAffiliates} />
         </div>
       </div>
     </section>

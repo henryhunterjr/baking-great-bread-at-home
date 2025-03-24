@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 export interface Tool {
   id: number;
@@ -24,12 +25,15 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
     return (
       <Card key={tool.id} className="overflow-hidden card-hover border-bread-100 glass-card">
         <div className="flex flex-col md:flex-row">
-          <div className="md:w-1/3 aspect-square md:aspect-auto overflow-hidden">
-            <img 
-              src={tool.image} 
-              alt={tool.title} 
-              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-            />
+          <div className="md:w-1/3 overflow-hidden">
+            <AspectRatio ratio={1/1} className="w-full h-full">
+              <img 
+                src={tool.image} 
+                alt={tool.title} 
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                loading="lazy"
+              />
+            </AspectRatio>
           </div>
           <div className="md:w-2/3 p-6 flex flex-col justify-between">
             <div>
@@ -61,12 +65,15 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
 
   return (
     <Card key={tool.id} className="overflow-hidden card-hover border-bread-100 glass-card">
-      <div className="aspect-video overflow-hidden">
-        <img 
-          src={tool.image} 
-          alt={tool.title} 
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-        />
+      <div className="overflow-hidden">
+        <AspectRatio ratio={16/9}>
+          <img 
+            src={tool.image} 
+            alt={tool.title} 
+            className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+            loading="lazy"
+          />
+        </AspectRatio>
       </div>
       <CardContent className="p-6">
         <h3 className="font-serif text-xl font-medium mb-2">{tool.title}</h3>
