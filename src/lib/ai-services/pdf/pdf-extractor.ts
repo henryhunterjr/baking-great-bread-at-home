@@ -96,11 +96,13 @@ export const extractTextFromPDF = async (
           new Promise((_, reject) => {
             setTimeout(() => reject(new Error(`Timeout extracting text from page ${i}`)), 15000);
           })
-        ]) as pdfjsLib.TextContent;
+        ]);
         
         // Extract text items and join them
-        const pageText = pageTextContent.items
-          .map((item: any) => item.str)
+        // Use type assertion to access items safely
+        const textItems = (pageTextContent as any).items || [];
+        const pageText = textItems
+          .map((item: any) => item.str || '')
           .join(' ');
         
         logInfo(`PDF processing: Extracted ${pageText.length} characters from page ${i}`);
