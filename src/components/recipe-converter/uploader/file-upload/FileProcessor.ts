@@ -1,147 +1,57 @@
 
-import { createWorker } from 'tesseract.js';
-import { extractTextFromPDF } from '@/lib/ai-services';
-import { logError, logInfo } from '@/utils/logger';
-import { extractTextWithOCR } from '@/lib/ai-services/pdf';
+import { logInfo } from '@/utils/logger';
+import { processImageFile } from './image-processor';
+import { processPDFFile } from './pdf-processor';
+import { processTextFile } from './text-processor';
+import { ProcessingCallbacks, ProcessingTask } from './types';
 
-// Handle image file with OCR
-export const processImageFile = async (
-  file: File, 
-  onProgress: (progress: number) => void, 
-  onComplete: (text: string) => void,
-  onError: (error: string) => void
-) => {
-  let isAborted = false;
+/**
+ * Process an image file with OCR
+ */
+export { processImageFile } from './image-processor';
+
+/**
+ * Process a PDF file
+ */
+export { processPDFFile } from './pdf-processor';
+
+/**
+ * Process a text file
+ */
+export { processTextFile } from './text-processor';
+
+/**
+ * Automatically detect file type and process accordingly
+ */
+export const processFile = async (
+  file: File,
+  callbacks: ProcessingCallbacks
+): Promise<ProcessingTask> => {
+  const fileType = file.type.toLowerCase();
+  logInfo(`Processing file: ${file.name} (${fileType})`);
   
-  try {
-    logInfo("Processing image file:", { filename: file.name });
-    
-    // Set initial progress
-    onProgress(10);
-    
-    try {
-      // Add timeout protection to ensure process doesn't hang
-      const extractionPromise = Promise.race([
-        extractTextWithOCR(file, (progress) => {
-          if (!isAborted) {
-            onProgress(progress);
-          }
-        }),
-        new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('OCR processing timed out')), 60000)
-        )
-      ]);
-      
-      const extractedText = await extractionPromise;
-      
-      // Check if the operation was cancelled
-      if (isAborted) return;
-      
-      logInfo("OCR complete, extracted text length:", { length: extractedText.length });
-      
-      // Make sure we report 100% when done
-      onProgress(100);
-      
-      // Pass the extracted text to the parent
-      if (extractedText.trim().length > 0) {
-        onComplete(extractedText);
-      } else {
-        onError("No text found in the image. Please try with a clearer image or a different format.");
-      }
-    } catch (recognizeError) {
-      if (!isAborted) {
-        logError('OCR processing error:', { error: recognizeError });
-        onError(`Failed to process the image: ${recognizeError instanceof Error ? recognizeError.message : 'Unknown error'}. Please try with a clearer image.`);
-      }
-    }
-  } catch (err) {
-    if (!isAborted) {
-      logError('OCR processing error:', { error: err });
-      onError("Failed to process the image. Please try again with a different image.");
-    }
+  // Handle image files
+  if (fileType.startsWith('image/')) {
+    return processImageFile(file, callbacks);
   }
   
-  return {
-    cancel: () => {
-      isAborted = true;
-    }
-  };
-};
-
-// Handle PDF file
-export const processPDFFile = async (
-  file: File, 
-  onProgress: (progress: number) => void, 
-  onComplete: (text: string) => void,
-  onError: (error: string) => void
-) => {
-  // Create a cancel token
-  let isCancelled = false;
-  
-  try {
-    logInfo("Processing PDF file:", { filename: file.name, filesize: file.size });
-    
-    // Add timeout protection for the entire process
-    const extractionPromise = Promise.race([
-      // Extract text from the PDF with progress reporting
-      extractTextFromPDF(file, (progress) => {
-        if (isCancelled) return;
-        logInfo("PDF processing progress:", { progress });
-        onProgress(progress);
-      }),
-      new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('PDF processing timed out after 2 minutes')), 120000)
-      )
-    ]);
-    
-    const extractResult = await extractionPromise;
-    
-    // If processing was cancelled, don't proceed
-    if (isCancelled) return;
-    
-    // Check the type of result we received
-    if (extractResult === null) {
-      onError("Failed to extract text from the PDF. The file may be empty or corrupted.");
-      return;
-    }
-    
-    // Handle the case where we got a cancellable task
-    if (typeof extractResult === 'object' && 'cancel' in extractResult) {
-      logInfo("PDF extraction returned a cancellable task instead of text");
-      onError("PDF extraction could not be completed. Please try with a different file.");
-      return;
-    }
-    
-    // At this point, we know extractResult is a string
-    const extractedText = extractResult as string;
-    
-    logInfo("PDF extraction complete, text length:", { length: extractedText.length });
-    
-    if (extractedText.trim().length === 0) {
-      onError("No text found in the PDF. Please try with a different file.");
-      return;
-    }
-    
-    // Clean the extracted text
-    const cleanedText = extractedText.replace(/\r\n/g, '\n')
-      .replace(/\n{3,}/g, '\n\n')
-      .replace(/[ \t]+/g, ' ')
-      .trim();
-    
-    // Pass the cleaned text to the callback
-    onComplete(cleanedText);
-  } catch (err) {
-    logError('PDF processing error:', { error: err });
-    
-    if (!isCancelled) {
-      onError(`Failed to process the PDF: ${err instanceof Error ? err.message : 'Unknown error'}. Please try again with a different file.`);
-    }
+  // Handle PDF files
+  if (fileType === 'application/pdf') {
+    return processPDFFile(file, callbacks);
   }
   
-  return {
-    cancel: () => {
-      isCancelled = true;
-      logInfo("PDF processing cancelled by user");
-    }
-  };
+  // Handle text files
+  if (fileType === 'text/plain' || 
+      fileType === 'text/html' || 
+      fileType === 'text/markdown' ||
+      fileType === 'application/msword' ||
+      fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      file.name.endsWith('.txt') || 
+      file.name.endsWith('.md')) {
+    return processTextFile(file, callbacks);
+  }
+  
+  // For unsupported file types
+  callbacks.onError(`Unsupported file type: ${fileType}. Please try a different file format.`);
+  return null;
 };

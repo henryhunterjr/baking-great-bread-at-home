@@ -4,6 +4,7 @@ import { loadPdfDocument } from './pdf-loader';
 import { extractTextFromPages } from './text-extractor';
 import { attemptOCRFallback } from './ocr-fallback';
 import { CancellableTask, ExtractTextResult, ProgressCallback } from './types';
+import * as pdfjsLib from 'pdfjs-dist';
 
 /**
  * Extract text from a PDF file

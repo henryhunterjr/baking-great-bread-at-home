@@ -1,7 +1,8 @@
 
 import { useRef, useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { processImageFile, processPDFFile } from '../file-upload/FileProcessor';
+import { processFile, processImageFile, processPDFFile } from '../file-upload/FileProcessor';
+import { ProcessingTask } from '../file-upload/types';
 
 interface UseFileUploadResult {
   isProcessing: boolean;
@@ -29,7 +30,7 @@ export const useFileUpload = ({ onTextExtracted }: UseFileUploadProps): UseFileU
   const { toast } = useToast();
   
   // Add cancel handler reference
-  const cancelHandlerRef = useRef<{ cancel: () => void } | null>(null);
+  const cancelHandlerRef = useRef<ProcessingTask>(null);
   
   const readFileAsText = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -83,29 +84,31 @@ export const useFileUpload = ({ onTextExtracted }: UseFileUploadProps): UseFileU
     setProcessingType('pdf');
     setProgress(0);
     
-    const processingHandler = await processPDFFile(
+    const processingTask = await processPDFFile(
       file,
-      (progressValue) => setProgress(progressValue),
-      (cleanedText) => {
-        onTextExtracted(cleanedText);
-        toast({
-          title: "PDF Processed Successfully",
-          description: "We've extracted the recipe text from your PDF.",
-        });
-        setIsProcessing(false);
-        setProcessingType(null);
-        cancelHandlerRef.current = null;
-      },
-      (errorMessage) => {
-        setError(errorMessage);
-        setIsProcessing(false);
-        setProcessingType(null);
-        cancelHandlerRef.current = null;
+      {
+        onProgress: (progressValue) => setProgress(progressValue),
+        onComplete: (cleanedText) => {
+          onTextExtracted(cleanedText);
+          toast({
+            title: "PDF Processed Successfully",
+            description: "We've extracted the recipe text from your PDF.",
+          });
+          setIsProcessing(false);
+          setProcessingType(null);
+          cancelHandlerRef.current = null;
+        },
+        onError: (errorMessage) => {
+          setError(errorMessage);
+          setIsProcessing(false);
+          setProcessingType(null);
+          cancelHandlerRef.current = null;
+        }
       }
     );
     
     // Store the cancel handler
-    cancelHandlerRef.current = processingHandler;
+    cancelHandlerRef.current = processingTask;
   };
   
   const handleImageFile = async (file: File) => {
@@ -113,29 +116,31 @@ export const useFileUpload = ({ onTextExtracted }: UseFileUploadProps): UseFileU
     setProcessingType('image');
     setProgress(0);
     
-    const processingHandler = await processImageFile(
+    const processingTask = await processImageFile(
       file,
-      (progressValue) => setProgress(progressValue),
-      (extractedText) => {
-        onTextExtracted(extractedText);
-        toast({
-          title: "Image Processed Successfully",
-          description: "We've extracted the recipe text from your image.",
-        });
-        setIsProcessing(false);
-        setProcessingType(null);
-        cancelHandlerRef.current = null;
-      },
-      (errorMessage) => {
-        setError(errorMessage);
-        setIsProcessing(false);
-        setProcessingType(null);
-        cancelHandlerRef.current = null;
+      {
+        onProgress: (progressValue) => setProgress(progressValue),
+        onComplete: (extractedText) => {
+          onTextExtracted(extractedText);
+          toast({
+            title: "Image Processed Successfully",
+            description: "We've extracted the recipe text from your image.",
+          });
+          setIsProcessing(false);
+          setProcessingType(null);
+          cancelHandlerRef.current = null;
+        },
+        onError: (errorMessage) => {
+          setError(errorMessage);
+          setIsProcessing(false);
+          setProcessingType(null);
+          cancelHandlerRef.current = null;
+        }
       }
     );
     
     // Store the cancel handler
-    cancelHandlerRef.current = processingHandler;
+    cancelHandlerRef.current = processingTask;
   };
   
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
