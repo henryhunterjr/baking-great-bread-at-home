@@ -18,18 +18,18 @@ export const extractTextWithOCR = async (
     
     // Create worker using the createWorker API in v6
     // Note: In v6, the first parameter is the language
-    const worker = await createWorker('eng');
+    const worker = await createWorker('eng', {
+      // Optional configuration for worker
+      logger: m => {
+        // Map Tesseract's internal progress to our progress callback
+        if (progressCallback && m.status === 'recognizing text') {
+          const p = Math.round(m.progress * 70) + 20; // Map to 20-90% range
+          progressCallback(p);
+        }
+      }
+    });
     
     logInfo("OCR: Worker initialized, starting recognition");
-    
-    // Set up manual progress reporting since we can't directly hook into Tesseract's progress
-    let lastProgress = 10;
-    const progressInterval = setInterval(() => {
-      if (lastProgress < 95) {
-        lastProgress += 5;
-        if (progressCallback) progressCallback(lastProgress);
-      }
-    }, 1000);
     
     // Perform OCR - v6 API accepts both strings and Files directly
     let result;
@@ -55,9 +55,6 @@ export const extractTextWithOCR = async (
         throw recognizeError; // Re-throw if we can't handle it
       }
     }
-    
-    // Clean up progress interval
-    clearInterval(progressInterval);
     
     // Make sure we report 100% when done
     if (progressCallback) progressCallback(100);
