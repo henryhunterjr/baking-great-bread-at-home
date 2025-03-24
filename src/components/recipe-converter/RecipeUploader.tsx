@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { useToast } from "@/hooks/use-toast";
 
-// Import our new component files
+// Import our component files
 import TabsList from './uploader/TabsList';
 import ErrorAlert from './uploader/ErrorAlert';
 import TextInputTab from './uploader/tabs/TextInputTab';
@@ -20,6 +21,7 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
   onConvertRecipe, 
   isConverting 
 }) => {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('text');
   const [recipeText, setRecipeText] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -53,25 +55,25 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
       setError('Error reading file. Please try again with a different file.');
     };
     
-    if (file.type.includes('image')) {
-      // For images, we'd use OCR in a real implementation
-      // For this demo, we'll just simulate extracting text
-      reader.readAsDataURL(file);
-      setRecipeText("Classic Sourdough Bread\n\nIngredients:\n- 500g bread flour\n- 350g water\n- 100g active starter\n- 10g salt\n\nMix ingredients, rest 30 min. Stretch and fold every 30 min for 2 hours. Bulk ferment 4 hours. Shape and cold proof overnight. Bake at 500F for 20 min covered, 25 min uncovered.");
-    } else {
+    // Handle documents
+    if (file.type.includes('text') || file.type.includes('pdf') || file.type.includes('word')) {
       reader.readAsText(file);
     }
   };
   
-  const handleCameraPicture = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleOCRTextExtracted = (extractedText: string) => {
+    toast({
+      title: "Text Extracted Successfully",
+      description: "We've processed your image and extracted the recipe text.",
+    });
     
-    // Same as file upload but with camera image
-    // For this demo, we'll simulate text extraction
-    
-    setRecipeText("Classic Sourdough Bread\n\nIngredients:\n- 500g bread flour\n- 350g water\n- 100g active starter\n- 10g salt\n\nMix ingredients, rest 30 min. Stretch and fold every 30 min for 2 hours. Bulk ferment 4 hours. Shape and cold proof overnight. Bake at 500F for 20 min covered, 25 min uncovered.");
+    setRecipeText(extractedText);
     setActiveTab('text');
+  };
+  
+  const handleCameraPicture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // This will now be handled by the OCR functionality in the CameraInputTab
+    // No need for separate handling here
   };
   
   const handlePaste = async () => {
@@ -103,7 +105,10 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
           </TabsContent>
           
           <TabsContent value="upload">
-            <FileUploadTab onFileUpload={handleFileUpload} />
+            <FileUploadTab 
+              onFileUpload={handleFileUpload} 
+              onTextExtracted={handleOCRTextExtracted} 
+            />
           </TabsContent>
           
           <TabsContent value="camera">

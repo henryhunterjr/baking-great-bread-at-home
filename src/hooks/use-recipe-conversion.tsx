@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { RecipeData } from '@/pages/RecipeConverter';
@@ -11,8 +12,12 @@ export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) =
     setIsConverting(true);
     
     try {
+      // Clean up the text if it comes from OCR
+      // OCR often produces extra newlines, strange spacing, etc.
+      const cleanedText = cleanOCRText(text);
+      
       // Process the recipe text using the AI service
-      const result = await processRecipeText(text);
+      const result = await processRecipeText(cleanedText);
       
       // Map the AI service result to our RecipeData format
       const convertedRecipe: RecipeData = {
@@ -49,6 +54,25 @@ export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) =
     } finally {
       setIsConverting(false);
     }
+  };
+
+  // Helper function to clean OCR text
+  const cleanOCRText = (text: string): string => {
+    // Remove excessive whitespace and normalize line breaks
+    let cleaned = text.replace(/\r\n/g, '\n');
+    
+    // Remove multiple consecutive spaces
+    cleaned = cleaned.replace(/[ \t]+/g, ' ');
+    
+    // Remove multiple empty lines
+    cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+    
+    // Fix common OCR errors
+    cleaned = cleaned.replace(/l\/2/g, '1/2'); // Replace l/2 with 1/2
+    cleaned = cleaned.replace(/l\/4/g, '1/4'); // Replace l/4 with 1/4
+    cleaned = cleaned.replace(/l\/3/g, '1/3'); // Replace l/3 with 1/3
+    
+    return cleaned.trim();
   };
 
   return {
