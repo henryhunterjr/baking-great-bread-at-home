@@ -19,7 +19,7 @@ export const useTextProcessing = () => {
       };
       
       reader.onerror = (error) => {
-        // Fix: Pass an object with error property instead of just the string
+        // Pass an object with error property instead of just the string
         logError('Error reading file as text:', { error });
         reject(new Error("Failed to read file: " + (error?.target as any)?.error?.message || "Unknown error"));
       };
@@ -38,7 +38,7 @@ export const useTextProcessing = () => {
         reader.readAsText(file);
       } catch (error) {
         clearTimeout(timeout);
-        // Fix: Pass an object with error property instead of just the string
+        // Pass an object with error property instead of just the string
         logError('Exception when reading file:', { error });
         reject(new Error(`Failed to read file: ${error instanceof Error ? error.message : 'Unknown error'}`));
       }
@@ -79,7 +79,7 @@ export const useTextProcessing = () => {
         });
       }
     } catch (error) {
-      logError('Failed to read text file:', error);
+      logError('Failed to read text file:', { error });
       
       const errorMessage = error instanceof Error
         ? `Failed to read file: ${error.message}`

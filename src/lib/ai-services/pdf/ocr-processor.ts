@@ -18,15 +18,15 @@ export const extractTextWithOCR = async (
     progressCallback(10);
     logInfo("OCR: Initializing Tesseract worker");
     
-    // Fix: Use correct worker initialization for Tesseract.js v6
-    worker = await createWorker({
-      // Remove langPath that doesn't exist in v6 API
-      logger: (m) => {
-        if (m.status === 'recognizing text') {
-          // Map progress (0-1) to our range (30-90%)
-          const mappedProgress = Math.floor(30 + (m.progress * 60));
-          progressCallback(mappedProgress);
-        }
+    // Fix: Use proper worker creation for Tesseract.js v6
+    worker = await createWorker();
+    
+    // Set up logger after worker initialization
+    worker.setLogger((m: any) => {
+      if (m.status === 'recognizing text') {
+        // Map progress (0-1) to our range (30-90%)
+        const mappedProgress = Math.floor(30 + (m.progress * 60));
+        progressCallback(mappedProgress);
       }
     });
     
@@ -72,14 +72,14 @@ export const extractTextWithOCR = async (
     
     return cleanedText;
   } catch (error) {
-    logError('OCR processing error:', error);
+    logError('OCR processing error:', { error });
     
     // Always clean up resources on error
     if (worker) {
       try {
         await worker.terminate();
       } catch (e) {
-        logError('Error terminating Tesseract worker:', e);
+        logError('Error terminating Tesseract worker:', { error: e });
       }
     }
     

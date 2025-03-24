@@ -33,7 +33,7 @@ export const extractTextFromPage = async (page: pdfjsLib.PDFPageProxy): Promise<
     
     return pageText;
   } catch (error) {
-    logError(`Error extracting text from page ${page.pageNumber}:`, error);
+    logError(`Error extracting text from page ${page.pageNumber}:`, { error });
     
     // Clean up resources even on error
     try {
@@ -57,7 +57,7 @@ export const extractTextFromPage = async (page: pdfjsLib.PDFPageProxy): Promise<
  */
 export const extractTextFromPages = async (
   pdfDocument: pdfjsLib.PDFDocumentProxy, 
-  maxPages = 5,
+  maxPages: number = 5,
   progressCallback?: ProgressCallback
 ): Promise<string> => {
   const numPages = pdfDocument.numPages;
@@ -78,7 +78,7 @@ export const extractTextFromPages = async (
       const pageText = await extractTextFromPage(page);
       fullText += pageText + '\n\n';
     } catch (pageError) {
-      logError(`Error processing page ${i}:`, pageError);
+      logError(`Error processing page ${i}:`, { error: pageError });
       // Continue with next page instead of failing completely
     }
   }

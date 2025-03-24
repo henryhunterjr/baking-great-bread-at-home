@@ -27,7 +27,7 @@ export const extractTextFromPDF = async (
         try {
           pdfDocument.destroy();
         } catch (e) {
-          logError("Error destroying PDF document", e);
+          logError("Error destroying PDF document", { error: e });
         }
       }
     }
@@ -47,9 +47,8 @@ export const extractTextFromPDF = async (
     
     if (progressCallback) progressCallback(20);
     
-    // Fix: Pass the progressCallback properly
-    // extractTextFromPages expects a ProgressCallback, not a number
-    const fullText = await extractTextFromPages(pdfDocument, progressCallback);
+    // Fix: Pass the maximum number of pages as a number, and progressCallback separately
+    const fullText = await extractTextFromPages(pdfDocument, 5, progressCallback);
     
     // Clean up PDF document resources
     if (pdfDocument) {
@@ -57,7 +56,7 @@ export const extractTextFromPDF = async (
         pdfDocument.destroy();
         pdfDocument = null;
       } catch (e) {
-        logError("Error destroying PDF document", e);
+        logError("Error destroying PDF document", { error: e });
       }
     }
     
@@ -82,12 +81,12 @@ export const extractTextFromPDF = async (
       try {
         pdfDocument.destroy();
       } catch (e) {
-        logError("Error destroying PDF document during error handling", e);
+        logError("Error destroying PDF document during error handling", { error: e });
       }
     }
     
     // Log the error
-    logError('Error extracting text from PDF:', error);
+    logError('Error extracting text from PDF:', { error });
     
     // If cancelled, don't try OCR fallback
     if (isRequestCancelled) {
@@ -100,7 +99,7 @@ export const extractTextFromPDF = async (
       const ocrText = await attemptOCRFallback(file, progressCallback);
       return ocrText || "No text could be extracted from this PDF. Try another file or input method.";
     } catch (ocrError) {
-      logError('OCR fallback also failed:', ocrError);
+      logError('OCR fallback also failed:', { error: ocrError });
       throw new Error('Failed to extract text from PDF: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
   }
