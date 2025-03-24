@@ -13,12 +13,12 @@ interface AffiliateProductsListProps {
 const AffiliateProductsList: React.FC<AffiliateProductsListProps> = ({ products }) => {
   const isMobile = useIsMobile();
   
-  // Show fewer products for better performance
-  const displayProducts = isMobile ? products.slice(0, 1) : products.slice(0, 2);
+  // Show all products on desktop, fewer on mobile for performance
+  const displayProducts = isMobile ? products.slice(0, 2) : products;
   
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 mb-8">
         {displayProducts.map(product => (
           <AffiliateProductCard key={product.id} product={product} />
         ))}

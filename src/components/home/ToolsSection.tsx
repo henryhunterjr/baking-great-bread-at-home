@@ -10,8 +10,8 @@ interface ToolsSectionProps {
 }
 
 const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
-  // Filter for the 4 specific tools mentioned: dehydrated sourdough starter, wire monkey, Holland Bowl Mill, and Sourhouse
-  const featuredAffiliateIds = [7, 5, 6, 3]; // IDs for the specific tools
+  // Filter for the 6 specific tools mentioned
+  const featuredAffiliateIds = [7, 3, 5, 6, 4, 2]; // IDs for the specific tools (sourdough starter, mod kitchen, wire monkey, holland bowl mill, challenger, goldie)
   const featuredAffiliates = affiliateProductsData.filter(product => 
     featuredAffiliateIds.includes(product.id)
   );
@@ -37,7 +37,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
               <Separator className="w-full border-bread-200 dark:border-bread-700" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-[#F6F6F7] dark:bg-bread-900/40 px-4 text-xl font-serif text-bread-800 dark:text-bread-200">
+              <span className="bg-[#F6F6F7] dark:bg-bread-900/40 px-6 py-2 text-2xl md:text-3xl lg:text-4xl font-serif text-bread-800 dark:text-bread-200">
                 Products I Recommend
               </span>
             </div>
