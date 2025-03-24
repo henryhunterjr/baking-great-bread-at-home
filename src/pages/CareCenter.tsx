@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -15,6 +16,22 @@ import { ExternalLink } from 'lucide-react';
 
 const CareCenter = () => {
   const mediaItems: MediaItem[] = [
+    {
+      id: '10',
+      title: 'Henry Hunter on Life, the Universe, and Bread',
+      url: 'https://youtu.be/49XtxfMlBgo?si=c2N_7FxIZsOsJXbS',
+      type: 'podcast',
+      source: 'The Jar Podcast',
+      description: 'Meet Henry Hunter, founder of Henry\'s Bread Kitchen, as he shares his journey from farm kid to military guy to chef and bread maker. Henry discusses how meeting a Jewish baker changed his life and how he\'s now sharing his passion with the world.'
+    },
+    {
+      id: '9',
+      title: 'Chef My Life Podcast | EP. 1: Sourdough Superstar Henry Hunter Tells All!',
+      url: 'https://youtu.be/sxp9kKA8si8?si=hVZmfGpcpgYeFg4L',
+      type: 'podcast',
+      source: 'Chef My Life Podcast',
+      description: 'Henry Hunter shares his journey and expertise in sourdough baking in this engaging podcast episode.'
+    },
     {
       id: '8',
       title: 'Holiday Breads: Celebrating Christmas & Hanukkah Traditions',

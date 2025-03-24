@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
@@ -15,6 +16,14 @@ const CareCenterPreview: React.FC<CareCenterPreviewProps> = ({ sectionRef }) => 
   // Featured media items for the homepage preview
   const featuredMedia: MediaItem[] = [
     {
+      id: '9',
+      title: 'Chef My Life Podcast | EP. 1: Sourdough Superstar Henry Hunter Tells All!',
+      url: 'https://youtu.be/sxp9kKA8si8?si=hVZmfGpcpgYeFg4L',
+      type: 'podcast',
+      source: 'Chef My Life Podcast',
+      description: 'Henry Hunter shares his journey and expertise in sourdough baking in this engaging podcast episode.'
+    },
+    {
       id: '8',
       title: 'Holiday Breads: Celebrating Christmas & Hanukkah Traditions',
       url: 'https://youtu.be/sjBi05xW_PQ?si=3fdygdScC5iKsYBa',
@@ -30,14 +39,6 @@ const CareCenterPreview: React.FC<CareCenterPreviewProps> = ({ sectionRef }) => 
       type: 'video',
       source: 'YouTube',
       description: 'Explore the fascinating history and techniques behind Halloween-themed bread making traditions'
-    },
-    {
-      id: '2',
-      title: 'Breaking Bread Podcast: Sourdough for the Rest of Us',
-      url: 'https://youtu.be/FiQg8AaW7PE',
-      description: 'Discussion about Henry\'s latest book "Sourdough for the Rest of Us"',
-      type: 'podcast',
-      source: 'Breaking Bread'
     }
   ];
 
