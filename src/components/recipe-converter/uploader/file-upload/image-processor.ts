@@ -14,7 +14,7 @@ export const processImageFile = async (
   let isAborted = false;
   
   try {
-    logInfo("Processing image file:", { filename: file.name });
+    logInfo("Processing image file", { filename: file.name, fileSize: file.size });
     
     // Set initial progress
     onProgress(10);
@@ -37,7 +37,7 @@ export const processImageFile = async (
       // Check if the operation was cancelled
       if (isAborted) return null;
       
-      logInfo("OCR complete, extracted text length:", { length: extractedText.length });
+      logInfo("OCR complete", { textLength: extractedText.length });
       
       // Make sure we report 100% when done
       onProgress(100);
@@ -50,13 +50,13 @@ export const processImageFile = async (
       }
     } catch (recognizeError) {
       if (!isAborted) {
-        logError('OCR processing error:', { error: recognizeError });
+        logError('OCR processing error', { error: recognizeError });
         onError(`Failed to process the image: ${recognizeError instanceof Error ? recognizeError.message : 'Unknown error'}. Please try with a clearer image.`);
       }
     }
   } catch (err) {
     if (!isAborted) {
-      logError('OCR processing error:', { error: err });
+      logError('OCR processing error', { error: err });
       onError("Failed to process the image. Please try again with a different image.");
     }
   }

@@ -1,5 +1,5 @@
 
-import { logError } from '@/utils/logger';
+import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
 
 /**
@@ -13,6 +13,8 @@ export const processTextFile = async (
   let isCancelled = false;
   
   try {
+    logInfo('Processing text file', { filename: file.name, fileSize: file.size });
+    
     // Start progress
     onProgress(20);
     
@@ -53,6 +55,8 @@ export const processTextFile = async (
     // Complete progress
     onProgress(100);
     
+    logInfo('Text file processed successfully', { contentLength: textContent.length });
+    
     // Call the completion callback
     onComplete(textContent);
     
@@ -60,11 +64,12 @@ export const processTextFile = async (
       cancel: () => {
         isCancelled = true;
         reader.abort();
+        logInfo('Text processing cancelled', { filename: file.name });
       }
     };
   } catch (error) {
     if (!isCancelled) {
-      logError('Text file processing error:', { error });
+      logError('Text file processing error', { error });
       onError(`Failed to read text file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
     return null;
