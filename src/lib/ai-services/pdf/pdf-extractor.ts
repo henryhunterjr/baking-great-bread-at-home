@@ -42,7 +42,7 @@ export const extractTextFromPDF = async (
     const loadingPromise = Promise.race([
       loadingTask.promise,
       new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('PDF loading timed out')), 30000)
+        setTimeout(() => reject(new Error('PDF loading timed out')), 20000)
       )
     ]);
     
@@ -58,15 +58,17 @@ export const extractTextFromPDF = async (
     
     let fullText = '';
     
-    // Extract text from each page
-    for (let i = 1; i <= numPages; i++) {
+    // Extract text from each page - limit to first 5 pages for performance
+    const pagesToProcess = Math.min(numPages, 5);
+    
+    for (let i = 1; i <= pagesToProcess; i++) {
       // Update progress (distribute from 30% to 90% based on page count)
       if (progressCallback) {
-        const pageProgress = 30 + Math.floor((i / numPages) * 60);
+        const pageProgress = 30 + Math.floor((i / pagesToProcess) * 60);
         progressCallback(pageProgress);
       }
       
-      logInfo(`PDF processing: Getting page ${i}/${numPages}...`);
+      logInfo(`PDF processing: Getting page ${i}/${pagesToProcess}...`);
       
       try {
         const page = await pdf.getPage(i);
@@ -74,10 +76,18 @@ export const extractTextFromPDF = async (
         
         const textContent = await page.getTextContent();
         
-        // Use type assertion to access items safely
+        // Handle PDF.js v5 types
         const pageText = textContent.items
-          // @ts-ignore - Handle PDF.js v5 type differences
-          .map(item => item.str || '')
+          .map(item => {
+            // Handle different item formats based on PDF.js version
+            if ('str' in item) {
+              return item.str;
+            } else if (typeof item === 'object' && item !== null) {
+              // @ts-ignore - Fallback for different versions
+              return item.string || '';
+            }
+            return '';
+          })
           .join(' ');
         
         logInfo(`PDF processing: Extracted ${pageText.length} characters from page ${i}`);
@@ -124,7 +134,7 @@ export const extractTextFromPDF = async (
       return await extractTextWithOCR(image, progressCallback);
     } catch (ocrError) {
       logError('OCR fallback also failed:', ocrError);
-      throw new Error('Failed to extract text from PDF');
+      throw new Error('Failed to extract text from PDF: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
   }
 };

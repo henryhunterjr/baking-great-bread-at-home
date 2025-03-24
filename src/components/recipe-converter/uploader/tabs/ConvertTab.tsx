@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronRight } from 'lucide-react';
 import FileUploadOptions from './convert-tab/FileUploadOptions';
 import RecipeTextEditor from './convert-tab/RecipeTextEditor';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -22,6 +22,35 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
   error
 }) => {
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showHelpTip, setShowHelpTip] = useState(false);
+  
+  // Show success message when text is extracted from an image or PDF
+  useEffect(() => {
+    if (recipeText.trim().length > 50) {
+      setShowSuccess(true);
+      
+      // Auto-hide success after 5 seconds
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [recipeText]);
+  
+  // Show help tip if recipe text is empty
+  useEffect(() => {
+    if (!recipeText.trim()) {
+      // Show tip after 2 seconds
+      const timer = setTimeout(() => {
+        setShowHelpTip(true);
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    } else {
+      setShowHelpTip(false);
+    }
+  }, [recipeText]);
 
   return (
     <div className="space-y-6">
@@ -39,9 +68,18 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
       
       {showSuccess && (
         <Alert className="mb-4 bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-800">
-          <AlertTitle className="text-green-800 dark:text-green-300">Image Processed</AlertTitle>
+          <AlertTitle className="text-green-800 dark:text-green-300">Text Extracted</AlertTitle>
           <AlertDescription className="text-green-700 dark:text-green-400">
-            Text has been successfully extracted. You can now edit it before converting.
+            Text has been successfully extracted. You can now edit it before converting to a recipe.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {showHelpTip && !isConverting && !error && (
+        <Alert className="mb-4 bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-800">
+          <AlertTitle className="text-blue-800 dark:text-blue-300">Getting Started</AlertTitle>
+          <AlertDescription className="text-blue-700 dark:text-blue-400">
+            Upload a recipe image or PDF, take a photo, or paste text from your clipboard using the options above.
           </AlertDescription>
         </Alert>
       )}
@@ -65,7 +103,10 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
                 Converting...
               </>
             ) : (
-              'Convert Recipe'
+              <>
+                Convert Recipe
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </>
             )}
           </Button>
         </div>

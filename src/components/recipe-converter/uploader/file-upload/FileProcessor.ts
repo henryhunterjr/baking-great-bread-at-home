@@ -20,12 +20,19 @@ export const processImageFile = async (
     onProgress(10);
     
     try {
-      // Use extractTextWithOCR which is now more robust
-      const extractedText = await extractTextWithOCR(file, (progress) => {
-        if (!isAborted) {
-          onProgress(progress);
-        }
-      });
+      // Add timeout protection to ensure process doesn't hang
+      const extractionPromise = Promise.race([
+        extractTextWithOCR(file, (progress) => {
+          if (!isAborted) {
+            onProgress(progress);
+          }
+        }),
+        new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('OCR processing timed out')), 60000)
+        )
+      ]);
+      
+      const extractedText = await extractionPromise;
       
       // Check if the operation was cancelled
       if (isAborted) return;
@@ -74,12 +81,20 @@ export const processPDFFile = async (
   try {
     logInfo("Processing PDF file:", { filename: file.name, filesize: file.size });
     
-    // Extract text from the PDF with progress reporting
-    const extractedText = await extractTextFromPDF(file, (progress) => {
-      if (isCancelled) return;
-      logInfo("PDF processing progress:", { progress });
-      onProgress(progress);
-    });
+    // Add timeout protection for the entire process
+    const extractionPromise = Promise.race([
+      // Extract text from the PDF with progress reporting
+      extractTextFromPDF(file, (progress) => {
+        if (isCancelled) return;
+        logInfo("PDF processing progress:", { progress });
+        onProgress(progress);
+      }),
+      new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('PDF processing timed out after 2 minutes')), 120000)
+      )
+    ]);
+    
+    const extractedText = await extractionPromise;
     
     // If processing was cancelled, don't proceed
     if (isCancelled) return;
@@ -103,7 +118,7 @@ export const processPDFFile = async (
     logError('PDF processing error:', { error: err });
     
     if (!isCancelled) {
-      onError("Failed to process the PDF. Please try again with a different file.");
+      onError(`Failed to process the PDF: ${err instanceof Error ? err.message : 'Unknown error'}. Please try again with a different file.`);
     }
   }
   

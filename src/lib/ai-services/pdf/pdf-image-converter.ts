@@ -20,7 +20,15 @@ export const convertPDFPageToImage = async (file: File): Promise<string> => {
       cMapPacked: true
     });
     
-    const pdf = await loadingTask.promise;
+    // Set a timeout to prevent hanging
+    const pdfPromise = Promise.race([
+      loadingTask.promise,
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('PDF loading timed out')), 20000)
+      )
+    ]);
+    
+    const pdf = await pdfPromise as pdfjsLib.PDFDocumentProxy;
     const page = await pdf.getPage(1);
     
     // Create a canvas to render the PDF page
