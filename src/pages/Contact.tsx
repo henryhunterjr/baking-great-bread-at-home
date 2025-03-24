@@ -43,28 +43,24 @@ const Contact = () => {
                         <Button asChild variant="outline" size="sm" className="justify-start">
                           <a href="https://tiktok.com/@HenryHunter12" target="_blank" rel="noopener noreferrer">
                             <span className="mr-2">TikTok</span>
-                            <span className="text-bread-200">@HenryHunter12</span>
                           </a>
                         </Button>
                         
                         <Button asChild variant="outline" size="sm" className="justify-start">
                           <a href="https://instagram.com/BakingGreatBreadatHome" target="_blank" rel="noopener noreferrer">
                             <span className="mr-2">Instagram</span>
-                            <span className="text-bread-200">@BakingGreatBreadatHome</span>
                           </a>
                         </Button>
                         
                         <Button asChild variant="outline" size="sm" className="justify-start">
                           <a href="https://www.youtube.com/@henryhunterjr" target="_blank" rel="noopener noreferrer">
                             <span className="mr-2">YouTube</span>
-                            <span className="text-bread-200">@henryhunterjr</span>
                           </a>
                         </Button>
                         
                         <Button asChild variant="outline" size="sm" className="justify-start">
                           <a href="https://www.facebook.com/henryhunterjr" target="_blank" rel="noopener noreferrer">
                             <span className="mr-2">Facebook</span>
-                            <span className="text-bread-200">Henry Hunter Jr</span>
                           </a>
                         </Button>
                       </div>

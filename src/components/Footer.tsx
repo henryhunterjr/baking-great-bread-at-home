@@ -62,7 +62,7 @@ const Footer = () => {
               <li><Link to="/" className="text-gray-300 hover:text-white transition-colors">Home</Link></li>
               <li><Link to="/books" className="text-gray-300 hover:text-white transition-colors">Books & Guides</Link></li>
               <li><Link to="/tools" className="text-gray-300 hover:text-white transition-colors">Baking Tools</Link></li>
-              <li><Link to="/challenges" className="text-gray-300 hover:text-white transition-colors">Challenges & Giveaways</Link></li>
+              <li><Link to="/challenge" className="text-gray-300 hover:text-white transition-colors">Challenges & Giveaways</Link></li>
               <li><Link to="/coaching" className="text-gray-300 hover:text-white transition-colors">Coaching & Consulting</Link></li>
               <li><Link to="/blog" className="text-gray-300 hover:text-white transition-colors">Blog & Recipes</Link></li>
               <li><Link to="/app" className="text-gray-300 hover:text-white transition-colors">Crust & Crumb App</Link></li>
@@ -81,7 +81,7 @@ const Footer = () => {
                 BGBAH2023@Gmail.com
               </a>
             </p>
-            <Button asChild variant="outline" className="bg-bread-600 hover:bg-bread-700 text-white border-none">
+            <Button asChild variant="outline" className="bg-bread-600 hover:bg-bread-700 text-white border-none hover:translate-y-[-2px] transition-transform">
               <a href="mailto:BGBAH2023@Gmail.com">Get in Touch</a>
             </Button>
           </div>
