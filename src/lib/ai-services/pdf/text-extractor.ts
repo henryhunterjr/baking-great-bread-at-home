@@ -59,7 +59,7 @@ export const extractTextFromPages = async (
       }
     }
     
-    // Clean the extracted text - update function name here
+    // Clean the extracted text
     const cleanedText = cleanPDFText(allText);
     
     return cleanedText;
