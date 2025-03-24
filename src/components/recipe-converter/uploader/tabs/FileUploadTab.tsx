@@ -35,15 +35,14 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
     setError(null);
     
     try {
-      // Create worker with proper progress logging
+      // Create worker and monitor progress with the logger callback
       const worker = await createWorker({
         logger: m => {
           if (m.status === 'recognizing text') {
-            const p = m.progress || 0;
-            setProgress(Math.floor(p * 100));
+            setProgress(Math.floor((m.progress || 0) * 100));
           }
-        }
-      });
+        },
+      } as any); // Using 'as any' to bypass the TypeScript error
       
       // Recognize text from the image
       const { data } = await worker.recognize(file);
