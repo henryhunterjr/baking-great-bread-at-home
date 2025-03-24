@@ -4,4 +4,3 @@
 interface Window {
   resetNetworkSimulation?: () => void;
 }
-

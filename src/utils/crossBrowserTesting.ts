@@ -117,7 +117,7 @@ export function simulateNetworkCondition(condition: 'fast' | 'average' | 'slow' 
   
   logInfo(`Network condition simulation: ${condition}`, { delay: `${delay}ms` });
   
-  // Provide a way to reset this
+  // Provide a way to reset this - using type-safe approach
   window.resetNetworkSimulation = () => {
     window.fetch = originalFetch;
     logInfo('Network simulation reset');
