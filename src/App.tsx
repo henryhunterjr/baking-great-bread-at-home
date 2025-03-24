@@ -29,6 +29,7 @@ import Tools from './pages/Tools';
 import Recipes from './pages/Recipes';
 import About from './pages/About';
 import ComingSoon from './pages/ComingSoon';
+import Contact from './pages/Contact';
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -102,6 +103,13 @@ function App() {
             <ErrorBoundary>
               <Suspense fallback={<PageLoader />}>
                 <Community />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/contact" element={
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <Contact />
               </Suspense>
             </ErrorBoundary>
           } />
