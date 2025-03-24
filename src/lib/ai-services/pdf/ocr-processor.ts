@@ -19,9 +19,22 @@ export const extractTextWithOCR = async (
     logInfo("OCR: Initializing Tesseract worker");
     
     // Create worker with proper language configuration for v6 API
-    worker = await createWorker('eng');
+    worker = await createWorker({
+      langPath: 'https://tessdata.projectnaptha.com/4.0.0',
+      logger: (m) => {
+        if (m.status === 'recognizing text') {
+          // Map progress (0-1) to our range (30-90%)
+          const mappedProgress = Math.floor(30 + (m.progress * 60));
+          progressCallback(mappedProgress);
+        }
+      }
+    });
     
-    progressCallback(20);
+    // Initialize with English language
+    await worker.loadLanguage('eng');
+    await worker.initialize('eng');
+    
+    progressCallback(30);
     
     // Process the image (File or dataURL)
     let imageData: string | Uint8Array;
@@ -36,29 +49,13 @@ export const extractTextWithOCR = async (
     }
     
     // Set progress to 30% after preparing image
-    progressCallback(30);
     logInfo("OCR: Image prepared, starting recognition");
     
-    // Use proper v6 API recognition with proper progress handling
-    // This avoids the non-serializable function issue
+    // Use proper v6 API recognition
     const result = await worker.recognize(imageData);
     
-    // Track progress with separate call patterns to avoid worker issues
-    const interval = setInterval(() => {
-      worker.getProgress().then((progress: any) => {
-        // Map progress (0-1) to our range (30-90%)
-        const mappedProgress = Math.floor(30 + (progress.progress * 60));
-        progressCallback(mappedProgress);
-      }).catch((err: any) => {
-        logError("Error getting OCR progress:", err);
-      });
-    }, 200);
-    
     // Get text from the result
-    const extractedText = result.data?.text || '';
-    
-    // Clean up the progress interval
-    clearInterval(interval);
+    const extractedText = result.data.text || '';
     
     // Clean up the text
     const cleanedText = cleanUpOCRText(extractedText);

@@ -1,6 +1,6 @@
 
 import { useToast } from '@/hooks/use-toast';
-import { logError } from '@/utils/logger';
+import { logError, logInfo } from '@/utils/logger';
 
 export const useTextProcessing = () => {
   const { toast } = useToast();
@@ -8,12 +8,38 @@ export const useTextProcessing = () => {
   const readFileAsText = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (event) => resolve(event.target?.result as string || "");
+      
+      reader.onload = (event) => {
+        // Check if we have valid result data
+        if (event.target?.result) {
+          resolve(event.target.result as string);
+        } else {
+          reject(new Error("Failed to read file: No data returned"));
+        }
+      };
+      
       reader.onerror = (error) => {
         logError('Error reading file as text:', error);
-        reject(new Error("Failed to read file"));
+        reject(new Error("Failed to read file: " + (error?.target as any)?.error?.message || "Unknown error"));
+      };
+      
+      // Set a timeout to prevent hanging on large files
+      const timeout = setTimeout(() => {
+        reader.abort();
+        reject(new Error("Reading file timed out. The file may be too large."));
+      }, 30000);
+      
+      // Clean up the timeout if reading completes
+      reader.onloadend = () => clearTimeout(timeout);
+      
+      // Start reading the file
+      try {
+        reader.readAsText(file);
+      } catch (error) {
+        clearTimeout(timeout);
+        logError('Exception when reading file:', error);
+        reject(new Error(`Failed to read file: ${error instanceof Error ? error.message : 'Unknown error'}`));
       }
-      reader.readAsText(file);
     });
   };
 
@@ -22,20 +48,48 @@ export const useTextProcessing = () => {
     onSuccess: (text: string) => void,
     onError: (error: string) => void
   ): Promise<void> => {
+    logInfo('Processing text file:', file.name);
+    
     try {
       const text = await readFileAsText(file);
+      
       if (text && text.trim().length > 0) {
-        onSuccess(text);
+        // Clean up the text a bit - remove extra whitespace, normalize line endings
+        const cleanedText = text
+          .replace(/\r\n/g, '\n')
+          .replace(/\n{3,}/g, '\n\n')
+          .replace(/[ \t]+/g, ' ')
+          .trim();
+        
+        onSuccess(cleanedText);
+        
         toast({
           title: "File Loaded",
           description: "Text has been successfully loaded from the file.",
         });
       } else {
         onError("The file appears to be empty. Please try another file.");
+        
+        toast({
+          variant: "destructive",
+          title: "Empty File",
+          description: "The file appears to be empty. Please try another file.",
+        });
       }
     } catch (error) {
       logError('Failed to read text file:', error);
-      onError("Failed to read file. Please try another format.");
+      
+      const errorMessage = error instanceof Error
+        ? `Failed to read file: ${error.message}`
+        : "Failed to read file. Please try another format.";
+      
+      onError(errorMessage);
+      
+      toast({
+        variant: "destructive",
+        title: "File Error",
+        description: errorMessage,
+      });
     }
   };
   

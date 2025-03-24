@@ -1,5 +1,6 @@
 
 import { useToast } from '@/hooks/use-toast';
+import { logError } from '@/utils/logger';
 
 export const useClipboardUtils = () => {
   const { toast } = useToast();
@@ -9,6 +10,11 @@ export const useClipboardUtils = () => {
     onError: (error: string) => void
   ): Promise<void> => {
     try {
+      // Check if clipboard API is available
+      if (!navigator.clipboard) {
+        throw new Error("Clipboard access not available in this browser or context.");
+      }
+      
       const clipboardText = await navigator.clipboard.readText();
       
       if (clipboardText && clipboardText.trim().length > 0) {
@@ -27,12 +33,28 @@ export const useClipboardUtils = () => {
         });
       }
     } catch (error) {
-      console.error('Failed to read clipboard:', error);
-      onError("Unable to access clipboard. Please paste the text manually.");
+      logError('Failed to read clipboard:', error);
+      
+      let errorMessage = "Unable to access clipboard. ";
+      
+      // Add specific guidance based on error context
+      if (error instanceof Error) {
+        if (error.message.includes('secure context')) {
+          errorMessage += "This feature requires a secure (HTTPS) connection.";
+        } else if (error.message.includes('permission')) {
+          errorMessage += "You may need to grant clipboard permission in your browser.";
+        } else {
+          errorMessage += "Please paste the text manually.";
+        }
+      } else {
+        errorMessage += "Please paste the text manually.";
+      }
+      
+      onError(errorMessage);
       toast({
         variant: "destructive",
         title: "Clipboard Error",
-        description: "Unable to access clipboard. Please paste the text manually.",
+        description: errorMessage,
       });
     }
   };

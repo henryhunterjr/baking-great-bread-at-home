@@ -2,7 +2,7 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { logInfo, logError } from '@/utils/logger';
 
-// Configure PDF.js to use a locally hosted worker file instead of CDN
+// Configure PDF.js to use a locally hosted worker file
 // This resolves CORS issues and network reliability problems
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
@@ -18,11 +18,15 @@ export const loadPdfDocument = async (file: File): Promise<pdfjsLib.PDFDocumentP
     
     logInfo("PDF processing: Starting to load document...");
     
-    // Initialize PDF.js with simplified options for better compatibility
+    // Initialize PDF.js with proper options for better compatibility
     const loadingTask = pdfjsLib.getDocument({
       data: arrayBuffer,
       cMapUrl: '/cmaps/',
-      cMapPacked: true
+      cMapPacked: true,
+      // Disable range requests which can cause issues in some environments
+      disableRange: true,
+      // Disable streaming to improve compatibility
+      disableStream: true
     });
     
     // Set a timeout for PDF loading to prevent hanging

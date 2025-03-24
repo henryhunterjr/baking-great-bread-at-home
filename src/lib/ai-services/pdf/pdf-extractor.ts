@@ -48,7 +48,7 @@ export const extractTextFromPDF = async (
     if (progressCallback) progressCallback(20);
     
     // Extract text from the PDF pages
-    const fullText = await extractTextFromPages(pdfDocument, 5, progressCallback);
+    const fullText = await extractTextFromPages(pdfDocument, progressCallback);
     
     // Clean up PDF document resources
     if (pdfDocument) {
@@ -66,6 +66,7 @@ export const extractTextFromPDF = async (
       logInfo("PDF processing: Not enough text extracted, falling back to OCR");
       
       // Fall back to OCR
+      if (progressCallback) progressCallback(70);
       const ocrText = await attemptOCRFallback(file, progressCallback);
       return ocrText.trim() || "No text could be extracted from this PDF. Try another file or input method.";
     }
@@ -94,7 +95,9 @@ export const extractTextFromPDF = async (
     
     // Try OCR as fallback for any error
     try {
-      return await attemptOCRFallback(file, progressCallback);
+      if (progressCallback) progressCallback(60);
+      const ocrText = await attemptOCRFallback(file, progressCallback);
+      return ocrText || "No text could be extracted from this PDF. Try another file or input method.";
     } catch (ocrError) {
       logError('OCR fallback also failed:', ocrError);
       throw new Error('Failed to extract text from PDF: ' + (error instanceof Error ? error.message : 'Unknown error'));
