@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import ConvertTab from '@/components/recipe-converter/uploader/tabs/ConvertTab';
 import { useToast } from '@/hooks/use-toast';
 import { processRecipeText } from '@/lib/ai-services/ai-service';
@@ -41,10 +41,13 @@ const AIConvertTab: React.FC<ConvertTabProps> = ({
     setIsProcessing(true);
     
     try {
+      // Process the recipe
       const convertedRecipe = await processRecipeText(recipeText);
       
+      // Clear the text input
       setRecipeText('');
       
+      // Generate a random comment from Henry
       const henryComments = [
         `I've successfully converted your recipe for "${convertedRecipe.title}". It's now in Henry's preferred format with clear instructions and measurements. You can find it in your saved recipes.`,
         `Your "${convertedRecipe.title}" recipe has been converted! I've structured it in the way Henry recommends for maximum clarity and success. It's now saved in your recipes.`,
@@ -53,6 +56,7 @@ const AIConvertTab: React.FC<ConvertTabProps> = ({
       
       const randomComment = henryComments[Math.floor(Math.random() * henryComments.length)];
       
+      // Add the assistant message
       const assistantMessage = {
         role: 'assistant',
         content: randomComment,
@@ -61,11 +65,13 @@ const AIConvertTab: React.FC<ConvertTabProps> = ({
       
       setMessages(prev => [...prev, assistantMessage]);
       
+      // Show success toast
       toast({
         title: "Recipe Converted",
         description: "Your recipe has been successfully converted and saved.",
       });
       
+      // Switch back to chat tab
       setActiveTab('chat');
     } catch (error) {
       console.error('Error converting recipe:', error);

@@ -45,7 +45,7 @@ export const convertPDFPageToImage = async (file: File): Promise<string> => {
     // Convert canvas to image data URL
     return canvas.toDataURL('image/png');
   } catch (error) {
-    logError('Error converting PDF to image:', { error });
+    logError('Error converting PDF to image:', error);
     throw error;
   }
 };

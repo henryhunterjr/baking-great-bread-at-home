@@ -10,13 +10,12 @@ export const processImageFile = async (
   onComplete: (text: string) => void,
   onError: (error: string) => void
 ) => {
-  let abortController = new AbortController();
   let isAborted = false;
   
   try {
     logInfo("Processing image file:", { filename: file.name });
     
-    // Create worker with language - this is the v6 style
+    // Create worker with language - v6 style
     const worker = await createWorker('eng');
     
     // Set initial progress
@@ -29,7 +28,7 @@ export const processImageFile = async (
     }
     
     let lastProgress = 10;
-    // Use a manual progress update approach since built-in progress reporting is limited in v6
+    // Use a manual progress update approach
     const progressInterval = setInterval(() => {
       if (lastProgress < 95 && !isAborted) {
         lastProgress += 5;
@@ -38,14 +37,6 @@ export const processImageFile = async (
     }, 1000);
     
     logInfo("Starting OCR on image");
-    
-    // Add abort handler
-    abortController.signal.addEventListener('abort', async () => {
-      isAborted = true;
-      clearInterval(progressInterval);
-      await worker.terminate();
-      logInfo("Image OCR process was cancelled");
-    });
     
     // Recognize text from the image using v6 API
     const result = await worker.recognize(file);
@@ -79,7 +70,7 @@ export const processImageFile = async (
   
   return {
     cancel: () => {
-      abortController.abort();
+      isAborted = true;
     }
   };
 };
@@ -93,36 +84,9 @@ export const processPDFFile = async (
 ) => {
   // Create a cancel token
   let isCancelled = false;
-  let timeoutId: number | null = null;
-  let longRunningWarningId: number | null = null;
-  let abortController = new AbortController();
   
   try {
     logInfo("Processing PDF file:", { filename: file.name, filesize: file.size });
-    
-    // Adjust timeout based on file size (larger files need more time)
-    const fileSize = file.size;
-    const timeoutDuration = Math.max(30000, Math.min(300000, fileSize / 1024 * 10));
-    
-    // Set up a timeout to handle stalls
-    timeoutId = window.setTimeout(() => {
-      logInfo("PDF processing timeout triggered");
-      isCancelled = true;
-      abortController.abort();
-      onError("Processing timed out. Please try again or use a different file format.");
-    }, timeoutDuration); // Dynamic timeout based on file size
-    
-    // Set up a warning for long-running processes
-    longRunningWarningId = window.setTimeout(() => {
-      logInfo("PDF processing long-running warning triggered");
-      // Don't abort, just warn the user that it's taking longer than expected
-    }, 30000); // 30 second warning
-    
-    // Use signal from AbortController to allow cancellation
-    abortController.signal.addEventListener('abort', () => {
-      isCancelled = true;
-      logInfo("PDF processing was cancelled by user");
-    });
     
     // Extract text from the PDF with progress reporting
     const extractedText = await extractTextFromPDF(file, (progress) => {
@@ -130,17 +94,6 @@ export const processPDFFile = async (
       logInfo("PDF processing progress:", { progress });
       onProgress(progress);
     });
-    
-    // Clear the timeouts since we succeeded
-    if (timeoutId) {
-      window.clearTimeout(timeoutId);
-      timeoutId = null;
-    }
-    
-    if (longRunningWarningId) {
-      window.clearTimeout(longRunningWarningId);
-      longRunningWarningId = null;
-    }
     
     // If processing was cancelled, don't proceed
     if (isCancelled) return;
@@ -163,14 +116,6 @@ export const processPDFFile = async (
   } catch (err) {
     logError('PDF processing error:', { error: err });
     
-    if (timeoutId) {
-      window.clearTimeout(timeoutId);
-    }
-    
-    if (longRunningWarningId) {
-      window.clearTimeout(longRunningWarningId);
-    }
-    
     if (!isCancelled) {
       onError("Failed to process the PDF. Please try again with a different file.");
     }
@@ -178,17 +123,6 @@ export const processPDFFile = async (
   
   return {
     cancel: () => {
-      if (timeoutId) {
-        window.clearTimeout(timeoutId);
-        timeoutId = null;
-      }
-      
-      if (longRunningWarningId) {
-        window.clearTimeout(longRunningWarningId);
-        longRunningWarningId = null;
-      }
-      
-      abortController.abort();
       isCancelled = true;
       logInfo("PDF processing cancelled by user");
     }

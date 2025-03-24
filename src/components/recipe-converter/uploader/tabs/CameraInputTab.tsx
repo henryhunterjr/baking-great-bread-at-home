@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Camera, Loader2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { createWorker } from 'tesseract.js';
 import { extractTextWithOCR } from '@/lib/ai-services/pdf/ocr-processor';
 
 interface CameraInputTabProps {
@@ -32,29 +31,56 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onCameraPicture }) => {
     setError(null);
     
     try {
-      // Use our OCR processor to handle the image processing
-      await extractTextWithOCR(
-        file, 
+      // Convert file to data URL for OCR processing
+      const fileDataUrl = await fileToDataUrl(file);
+      
+      // Extract text from the image
+      const extractedText = await extractTextWithOCR(
+        fileDataUrl, 
         (progressValue) => {
           setProgress(progressValue);
         }
       );
       
-      // Set progress to 100% when done
-      setProgress(100);
+      // Create a new synthetic event to pass to the original handler
+      const newFileList = new DataTransfer();
+      newFileList.items.add(file);
       
-      // Create a synthetic event to pass to the original handler
-      onCameraPicture(e);
+      const syntheticEvent = {
+        ...e,
+        currentTarget: {
+          ...e.currentTarget,
+          files: newFileList.files
+        },
+        target: {
+          ...e.target,
+          files: newFileList.files,
+          value: e.target.value,
+        }
+      } as React.ChangeEvent<HTMLInputElement>;
+      
+      // Call the original handler with our synthetic event
+      onCameraPicture(syntheticEvent);
       
       // Reset processing state
       setTimeout(() => {
         setIsProcessing(false);
+        setProgress(100);
       }, 1000);
     } catch (err) {
       console.error('OCR processing error:', err);
       setError("Failed to process the image. Please try again with a different image.");
       setIsProcessing(false);
     }
+  };
+  
+  const fileToDataUrl = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   };
   
   const resetCapture = () => {

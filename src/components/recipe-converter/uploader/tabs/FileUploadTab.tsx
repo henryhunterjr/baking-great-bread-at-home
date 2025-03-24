@@ -42,8 +42,23 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
       await handleImageFile(file);
     } else {
       // For other file types (text, etc.), use the existing handler
-      onFileUpload(e);
+      try {
+        const text = await readFileAsText(file);
+        onTextExtracted(text);
+      } catch (error) {
+        setError("Failed to read file. Please try another format.");
+        console.error("File reading error:", error);
+      }
     }
+  };
+  
+  const readFileAsText = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => resolve(event.target?.result as string || "");
+      reader.onerror = (error) => reject(error);
+      reader.readAsText(file);
+    });
   };
   
   const resetState = () => {
