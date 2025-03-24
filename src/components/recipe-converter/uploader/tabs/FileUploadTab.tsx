@@ -9,11 +9,11 @@ import SupportedFormats from '../file-upload/SupportedFormats';
 import { useFileUpload } from '../hooks/useFileUpload';
 
 interface FileUploadTabProps {
-  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onTextExtracted: (text: string) => void;
+  setError: (error: string | null) => void;
 }
 
-const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtracted }) => {
+const FileUploadTab: React.FC<FileUploadTabProps> = ({ onTextExtracted, setError }) => {
   const {
     isProcessing,
     progress,
@@ -24,7 +24,10 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
     handleCancel,
     handleReset,
     fileInputRef
-  } = useFileUpload({ onTextExtracted });
+  } = useFileUpload({ 
+    onTextExtracted,
+    onError: setError
+  });
 
   return (
     <div className="space-y-6">

@@ -18,9 +18,10 @@ interface UseFileUploadResult {
 
 interface UseFileUploadProps {
   onTextExtracted: (text: string) => void;
+  onError?: (error: string | null) => void;
 }
 
-export const useFileUpload = ({ onTextExtracted }: UseFileUploadProps): UseFileUploadResult => {
+export const useFileUpload = ({ onTextExtracted, onError }: UseFileUploadProps): UseFileUploadResult => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -30,7 +31,7 @@ export const useFileUpload = ({ onTextExtracted }: UseFileUploadProps): UseFileU
   const { toast } = useToast();
   
   // Add cancel handler reference
-  const cancelHandlerRef = useRef<ProcessingTask>(null);
+  const cancelHandlerRef = useRef<ProcessingTask | null>(null);
   
   const readFileAsText = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -41,9 +42,16 @@ export const useFileUpload = ({ onTextExtracted }: UseFileUploadProps): UseFileU
     });
   };
   
+  const setErrorWithCallback = (errorMessage: string | null) => {
+    setError(errorMessage);
+    if (onError) {
+      onError(errorMessage);
+    }
+  };
+  
   const resetState = () => {
     // Cancel any ongoing processing
-    if (cancelHandlerRef.current) {
+    if (cancelHandlerRef.current?.cancel) {
       cancelHandlerRef.current.cancel();
       cancelHandlerRef.current = null;
     }
@@ -51,7 +59,7 @@ export const useFileUpload = ({ onTextExtracted }: UseFileUploadProps): UseFileU
     setIsProcessing(false);
     setProcessingType(null);
     setProgress(0);
-    setError(null);
+    setErrorWithCallback(null);
     
     // Reset file input
     if (fileInputRef.current) {
@@ -61,7 +69,7 @@ export const useFileUpload = ({ onTextExtracted }: UseFileUploadProps): UseFileU
   
   const handleCancel = () => {
     // Cancel any ongoing processing
-    if (cancelHandlerRef.current) {
+    if (cancelHandlerRef.current?.cancel) {
       cancelHandlerRef.current.cancel();
       cancelHandlerRef.current = null;
     }
@@ -99,7 +107,7 @@ export const useFileUpload = ({ onTextExtracted }: UseFileUploadProps): UseFileU
           cancelHandlerRef.current = null;
         },
         onError: (errorMessage) => {
-          setError(errorMessage);
+          setErrorWithCallback(errorMessage);
           setIsProcessing(false);
           setProcessingType(null);
           cancelHandlerRef.current = null;
@@ -116,31 +124,39 @@ export const useFileUpload = ({ onTextExtracted }: UseFileUploadProps): UseFileU
     setProcessingType('image');
     setProgress(0);
     
-    const processingTask = await processImageFile(
-      file,
-      {
-        onProgress: (progressValue) => setProgress(progressValue),
-        onComplete: (extractedText) => {
-          onTextExtracted(extractedText);
-          toast({
-            title: "Image Processed Successfully",
-            description: "We've extracted the recipe text from your image.",
-          });
-          setIsProcessing(false);
-          setProcessingType(null);
-          cancelHandlerRef.current = null;
-        },
-        onError: (errorMessage) => {
-          setError(errorMessage);
-          setIsProcessing(false);
-          setProcessingType(null);
-          cancelHandlerRef.current = null;
+    try {
+      const processingTask = await processImageFile(
+        file,
+        {
+          onProgress: (progressValue) => setProgress(progressValue),
+          onComplete: (extractedText) => {
+            onTextExtracted(extractedText);
+            toast({
+              title: "Image Processed Successfully",
+              description: "We've extracted the recipe text from your image.",
+            });
+            setIsProcessing(false);
+            setProcessingType(null);
+            cancelHandlerRef.current = null;
+          },
+          onError: (errorMessage) => {
+            setErrorWithCallback(errorMessage);
+            setIsProcessing(false);
+            setProcessingType(null);
+            cancelHandlerRef.current = null;
+          }
         }
+      );
+      
+      // Store the cancel handler
+      if (processingTask?.cancel) {
+        cancelHandlerRef.current = processingTask;
       }
-    );
-    
-    // Store the cancel handler
-    cancelHandlerRef.current = processingTask;
+    } catch (error) {
+      setErrorWithCallback(error instanceof Error ? error.message : 'Failed to process image');
+      setIsProcessing(false);
+      setProcessingType(null);
+    }
   };
   
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -161,9 +177,17 @@ export const useFileUpload = ({ onTextExtracted }: UseFileUploadProps): UseFileU
       // For other file types (text, etc.), use the existing handler
       try {
         const text = await readFileAsText(file);
-        onTextExtracted(text);
+        if (text) {
+          onTextExtracted(text);
+          toast({
+            title: "File Loaded",
+            description: "Text has been successfully loaded from the file.",
+          });
+        } else {
+          setErrorWithCallback("The file appears to be empty. Please try another file.");
+        }
       } catch (error) {
-        setError("Failed to read file. Please try another format.");
+        setErrorWithCallback("Failed to read file. Please try another format.");
         console.error("File reading error:", error);
       }
     }

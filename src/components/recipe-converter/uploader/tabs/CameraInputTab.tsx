@@ -5,16 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Camera, Loader2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { extractTextWithOCR } from '@/lib/ai-services/pdf/ocr-processor';
+import FileUploadError from '../file-upload/FileUploadError';
 
 interface CameraInputTabProps {
-  onCameraPicture: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onTextExtracted: (text: string) => void;
+  setError: (error: string | null) => void;
 }
 
-const CameraInputTab: React.FC<CameraInputTabProps> = ({ onCameraPicture }) => {
+const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setError }) => {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setLocalError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   
   const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,10 +30,11 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onCameraPicture }) => {
     // Start OCR processing
     setIsProcessing(true);
     setProgress(0);
+    setLocalError(null);
     setError(null);
     
     try {
-      // Extract text from the image file directly (no conversion needed)
+      // Extract text from the image file directly
       const extractedText = await extractTextWithOCR(
         file, 
         (progressValue) => {
@@ -39,40 +42,33 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onCameraPicture }) => {
         }
       );
       
-      // Create a new synthetic event to pass to the original handler
-      const newFileList = new DataTransfer();
-      newFileList.items.add(file);
-      
-      const syntheticEvent = {
-        ...e,
-        currentTarget: {
-          ...e.currentTarget,
-          files: newFileList.files
-        },
-        target: {
-          ...e.target,
-          files: newFileList.files,
-          value: e.target.value,
-        }
-      } as React.ChangeEvent<HTMLInputElement>;
-      
-      // Call the original handler with our synthetic event
-      onCameraPicture(syntheticEvent);
-      
-      // Reset processing state
-      setTimeout(() => {
+      if (extractedText.trim().length > 0) {
+        // Pass the extracted text to the parent
+        onTextExtracted(extractedText);
+        
+        // Reset processing state
+        setTimeout(() => {
+          setIsProcessing(false);
+          setProgress(100);
+        }, 500);
+      } else {
+        const noTextError = "No text could be found in this image. Try taking a clearer photo with good lighting.";
+        setLocalError(noTextError);
+        setError(noTextError);
         setIsProcessing(false);
-        setProgress(100);
-      }, 1000);
+      }
     } catch (err) {
       console.error('OCR processing error:', err);
-      setError("Failed to process the image. Please try again with a different image.");
+      const errorMessage = "Failed to process the image. Please try again with a different image.";
+      setLocalError(errorMessage);
+      setError(errorMessage);
       setIsProcessing(false);
     }
   };
   
   const resetCapture = () => {
     setPreviewUrl(null);
+    setLocalError(null);
     setError(null);
     if (cameraInputRef.current) {
       cameraInputRef.current.value = '';
@@ -135,11 +131,7 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onCameraPicture }) => {
             </div>
           )}
           
-          {error && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
-              {error}
-            </div>
-          )}
+          <FileUploadError error={error} />
         </div>
       )}
     </div>

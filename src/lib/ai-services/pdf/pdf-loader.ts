@@ -2,10 +2,9 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { logInfo, logError } from '@/utils/logger';
 
-// Set the worker source using CDN to avoid bundling issues
-if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-}
+// Set worker source using CDN to avoid bundling issues
+// This is a more reliable CDN URL that should work consistently
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
 
 /**
  * Load a PDF document from a file
@@ -28,7 +27,7 @@ export const loadPdfDocument = async (file: File): Promise<pdfjsLib.PDFDocumentP
     
     // Set a timeout for PDF loading to prevent hanging
     const timeoutPromise = new Promise<never>((_, reject) => 
-      setTimeout(() => reject(new Error('PDF loading timed out after 20 seconds')), 20000)
+      setTimeout(() => reject(new Error('PDF loading timed out after 30 seconds')), 30000)
     );
     
     // Race between loading and timeout

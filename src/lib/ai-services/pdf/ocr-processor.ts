@@ -1,10 +1,8 @@
 
-import { createWorker, type RecognizeResult } from 'tesseract.js';
+import { createWorker } from 'tesseract.js';
 import { logInfo, logError } from '@/utils/logger';
 
-interface ProgressCallback {
-  (progress: number): void;
-}
+type ProgressCallback = (progress: number) => void;
 
 /**
  * Extract text from an image file using OCR
@@ -20,16 +18,10 @@ export const extractTextWithOCR = async (
     progressCallback(10);
     logInfo("OCR: Initializing Tesseract worker");
     
-    // Initialize Tesseract worker with English language
-    worker = await createWorker('eng', 1, {
-      logger: m => {
-        // Log progress messages from Tesseract
-        if (m.status === 'recognizing text') {
-          const progress = Math.floor(20 + (m.progress * 70));
-          progressCallback(progress);
-        }
-      }
-    });
+    // Create worker with simplified options for better browser compatibility
+    worker = await createWorker('eng');
+    
+    progressCallback(20);
     
     // Process the image (can be File or string/dataURL)
     let imageData: string;
@@ -42,15 +34,23 @@ export const extractTextWithOCR = async (
       imageData = await readFileAsImageData(imageSource);
     }
     
-    // Set progress to 20% after preparing image
-    progressCallback(20);
+    // Set progress to 30% after preparing image
+    progressCallback(30);
     logInfo("OCR: Image prepared, starting recognition");
     
-    // Recognize text from the image with Tesseract.js v6 API
-    const result = await worker.recognize(imageData);
+    // Use Tesseract's progress monitoring to update our progress
+    const result = await worker.recognize(imageData, {
+      logger: (m: any) => {
+        if (m.status === 'recognizing text') {
+          // Map Tesseract's progress (0-1) to our range (30-90%)
+          const mappedProgress = Math.floor(30 + (m.progress * 60));
+          progressCallback(mappedProgress);
+        }
+      }
+    });
     
     // Get text from the result
-    const extractedText = result.data.text || '';
+    const extractedText = result.data?.text || '';
     
     // Clean up the text
     const cleanedText = cleanUpOCRText(extractedText);

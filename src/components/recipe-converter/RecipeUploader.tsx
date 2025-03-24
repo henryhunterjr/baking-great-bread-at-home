@@ -15,11 +15,13 @@ import ClipboardTab from './uploader/tabs/ClipboardTab';
 interface RecipeUploaderProps {
   onConvertRecipe: (text: string) => void;
   isConverting: boolean;
+  conversionError?: string | null;
 }
 
 const RecipeUploader: React.FC<RecipeUploaderProps> = ({ 
   onConvertRecipe, 
-  isConverting 
+  isConverting,
+  conversionError = null
 }) => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('text');
@@ -36,56 +38,38 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
     onConvertRecipe(recipeText);
   };
   
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    // For this demo, we'll just simulate reading text from the file
-    // In a real app, you would process the file contents accordingly
-    
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        const result = event.target.result as string;
-        setRecipeText(result);
-        setActiveTab('text');
-      }
-    };
-    reader.onerror = () => {
-      setError('Error reading file. Please try again with a different file.');
-    };
-    
-    // Handle documents
-    if (file.type.includes('text') || file.type.includes('pdf') || file.type.includes('word')) {
-      reader.readAsText(file);
-    }
-  };
-  
-  const handleOCRTextExtracted = (extractedText: string) => {
-    toast({
-      title: "Text Extracted Successfully",
-      description: "We've processed your image and extracted the recipe text.",
-    });
-    
+  const handleTextExtracted = (extractedText: string) => {
     setRecipeText(extractedText);
     setActiveTab('text');
-  };
-  
-  const handleCameraPicture = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // This will now be handled by the OCR functionality in the CameraInputTab
-    // No need for separate handling here
+    
+    toast({
+      title: "Text Extracted Successfully",
+      description: "We've processed your file and extracted the recipe text.",
+    });
   };
   
   const handlePaste = async () => {
     try {
       const clipboardText = await navigator.clipboard.readText();
+      if (!clipboardText.trim()) {
+        setError('No text found in clipboard');
+        return;
+      }
+      
       setRecipeText(clipboardText);
       setError(null);
+      toast({
+        title: "Text Pasted",
+        description: "Recipe text pasted from clipboard.",
+      });
     } catch (err) {
       setError('Unable to read clipboard. Please paste the text manually.');
       console.error('Failed to read clipboard contents:', err);
     }
   };
+  
+  // Use conversionError from props if available
+  const displayError = conversionError || error;
   
   return (
     <Card className="shadow-md">
@@ -93,7 +77,7 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList />
           
-          <ErrorAlert error={error} />
+          <ErrorAlert error={displayError} />
           
           <TabsContent value="text">
             <TextInputTab 
@@ -106,13 +90,16 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
           
           <TabsContent value="upload">
             <FileUploadTab 
-              onFileUpload={handleFileUpload} 
-              onTextExtracted={handleOCRTextExtracted} 
+              onTextExtracted={handleTextExtracted} 
+              setError={setError}
             />
           </TabsContent>
           
           <TabsContent value="camera">
-            <CameraInputTab onCameraPicture={handleCameraPicture} />
+            <CameraInputTab 
+              onTextExtracted={handleTextExtracted}
+              setError={setError}
+            />
           </TabsContent>
           
           <TabsContent value="paste">
