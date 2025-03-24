@@ -8,7 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const Contact = () => {
-  const [formData, useState] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: ""
@@ -16,7 +16,7 @@ const Contact = () => {
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
-    setState(prev => ({
+    setFormData(prev => ({
       ...prev,
       [id]: value
     }));
@@ -26,7 +26,7 @@ const Contact = () => {
     e.preventDefault();
     toast.success("Message sent! We'll get back to you soon.");
     // Reset form
-    setState({
+    setFormData({
       name: "",
       email: "",
       message: ""
