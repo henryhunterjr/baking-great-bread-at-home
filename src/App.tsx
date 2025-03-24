@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { runBrowserCompatibilityCheck } from './utils/crossBrowserTesting';
@@ -8,7 +9,26 @@ import { ThemeProvider } from '@/hooks/use-theme';
 import FloatingAIButton from '@/components/ai/FloatingAIButton';
 import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import { lazy, Suspense } from 'react';
+import ErrorBoundary from './components/ErrorBoundary';
+import DevToolsToggle from './components/dev/DevToolsToggle';
 import './App.css';
+
+// Import all the page components
+import Index from './pages/Index';
+import NotFound from './pages/NotFound';
+import AppStore from './pages/AppStore';
+import Blog from './pages/Blog';
+import Books from './pages/Books';
+import CareCenter from './pages/CareCenter';
+import ChallengesArchive from './pages/ChallengesArchive';
+import Challenges from './pages/Challenges';
+import Community from './pages/Community';
+import RecipeConverter from './pages/RecipeConverter';
+import AffiliateCollection from './pages/AffiliateCollection';
+import Tools from './pages/Tools';
+import Recipes from './pages/Recipes';
+import About from './pages/About';
+import ComingSoon from './pages/ComingSoon';
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center">
