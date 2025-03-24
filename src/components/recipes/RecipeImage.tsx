@@ -38,15 +38,18 @@ const RecipeImage: React.FC<RecipeImageProps> = ({ id, imageUrl, title, isHovere
     <div className="aspect-video overflow-hidden bg-bread-100 relative">
       {/* Loading indicator shown only when in loading state */}
       {imageStatus === 'loading' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-bread-100">
-          <div className="w-10 h-10 border-4 border-bread-300 border-t-bread-800 rounded-full animate-spin"></div>
+        <div className="absolute inset-0 flex items-center justify-center bg-bread-100" aria-hidden="true">
+          <div className="w-10 h-10 border-4 border-bread-300 border-t-bread-800 rounded-full animate-spin" 
+               role="progressbar" 
+               aria-label="Loading image">
+          </div>
         </div>
       )}
       
       {/* Error state - only shown when image has failed to load */}
       {imageStatus === 'error' && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-bread-100">
-          <ImageOff className="h-10 w-10 text-bread-400 mb-2" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-bread-100" aria-hidden="true">
+          <ImageOff className="h-10 w-10 text-bread-400 mb-2" aria-hidden="true" />
           <p className="text-sm text-bread-500">Image unavailable</p>
         </div>
       )}
@@ -55,13 +58,15 @@ const RecipeImage: React.FC<RecipeImageProps> = ({ id, imageUrl, title, isHovere
       <img
         id={`recipe-img-${id}`}
         src={displayImageUrl}
-        alt={title}
+        alt={`Recipe: ${title}`}
         className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
           imageStatus === 'loaded' ? 'opacity-100' : 'opacity-0'
         }`}
         onError={handleImageError}
         onLoad={handleImageLoad}
         loading="lazy"
+        srcSet={`${displayImageUrl}?w=400 400w, ${displayImageUrl}?w=800 800w, ${displayImageUrl} 1200w`}
+        sizes="(max-width: 640px) 400px, (max-width: 1024px) 800px, 1200px"
       />
     </div>
   );

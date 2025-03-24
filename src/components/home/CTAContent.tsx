@@ -14,23 +14,28 @@ const CTAContent = () => {
       <div className="flex flex-wrap justify-center gap-4">
         <Button 
           size="lg" 
-          className="bg-white text-bread-800 hover:bg-bread-100"
+          className="bg-white text-bread-800 hover:bg-bread-100 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
           asChild
         >
-          <Link to="/community">
+          <Link to="/community" aria-label="Join the Community">
             Join the Community
-            <ArrowRight className="ml-2 h-4 w-4" />
+            <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
           </Link>
         </Button>
         <Button 
           variant="outline" 
           size="lg"
-          className="border-bread-100 text-white hover:bg-bread-700"
+          className="border-bread-100 text-white hover:bg-bread-700 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md"
           asChild
         >
-          <a href="https://bakinggreatbread.blog/https-bakinggreatbread-blog-subscribe/" target="_blank" rel="noopener noreferrer">
+          <a 
+            href="https://bakinggreatbread.blog/https-bakinggreatbread-blog-subscribe/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            aria-label="Subscribe to our Blog"
+          >
             Subscribe to our Blog
-            <ExternalLink className="ml-2 h-4 w-4" />
+            <ExternalLink className="ml-2 h-4 w-4" aria-hidden="true" />
           </a>
         </Button>
       </div>
