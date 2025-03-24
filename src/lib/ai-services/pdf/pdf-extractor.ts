@@ -14,16 +14,19 @@ interface CancellableTask {
   cancel: () => void;
 }
 
+// Type for the return value: either a string with text content or a cancellable task
+type ExtractTextResult = string | CancellableTask | null;
+
 /**
  * Extract text from a PDF file
  * @param file PDF file to process
  * @param progressCallback Optional callback for progress updates
- * @returns The extracted text from the PDF
+ * @returns The extracted text from the PDF or a cancellable task
  */
 export const extractTextFromPDF = async (
   file: File,
   progressCallback?: (progress: number) => void
-): Promise<string> => {
+): Promise<ExtractTextResult> => {
   let isRequestCancelled = false;
   let pdfDocument: pdfjsLib.PDFDocumentProxy | null = null;
   
@@ -195,6 +198,6 @@ export const extractTextFromPDF = async (
     }
   }
   
-  // Return the cancellable task for external cancellation
-  return cancellableTask as unknown as string;
+  // Return the cancellable task if we reach this point (should not normally happen)
+  return cancellableTask;
 };

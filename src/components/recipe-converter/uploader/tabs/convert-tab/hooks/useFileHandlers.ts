@@ -1,3 +1,4 @@
+
 import { useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { extractTextWithOCR } from '@/lib/ai-services/pdf/ocr-processor';
@@ -110,14 +111,21 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
       // Extract text from PDF
       const extractResult = await extractTextFromPDF(file, updateProgress);
       
+      // Check if the result is a cancellable task object or null
+      if (extractResult === null) {
+        logInfo("PDF extraction returned null");
+        setRecipeText("");
+        return;
+      }
+      
       // Check if the result is a cancellable task object
-      if (extractResult !== null && typeof extractResult === 'object' && 'cancel' in extractResult) {
+      if (typeof extractResult === 'object' && extractResult !== null && 'cancel' in extractResult) {
         processingTask.current = extractResult as { cancel: () => void };
         return;
       }
       
       // If we got text back, use it - with proper null handling
-      const extractedText = extractResult !== null && typeof extractResult === 'string' ? extractResult : '';
+      const extractedText = typeof extractResult === 'string' ? extractResult : '';
       setRecipeText(extractedText);
       
       toast({
