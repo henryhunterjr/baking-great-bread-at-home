@@ -29,7 +29,7 @@ const CareCenterPreview: React.FC<CareCenterPreviewProps> = ({ sectionRef }) => 
       url: 'https://youtu.be/sjBi05xW_PQ?si=3fdygdScC5iKsYBa',
       type: 'podcast',
       source: 'Breaking Bread',
-      thumbnailUrl: '/lovable-uploads/f9947cab-ad5a-4535-800f-b24e97a0fff0.png',
+      thumbnailUrl: '/lovable-uploads/ae3df0e4-d891-44f5-8916-70ce3f38d8e3.png',
       description: 'Exploring the rich and flavorful traditions of holiday breads across Christmas and Hanukkah celebrations.'
     },
     {
@@ -57,9 +57,9 @@ const CareCenterPreview: React.FC<CareCenterPreviewProps> = ({ sectionRef }) => 
           </div>
           
           <div className="mt-8 bg-white/90 dark:bg-bread-950/60 rounded-lg shadow-md p-8 mb-10 md:mb-12 text-center">
-            <h2 className="font-serif text-3xl md:text-4xl font-medium mb-4">The Care Center</h2>
+            <h2 className="font-serif text-3xl md:text-4xl font-medium mb-4">The Baker's Bench</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Videos, podcasts, and conversations to help you on your bread-making journey
+              Helping you improve your bread baking skills
             </p>
           </div>
           
