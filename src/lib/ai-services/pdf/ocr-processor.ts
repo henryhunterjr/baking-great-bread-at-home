@@ -16,10 +16,13 @@ export const extractTextWithOCR = async (
     
     logInfo("OCR: Initializing Tesseract worker");
     
-    // Create worker with language - this is the v6 style
+    // Create worker with language - using v6 compatible API
     const worker = await createWorker('eng');
     
     logInfo("OCR: Worker initialized, starting recognition");
+    
+    // Process the input data based on its type
+    let dataToProcess: string | File = imageData;
     
     // Set up a progress monitoring for OCR
     let lastProgress = 10;
@@ -31,16 +34,8 @@ export const extractTextWithOCR = async (
     }, 800);
     
     try {
-      // Set a timeout to prevent OCR from hanging
-      const recognitionPromise = Promise.race([
-        worker.recognize(imageData),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('OCR processing timed out after 60 seconds')), 60000)
-        )
-      ]);
-      
-      // Perform OCR - v6 API accepts both strings and Files directly
-      const result = await recognitionPromise as Awaited<ReturnType<typeof worker.recognize>>;
+      // Tesseract v6 API can handle both strings and Files directly
+      const result = await worker.recognize(dataToProcess);
       
       // Clear interval once recognition is complete
       clearInterval(progressInterval);
@@ -63,11 +58,10 @@ export const extractTextWithOCR = async (
       // Clear interval on error
       clearInterval(progressInterval);
       
-      logError('OCR recognition error:', recognizeError);
-      
       // Clean up the worker
       await worker.terminate();
       
+      logError('OCR recognition error:', recognizeError);
       throw recognizeError;
     }
   } catch (error) {

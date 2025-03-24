@@ -15,6 +15,7 @@ export const convertPDFPageToImage = async (file: File): Promise<string> => {
     const loadingTask = pdfjsLib.getDocument({
       data: arrayBuffer,
       useWorkerFetch: false,
+      isEvalSupported: true,
       cMapUrl: 'https://unpkg.com/pdfjs-dist@5.0.375/cmaps/',
       cMapPacked: true
     });

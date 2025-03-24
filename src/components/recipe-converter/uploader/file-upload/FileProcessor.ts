@@ -20,7 +20,7 @@ export const processImageFile = async (
     onProgress(10);
     
     try {
-      // Use extractTextWithOCR which is more robust
+      // Use extractTextWithOCR which is now more robust
       const extractedText = await extractTextWithOCR(file, (progress) => {
         if (!isAborted) {
           onProgress(progress);
