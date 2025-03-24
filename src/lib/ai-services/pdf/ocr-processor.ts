@@ -16,18 +16,17 @@ export const extractTextWithOCR = async (
     
     logInfo("OCR: Initializing Tesseract worker");
     
-    // Create worker using the createWorker API in v6
-    // Note: In v6, the first parameter is the language
-    const worker = await createWorker('eng', {
-      // Optional configuration for worker
-      logger: m => {
-        // Map Tesseract's internal progress to our progress callback
-        if (progressCallback && m.status === 'recognizing text') {
-          const p = Math.round(m.progress * 70) + 20; // Map to 20-90% range
-          progressCallback(p);
-        }
+    // Create worker with language - this is the correct v6 style
+    const worker = await createWorker('eng');
+    
+    // Set up a progress monitoring interval since v6 doesn't support direct progress events
+    let currentProgress = 10;
+    const progressInterval = setInterval(() => {
+      if (currentProgress < 90) {
+        currentProgress += 5;
+        if (progressCallback) progressCallback(currentProgress);
       }
-    });
+    }, 500);
     
     logInfo("OCR: Worker initialized, starting recognition");
     
@@ -35,7 +34,16 @@ export const extractTextWithOCR = async (
     let result;
     try {
       result = await worker.recognize(imageData);
+      
+      // Clear interval once recognition is complete
+      clearInterval(progressInterval);
+      
+      // Make sure we report 100% when done
+      if (progressCallback) progressCallback(100);
     } catch (recognizeError) {
+      // Clear interval on error
+      clearInterval(progressInterval);
+      
       logError('OCR recognition error:', { error: recognizeError });
       
       // If direct recognition fails, try an alternative approach
@@ -55,9 +63,6 @@ export const extractTextWithOCR = async (
         throw recognizeError; // Re-throw if we can't handle it
       }
     }
-    
-    // Make sure we report 100% when done
-    if (progressCallback) progressCallback(100);
     
     // Clean up the worker
     await worker.terminate();

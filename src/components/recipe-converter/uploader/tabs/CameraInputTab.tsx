@@ -31,7 +31,7 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onCameraPicture }) => {
     setError(null);
     
     try {
-      // Create worker and monitor progress with the logger callback
+      // Create worker with language - correct v6 usage
       const worker = await createWorker('eng');
       
       // Manual progress update
@@ -43,7 +43,7 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onCameraPicture }) => {
         }
       }, 1000);
       
-      // Recognize text from the image
+      // Recognize text from the image using v6 API
       const result = await worker.recognize(file);
       
       // Clear progress interval

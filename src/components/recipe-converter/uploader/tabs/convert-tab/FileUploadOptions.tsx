@@ -53,10 +53,13 @@ const FileUploadOptions: React.FC<FileUploadOptionsProps> = ({
         description: "Extracting text from your image...",
       });
       
-      // Use OCR to extract text from the image
-      const extractedText = await extractTextWithOCR(file, 
-        (progress) => console.log(`OCR Progress: ${progress}%`)
-      );
+      // Progress callback to update UI
+      const updateProgress = (progress: number) => {
+        console.log(`OCR Progress: ${progress}%`);
+      };
+      
+      // Use OCR to extract text from the image with v6 compatible API
+      const extractedText = await extractTextWithOCR(file, updateProgress);
       
       setRecipeText(extractedText);
       
