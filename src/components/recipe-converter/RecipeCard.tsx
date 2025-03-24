@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Edit, Printer } from 'lucide-react';
+import { Edit, Printer, Clock, Users } from 'lucide-react';
 import { RecipeData } from '@/pages/RecipeConverter';
 import RecipeExport from './RecipeExport';
 
@@ -48,6 +49,48 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
             <p className="text-sm text-muted-foreground">{recipe.introduction}</p>
           </div>
           
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-4">
+            {recipe.prepTime && (
+              <div className="flex items-center">
+                <Clock className="h-4 w-4 mr-2 text-bread-600" />
+                <div>
+                  <h3 className="text-md font-medium">Prep Time</h3>
+                  <p className="text-sm text-muted-foreground">{recipe.prepTime}</p>
+                </div>
+              </div>
+            )}
+            
+            {recipe.restTime && (
+              <div className="flex items-center">
+                <Clock className="h-4 w-4 mr-2 text-bread-600" />
+                <div>
+                  <h3 className="text-md font-medium">Rest/Proof Time</h3>
+                  <p className="text-sm text-muted-foreground">{recipe.restTime}</p>
+                </div>
+              </div>
+            )}
+            
+            {recipe.bakeTime && (
+              <div className="flex items-center">
+                <Clock className="h-4 w-4 mr-2 text-bread-600" />
+                <div>
+                  <h3 className="text-md font-medium">Bake Time</h3>
+                  <p className="text-sm text-muted-foreground">{recipe.bakeTime}</p>
+                </div>
+              </div>
+            )}
+            
+            {recipe.totalTime && (
+              <div className="flex items-center">
+                <Clock className="h-4 w-4 mr-2 text-bread-600" />
+                <div>
+                  <h3 className="text-md font-medium">Total Time</h3>
+                  <p className="text-sm text-muted-foreground">{recipe.totalTime}</p>
+                </div>
+              </div>
+            )}
+          </div>
+          
           <div>
             <h3 className="text-xl font-medium">Ingredients</h3>
             <ul className="list-disc pl-5 text-sm">
@@ -57,26 +100,22 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
             </ul>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {recipe.equipmentNeeded.length > 0 && (
             <div>
-              <h3 className="text-md font-medium">Prep Time</h3>
-              <p className="text-sm text-muted-foreground">{recipe.prepTime}</p>
+              <h3 className="text-xl font-medium">Equipment</h3>
+              <ul className="list-disc pl-5 text-sm">
+                {recipe.equipmentNeeded.map((equipment, index) => (
+                  <li key={equipment.id || index}>{equipment.name}</li>
+                ))}
+              </ul>
             </div>
-            <div>
-              <h3 className="text-md font-medium">Bake Time</h3>
-              <p className="text-sm text-muted-foreground">{recipe.bakeTime}</p>
-            </div>
-            <div>
-              <h3 className="text-md font-medium">Total Time</h3>
-              <p className="text-sm text-muted-foreground">{recipe.totalTime}</p>
-            </div>
-          </div>
+          )}
           
           <div>
             <h3 className="text-xl font-medium">Instructions</h3>
             <ol className="list-decimal pl-5 text-sm">
               {recipe.instructions.map((instruction, index) => (
-                <li key={index}>{instruction}</li>
+                <li key={index} className="mb-2">{instruction}</li>
               ))}
             </ol>
           </div>
@@ -89,6 +128,22 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
                   <li key={index}>{tip}</li>
                 ))}
               </ul>
+            </div>
+          )}
+          
+          {recipe.tags.length > 0 && (
+            <div>
+              <h3 className="text-xl font-medium">Tags</h3>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {recipe.tags.map((tag, index) => (
+                  <span 
+                    key={index} 
+                    className="text-xs bg-bread-100 text-bread-800 px-2 py-1 rounded-full"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
         </div>

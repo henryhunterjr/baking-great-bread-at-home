@@ -1,53 +1,62 @@
 
 import { RecipeData } from '@/pages/RecipeConverter';
-import { StandardRecipe, StandardRecipeIngredientSection, StandardRecipeInstructionStep } from '@/types/standardRecipeFormat';
+import { StandardRecipe } from '@/types/standardRecipeFormat';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Convert from internal RecipeData format to StandardRecipe JSON format
+ * Convert a recipe to a JSON string
  */
-export const convertToStandardFormat = (recipe: RecipeData): StandardRecipe => {
-  // Process ingredients into sections
-  const mainSection: StandardRecipeIngredientSection = {
-    section: "Main Dough",
-    items: recipe.ingredients.map(ing => {
-      // Try to split ingredient into amount and name
-      const match = ing.match(/^([\d./]+\s*[a-zA-Z]*)\s+(.+)$/);
-      if (match) {
+export const recipeToJsonString = (recipe: RecipeData): string => {
+  const standardRecipe = recipeToStandardFormat(recipe);
+  return JSON.stringify(standardRecipe, null, 2);
+};
+
+/**
+ * Convert an internal RecipeData to the StandardRecipe format
+ */
+export const recipeToStandardFormat = (recipe: RecipeData): StandardRecipe => {
+  // Parse the ingredients into the structured format
+  const ingredientSection: StandardRecipe['ingredients'][0] = {
+    section: 'Main Ingredients',
+    items: recipe.ingredients.map(ingredientText => {
+      // Try to extract amount and ingredient name
+      const match = ingredientText.match(/^([\d\/\.\s]+[\w\s]*)\s+(.+)$/);
+      
+      if (match && match.length >= 3) {
         return {
           amount: match[1].trim(),
           ingredient: match[2].trim()
         };
       }
       
+      // Fallback if parsing fails
       return {
-        amount: "",
-        ingredient: ing
+        amount: '',
+        ingredient: ingredientText
       };
     })
   };
   
-  // Process instructions into step objects
-  const instructions: StandardRecipeInstructionStep[] = recipe.instructions.map((instruction, index) => {
-    return {
-      step: index + 1,
-      title: `Step ${index + 1}`,
-      description: instruction
-    };
-  });
+  // Parse instructions into step format
+  const instructions = recipe.instructions.map((instruction, index) => ({
+    step: index + 1,
+    title: `Step ${index + 1}`,
+    description: instruction
+  }));
   
+  // Create the standard recipe object
   return {
     name: recipe.title,
-    summary: recipe.introduction || "",
+    summary: recipe.introduction,
     metadata: {
-      prep_time: recipe.prepTime || "0 minutes",
+      prep_time: recipe.prepTime || '0 minutes',
       proof_time: recipe.restTime || undefined,
-      bake_time: recipe.bakeTime || "0 minutes",
-      total_time: recipe.totalTime || "0 minutes",
-      yield: "1 loaf", // Default value, could be customized
-      difficulty: "Intermediate" // Default value, could be customized
+      bake_time: recipe.bakeTime || '0 minutes',
+      total_time: recipe.totalTime || '0 minutes',
+      yield: '1 serving',
+      difficulty: 'Intermediate'
     },
-    ingredients: [mainSection],
+    ingredients: [ingredientSection],
     equipment: recipe.equipmentNeeded.map(item => item.name),
     instructions: instructions,
     notes: [...recipe.tips, ...recipe.proTips],
@@ -56,10 +65,10 @@ export const convertToStandardFormat = (recipe: RecipeData): StandardRecipe => {
 };
 
 /**
- * Convert from StandardRecipe JSON format to internal RecipeData format
+ * Convert a StandardRecipe to our internal RecipeData format
  */
 export const convertFromStandardFormat = (standardRecipe: StandardRecipe): RecipeData => {
-  // Flatten ingredient sections into a single array
+  // Flatten ingredients from all sections
   const ingredients = standardRecipe.ingredients.flatMap(section => 
     section.items.map(item => `${item.amount} ${item.ingredient}`.trim())
   );
@@ -67,11 +76,10 @@ export const convertFromStandardFormat = (standardRecipe: StandardRecipe): Recip
   // Convert instructions to simple strings
   const instructions = standardRecipe.instructions.map(step => step.description);
   
-  // Split notes into tips and proTips
-  const tips = standardRecipe.notes.slice(0, Math.ceil(standardRecipe.notes.length / 2));
-  const proTips = standardRecipe.notes.slice(Math.ceil(standardRecipe.notes.length / 2));
+  // Split notes into tips and proTips (for simplicity, put all in tips)
+  const tips = standardRecipe.notes || [];
   
-  // Convert equipment to equipment items with IDs
+  // Create equipment items with IDs
   const equipmentNeeded = standardRecipe.equipment.map(name => ({
     id: uuidv4(),
     name,
@@ -83,12 +91,12 @@ export const convertFromStandardFormat = (standardRecipe: StandardRecipe): Recip
     introduction: standardRecipe.summary,
     ingredients,
     prepTime: standardRecipe.metadata.prep_time,
-    restTime: standardRecipe.metadata.proof_time || "",
+    restTime: standardRecipe.metadata.proof_time || '',
     bakeTime: standardRecipe.metadata.bake_time,
     totalTime: standardRecipe.metadata.total_time,
     instructions,
     tips,
-    proTips,
+    proTips: [],
     equipmentNeeded,
     imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
     tags: standardRecipe.tags,
@@ -98,29 +106,26 @@ export const convertFromStandardFormat = (standardRecipe: StandardRecipe): Recip
 };
 
 /**
- * Parse a JSON string to StandardRecipe object
+ * Try to parse a string as JSON and check if it matches our StandardRecipe format
  */
-export const parseRecipeJson = (jsonString: string): StandardRecipe | null => {
+export const parseRecipeJson = (text: string): StandardRecipe | null => {
   try {
-    const parsed = JSON.parse(jsonString);
+    const parsed = JSON.parse(text);
     
-    // Validate essential fields
-    if (!parsed.name || !parsed.ingredients || !parsed.instructions) {
-      console.error("Missing required fields in recipe JSON");
-      return null;
+    // Validate that this is our StandardRecipe format
+    if (
+      parsed &&
+      typeof parsed === 'object' &&
+      parsed.name &&
+      parsed.metadata &&
+      Array.isArray(parsed.ingredients) &&
+      Array.isArray(parsed.instructions)
+    ) {
+      return parsed as StandardRecipe;
     }
     
-    return parsed as StandardRecipe;
+    return null;
   } catch (error) {
-    console.error("Error parsing recipe JSON:", error);
     return null;
   }
-};
-
-/**
- * Convert a recipe to JSON string
- */
-export const recipeToJsonString = (recipe: RecipeData): string => {
-  const standardFormat = convertToStandardFormat(recipe);
-  return JSON.stringify(standardFormat, null, 2); // Pretty print with 2 spaces
 };
