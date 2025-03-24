@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { extractTextWithOCR } from '@/lib/ai-services/pdf/ocr-processor';
@@ -117,8 +116,8 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
         return;
       }
       
-      // If we got text back, use it
-      const extractedText = typeof extractResult === 'string' ? extractResult : '';
+      // If we got text back, use it - with proper null handling
+      const extractedText = extractResult !== null && typeof extractResult === 'string' ? extractResult : '';
       setRecipeText(extractedText);
       
       toast({
