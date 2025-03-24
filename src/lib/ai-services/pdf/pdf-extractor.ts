@@ -4,8 +4,8 @@ import { extractTextWithOCR } from './ocr-processor';
 import { convertPDFPageToImage } from './pdf-image-converter';
 import { logDebug, logError, logInfo } from '@/utils/logger';
 
-// Make sure we use the CDN worker path (using the same configuration as in pdf-image-converter.ts)
-// No need to set it again if it's already set in pdf-image-converter
+// We don't need to set the worker path again if it's already set in pdf-image-converter
+// Just make a reference to ensure the worker path is correctly configured
 if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
   pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 }
@@ -29,17 +29,27 @@ export const extractTextFromPDF = async (
     
     logInfo("PDF processing: Starting to load document...");
     
-    // Initialize PDF.js with basic options
+    // Initialize PDF.js with complete options
     const loadingTask = pdfjsLib.getDocument({
       data: arrayBuffer,
       useWorkerFetch: false,
       isEvalSupported: true,
+      cMapUrl: 'https://unpkg.com/pdfjs-dist@5.0.375/cmaps/',
+      cMapPacked: true
     });
+    
+    // Set a timeout for PDF loading to prevent hanging
+    const loadingPromise = Promise.race([
+      loadingTask.promise,
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('PDF loading timed out')), 30000)
+      )
+    ]);
     
     if (progressCallback) progressCallback(20);
     
     logInfo("PDF processing: Waiting for document to load...");
-    const pdf = await loadingTask.promise;
+    const pdf = await loadingPromise as pdfjsLib.PDFDocumentProxy;
     
     const numPages = pdf.numPages;
     

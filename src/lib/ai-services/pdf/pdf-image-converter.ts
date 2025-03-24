@@ -3,6 +3,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { logError, logInfo } from '@/utils/logger';
 
 // Configure PDF.js to use a proper worker path - this is critical for browser environments
+// Use CDN version to avoid bundling issues
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 /**
@@ -13,7 +14,9 @@ export const convertPDFPageToImage = async (file: File): Promise<string> => {
     const arrayBuffer = await file.arrayBuffer();
     const loadingTask = pdfjsLib.getDocument({
       data: arrayBuffer,
-      useWorkerFetch: false
+      useWorkerFetch: false,
+      cMapUrl: 'https://unpkg.com/pdfjs-dist@5.0.375/cmaps/',
+      cMapPacked: true
     });
     
     const pdf = await loadingTask.promise;
