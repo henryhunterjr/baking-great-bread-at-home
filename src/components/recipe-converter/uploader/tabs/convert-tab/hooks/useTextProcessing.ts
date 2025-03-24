@@ -50,7 +50,7 @@ export const useTextProcessing = () => {
     onSuccess: (text: string) => void,
     onError: (error: string) => void
   ): Promise<void> => {
-    logInfo('Processing text file:', file.name);
+    logInfo('Processing text file:', { fileName: file.name });
     
     try {
       const text = await readFileAsText(file);
@@ -79,6 +79,7 @@ export const useTextProcessing = () => {
         });
       }
     } catch (error) {
+      // Fix: Pass an object with error property instead of just a string
       logError('Failed to read text file:', { error });
       
       const errorMessage = error instanceof Error
