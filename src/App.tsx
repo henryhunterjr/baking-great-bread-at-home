@@ -6,6 +6,7 @@ import FloatingAIButton from '@/components/ai/FloatingAIButton';
 import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import { lazy, Suspense } from 'react';
 import React from 'react';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 // Eagerly loaded components for critical paths
 import Index from '@/pages/Index';
@@ -39,76 +40,102 @@ function App() {
   useScrollToTop();
   
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="bread-theme">
-      <Toaster />
-      <FloatingAIButton />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="*" element={<NotFound />} />
-        
-        {/* Lazy-loaded routes */}
-        <Route path="/app" element={
-          <Suspense fallback={<PageLoader />}>
-            <AppStore />
-          </Suspense>
-        } />
-        <Route path="/blog" element={
-          <Suspense fallback={<PageLoader />}>
-            <Blog />
-          </Suspense>
-        } />
-        <Route path="/books" element={
-          <Suspense fallback={<PageLoader />}>
-            <Books />
-          </Suspense>
-        } />
-        <Route path="/care-center" element={
-          <Suspense fallback={<PageLoader />}>
-            <CareCenter />
-          </Suspense>
-        } />
-        <Route path="/challenges" element={
-          <Suspense fallback={<PageLoader />}>
-            <ChallengesArchive />
-          </Suspense>
-        } />
-        <Route path="/community" element={
-          <Suspense fallback={<PageLoader />}>
-            <Community />
-          </Suspense>
-        } />
-        <Route path="/recipe-converter" element={
-          <Suspense fallback={<PageLoader />}>
-            <RecipeConverter />
-          </Suspense>
-        } />
-        <Route path="/affiliate-collection" element={
-          <Suspense fallback={<PageLoader />}>
-            <AffiliateCollection />
-          </Suspense>
-        } />
-        <Route path="/tools" element={
-          <Suspense fallback={<PageLoader />}>
-            <Tools />
-          </Suspense>
-        } />
-        <Route path="/recipes" element={
-          <Suspense fallback={<PageLoader />}>
-            <Recipes />
-          </Suspense>
-        } />
-        <Route path="/about" element={
-          <Suspense fallback={<PageLoader />}>
-            <About />
-          </Suspense>
-        } />
-        <Route path="/coming-soon" element={
-          <Suspense fallback={<PageLoader />}>
-            <ComingSoon />
-          </Suspense>
-        } />
-      </Routes>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider defaultTheme="dark" storageKey="bread-theme">
+        <Toaster />
+        <FloatingAIButton />
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="*" element={<NotFound />} />
+          
+          {/* Lazy-loaded routes */}
+          <Route path="/app" element={
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <AppStore />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/blog" element={
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <Blog />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/books" element={
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <Books />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/care-center" element={
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <CareCenter />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/challenges" element={
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <ChallengesArchive />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/community" element={
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <Community />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/recipe-converter" element={
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <RecipeConverter />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/affiliate-collection" element={
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <AffiliateCollection />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/tools" element={
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <Tools />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/recipes" element={
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <Recipes />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/about" element={
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <About />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/coming-soon" element={
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <ComingSoon />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+        </Routes>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 
