@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Sun, Moon } from 'lucide-react';
@@ -19,7 +18,6 @@ const Navbar = () => {
   
   const isHomePage = location.pathname === '/';
 
-  // Determine if we should apply auto-hide behavior (all pages except home)
   const shouldAutoHide = !isHomePage;
 
   useEffect(() => {
@@ -31,17 +29,14 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Auto-hide functionality
   useEffect(() => {
     const handleMouseMove = () => {
       setIsVisible(true);
       
-      // Clear any existing timeout
       if (hideTimeoutRef.current) {
         clearTimeout(hideTimeoutRef.current);
       }
       
-      // Set a new timeout to hide the navbar after 2 seconds of inactivity
       if (shouldAutoHide) {
         hideTimeoutRef.current = setTimeout(() => {
           setIsVisible(false);
@@ -49,23 +44,19 @@ const Navbar = () => {
       }
     };
     
-    // Always visible on home page
     if (!shouldAutoHide) {
       setIsVisible(true);
       return;
     }
     
-    // Set initial timeout on component mount
     hideTimeoutRef.current = setTimeout(() => {
       if (shouldAutoHide) {
         setIsVisible(false);
       }
     }, 2000);
     
-    // Add mouse move event listener
     window.addEventListener('mousemove', handleMouseMove);
     
-    // Cleanup function
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       if (hideTimeoutRef.current) {
@@ -76,10 +67,8 @@ const Navbar = () => {
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
-    // When mobile menu is opened, make navbar visible
     if (!isMobileMenuOpen) {
       setIsVisible(true);
-      // Clear any existing timeout
       if (hideTimeoutRef.current) {
         clearTimeout(hideTimeoutRef.current);
       }
@@ -95,7 +84,7 @@ const Navbar = () => {
     { name: 'Books & Guides', path: '/books' },
     { name: 'Baking Tools', path: '/tools' },
     { name: 'Recipe Converter', path: '/recipe-converter' },
-    { name: 'Challenges', path: '/challenges' },
+    { name: 'Challenges', path: '/challenge' },
     { name: 'Blog', path: '/blog' },
     { name: 'App', path: '/app' },
     { name: 'Community', path: '/community' },
@@ -171,7 +160,6 @@ const Navbar = () => {
         </div>
       </div>
       
-      {/* Mobile menu - using a conditional render to prevent content overlap */}
       {isMobileMenuOpen && (
         <div 
           className="fixed inset-0 bg-background/95 backdrop-blur-sm z-40 flex flex-col pt-24 px-6 transition-all duration-300 ease-in-out md:hidden"

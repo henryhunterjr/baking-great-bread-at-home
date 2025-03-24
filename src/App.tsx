@@ -1,3 +1,4 @@
+
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/hooks/use-theme';
@@ -17,6 +18,7 @@ const AppStore = lazy(() => import('@/pages/AppStore'));
 const Blog = lazy(() => import('@/pages/Blog'));
 const CareCenter = lazy(() => import('@/pages/CareCenter'));
 const ChallengesArchive = lazy(() => import('@/pages/ChallengesArchive'));
+const Challenges = lazy(() => import('@/pages/Challenges'));
 const Community = lazy(() => import('@/pages/Community'));
 const ComingSoon = lazy(() => import('@/pages/ComingSoon'));
 const RecipeConverter = lazy(() => import('@/pages/RecipeConverter'));
@@ -82,6 +84,13 @@ function App() {
             <ErrorBoundary>
               <Suspense fallback={<PageLoader />}>
                 <ChallengesArchive />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/challenge" element={
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
+                <Challenges />
               </Suspense>
             </ErrorBoundary>
           } />
