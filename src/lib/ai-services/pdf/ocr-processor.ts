@@ -1,83 +1,76 @@
 
 import { createWorker, Worker, RecognizeResult } from 'tesseract.js';
-import { logError, logInfo } from '@/utils/logger';
+
+interface ProgressCallback {
+  (progress: number): void;
+}
 
 /**
- * Extract text from an image using Tesseract OCR
- * Compatible with Tesseract.js v6
+ * Extract text from an image file using OCR
  */
 export const extractTextWithOCR = async (
-  imageData: string | File,
-  progressCallback?: (progress: number) => void
+  imageFile: File,
+  progressCallback: ProgressCallback = () => {}
 ): Promise<string> => {
+  let worker: Worker;
+  
   try {
-    // Set initial progress
-    if (progressCallback) progressCallback(10);
+    // Initialize Tesseract worker with proper logging configuration
+    worker = await createWorker('eng');
     
-    logInfo("OCR: Initializing Tesseract worker");
-    
-    // Create worker with language - using v6 compatible API
-    const worker = await createWorker('eng');
-    
-    // Set up progress handler manually since we can't pass it directly in createWorker
-    worker.setProgressHandler((m) => {
+    // Set up progress handler (compatible with Tesseract.js v6)
+    worker.setLogger(m => {
       if (m.status === 'recognizing text') {
-        const p = Math.floor(m.progress * 100);
-        if (progressCallback && p > 10) progressCallback(Math.min(p, 90));
+        const progress = Math.round(m.progress * 100);
+        progressCallback(progress);
       }
     });
     
-    logInfo("OCR: Worker initialized, starting recognition");
+    // Start progress at 10%
+    progressCallback(10);
     
-    // Set up a progress monitoring for OCR
-    let lastProgress = 10;
-    const progressInterval = setInterval(() => {
-      if (progressCallback && lastProgress < 90) {
-        lastProgress += 2;
-        progressCallback(lastProgress);
-      }
-    }, 1000);
+    // Process the image file
+    const imageData = await readFileAsImageData(imageFile);
     
-    try {
-      // Use timeout to prevent hanging
-      const recognitionPromise = Promise.race([
-        worker.recognize(imageData),
-        new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('OCR processing timed out after 45 seconds')), 45000)
-        )
-      ]);
-      
-      const result = await recognitionPromise as RecognizeResult;
-      
-      // Clear interval once recognition is complete
-      clearInterval(progressInterval);
-      
-      // Report 100% when done
-      if (progressCallback) progressCallback(100);
-      
-      // Clean up the worker
-      await worker.terminate();
-      
-      logInfo("OCR: Text recognition completed successfully");
-      
-      // Check if there's actual text content
-      if (!result.text || result.text.trim().length === 0) {
-        throw new Error("No text could be extracted from the image");
-      }
-      
-      return result.text;
-    } catch (recognizeError) {
-      // Clear interval on error
-      clearInterval(progressInterval);
-      
-      // Clean up the worker
-      await worker.terminate();
-      
-      logError('OCR recognition error:', recognizeError);
-      throw recognizeError;
-    }
+    // Recognize text from the image
+    const result = await worker.recognize(imageData);
+    
+    // Get text from the result
+    const extractedText = result.data.text || '';
+    
+    // Clean up the text
+    const cleanedText = cleanUpOCRText(extractedText);
+    
+    // Terminate the worker to free resources
+    await worker.terminate();
+    
+    return cleanedText;
   } catch (error) {
-    logError('OCR processing error:', error);
+    console.error('OCR processing error:', error);
     throw new Error(`OCR processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
+};
+
+/**
+ * Read a file as image data
+ */
+const readFileAsImageData = (file: File): Promise<string | ArrayBuffer> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+/**
+ * Clean up OCR extracted text
+ */
+const cleanUpOCRText = (text: string): string => {
+  return text
+    .replace(/\r\n/g, '\n')               // Normalize line endings
+    .replace(/\n{3,}/g, '\n\n')           // Replace multiple line breaks with just two
+    .replace(/[\t ]+/g, ' ')              // Replace multiple spaces/tabs with a single space
+    .replace(/^\s+|\s+$/gm, '')           // Trim leading/trailing whitespace from each line
+    .trim();                               // Trim the entire text
 };
