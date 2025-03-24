@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -43,7 +42,7 @@ const About = () => {
             <div className="prose prose-lg dark:prose-invert max-w-none">
               <h2 className="font-serif text-2xl md:text-3xl font-medium mb-4">How It All Started</h2>
               
-              <p>I never set out to become a bread baker—it all began out of necessity. As a young American soldier stationed in Germany, I was struggling to make rent until my kind landlord, Mr. Sherman, offered a deal: lower my rent if I helped out in his small bakery downstairs. Mr. Sherman was a stout, spirited Jewish baker who I believe saw in me not just a laborer, but someone who needed bread as much as bread needed him.</p>
+              <p>I never set out to become a bread baker—it all began out of necessity. As a young American soldier stationed in Germany, I was struggling to make rent until my kind landlord, Mr. Sherman, offered a deal: lower my rent if I helped out in his small bakery downstairs. Mr. Sherman was a fat Jewish baker who I believe saw in me not just a laborer, but someone who needed bread as much as bread needed him.</p>
               
               <p>That experience transformed survival into a calling. When my tour ended, I returned to the States, delving into radio advertising and later television with Fox and CBS. But the lessons from Mr. Sherman—the craft, the care, and the magic of bread—remained with me.</p>
               

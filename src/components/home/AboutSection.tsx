@@ -24,7 +24,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
         <div className="max-w-5xl mx-auto">
           {/* Meet Henry Section */}
           <div className="mb-8 text-left">
-            <p className="text-muted-foreground dark:text-gray-300 mb-4 font-normal">Hi, I'm Henry. I didn't set out to become a bread baker. It started with a need, rent money, and a kind old baker named Mr. Sherman. I was stationed in Germany, just a young American soldier trying to stay afloat. Mr. Sherman was my landlord, a stout, spirited Jewish baker who ran a small bakery downstairs. One day, he offered to lower my rent if I'd lend a hand in his shop. I think he saw more than just free labor, I think he saw someone who needed bread as much as bread needed him.</p>
+            <p className="text-muted-foreground dark:text-gray-300 mb-4 font-normal">Hi, I'm Henry. I didn't set out to become a bread baker. It started with a need, rent money, and a kind old baker named Mr. Sherman. I was stationed in Germany, just a young American soldier trying to stay afloat. Mr. Sherman was my landlord, a fat Jewish baker who ran a small bakery downstairs. One day, he offered to lower my rent if I'd lend a hand in his shop. I think he saw more than just free labor, I think he saw someone who needed bread as much as bread needed him.</p>
           </div>
           
           {/* Grid for Image and Passion for Perfect Loaves */}
