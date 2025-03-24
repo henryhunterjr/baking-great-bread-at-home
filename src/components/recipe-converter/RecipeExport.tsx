@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { FileDown } from 'lucide-react';
 import { RecipeData } from '@/pages/RecipeConverter';
-import { recipeToJsonString, recipeToStandardFormat } from '@/lib/ai-services/recipe-formatter';
+import { formatToStandardRecipe } from '@/lib/ai-services/recipe-formatter';
 import { useToast } from '@/hooks/use-toast';
 
 interface RecipeExportProps {
@@ -15,7 +15,7 @@ const RecipeExport: React.FC<RecipeExportProps> = ({ recipe }) => {
   
   const handleExportJson = () => {
     // Convert the recipe to the standard format
-    const standardRecipe = recipeToStandardFormat(recipe);
+    const standardRecipe = formatToStandardRecipe(recipe);
     
     // Convert to a formatted JSON string
     const jsonString = JSON.stringify(standardRecipe, null, 2);

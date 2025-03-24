@@ -1,4 +1,3 @@
-
 import { Recipe } from '@/types/recipe';
 import { AI_CONFIG } from './ai-config';
 import { StandardRecipe } from '@/types/standardRecipeFormat';
@@ -13,7 +12,7 @@ export const processRecipeText = async (recipeText: string): Promise<Recipe> => 
     // Check if the input is a JSON recipe format
     try {
       const jsonRecipe = JSON.parse(recipeText);
-      if (jsonRecipe.name && jsonRecipe.ingredients && jsonRecipe.instructions) {
+      if (jsonRecipe.title && jsonRecipe.ingredients && jsonRecipe.steps) {
         // It's already in our standard JSON format, convert it to Recipe type
         return convertStandardRecipeToRecipe(jsonRecipe as StandardRecipe);
       }
@@ -99,28 +98,44 @@ export const processRecipeText = async (recipeText: string): Promise<Recipe> => 
  * Helper function to convert a StandardRecipe to Recipe type
  */
 function convertStandardRecipeToRecipe(standardRecipe: StandardRecipe): Recipe {
-  // Extract ingredients from all sections
-  const ingredients = standardRecipe.ingredients.flatMap(section => 
-    section.items.map(item => ({
-      name: item.ingredient,
-      quantity: item.amount.replace(/[^0-9/.-]/g, ''), // Extract numeric part
-      unit: item.amount.replace(/[0-9/.-]/g, '').trim() // Extract unit part
-    }))
-  );
+  // Extract ingredients from the recipe
+  const ingredients = standardRecipe.ingredients.map(ingredient => {
+    if (typeof ingredient === 'string') {
+      // Parse the string ingredient into parts
+      const parts = ingredient.split(' ');
+      const quantity = parts[0];
+      const unit = parts.length > 2 ? parts[1] : '';
+      const name = parts.length > 2 ? parts.slice(2).join(' ') : parts.slice(1).join(' ');
+      
+      return { name, quantity, unit };
+    } else {
+      // Use structured ingredient directly
+      return {
+        name: ingredient.name,
+        quantity: ingredient.quantity || '',
+        unit: ingredient.unit || ''
+      };
+    }
+  });
   
-  // Extract steps from instructions
-  const steps = standardRecipe.instructions.map(instruction => instruction.description);
+  // Extract steps from recipe
+  const steps = standardRecipe.steps;
+  
+  // Convert notes to string if it's an array
+  const notes = Array.isArray(standardRecipe.notes) 
+    ? standardRecipe.notes.join('\n\n') 
+    : standardRecipe.notes || '';
   
   return {
-    title: standardRecipe.name,
-    description: standardRecipe.summary,
-    servings: parseInt(standardRecipe.metadata.yield) || 4,
-    prepTime: parseTimeToMinutes(standardRecipe.metadata.prep_time),
-    cookTime: parseTimeToMinutes(standardRecipe.metadata.bake_time),
+    title: standardRecipe.title,
+    description: standardRecipe.description || '',
+    servings: 4, // Default value since StandardRecipe doesn't have this
+    prepTime: standardRecipe.prepTime || 0,
+    cookTime: standardRecipe.cookTime || 0,
     ingredients,
     steps,
-    tags: standardRecipe.tags,
-    notes: standardRecipe.notes.join('\n\n'),
+    tags: standardRecipe.tags || [],
+    notes,
     imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
     author: 'Imported Recipe',
     createdAt: new Date(),
