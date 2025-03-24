@@ -1,4 +1,3 @@
-
 import { detectBrowser, checkFeatureSupport } from './browserDetection';
 import { logInfo, logWarn, logError } from './logger';
 
@@ -117,11 +116,13 @@ export function simulateNetworkCondition(condition: 'fast' | 'average' | 'slow' 
   
   logInfo(`Network condition simulation: ${condition}`, { delay: `${delay}ms` });
   
-  // Provide a way to reset this - using type-safe approach
-  window.resetNetworkSimulation = () => {
-    window.fetch = originalFetch;
-    logInfo('Network simulation reset');
-  };
+  // Use type-safe approach with nullish check before assignment
+  if (typeof window !== 'undefined') {
+    window.resetNetworkSimulation = () => {
+      window.fetch = originalFetch;
+      logInfo('Network simulation reset');
+    };
+  }
 }
 
 /**

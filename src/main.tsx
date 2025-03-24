@@ -15,7 +15,7 @@ logInfo('Application starting', {
   compatibility: compatibilityResult
 });
 
-// Ensure the window.resetNetworkSimulation property is properly typed
+// Ensure the window.resetNetworkSimulation property is properly initialized
 if (typeof window !== 'undefined' && !window.resetNetworkSimulation) {
   window.resetNetworkSimulation = () => {
     logInfo('Default network simulation reset called');

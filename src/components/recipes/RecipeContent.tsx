@@ -10,13 +10,14 @@ interface RecipeContentProps {
 
 const RecipeContent: React.FC<RecipeContentProps> = ({ recipe }) => {
   useEffect(() => {
-    if (!recipe) return;
-    
-    // Log for analytics purposes when a recipe is viewed
-    logInfo('Recipe content viewed', { 
-      recipeId: recipe.id, 
-      recipeTitle: recipe.title 
-    });
+    // Only log if recipe exists and has an id
+    if (recipe?.id && recipe?.title) {
+      // Log for analytics purposes when a recipe is viewed
+      logInfo('Recipe content viewed', { 
+        recipeId: recipe.id, 
+        recipeTitle: recipe.title 
+      });
+    }
   }, [recipe?.id, recipe?.title]);
 
   // Guard against missing data
@@ -34,10 +35,10 @@ const RecipeContent: React.FC<RecipeContentProps> = ({ recipe }) => {
         {recipe.date || 'No date available'}
       </div>
       <h3 className="font-serif text-xl font-medium mb-2 group-hover:text-bread-800 transition-colors">
-        {recipe.title}
+        {recipe.title || 'Untitled Recipe'}
       </h3>
       <p className="text-muted-foreground text-sm mb-4 flex-grow">
-        {recipe.description}
+        {recipe.description || 'No description available'}
       </p>
       <span className="inline-flex items-center text-bread-800 text-sm font-medium mt-auto" aria-label="Read full recipe">
         Read Recipe
