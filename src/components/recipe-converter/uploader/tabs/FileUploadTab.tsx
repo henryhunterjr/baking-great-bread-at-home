@@ -35,13 +35,12 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
     setError(null);
     
     try {
-      // Create a worker
-      const worker = await createWorker();
-      
-      // Set up progress tracking manually
-      worker.setProgressHandler((progressData: any) => {
-        if (progressData.status === 'recognizing text') {
-          setProgress(Math.floor(progressData.progress * 100));
+      // Create a worker with a progress monitor callback
+      const worker = await createWorker({
+        logger: progressData => {
+          if (progressData.status === 'recognizing text') {
+            setProgress(Math.floor(progressData.progress * 100));
+          }
         }
       });
       
