@@ -2,8 +2,8 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { createWorker } from 'tesseract.js';
 
-// Set the PDF.js worker source
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Set a local worker path instead of relying on CDN
+pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.js`;
 
 /**
  * Extract text from a PDF file
@@ -86,19 +86,35 @@ export const extractTextWithOCR = async (
   try {
     if (progressCallback) progressCallback(30);
     
-    // Create a worker for OCR processing
-    const worker = await createWorker({
-      logger: m => {
-        if (m.status === 'recognizing text' && progressCallback) {
-          // Map the OCR progress (0-1) to our progress scale (30-90)
-          const scaledProgress = 30 + Math.floor((m.progress || 0) * 60);
+    // Create a worker for OCR processing - fix the logger issue
+    const worker = await createWorker();
+    
+    // Custom progress handling
+    let lastProgress = 30;
+    const updateProgress = (progress: number) => {
+      if (progressCallback) {
+        // Map the OCR progress (0-1) to our progress scale (30-90)
+        const scaledProgress = 30 + Math.floor(progress * 60);
+        if (scaledProgress > lastProgress) {
+          lastProgress = scaledProgress;
           progressCallback(scaledProgress);
         }
-      },
-    } as any);
+      }
+    };
+    
+    // Set up regular progress updates
+    const progressInterval = setInterval(() => {
+      if (lastProgress < 90) {
+        lastProgress += 5;
+        if (progressCallback) progressCallback(lastProgress);
+      }
+    }, 1000);
     
     // Recognize text from the PDF file
     const { data } = await worker.recognize(file);
+    
+    // Clear the interval
+    clearInterval(progressInterval);
     
     // Clean up the worker
     await worker.terminate();

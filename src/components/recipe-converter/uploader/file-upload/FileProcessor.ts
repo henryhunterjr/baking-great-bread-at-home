@@ -10,17 +10,29 @@ export const processImageFile = async (
   onError: (error: string) => void
 ) => {
   try {
-    // Create worker and monitor progress with the logger callback
-    const worker = await createWorker({
-      logger: m => {
-        if (m.status === 'recognizing text') {
-          onProgress(Math.floor((m.progress || 0) * 100));
-        }
-      },
-    } as any);
+    // Create worker without the problematic logger callback
+    const worker = await createWorker();
+    
+    // Set initial progress
+    onProgress(10);
+    
+    // Set up regular progress updates
+    let currentProgress = 10;
+    const progressInterval = setInterval(() => {
+      if (currentProgress < 90) {
+        currentProgress += 5;
+        onProgress(currentProgress);
+      }
+    }, 1000);
     
     // Recognize text from the image
     const { data } = await worker.recognize(file);
+    
+    // Clear the interval
+    clearInterval(progressInterval);
+    
+    // Make sure we report 100% when done
+    onProgress(100);
     
     // Clean up the worker
     await worker.terminate();
@@ -45,8 +57,16 @@ export const processPDFFile = async (
   onError: (error: string) => void
 ) => {
   try {
+    // Set up a timeout to handle stalls
+    const timeoutId = setTimeout(() => {
+      onError("Processing is taking longer than expected. Please try again or use a different file format.");
+    }, 60000); // 1 minute timeout
+    
     // Extract text from the PDF
     const extractedText = await extractTextFromPDF(file, onProgress);
+    
+    // Clear the timeout since we succeeded
+    clearTimeout(timeoutId);
     
     if (extractedText.trim().length === 0) {
       onError("No text found in the PDF. Please try with a different file.");
