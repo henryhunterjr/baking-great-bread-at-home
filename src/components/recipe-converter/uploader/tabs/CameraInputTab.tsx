@@ -31,33 +31,23 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onCameraPicture }) => {
     setError(null);
     
     try {
-      // Process image with Tesseract OCR
+      // Create a worker with proper progress monitoring
       const worker = await createWorker({
-        logger: m => {
-          if (m.status === 'recognizing text') {
-            setProgress(m.progress * 100);
+        logger: progress => {
+          if (progress.status === 'recognizing text') {
+            setProgress(parseInt(String(progress.progress * 100)));
           }
-        }
-      });
-      
-      // Set parameters for better OCR
-      await worker.loadLanguage('eng');
-      await worker.initialize('eng');
-      await worker.setParameters({
-        tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:!?()/\\-_\'"\n '
+        },
       });
       
       // Recognize text from the image
-      const result = await worker.recognize(file);
-      
-      // Extract the text
-      const extractedText = result.data.text;
+      const { data } = await worker.recognize(file);
       
       // Clean up the worker
       await worker.terminate();
       
       // Create a synthetic event to pass to the original handler
-      if (extractedText.trim().length > 0) {
+      if (data.text.trim().length > 0) {
         // We need to create a synthetic change event with the extracted text
         // But since we can't easily do that, we'll call the original handler 
         // and then handle the actual OCR result in a separate component

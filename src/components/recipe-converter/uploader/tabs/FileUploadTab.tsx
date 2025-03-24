@@ -35,34 +35,24 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
     setError(null);
     
     try {
-      // Process image with Tesseract OCR
+      // Create a worker with proper progress monitoring
       const worker = await createWorker({
-        logger: m => {
-          if (m.status === 'recognizing text') {
-            setProgress(m.progress * 100);
+        logger: progress => {
+          if (progress.status === 'recognizing text') {
+            setProgress(parseInt(String(progress.progress * 100)));
           }
-        }
-      });
-      
-      // Set parameters for better OCR
-      await worker.loadLanguage('eng');
-      await worker.initialize('eng');
-      await worker.setParameters({
-        tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:!?()/\\-_\'"\n '
+        },
       });
       
       // Recognize text from the image
-      const result = await worker.recognize(file);
-      
-      // Extract the text
-      const extractedText = result.data.text;
+      const { data } = await worker.recognize(file);
       
       // Clean up the worker
       await worker.terminate();
       
       // Pass the extracted text to the parent
-      if (extractedText.trim().length > 0) {
-        onTextExtracted(extractedText);
+      if (data.text.trim().length > 0) {
+        onTextExtracted(data.text);
       } else {
         setError("No text found in the image. Please try with a clearer image.");
       }
