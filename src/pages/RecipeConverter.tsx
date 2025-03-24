@@ -1,19 +1,16 @@
-
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { Link } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { v4 as uuidv4 } from 'uuid';
+import { EquipmentItem } from '@/types/recipeTypes';
+import { Card } from "@/components/ui/card";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import Navbar from '@/components/Navbar';
 import ConversionService from '@/components/recipe-converter/ConversionService';
 import RecipeForm from '@/components/recipe-converter/RecipeForm';
 import RecipeCard from '@/components/recipe-converter/RecipeCard';
 import RecipeAssistant from '@/components/recipe-converter/RecipeAssistant';
 import RecipeSavedList from '@/components/recipe-converter/RecipeSavedList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { v4 as uuidv4 } from 'uuid';
-import { EquipmentItem } from '@/types/recipeTypes';
-import { Card } from "@/components/ui/card";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 export type RecipeData = {
   title: string;
@@ -57,7 +54,6 @@ const RecipeConverter: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   
   const handleConversionComplete = (convertedRecipe: RecipeData) => {
-    // Ensure all equipment items have an ID
     const processedRecipe = {
       ...convertedRecipe,
       equipmentNeeded: convertedRecipe.equipmentNeeded?.map(item => ({
@@ -75,7 +71,6 @@ const RecipeConverter: React.FC = () => {
     setRecipe(updatedRecipe);
     setIsEditing(false);
     
-    // Here you would save to backend/localStorage
     const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
     savedRecipes.push(updatedRecipe);
     localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
@@ -87,7 +82,6 @@ const RecipeConverter: React.FC = () => {
   };
 
   const handleSelectSavedRecipe = (savedRecipe: RecipeData) => {
-    // Ensure all equipment items have an ID when loading a saved recipe
     const processedRecipe = {
       ...savedRecipe,
       equipmentNeeded: savedRecipe.equipmentNeeded?.map(item => ({
@@ -103,19 +97,9 @@ const RecipeConverter: React.FC = () => {
   
   return (
     <div className="min-h-screen pb-12">
-      {/* Navigation header */}
-      <div className="border-b border-muted/30 mb-8">
-        <div className="container max-w-6xl py-4 flex items-center">
-          <Link to="/">
-            <Button variant="ghost" size="sm" className="gap-1">
-              <ChevronLeft className="h-4 w-4" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
-      </div>
+      <Navbar />
 
-      <div className="container max-w-6xl">
+      <div className="container max-w-6xl mt-24 md:mt-28">
         <h1 className="section-title text-center mb-3">From Card to Kitchen</h1>
         <p className="section-subtitle text-center mb-8">
           Convert old family recipes, scanned images, or digital clippings into clean, standardized recipe cards
