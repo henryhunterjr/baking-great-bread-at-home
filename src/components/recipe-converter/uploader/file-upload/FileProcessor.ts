@@ -1,6 +1,6 @@
 
 import { createWorker } from 'tesseract.js';
-import { extractTextFromPDF, cleanPDFText } from '@/lib/ai-services';
+import { extractTextFromPDF, cleanPDFText, convertPDFPageToImage, extractTextWithOCR } from '@/lib/ai-services';
 import { logError, logInfo } from '@/utils/logger';
 
 // Handle image file with OCR
@@ -10,6 +10,9 @@ export const processImageFile = async (
   onComplete: (text: string) => void,
   onError: (error: string) => void
 ) => {
+  let abortController = new AbortController();
+  let isAborted = false;
+  
   try {
     logInfo("Processing image file:", { filename: file.name });
     
@@ -19,10 +22,16 @@ export const processImageFile = async (
     // Set initial progress
     onProgress(10);
     
+    // Check if the process has been aborted
+    if (isAborted) {
+      await worker.terminate();
+      return;
+    }
+    
     let lastProgress = 10;
     // Use a manual progress update approach since setProgressHandler isn't available in v4+
     const progressInterval = setInterval(() => {
-      if (lastProgress < 95) {
+      if (lastProgress < 95 && !isAborted) {
         lastProgress += 5;
         onProgress(lastProgress);
       }
@@ -30,11 +39,22 @@ export const processImageFile = async (
     
     logInfo("Starting OCR on image");
     
+    // Add abort handler
+    abortController.signal.addEventListener('abort', async () => {
+      isAborted = true;
+      clearInterval(progressInterval);
+      await worker.terminate();
+      logInfo("Image OCR process was cancelled");
+    });
+    
     // Recognize text from the image
     const result = await worker.recognize(file);
     
     // Clear the progress interval
     clearInterval(progressInterval);
+    
+    // Check if the operation was cancelled
+    if (isAborted) return;
     
     logInfo("OCR complete, extracted text length:", { length: result.data.text.length });
     
@@ -51,9 +71,17 @@ export const processImageFile = async (
       onError("No text found in the image. Please try with a clearer image.");
     }
   } catch (err) {
-    logError('OCR processing error:', { error: err });
-    onError("Failed to process the image. Please try again with a different image.");
+    if (!isAborted) {
+      logError('OCR processing error:', { error: err });
+      onError("Failed to process the image. Please try again with a different image.");
+    }
   }
+  
+  return {
+    cancel: () => {
+      abortController.abort();
+    }
+  };
 };
 
 // Handle PDF file
@@ -66,6 +94,8 @@ export const processPDFFile = async (
   // Create a cancel token
   let isCancelled = false;
   let timeoutId: number | null = null;
+  let longRunningWarningId: number | null = null;
+  let abortController = new AbortController();
   
   try {
     logInfo("Processing PDF file:", { filename: file.name, filesize: file.size });
@@ -74,8 +104,22 @@ export const processPDFFile = async (
     timeoutId = window.setTimeout(() => {
       logInfo("PDF processing timeout triggered");
       isCancelled = true;
-      onError("Processing is taking longer than expected. Please try again or use a different file format.");
-    }, 120000); // 2 minute timeout
+      abortController.abort();
+      onError("Processing timed out. Please try again or use a different file format.");
+    }, 180000); // 3 minute timeout
+    
+    // Set up a warning for long-running processes
+    longRunningWarningId = window.setTimeout(() => {
+      logInfo("PDF processing long-running warning triggered");
+      // Don't abort, just warn the user that it's taking longer than expected
+      // This will be handled by the ProgressBar component which shows a warning
+    }, 30000); // 30 second warning
+    
+    // Use signal from AbortController to allow cancellation
+    abortController.signal.addEventListener('abort', () => {
+      isCancelled = true;
+      logInfo("PDF processing was cancelled by user");
+    });
     
     // Extract text from the PDF with progress reporting
     const extractedText = await extractTextFromPDF(file, (progress) => {
@@ -84,10 +128,15 @@ export const processPDFFile = async (
       onProgress(progress);
     });
     
-    // Clear the timeout since we succeeded
+    // Clear the timeouts since we succeeded
     if (timeoutId) {
       window.clearTimeout(timeoutId);
       timeoutId = null;
+    }
+    
+    if (longRunningWarningId) {
+      window.clearTimeout(longRunningWarningId);
+      longRunningWarningId = null;
     }
     
     // If processing was cancelled, don't proceed
@@ -112,8 +161,30 @@ export const processPDFFile = async (
       window.clearTimeout(timeoutId);
     }
     
+    if (longRunningWarningId) {
+      window.clearTimeout(longRunningWarningId);
+    }
+    
     if (!isCancelled) {
       onError("Failed to process the PDF. Please try again with a different file.");
     }
   }
+  
+  return {
+    cancel: () => {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      
+      if (longRunningWarningId) {
+        window.clearTimeout(longRunningWarningId);
+        longRunningWarningId = null;
+      }
+      
+      abortController.abort();
+      isCancelled = true;
+      logInfo("PDF processing cancelled by user");
+    }
+  };
 };

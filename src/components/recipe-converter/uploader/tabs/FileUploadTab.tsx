@@ -23,8 +23,8 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
   const [processingType, setProcessingType] = useState<'image' | 'pdf' | null>(null);
   const { toast } = useToast();
   
-  // Add abort controller reference to handle cancellation
-  const abortControllerRef = useRef<AbortController | null>(null);
+  // Add cancel handler reference
+  const cancelHandlerRef = useRef<{ cancel: () => void } | null>(null);
   
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -32,9 +32,6 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
     
     resetState();
     setSelectedFileName(file.name);
-    
-    // Create new AbortController for this operation
-    abortControllerRef.current = new AbortController();
     
     // Check file type
     if (file.type === 'application/pdf') {
@@ -50,10 +47,17 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
   };
   
   const resetState = () => {
+    // Cancel any ongoing processing
+    if (cancelHandlerRef.current) {
+      cancelHandlerRef.current.cancel();
+      cancelHandlerRef.current = null;
+    }
+    
     setIsProcessing(false);
     setProcessingType(null);
     setProgress(0);
     setError(null);
+    
     // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -62,9 +66,9 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
   
   const handleCancel = () => {
     // Cancel any ongoing processing
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
+    if (cancelHandlerRef.current) {
+      cancelHandlerRef.current.cancel();
+      cancelHandlerRef.current = null;
     }
     
     toast({
@@ -80,7 +84,7 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
     setProcessingType('pdf');
     setProgress(0);
     
-    await processPDFFile(
+    const processingHandler = await processPDFFile(
       file,
       (progressValue) => setProgress(progressValue),
       (cleanedText) => {
@@ -91,13 +95,18 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
         });
         setIsProcessing(false);
         setProcessingType(null);
+        cancelHandlerRef.current = null;
       },
       (errorMessage) => {
         setError(errorMessage);
         setIsProcessing(false);
         setProcessingType(null);
+        cancelHandlerRef.current = null;
       }
     );
+    
+    // Store the cancel handler
+    cancelHandlerRef.current = processingHandler;
   };
   
   const handleImageFile = async (file: File) => {
@@ -105,7 +114,7 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
     setProcessingType('image');
     setProgress(0);
     
-    await processImageFile(
+    const processingHandler = await processImageFile(
       file,
       (progressValue) => setProgress(progressValue),
       (extractedText) => {
@@ -116,13 +125,18 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
         });
         setIsProcessing(false);
         setProcessingType(null);
+        cancelHandlerRef.current = null;
       },
       (errorMessage) => {
         setError(errorMessage);
         setIsProcessing(false);
         setProcessingType(null);
+        cancelHandlerRef.current = null;
       }
     );
+    
+    // Store the cancel handler
+    cancelHandlerRef.current = processingHandler;
   };
   
   const handleReset = () => {
@@ -172,11 +186,13 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
         </div>
         
         <SelectedFile fileName={selectedFileName} />
+        
         <ProgressBar 
           progress={progress} 
           processingType={processingType} 
           onCancel={isProcessing ? handleCancel : undefined}
         />
+        
         <FileUploadError error={error} />
       </div>
       

@@ -1,10 +1,13 @@
 
 import * as pdfjsLib from 'pdfjs-dist';
 import { extractTextWithOCR } from './ocr-processor';
+import { convertPDFPageToImage } from './pdf-image-converter';
 import { logDebug, logError, logInfo } from '@/utils/logger';
 
-// Set local worker path explicitly
-pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.js`;
+// Make sure we set the worker path correctly
+if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.js`;
+}
 
 /**
  * Extract text from a PDF file
@@ -16,6 +19,8 @@ export const extractTextFromPDF = async (
   file: File,
   progressCallback?: (progress: number) => void
 ): Promise<string> => {
+  let abortController = new AbortController();
+  
   try {
     // Convert the File to ArrayBuffer
     const arrayBuffer = await file.arrayBuffer();
@@ -25,7 +30,7 @@ export const extractTextFromPDF = async (
     
     logInfo("PDF processing: Starting to load document...");
     
-    // Load the PDF document with explicit worker source and better options
+    // Initialize PDF.js with better options and explicit worker source
     const loadingTask = pdfjsLib.getDocument({
       data: arrayBuffer,
       useWorkerFetch: false,
@@ -34,6 +39,13 @@ export const extractTextFromPDF = async (
       cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.0.375/cmaps/',
       cMapPacked: true,
     });
+    
+    // Create a timeout to detect if loading hangs
+    const pdfLoadTimeout = setTimeout(() => {
+      logError("PDF loading has timed out");
+      loadingTask.destroy();
+      throw new Error('PDF loading timed out');
+    }, 30000); // 30 second timeout
     
     // Add event listeners for better debugging
     loadingTask.onProgress = (data) => {
@@ -44,15 +56,26 @@ export const extractTextFromPDF = async (
     
     logInfo("PDF processing: Waiting for document to load...");
     const pdf = await loadingTask.promise;
+    
+    // Clear the load timeout since we've loaded successfully
+    clearTimeout(pdfLoadTimeout);
+    
     const numPages = pdf.numPages;
     
     logInfo(`PDF processing: Document loaded with ${numPages} pages`);
     if (progressCallback) progressCallback(30);
     
+    // Set a timeout for the entire extraction process
+    const extractionTimeout = setTimeout(() => {
+      logError("PDF text extraction has timed out");
+      abortController.abort();
+      throw new Error('PDF text extraction timed out');
+    }, 60000); // 60 second timeout
+    
     let fullText = '';
     
     // Extract text from each page
-    for (let i = 1; i <= numPages; i++) {
+    for (let i = 1; i <= numPages && !abortController.signal.aborted; i++) {
       // Update progress (distribute from 30% to 90% based on page count)
       if (progressCallback) {
         const pageProgress = 30 + Math.floor((i / numPages) * 60);
@@ -63,10 +86,20 @@ export const extractTextFromPDF = async (
       try {
         const page = await pdf.getPage(i);
         logInfo(`PDF processing: Got page ${i}, extracting text content...`);
-        const textContent = await page.getTextContent();
+        
+        // Set a timeout for each page extraction
+        const pageExtractionPromise = page.getTextContent();
+        
+        // Create a race promise to handle potential hanging
+        const pageTextContent = await Promise.race([
+          pageExtractionPromise,
+          new Promise((_, reject) => {
+            setTimeout(() => reject(new Error(`Timeout extracting text from page ${i}`)), 15000);
+          })
+        ]) as pdfjsLib.TextContent;
         
         // Extract text items and join them
-        const pageText = textContent.items
+        const pageText = pageTextContent.items
           .map((item: any) => item.str)
           .join(' ');
         
@@ -78,12 +111,30 @@ export const extractTextFromPDF = async (
       }
     }
     
+    // Clear the extraction timeout
+    clearTimeout(extractionTimeout);
+    
+    // Check if extraction was aborted
+    if (abortController.signal.aborted) {
+      throw new Error('PDF processing was cancelled');
+    }
+    
     // Check if we extracted meaningful text
     if (fullText.trim().length < 50) {
       // Not enough text was extracted, likely a scanned PDF
       logInfo("PDF processing: Not enough text extracted, falling back to OCR");
+      
       // Fall back to OCR
-      fullText = await extractTextWithOCR(file, progressCallback);
+      if (progressCallback) progressCallback(90);
+      
+      // Try OCR as fallback
+      const image = await convertPDFPageToImage(file);
+      fullText = await extractTextWithOCR(image, (ocrProgress) => {
+        // Map OCR progress from 90% to 100%
+        if (progressCallback) {
+          progressCallback(90 + (ocrProgress / 10));
+        }
+      });
     }
     
     if (progressCallback) progressCallback(100);
@@ -95,7 +146,8 @@ export const extractTextFromPDF = async (
     // Try OCR as fallback for any error
     try {
       logInfo("PDF processing: Primary extraction failed, trying OCR fallback");
-      return await extractTextWithOCR(file, progressCallback);
+      const image = await convertPDFPageToImage(file);
+      return await extractTextWithOCR(image, progressCallback);
     } catch (ocrError) {
       logError('OCR fallback also failed:', { error: ocrError });
       throw new Error('Failed to extract text from PDF');
