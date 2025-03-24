@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
@@ -16,19 +15,21 @@ const CareCenterPreview: React.FC<CareCenterPreviewProps> = ({ sectionRef }) => 
   // Featured media items for the homepage preview
   const featuredMedia: MediaItem[] = [
     {
+      id: '8',
+      title: 'Holiday Breads: Celebrating Christmas & Hanukkah Traditions',
+      url: 'https://youtu.be/sjBi05xW_PQ?si=3fdygdScC5iKsYBa',
+      type: 'podcast',
+      source: 'Breaking Bread',
+      thumbnailUrl: '/lovable-uploads/d5034ab6-b149-4eef-bf16-d3388e80d4cd.png',
+      description: 'Exploring the rich and flavorful traditions of holiday breads across Christmas and Hanukkah celebrations.'
+    },
+    {
       id: '7',
       title: 'Bread at Halloween: Spooky Loaves and Traditions',
       url: 'https://youtu.be/QXGqj6Uaa2M?si=E1pDiPdEo4gJB9UF',
       type: 'video',
       source: 'YouTube',
       description: 'Explore the fascinating history and techniques behind Halloween-themed bread making traditions'
-    },
-    {
-      id: '1',
-      title: 'My Foolproof Sourdough Recipe: Start to Finish',
-      url: 'https://youtu.be/ubJWmOAN684',
-      type: 'video',
-      source: 'YouTube'
     },
     {
       id: '2',

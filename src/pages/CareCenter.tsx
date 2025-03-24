@@ -16,6 +16,15 @@ import { ExternalLink } from 'lucide-react';
 const CareCenter = () => {
   const mediaItems: MediaItem[] = [
     {
+      id: '8',
+      title: 'Holiday Breads: Celebrating Christmas & Hanukkah Traditions',
+      url: 'https://youtu.be/sjBi05xW_PQ?si=3fdygdScC5iKsYBa',
+      type: 'podcast',
+      source: 'Breaking Bread',
+      thumbnailUrl: '/lovable-uploads/d5034ab6-b149-4eef-bf16-d3388e80d4cd.png',
+      description: 'Exploring the rich and flavorful traditions of holiday breads across Christmas and Hanukkah celebrations.'
+    },
+    {
       id: '7',
       title: 'Bread at Halloween: Spooky Loaves and Traditions',
       url: 'https://youtu.be/QXGqj6Uaa2M?si=E1pDiPdEo4gJB9UF',
