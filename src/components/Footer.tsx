@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Twitter, Youtube, Mail } from 'lucide-react';
+import { Facebook, Instagram, Youtube, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -9,21 +9,21 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   
   return (
-    <footer className="bg-bread-50 dark:bg-bread-900/50 border-t border-border/50 pt-16 pb-8">
+    <footer className="bg-bread-950 dark:bg-bread-950 text-white pt-16 pb-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Newsletter signup */}
         <div className="max-w-3xl mx-auto mb-16 text-center">
-          <h3 className="font-serif text-2xl md:text-3xl mb-4 dark:text-white">Join Our Baking Community</h3>
-          <p className="text-muted-foreground mb-8 dark:text-gray-300">
+          <h3 className="font-serif text-2xl md:text-3xl mb-4 text-white">Join Our Baking Community</h3>
+          <p className="text-gray-300 mb-8">
             Subscribe to our newsletter for exclusive recipes, baking tips, and early access to challenges.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
             <Input 
               type="email" 
               placeholder="Your email address" 
-              className="bg-background border-border dark:bg-bread-800/70 dark:border-bread-700 dark:text-white dark:placeholder:text-gray-300"
+              className="bg-bread-900/70 border-bread-700 text-white placeholder:text-gray-400"
             />
-            <Button className="bg-bread-800 hover:bg-bread-900 text-white">
+            <Button className="bg-bread-600 hover:bg-bread-700 text-white">
               Subscribe
             </Button>
           </div>
@@ -32,31 +32,31 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-16 mb-12">
           {/* Column 1 */}
           <div className="flex flex-col">
-            <h4 className="font-serif text-xl mb-6 font-medium dark:text-white">Baking Great Bread</h4>
-            <p className="text-muted-foreground mb-6 dark:text-gray-300">
+            <h4 className="font-serif text-xl mb-6 font-medium text-white">Baking Great Bread</h4>
+            <p className="text-gray-300 mb-6">
               Dedicated to helping home bakers master the craft of artisanal bread making through expert guidance, quality tools, and community support.
             </p>
             <div className="flex space-x-4 mt-auto">
-              <a href="https://www.facebook.com/henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
+              <a href="https://www.facebook.com/henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Facebook size={20} />
               </a>
-              <a href="https://instagram.com/BakingGreatBreadatHome" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
+              <a href="https://instagram.com/BakingGreatBreadatHome" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="https://tiktok.com/@henryhunter12" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
+              <a href="https://tiktok.com/@henryhunter12" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <div title="TikTok @henryhunter12">
-                  <span className="flex items-center justify-center w-5 h-5">TT1</span>
+                  <span className="flex items-center justify-center w-5 h-5 font-bold">TT1</span>
                 </div>
               </a>
-              <a href="https://tiktok.com/@henrysbreadkitchen" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
+              <a href="https://tiktok.com/@henrysbreadkitchen" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <div title="TikTok @henrysbreadkitchen">
-                  <span className="flex items-center justify-center w-5 h-5">TT2</span>
+                  <span className="flex items-center justify-center w-5 h-5 font-bold">TT2</span>
                 </div>
               </a>
-              <a href="https://www.youtube.com/@henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
+              <a href="https://www.youtube.com/@henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Youtube size={20} />
               </a>
-              <a href="mailto:HenryHunterJr@Gmail.com" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
+              <a href="mailto:HenryHunterJr@Gmail.com" className="text-gray-300 hover:text-white transition-colors">
                 <Mail size={20} />
               </a>
             </div>
@@ -64,35 +64,37 @@ const Footer = () => {
           
           {/* Column 2 */}
           <div>
-            <h4 className="font-serif text-xl mb-6 font-medium dark:text-white">Quick Links</h4>
+            <h4 className="font-serif text-xl mb-6 font-medium text-white">Quick Links</h4>
             <ul className="space-y-3">
-              <li><Link to="/books" className="text-muted-foreground hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">Books & Guides</Link></li>
-              <li><Link to="/tools" className="text-muted-foreground hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">Baking Tools</Link></li>
-              <li><Link to="/challenges" className="text-muted-foreground hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">Challenges & Giveaways</Link></li>
-              <li><Link to="/coaching" className="text-muted-foreground hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">Coaching & Consulting</Link></li>
-              <li><Link to="/blog" className="text-muted-foreground hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">Blog & Recipes</Link></li>
-              <li><Link to="/app" className="text-muted-foreground hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">Crust & Crumb App</Link></li>
+              <li><Link to="/" className="text-gray-300 hover:text-white transition-colors">Home</Link></li>
+              <li><Link to="/books" className="text-gray-300 hover:text-white transition-colors">Books & Guides</Link></li>
+              <li><Link to="/tools" className="text-gray-300 hover:text-white transition-colors">Baking Tools</Link></li>
+              <li><Link to="/challenges" className="text-gray-300 hover:text-white transition-colors">Challenges & Giveaways</Link></li>
+              <li><Link to="/coaching" className="text-gray-300 hover:text-white transition-colors">Coaching & Consulting</Link></li>
+              <li><Link to="/blog" className="text-gray-300 hover:text-white transition-colors">Blog & Recipes</Link></li>
+              <li><Link to="/app" className="text-gray-300 hover:text-white transition-colors">Crust & Crumb App</Link></li>
+              <li><Link to="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</Link></li>
             </ul>
           </div>
           
           {/* Column 3 */}
           <div>
-            <h4 className="font-serif text-xl mb-6 font-medium dark:text-white">Contact</h4>
-            <p className="text-muted-foreground mb-2 dark:text-gray-300">
+            <h4 className="font-serif text-xl mb-6 font-medium text-white">Contact</h4>
+            <p className="text-gray-300 mb-2">
               Have questions or feedback? Reach out to us directly:
             </p>
-            <p className="text-muted-foreground mb-6 dark:text-gray-300">
-              <a href="mailto:HenryHunterJr@Gmail.com" className="hover:text-accent transition-colors dark:hover:text-white">
+            <p className="text-gray-300 mb-6">
+              <a href="mailto:HenryHunterJr@Gmail.com" className="hover:text-white transition-colors">
                 HenryHunterJr@Gmail.com
               </a>
             </p>
-            <Button asChild className="bg-bread-800 hover:bg-bread-900 text-white">
+            <Button asChild className="bg-bread-600 hover:bg-bread-700 text-white">
               <Link to="/contact">Get in Touch</Link>
             </Button>
           </div>
         </div>
         
-        <div className="text-center text-sm text-muted-foreground border-t border-border/50 pt-8 dark:text-gray-300">
+        <div className="text-center text-sm text-gray-300 border-t border-bread-800 pt-8">
           <p>© {currentYear} Baking Great Bread at Home. All rights reserved.</p>
         </div>
       </div>
