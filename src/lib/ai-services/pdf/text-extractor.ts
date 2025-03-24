@@ -2,7 +2,7 @@
 import { logInfo, logError } from '@/utils/logger';
 import type * as pdfjsLib from 'pdfjs-dist';
 import { ProgressCallback } from './types';
-import { cleanExtractedText } from './text-cleaner';
+import { cleanPDFText } from './text-cleaner';
 
 /**
  * Extract text from all pages of a PDF document
@@ -59,8 +59,8 @@ export const extractTextFromPages = async (
       }
     }
     
-    // Clean the extracted text
-    const cleanedText = cleanExtractedText(allText);
+    // Clean the extracted text - update function name here
+    const cleanedText = cleanPDFText(allText);
     
     return cleanedText;
   } catch (error) {
