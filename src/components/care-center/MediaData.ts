@@ -24,7 +24,7 @@ export const mediaItems: MediaItem[] = [
     url: 'https://youtu.be/sjBi05xW_PQ?si=3fdygdScC5iKsYBa',
     type: 'podcast',
     source: 'Breaking Bread',
-    thumbnailUrl: '/lovable-uploads/1da6a5af-6269-4a91-ad2e-8d6bbb3bfd5d.png', // Using "Sourdough for the Rest of Us" image
+    thumbnailUrl: '/lovable-uploads/ae3df0e4-d891-44f5-8916-70ce3f38d8e3.png',
     description: 'Exploring the rich and flavorful traditions of holiday breads across Christmas and Hanukkah celebrations.'
   },
   {
