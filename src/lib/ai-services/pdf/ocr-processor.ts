@@ -17,7 +17,6 @@ export const extractTextWithOCR = async (
     logInfo("OCR: Initializing Tesseract worker");
     
     // Create worker with language - this is the v6 style
-    // In v6, createWorker accepts language as first param
     const worker = await createWorker('eng');
     
     logInfo("OCR: Worker initialized, starting recognition");
@@ -36,7 +35,7 @@ export const extractTextWithOCR = async (
       const recognitionPromise = Promise.race([
         worker.recognize(imageData),
         new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('OCR processing timed out')), 60000)
+          setTimeout(() => reject(new Error('OCR processing timed out after 60 seconds')), 60000)
         )
       ]);
       
@@ -53,6 +52,11 @@ export const extractTextWithOCR = async (
       await worker.terminate();
       
       logInfo("OCR: Text recognition completed successfully");
+      
+      // Check if there's actual text content
+      if (!result.data.text || result.data.text.trim().length === 0) {
+        throw new Error("No text could be extracted from the image");
+      }
       
       return result.data.text;
     } catch (recognizeError) {

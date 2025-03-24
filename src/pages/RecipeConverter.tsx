@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from 'uuid';
 import { EquipmentItem } from '@/types/recipeTypes';
@@ -11,6 +12,8 @@ import RecipeCard from '@/components/recipe-converter/RecipeCard';
 import RecipeAssistant from '@/components/recipe-converter/RecipeAssistant';
 import RecipeSavedList from '@/components/recipe-converter/RecipeSavedList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BookmarkPlus, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export type RecipeData = {
   title: string;
@@ -52,6 +55,19 @@ const RecipeConverter: React.FC = () => {
   const { toast } = useToast();
   const [recipe, setRecipe] = useState<RecipeData>(defaultRecipe);
   const [isEditing, setIsEditing] = useState(false);
+  const [showConversionSuccess, setShowConversionSuccess] = useState(false);
+  const [activeTab, setActiveTab] = useState("assistant");
+  
+  useEffect(() => {
+    // Show success alert for 7 seconds after conversion
+    if (recipe.isConverted && !isEditing) {
+      setShowConversionSuccess(true);
+      const timer = setTimeout(() => {
+        setShowConversionSuccess(false);
+      }, 7000);
+      return () => clearTimeout(timer);
+    }
+  }, [recipe.isConverted, isEditing]);
   
   const handleConversionComplete = (convertedRecipe: RecipeData) => {
     const processedRecipe = {
@@ -65,6 +81,14 @@ const RecipeConverter: React.FC = () => {
     
     setRecipe(processedRecipe);
     setIsEditing(true);
+    
+    toast({
+      title: "Recipe Converted!",
+      description: "Your recipe has been successfully converted. You can now edit and save it.",
+    });
+    
+    // Auto-switch to the favorites tab to guide the user
+    setActiveTab("favorites");
   };
   
   const handleSaveRecipe = (updatedRecipe: RecipeData) => {
@@ -79,6 +103,9 @@ const RecipeConverter: React.FC = () => {
       title: "Recipe Saved!",
       description: "Your recipe has been saved to your collection.",
     });
+    
+    // Auto-switch to favorites tab after saving
+    setActiveTab("favorites");
   };
 
   const handleSelectSavedRecipe = (savedRecipe: RecipeData) => {
@@ -125,6 +152,15 @@ const RecipeConverter: React.FC = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
+            {showConversionSuccess && recipe.isConverted && !isEditing && (
+              <Alert className="mb-4 bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-800">
+                <BookmarkPlus className="h-4 w-4 text-green-700 dark:text-green-400" />
+                <AlertDescription className="text-green-700 dark:text-green-400 flex items-center gap-2">
+                  <span>Your recipe has been successfully converted. Click "Save Recipe" to add it to your collection.</span>
+                </AlertDescription>
+              </Alert>
+            )}
+            
             {!recipe.isConverted ? (
               <ConversionService onConversionComplete={handleConversionComplete} />
             ) : isEditing ? (
@@ -149,10 +185,18 @@ const RecipeConverter: React.FC = () => {
           </div>
           
           <div>
-            <Tabs defaultValue="assistant" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="assistant">AI Assistant</TabsTrigger>
-                <TabsTrigger value="favorites">My Recipes</TabsTrigger>
+                <TabsTrigger value="favorites" className="relative">
+                  My Recipes
+                  {recipe.isConverted && !isEditing && (
+                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-bread-500 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-bread-600"></span>
+                    </span>
+                  )}
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="assistant" className="mt-4">
                 <RecipeAssistant recipe={recipe} />
@@ -161,6 +205,15 @@ const RecipeConverter: React.FC = () => {
                 <RecipeSavedList onSelectRecipe={handleSelectSavedRecipe} />
               </TabsContent>
             </Tabs>
+            
+            {recipe.isConverted && !isEditing && activeTab === "assistant" && (
+              <Alert className="mt-4 bg-muted/50 border-muted">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-sm">
+                  Your converted recipe is ready! Switch to the "My Recipes" tab to save it to your collection.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@
 import { createWorker } from 'tesseract.js';
 import { extractTextFromPDF } from '@/lib/ai-services';
 import { logError, logInfo } from '@/utils/logger';
+import { extractTextWithOCR } from '@/lib/ai-services/pdf';
 
 // Handle image file with OCR
 export const processImageFile = async (
@@ -15,51 +16,36 @@ export const processImageFile = async (
   try {
     logInfo("Processing image file:", { filename: file.name });
     
-    // Create worker with language - v6 style
-    const worker = await createWorker('eng');
-    
     // Set initial progress
     onProgress(10);
     
-    // Check if the process has been aborted
-    if (isAborted) {
-      await worker.terminate();
-      return;
-    }
-    
-    let lastProgress = 10;
-    // Use a manual progress update approach
-    const progressInterval = setInterval(() => {
-      if (lastProgress < 95 && !isAborted) {
-        lastProgress += 5;
-        onProgress(lastProgress);
+    try {
+      // Use extractTextWithOCR which is more robust
+      const extractedText = await extractTextWithOCR(file, (progress) => {
+        if (!isAborted) {
+          onProgress(progress);
+        }
+      });
+      
+      // Check if the operation was cancelled
+      if (isAborted) return;
+      
+      logInfo("OCR complete, extracted text length:", { length: extractedText.length });
+      
+      // Make sure we report 100% when done
+      onProgress(100);
+      
+      // Pass the extracted text to the parent
+      if (extractedText.trim().length > 0) {
+        onComplete(extractedText);
+      } else {
+        onError("No text found in the image. Please try with a clearer image or a different format.");
       }
-    }, 1000);
-    
-    logInfo("Starting OCR on image");
-    
-    // Recognize text from the image using v6 API
-    const result = await worker.recognize(file);
-    
-    // Clear the progress interval
-    clearInterval(progressInterval);
-    
-    // Check if the operation was cancelled
-    if (isAborted) return;
-    
-    logInfo("OCR complete, extracted text length:", { length: result.data.text.length });
-    
-    // Make sure we report 100% when done
-    onProgress(100);
-    
-    // Clean up the worker
-    await worker.terminate();
-    
-    // Pass the extracted text to the parent
-    if (result.data.text.trim().length > 0) {
-      onComplete(result.data.text);
-    } else {
-      onError("No text found in the image. Please try with a clearer image.");
+    } catch (recognizeError) {
+      if (!isAborted) {
+        logError('OCR processing error:', { error: recognizeError });
+        onError(`Failed to process the image: ${recognizeError instanceof Error ? recognizeError.message : 'Unknown error'}. Please try with a clearer image.`);
+      }
     }
   } catch (err) {
     if (!isAborted) {
