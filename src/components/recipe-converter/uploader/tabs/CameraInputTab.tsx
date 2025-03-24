@@ -31,12 +31,13 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onCameraPicture }) => {
     setError(null);
     
     try {
-      // Create the Tesseract worker with progress logger
-      const worker = await createWorker({
-        logger: m => {
-          if (m.status === 'recognizing text') {
-            setProgress(Math.floor(m.progress * 100));
-          }
+      // Create worker with progress logging
+      const worker = await createWorker();
+      
+      // Set up progress monitoring
+      worker.setProgress((progress) => {
+        if (progress.status === 'recognizing text') {
+          setProgress(Math.floor(progress.progress * 100));
         }
       });
       
