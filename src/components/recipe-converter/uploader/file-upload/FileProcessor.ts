@@ -10,22 +10,28 @@ export const processImageFile = async (
   onError: (error: string) => void
 ) => {
   try {
-    // Create worker with compatible configuration
-    const worker = await createWorker('eng', 1, {
-      logger: m => {
-        // Safe logging that won't cause circular reference issues
-        if (m.progress) {
-          const mappedProgress = Math.floor(m.progress * 90) + 10; // Map from 0-1 to 10-100
-          onProgress(mappedProgress < 100 ? mappedProgress : 99); // Keep at 99% until complete
-        }
-      }
-    });
+    console.log("Processing image file:", file.name);
+    
+    // Create worker with compatible configuration for Tesseract.js v4+
+    const worker = await createWorker('eng');
     
     // Set initial progress
     onProgress(10);
     
+    // Set up progress reporting
+    worker.setProgressHandler((progress) => {
+      if (progress && typeof progress === 'number') {
+        const mappedProgress = Math.floor(progress * 90) + 10; // Map from 0-1 to 10-100
+        onProgress(mappedProgress < 100 ? mappedProgress : 99); // Keep at 99% until complete
+      }
+    });
+    
+    console.log("Starting OCR on image");
+    
     // Recognize text from the image
-    const { data } = await worker.recognize(file);
+    const result = await worker.recognize(file);
+    
+    console.log("OCR complete, extracted text length:", result.data.text.length);
     
     // Make sure we report 100% when done
     onProgress(100);
@@ -34,8 +40,8 @@ export const processImageFile = async (
     await worker.terminate();
     
     // Pass the extracted text to the parent
-    if (data.text.trim().length > 0) {
-      onComplete(data.text);
+    if (result.data.text.trim().length > 0) {
+      onComplete(result.data.text);
     } else {
       onError("No text found in the image. Please try with a clearer image.");
     }
@@ -54,25 +60,35 @@ export const processPDFFile = async (
 ) => {
   // Create a cancel token
   let isCancelled = false;
+  let timeoutId: number | null = null;
   
   try {
+    console.log("Processing PDF file:", file.name, "size:", file.size);
+    
     // Set up a timeout to handle stalls
-    const timeoutId = setTimeout(() => {
+    timeoutId = window.setTimeout(() => {
+      console.log("PDF processing timeout triggered");
       isCancelled = true;
       onError("Processing is taking longer than expected. Please try again or use a different file format.");
-    }, 60000); // 1 minute timeout
+    }, 120000); // 2 minute timeout
     
     // Extract text from the PDF with progress reporting
     const extractedText = await extractTextFromPDF(file, (progress) => {
       if (isCancelled) return;
+      console.log("PDF processing progress:", progress);
       onProgress(progress);
     });
     
     // Clear the timeout since we succeeded
-    clearTimeout(timeoutId);
+    if (timeoutId) {
+      window.clearTimeout(timeoutId);
+      timeoutId = null;
+    }
     
     // If processing was cancelled, don't proceed
     if (isCancelled) return;
+    
+    console.log("PDF extraction complete, text length:", extractedText.length);
     
     if (!extractedText || extractedText.trim().length === 0) {
       onError("No text found in the PDF. Please try with a different file.");
@@ -86,6 +102,11 @@ export const processPDFFile = async (
     onComplete(cleanedText);
   } catch (err) {
     console.error('PDF processing error:', err);
+    
+    if (timeoutId) {
+      window.clearTimeout(timeoutId);
+    }
+    
     if (!isCancelled) {
       onError("Failed to process the PDF. Please try again with a different file.");
     }

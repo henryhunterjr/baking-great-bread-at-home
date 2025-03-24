@@ -22,17 +22,30 @@ export const extractTextFromPDF = async (
     // Set initial progress
     if (progressCallback) progressCallback(10);
     
-    // Load the PDF document with explicit worker source
+    console.log("PDF processing: Starting to load document...");
+    
+    // Load the PDF document with explicit worker source and better options
     const loadingTask = pdfjsLib.getDocument({
       data: arrayBuffer,
       useWorkerFetch: false,
       isEvalSupported: true,
-      disableFontFace: true
+      disableFontFace: true,
+      cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.0.375/cmaps/',
+      cMapPacked: true,
     });
     
+    // Add event listeners for better debugging
+    loadingTask.onProgress = (data) => {
+      const progress = data.loaded / (data.total || 1) * 100;
+      console.log(`PDF loading progress: ${Math.round(progress)}%`);
+      if (progressCallback) progressCallback(10 + Math.round(progress * 0.2)); // Map to 10-30% range
+    };
+    
+    console.log("PDF processing: Waiting for document to load...");
     const pdf = await loadingTask.promise;
     const numPages = pdf.numPages;
     
+    console.log(`PDF processing: Document loaded with ${numPages} pages`);
     if (progressCallback) progressCallback(30);
     
     let fullText = '';
@@ -45,8 +58,10 @@ export const extractTextFromPDF = async (
         progressCallback(pageProgress);
       }
       
+      console.log(`PDF processing: Getting page ${i}/${numPages}...`);
       try {
         const page = await pdf.getPage(i);
+        console.log(`PDF processing: Got page ${i}, extracting text content...`);
         const textContent = await page.getTextContent();
         
         // Extract text items and join them
@@ -54,6 +69,7 @@ export const extractTextFromPDF = async (
           .map((item: any) => item.str)
           .join(' ');
         
+        console.log(`PDF processing: Extracted ${pageText.length} characters from page ${i}`);
         fullText += pageText + '\n\n';
       } catch (pageError) {
         console.error(`Error extracting text from page ${i}:`, pageError);
@@ -64,8 +80,8 @@ export const extractTextFromPDF = async (
     // Check if we extracted meaningful text
     if (fullText.trim().length < 50) {
       // Not enough text was extracted, likely a scanned PDF
+      console.log("PDF processing: Not enough text extracted, falling back to OCR");
       // Fall back to OCR
-      console.log("Not enough text extracted from PDF, falling back to OCR");
       fullText = await extractTextWithOCR(file, progressCallback);
     }
     
@@ -77,6 +93,7 @@ export const extractTextFromPDF = async (
     
     // Try OCR as fallback for any error
     try {
+      console.log("PDF processing: Primary extraction failed, trying OCR fallback");
       return await extractTextWithOCR(file, progressCallback);
     } catch (ocrError) {
       console.error('OCR fallback also failed:', ocrError);
@@ -98,14 +115,12 @@ export const extractTextWithOCR = async (
   try {
     if (progressCallback) progressCallback(40);
     
-    // Create a worker for OCR processing with compatible configuration
-    // This fixes the logger property error by using the correct type expected by Tesseract.js
-    const worker = await createWorker('eng', 1, {
-      logger: m => {
-        // Safe logging that won't cause circular reference issues
-        console.log(m.status);
-      }
-    });
+    console.log("OCR processing: Initializing worker...");
+    
+    // Use the correct API format for Tesseract.js v4+
+    const worker = await createWorker('eng');
+    
+    console.log("OCR processing: Worker initialized");
     
     let lastProgress = 40;
     const updateProgress = () => {
@@ -122,15 +137,20 @@ export const extractTextWithOCR = async (
     // We're using a Data URL for more reliable handling
     let imageURL;
     try {
+      console.log("OCR processing: Converting PDF to image...");
       // Try to convert first page to image using a canvas (if browser supports it)
       imageURL = await convertPDFPageToImage(file);
+      console.log("OCR processing: Successfully converted PDF to image");
     } catch (err) {
       console.error('Failed to convert PDF to image:', err);
       // Just use the file directly as fallback
     }
     
+    console.log("OCR processing: Starting text recognition...");
     // Recognize text from the source (imageURL or file)
-    const { data } = await worker.recognize(imageURL || file);
+    const result = await worker.recognize(imageURL || file);
+    
+    console.log("OCR processing: Text recognition complete");
     
     // Clear the interval
     clearInterval(progressInterval);
@@ -140,7 +160,7 @@ export const extractTextWithOCR = async (
     
     if (progressCallback) progressCallback(100);
     
-    return data.text || 'No text detected in the PDF.';
+    return result.data.text || 'No text detected in the PDF.';
   } catch (error) {
     console.error('Error performing OCR on PDF:', error);
     throw new Error('Failed to perform OCR on PDF');
