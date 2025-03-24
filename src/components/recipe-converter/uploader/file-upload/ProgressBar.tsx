@@ -1,14 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ProgressBarProps {
   progress: number;
   processingType: 'image' | 'pdf' | null;
+  onCancel?: () => void;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ progress, processingType }) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({ progress, processingType, onCancel }) => {
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
   const [lastProgress, setLastProgress] = useState(0);
   
@@ -42,19 +44,33 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress, processingType }) =
   
   return (
     <div className="mt-4 space-y-2">
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-sm text-muted-foreground">
+          {processingType === 'pdf' 
+            ? `Extracting text from PDF... ${progress}%` 
+            : `Extracting text from image... ${progress}%`}
+        </p>
+        {onCancel && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onCancel} 
+            className="h-8 px-2 text-muted-foreground hover:text-destructive"
+          >
+            <X className="h-4 w-4 mr-1" />
+            Cancel
+          </Button>
+        )}
+      </div>
+      
       <Progress value={progress} className="h-2" />
-      <p className="text-sm text-muted-foreground">
-        {processingType === 'pdf' 
-          ? `Extracting text from PDF... ${progress}%` 
-          : `Extracting text from image... ${progress}%`}
-      </p>
       
       {showTimeoutWarning && (
         <div className="flex items-start gap-2 text-amber-600 text-xs mt-2 p-2 bg-amber-50 rounded">
           <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-medium">Processing is taking longer than expected</p>
-            <p>This could be due to a complex file. You can continue waiting or try a different format.</p>
+            <p>This could be due to a complex file. You can continue waiting or cancel and try a different format.</p>
           </div>
         </div>
       )}

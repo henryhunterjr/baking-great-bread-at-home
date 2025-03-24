@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Upload, Loader2 } from 'lucide-react';
+import { Upload, Loader2, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ProgressBar from '../file-upload/ProgressBar';
 import SelectedFile from '../file-upload/SelectedFile';
@@ -23,12 +23,18 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
   const [processingType, setProcessingType] = useState<'image' | 'pdf' | null>(null);
   const { toast } = useToast();
   
+  // Add abort controller reference to handle cancellation
+  const abortControllerRef = useRef<AbortController | null>(null);
+  
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
+    resetState();
     setSelectedFileName(file.name);
-    setError(null);
+    
+    // Create new AbortController for this operation
+    abortControllerRef.current = new AbortController();
     
     // Check file type
     if (file.type === 'application/pdf') {
@@ -41,6 +47,32 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
       // For other file types (text, etc.), use the existing handler
       onFileUpload(e);
     }
+  };
+  
+  const resetState = () => {
+    setIsProcessing(false);
+    setProcessingType(null);
+    setProgress(0);
+    setError(null);
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+  
+  const handleCancel = () => {
+    // Cancel any ongoing processing
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    
+    toast({
+      title: "Processing Cancelled",
+      description: "File processing has been cancelled.",
+    });
+    
+    resetState();
   };
   
   const handlePDFFile = async (file: File) => {
@@ -93,6 +125,11 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
     );
   };
   
+  const handleReset = () => {
+    handleCancel();
+    setSelectedFileName(null);
+  };
+  
   return (
     <div className="space-y-6">
       <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
@@ -108,20 +145,38 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
           className="hidden"
           onChange={handleFileChange}
         />
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isProcessing}
-        >
-          {isProcessing ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : null}
-          {isProcessing ? 'Processing...' : 'Select File'}
-        </Button>
+        <div className="flex gap-2 justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isProcessing}
+          >
+            {isProcessing ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : null}
+            {isProcessing ? 'Processing...' : 'Select File'}
+          </Button>
+          
+          {(selectedFileName || error) && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleReset}
+              className="border-muted"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Reset
+            </Button>
+          )}
+        </div>
         
         <SelectedFile fileName={selectedFileName} />
-        <ProgressBar progress={progress} processingType={processingType} />
+        <ProgressBar 
+          progress={progress} 
+          processingType={processingType} 
+          onCancel={isProcessing ? handleCancel : undefined}
+        />
         <FileUploadError error={error} />
       </div>
       

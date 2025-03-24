@@ -10,31 +10,22 @@ export const processImageFile = async (
   onError: (error: string) => void
 ) => {
   try {
-    // Create worker with proper logger to avoid circular reference issues
-    const worker = await createWorker({
-      logger: (m) => {
+    // Create worker with compatible configuration
+    const worker = await createWorker('eng', 1, {
+      logger: m => {
         // Safe logging that won't cause circular reference issues
-        console.log(m.status);
+        if (m.progress) {
+          const mappedProgress = Math.floor(m.progress * 90) + 10; // Map from 0-1 to 10-100
+          onProgress(mappedProgress < 100 ? mappedProgress : 99); // Keep at 99% until complete
+        }
       }
     });
     
     // Set initial progress
     onProgress(10);
     
-    // Set up regular progress updates
-    let currentProgress = 10;
-    const progressInterval = setInterval(() => {
-      if (currentProgress < 90) {
-        currentProgress += 5;
-        onProgress(currentProgress);
-      }
-    }, 1000);
-    
     // Recognize text from the image
     const { data } = await worker.recognize(file);
-    
-    // Clear the interval
-    clearInterval(progressInterval);
     
     // Make sure we report 100% when done
     onProgress(100);
