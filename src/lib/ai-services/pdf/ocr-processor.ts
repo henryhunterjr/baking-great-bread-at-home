@@ -4,7 +4,7 @@ import { logError, logInfo } from '@/utils/logger';
 
 /**
  * Extract text from an image using Tesseract OCR
- * Compatible with Tesseract.js v4
+ * Compatible with Tesseract.js v6
  */
 export const extractTextWithOCR = async (
   imageData: string | File,
@@ -16,12 +16,13 @@ export const extractTextWithOCR = async (
     
     logInfo("OCR: Initializing Tesseract worker");
     
-    // Create worker using the new createWorker API in v4
+    // Create worker using the createWorker API in v6
+    // Note: In v6, the first parameter is the language
     const worker = await createWorker('eng');
     
     logInfo("OCR: Worker initialized, starting recognition");
     
-    // Set up manual progress reporting since v4 doesn't have progress handlers
+    // Set up manual progress reporting since we can't directly hook into Tesseract's progress
     let lastProgress = 10;
     const progressInterval = setInterval(() => {
       if (lastProgress < 95) {
@@ -30,14 +31,29 @@ export const extractTextWithOCR = async (
       }
     }, 1000);
     
-    // Perform OCR
+    // Perform OCR - v6 API accepts both strings and Files directly
     let result;
-    if (typeof imageData === 'string') {
-      // If imageData is a string (data URL), use it directly
+    try {
       result = await worker.recognize(imageData);
-    } else {
-      // If imageData is a File, use it directly
-      result = await worker.recognize(imageData);
+    } catch (recognizeError) {
+      logError('OCR recognition error:', { error: recognizeError });
+      
+      // If direct recognition fails, try an alternative approach
+      if (typeof imageData === 'string') {
+        // Create an Image object from the data URL
+        const img = new Image();
+        img.src = imageData;
+        
+        // Wait for the image to load
+        await new Promise(resolve => {
+          img.onload = resolve;
+        });
+        
+        // Try recognition again with the image element
+        result = await worker.recognize(img);
+      } else {
+        throw recognizeError; // Re-throw if we can't handle it
+      }
     }
     
     // Clean up progress interval

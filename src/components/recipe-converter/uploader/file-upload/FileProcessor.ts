@@ -16,7 +16,7 @@ export const processImageFile = async (
   try {
     logInfo("Processing image file:", { filename: file.name });
     
-    // Create worker with compatible configuration for Tesseract.js v4+
+    // Create worker with language - this is the v6 style
     const worker = await createWorker('eng');
     
     // Set initial progress
@@ -29,7 +29,7 @@ export const processImageFile = async (
     }
     
     let lastProgress = 10;
-    // Use a manual progress update approach since setProgressHandler isn't available in v4+
+    // Use a manual progress update approach since built-in progress reporting is limited in v6
     const progressInterval = setInterval(() => {
       if (lastProgress < 95 && !isAborted) {
         lastProgress += 5;
@@ -47,7 +47,7 @@ export const processImageFile = async (
       logInfo("Image OCR process was cancelled");
     });
     
-    // Recognize text from the image
+    // Recognize text from the image using v6 API
     const result = await worker.recognize(file);
     
     // Clear the progress interval
@@ -100,19 +100,22 @@ export const processPDFFile = async (
   try {
     logInfo("Processing PDF file:", { filename: file.name, filesize: file.size });
     
+    // Adjust timeout based on file size (larger files need more time)
+    const fileSize = file.size;
+    const timeoutDuration = Math.max(30000, Math.min(300000, fileSize / 1024 * 10));
+    
     // Set up a timeout to handle stalls
     timeoutId = window.setTimeout(() => {
       logInfo("PDF processing timeout triggered");
       isCancelled = true;
       abortController.abort();
       onError("Processing timed out. Please try again or use a different file format.");
-    }, 180000); // 3 minute timeout
+    }, timeoutDuration); // Dynamic timeout based on file size
     
     // Set up a warning for long-running processes
     longRunningWarningId = window.setTimeout(() => {
       logInfo("PDF processing long-running warning triggered");
       // Don't abort, just warn the user that it's taking longer than expected
-      // This will be handled by the ProgressBar component which shows a warning
     }, 30000); // 30 second warning
     
     // Use signal from AbortController to allow cancellation

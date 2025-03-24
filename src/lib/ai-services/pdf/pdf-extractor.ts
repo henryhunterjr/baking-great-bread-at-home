@@ -99,7 +99,7 @@ export const extractTextFromPDF = async (
         ]);
         
         // Extract text items and join them
-        // Use type assertion to access items safely
+        // Use type assertion to access items safely - fixes the TextContent type error
         const textItems = (pageTextContent as any).items || [];
         const pageText = textItems
           .map((item: any) => item.str || '')
