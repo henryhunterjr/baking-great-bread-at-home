@@ -10,6 +10,7 @@ import CTASection from '@/components/home/CTASection';
 import BlogPreviewSection from '@/components/home/BlogPreviewSection';
 import AppPromoSection from '@/components/home/AppPromoSection';
 import CareCenterPreview from '@/components/home/CareCenterPreview';
+import ChallengePreviewSection from '@/components/home/ChallengePreviewSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
@@ -21,6 +22,7 @@ const Index = () => {
   const booksRef = useRef<HTMLElement>(null);
   const toolsRef = useRef<HTMLElement>(null);
   const careCenterRef = useRef<HTMLElement>(null);
+  const challengeRef = useRef<HTMLElement>(null);
   const blogRef = useRef<HTMLElement>(null);
   const ctaRef = useRef<HTMLElement>(null);
   const appPromoRef = useRef<HTMLElement>(null);
@@ -48,7 +50,7 @@ const Index = () => {
     }
     
     // Observe other sections
-    [aboutRef, booksRef, toolsRef, careCenterRef, blogRef, ctaRef, appPromoRef].forEach(ref => {
+    [aboutRef, booksRef, toolsRef, careCenterRef, challengeRef, blogRef, ctaRef, appPromoRef].forEach(ref => {
       if (ref.current) observer.observe(ref.current);
     });
     
@@ -82,6 +84,11 @@ const Index = () => {
       <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
       
       <CareCenterPreview sectionRef={careCenterRef} />
+      
+      {/* Section divider for both mobile and desktop */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
+      
+      <ChallengePreviewSection sectionRef={challengeRef} />
       
       {/* Section divider for both mobile and desktop */}
       <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
