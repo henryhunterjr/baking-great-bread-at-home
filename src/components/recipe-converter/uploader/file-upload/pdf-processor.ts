@@ -82,7 +82,7 @@ export const processPDFFile = async (
   return {
     cancel: () => {
       isCancelled = true;
-      logInfo("PDF processing cancelled by user");
+      logInfo("PDF processing cancelled by user", {});
     }
   };
 };

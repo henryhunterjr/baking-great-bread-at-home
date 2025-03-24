@@ -63,7 +63,7 @@ export const extractTextFromPDF = async (
     // Check if we extracted meaningful text
     if (fullText.trim().length < 50) {
       // Not enough text was extracted, likely a scanned PDF
-      logInfo("PDF processing: Not enough text extracted, falling back to OCR");
+      logInfo("PDF processing: Not enough text extracted, falling back to OCR", { length: fullText.length });
       
       // Fall back to OCR
       if (progressCallback) progressCallback(70);
