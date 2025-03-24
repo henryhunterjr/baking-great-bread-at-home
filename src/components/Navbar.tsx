@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Sun, Moon } from 'lucide-react';
@@ -84,7 +85,8 @@ const Navbar = () => {
     { name: 'Books & Guides', path: '/books' },
     { name: 'Baking Tools', path: '/tools' },
     { name: 'Recipe Converter', path: '/recipe-converter' },
-    { name: 'Challenges', path: '/challenge' },
+    { name: 'Challenge', path: '/challenge' },
+    { name: 'Challenges Archive', path: '/challenges' },
     { name: 'Blog', path: '/blog' },
     { name: 'App', path: '/app' },
     { name: 'Community', path: '/community' },
