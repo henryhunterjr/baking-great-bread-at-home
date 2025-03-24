@@ -1,5 +1,5 @@
 
-import { createWorker } from 'tesseract.js';
+import { createWorker, Worker, RecognizeResult } from 'tesseract.js';
 import { logError, logInfo } from '@/utils/logger';
 
 /**
@@ -17,14 +17,14 @@ export const extractTextWithOCR = async (
     logInfo("OCR: Initializing Tesseract worker");
     
     // Create worker with language - using v6 compatible API
-    const worker = await createWorker('eng', {
-      logger: m => {
-        if (m.status === 'recognizing text') {
-          const p = Math.floor(m.progress * 100);
-          if (progressCallback && p > 10) progressCallback(Math.min(p, 90));
-        }
-      },
-      errorHandler: err => logError('OCR internal error:', err)
+    const worker = await createWorker('eng');
+    
+    // Set up progress handler manually since we can't pass it directly in createWorker
+    worker.setProgressHandler((m) => {
+      if (m.status === 'recognizing text') {
+        const p = Math.floor(m.progress * 100);
+        if (progressCallback && p > 10) progressCallback(Math.min(p, 90));
+      }
     });
     
     logInfo("OCR: Worker initialized, starting recognition");
@@ -42,12 +42,12 @@ export const extractTextWithOCR = async (
       // Use timeout to prevent hanging
       const recognitionPromise = Promise.race([
         worker.recognize(imageData),
-        new Promise((_, reject) => 
+        new Promise<never>((_, reject) => 
           setTimeout(() => reject(new Error('OCR processing timed out after 45 seconds')), 45000)
         )
       ]);
       
-      const result = await recognitionPromise;
+      const result = await recognitionPromise as RecognizeResult;
       
       // Clear interval once recognition is complete
       clearInterval(progressInterval);
@@ -61,11 +61,11 @@ export const extractTextWithOCR = async (
       logInfo("OCR: Text recognition completed successfully");
       
       // Check if there's actual text content
-      if (!result.data.text || result.data.text.trim().length === 0) {
+      if (!result.text || result.text.trim().length === 0) {
         throw new Error("No text could be extracted from the image");
       }
       
-      return result.data.text;
+      return result.text;
     } catch (recognizeError) {
       // Clear interval on error
       clearInterval(progressInterval);
