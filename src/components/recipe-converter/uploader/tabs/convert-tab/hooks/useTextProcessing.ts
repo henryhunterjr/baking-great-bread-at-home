@@ -79,7 +79,7 @@ export const useTextProcessing = () => {
         });
       }
     } catch (error) {
-      // Fix: Pass an object with error property instead of just a string
+      // Pass an object with error property instead of just a string
       logError('Failed to read text file:', { error });
       
       const errorMessage = error instanceof Error
