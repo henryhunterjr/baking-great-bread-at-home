@@ -112,7 +112,7 @@ export const useFileHandlers = ({ setRecipeText }: UseFileHandlersProps) => {
       const extractResult = await extractTextFromPDF(file, updateProgress);
       
       // Check if the result is a cancellable task object
-      if (extractResult && typeof extractResult === 'object' && 'cancel' in extractResult) {
+      if (extractResult !== null && typeof extractResult === 'object' && 'cancel' in extractResult) {
         processingTask.current = extractResult as { cancel: () => void };
         return;
       }
