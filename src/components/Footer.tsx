@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Twitter, Youtube, Mail } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Youtube, Mail, BookOpen, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -37,16 +37,19 @@ const Footer = () => {
               Dedicated to helping home bakers master the craft of artisanal bread making through expert guidance, quality tools, and community support.
             </p>
             <div className="flex space-x-4 mt-auto">
-              <a href="#" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
+              <a href="https://www.facebook.com/henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
                 <Facebook size={20} />
               </a>
-              <a href="#" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
+              <a href="https://instagram.com/BakingGreatBreadatHome" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
                 <Instagram size={20} />
               </a>
-              <a href="#" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
-                <Twitter size={20} />
+              <a href="https://tiktok.com/@henryhunter12" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
+                <BookOpen size={20} title="TikTok @henryhunter12" />
               </a>
-              <a href="#" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
+              <a href="https://tiktok.com/@henrysbreadkitchen" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
+                <Monitor size={20} title="TikTok @henrysbreadkitchen" />
+              </a>
+              <a href="https://www.youtube.com/@henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
                 <Youtube size={20} />
               </a>
               <a href="mailto:HenryHunterJr@Gmail.com" className="text-bread-800 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-white">
