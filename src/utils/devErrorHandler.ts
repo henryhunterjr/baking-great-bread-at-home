@@ -23,7 +23,13 @@ export function initDevErrorHandler(suppressErrors = true): void {
     /Access to fetch.*has been blocked by CORS policy/i,
     /Failed to load resource: net::ERR_FAILED/i,
     /Max reconnect attempts/i,
-    /Unrecognized feature:/i
+    /Unrecognized feature:/i,
+    /The resource .* was preloaded using link preload but not used/i,
+    /Tracking Prevention blocked access to storage/i,
+    /https:\/\/id-preview-.*lovable\.app\//i,
+    /Failed to load resource: the server responded with a status of 500/i,
+    /Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies/i,
+    /Microsoft Edge is moving towards a new experience that allows users to choose to browse without third-party cookies/i
   ];
 
   // Override console.error

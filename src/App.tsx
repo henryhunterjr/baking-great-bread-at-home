@@ -1,36 +1,15 @@
-
-import { Routes, Route, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { runBrowserCompatibilityCheck } from './utils/crossBrowserTesting';
+import { isDevelopmentEnvironment } from './utils/devErrorHandler';
+import { logInfo } from './utils/logger';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/hooks/use-theme';
 import FloatingAIButton from '@/components/ai/FloatingAIButton';
 import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import { lazy, Suspense } from 'react';
-import React from 'react';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import DevToolsToggle from '@/components/dev/DevToolsToggle';
-
-// Eagerly loaded components for critical paths
-import Index from '@/pages/Index';
-import NotFound from '@/pages/NotFound';
-
-// Lazy-loaded components for non-critical paths
-const AppStore = lazy(() => import('@/pages/AppStore'));
-const Blog = lazy(() => import('@/pages/Blog'));
-const CareCenter = lazy(() => import('@/pages/CareCenter'));
-const ChallengesArchive = lazy(() => import('@/pages/ChallengesArchive'));
-const Challenges = lazy(() => import('@/pages/Challenges'));
-const Community = lazy(() => import('@/pages/Community'));
-const ComingSoon = lazy(() => import('@/pages/ComingSoon'));
-const RecipeConverter = lazy(() => import('@/pages/RecipeConverter'));
-const AffiliateCollection = lazy(() => import('@/pages/AffiliateCollection'));
-const Tools = lazy(() => import('@/pages/Tools'));
-const Recipes = lazy(() => import('@/pages/Recipes'));
-const Books = lazy(() => import('@/pages/Books'));
-const About = lazy(() => import('@/pages/About'));
-
 import './App.css';
 
-// Loading component for lazy-loaded routes
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center">
     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-bread-800"></div>
@@ -38,9 +17,15 @@ const PageLoader = () => (
 );
 
 function App() {
-  // Use the scroll to top hook
+  useEffect(() => {
+    if (isDevelopmentEnvironment()) {
+      const compatibility = runBrowserCompatibilityCheck();
+      logInfo('App initialized', { browserCompatible: compatibility.compatible });
+    }
+  }, []);
+
   useScrollToTop();
-  
+
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark" storageKey="bread-theme">
@@ -51,7 +36,6 @@ function App() {
           <Route path="/" element={<Index />} />
           <Route path="*" element={<NotFound />} />
           
-          {/* Lazy-loaded routes */}
           <Route path="/app" element={
             <ErrorBoundary>
               <Suspense fallback={<PageLoader />}>

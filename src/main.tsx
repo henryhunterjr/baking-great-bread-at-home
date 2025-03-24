@@ -1,35 +1,25 @@
 
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import App from './App.tsx'
-import './index.css'
-import { runBrowserCompatibilityCheck } from './utils/crossBrowserTesting'
-import { logInfo } from './utils/logger';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
+import { ThemeProvider } from './hooks/use-theme';
+import { Toaster } from '@/components/ui/toaster';
+import './index.css';
 import { initDevErrorHandler, isDevelopmentEnvironment } from './utils/devErrorHandler';
 
-// Initialize development error handler in development environment
+// Initialize the development error handler in development environments
 if (isDevelopmentEnvironment()) {
   initDevErrorHandler(true);
 }
 
-// Run compatibility check on startup
-const compatibilityResult = runBrowserCompatibilityCheck();
-
-// Log application start
-logInfo('Application starting', {
-  timestamp: new Date().toISOString(),
-  compatibility: compatibilityResult
-});
-
-// Ensure the window.resetNetworkSimulation property is properly initialized
-if (typeof window !== 'undefined' && !window.resetNetworkSimulation) {
-  window.resetNetworkSimulation = () => {
-    logInfo('Default network simulation reset called');
-  };
-}
-
-createRoot(document.getElementById("root")!).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <ThemeProvider>
+        <App />
+        <Toaster />
+      </ThemeProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 );

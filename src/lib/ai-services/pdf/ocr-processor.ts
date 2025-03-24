@@ -17,7 +17,7 @@ export const extractTextWithOCR = async (
     logInfo("OCR: Initializing Tesseract worker");
     
     // Create worker with language - this is the v6 style
-    // In v6, createWorker accepts language as first param, options as second
+    // In v6, createWorker accepts language as first param
     const worker = await createWorker('eng');
     
     logInfo("OCR: Worker initialized, starting recognition");

@@ -120,7 +120,7 @@ export function simulateNetworkCondition(condition: 'fast' | 'average' | 'slow' 
   // Use type-safe approach with nullish check before assignment
   if (typeof window !== 'undefined') {
     // Safely assign the resetNetworkSimulation function
-    window.resetNetworkSimulation = () => {
+    (window as any).resetNetworkSimulation = () => {
       window.fetch = originalFetch;
       logInfo('Network simulation reset');
     };
