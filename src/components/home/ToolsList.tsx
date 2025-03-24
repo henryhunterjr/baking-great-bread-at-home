@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -14,10 +14,13 @@ interface ToolsListProps {
 const ToolsList: React.FC<ToolsListProps> = ({ tools, displayCount = 6 }) => {
   const isMobile = useIsMobile();
   
+  // Display fewer tools on mobile and desktop for better performance
+  const displayTools = isMobile ? tools.slice(0, 2) : tools.slice(0, 3);
+  
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-10">
-        {tools.slice(0, isMobile ? 3 : displayCount).map(tool => (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-10">
+        {displayTools.map(tool => (
           <ToolCard key={tool.id} tool={tool} />
         ))}
       </div>
@@ -49,4 +52,5 @@ const ToolsList: React.FC<ToolsListProps> = ({ tools, displayCount = 6 }) => {
   );
 };
 
-export default ToolsList;
+// Memoize the component to prevent unnecessary re-renders
+export default memo(ToolsList);

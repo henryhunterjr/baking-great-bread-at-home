@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -13,12 +13,12 @@ interface AffiliateProductsListProps {
 const AffiliateProductsList: React.FC<AffiliateProductsListProps> = ({ products }) => {
   const isMobile = useIsMobile();
   
-  // Show only first 3 products on mobile
-  const displayProducts = isMobile ? products.slice(0, 2) : products;
+  // Show fewer products for better performance
+  const displayProducts = isMobile ? products.slice(0, 1) : products.slice(0, 2);
   
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 mb-8">
         {displayProducts.map(product => (
           <AffiliateProductCard key={product.id} product={product} />
         ))}
@@ -51,4 +51,5 @@ const AffiliateProductsList: React.FC<AffiliateProductsListProps> = ({ products 
   );
 };
 
-export default AffiliateProductsList;
+// Memoize the component to prevent unnecessary re-renders
+export default memo(AffiliateProductsList);

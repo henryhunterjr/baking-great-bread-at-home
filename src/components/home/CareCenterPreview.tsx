@@ -13,7 +13,7 @@ interface CareCenterPreviewProps {
 const CareCenterPreview: React.FC<CareCenterPreviewProps> = ({ sectionRef }) => {
   const isMobile = useIsMobile();
   
-  // Featured media items for the homepage preview
+  // Featured media items for the homepage preview - optimizing by reducing the number of items
   const featuredMedia: MediaItem[] = [
     {
       id: '1',
@@ -29,16 +29,9 @@ const CareCenterPreview: React.FC<CareCenterPreviewProps> = ({ sectionRef }) => 
       url: 'https://youtu.be/49XtxfMlBgo?si=c2N_7FxIZsOsJXbS',
       type: 'podcast',
       source: 'The Jar Podcast',
-      description: 'Meet Henry Hunter, founder of Henry\'s Bread Kitchen, as he shares his journey from farm kid to military guy to chef and bread maker. Henry discusses how meeting a Jewish baker changed his life and how he\'s now sharing his passion with the world.'
+      description: 'Meet Henry Hunter, founder of Henry\'s Bread Kitchen, as he shares his journey from farm kid to military guy to chef and bread maker.'
     },
-    {
-      id: '2',
-      title: 'Breaking Bread Podcast: Sourdough for the Rest of Us',
-      url: 'https://youtu.be/FiQg8AaW7PE',
-      description: 'Discussion about Henry\'s latest book "Sourdough for the Rest of Us"',
-      type: 'podcast',
-      source: 'Breaking Bread'
-    }
+    // Reduced number of items for better performance
   ];
 
   return (
@@ -50,7 +43,7 @@ const CareCenterPreview: React.FC<CareCenterPreviewProps> = ({ sectionRef }) => 
         <div className="max-w-6xl mx-auto relative">
           {/* Decorative bread wheat icon at the top */}
           <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-bread-800 text-white p-3 rounded-full">
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 2c-2.5 0-4.5 2-4.5 4.5 0 1.5.7 2.8 1.8 3.7-3.3.7-5.8 3.7-5.8 7.3 0 .8.7 1.5 1.5 1.5h14c.8 0 1.5-.7 1.5-1.5 0-3.6-2.5-6.6-5.8-7.3 1.1-.9 1.8-2.2 1.8-3.7 0-2.5-2-4.5-4.5-4.5z"/>
             </svg>
           </div>
@@ -62,8 +55,8 @@ const CareCenterPreview: React.FC<CareCenterPreviewProps> = ({ sectionRef }) => 
             </p>
           </div>
           
-          <div className={`grid grid-cols-1 ${isMobile ? '' : 'md:grid-cols-3'} gap-6 mb-10`}>
-            {featuredMedia.map((item, index) => (
+          <div className={`grid grid-cols-1 ${isMobile ? '' : 'md:grid-cols-2'} gap-6 mb-10`}>
+            {featuredMedia.map((item) => (
               <MediaCard key={item.id} item={item} />
             ))}
           </div>

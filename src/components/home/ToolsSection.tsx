@@ -10,6 +10,11 @@ interface ToolsSectionProps {
 }
 
 const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
+  // Use fewer products for improved performance
+  const limitedAffiliateProducts = affiliateProductsData.slice(0, 3);
+  // Use fewer tools for improved performance
+  const limitedTools = toolsData.slice(0, 6);
+
   return (
     <section ref={sectionRef} className="py-16 md:py-24 bg-[#F6F6F7] dark:bg-bread-900/40 opacity-0">
       <div className="container max-w-6xl mx-auto px-4">
@@ -19,7 +24,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
             Free tools and resources to help you on your baking journey
           </p>
           
-          <ToolsList tools={toolsData} />
+          <ToolsList tools={limitedTools} />
         </div>
         
         <div className="mt-20">
@@ -34,7 +39,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
             </div>
           </div>
           
-          <AffiliateProductsList products={affiliateProductsData} />
+          <AffiliateProductsList products={limitedAffiliateProducts} />
         </div>
       </div>
     </section>

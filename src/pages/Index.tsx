@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, lazy } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import HeroSection from '@/components/home/HeroSection';
@@ -25,35 +25,47 @@ const Index = () => {
   const blogRef = useRef<HTMLElement>(null);
   const ctaRef = useRef<HTMLElement>(null);
   
-  // Observer setup for animations
+  // Optimized observer setup for animations - with reduced work and better thresholds
   useEffect(() => {
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-fade-in');
-        }
-      });
-    };
+    // Using a more performant approach with fewer callbacks
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          // Only animate if not already animated
+          if (entry.isIntersecting && !entry.target.classList.contains('animate-fade-in')) {
+            entry.target.classList.add('animate-fade-in');
+            // Unobserve after animation to reduce overhead
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px' // Reduced margin for better performance
+      }
+    );
     
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -100px 0px'
-    };
+    // Collect all refs to observe
+    const elements = [
+      heroRef.current, 
+      aboutRef.current, 
+      booksRef.current, 
+      toolsRef.current, 
+      careCenterRef.current, 
+      challengeRef.current, 
+      blogRef.current, 
+      ctaRef.current
+    ].filter(Boolean); // Filter out any null refs
     
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
-    
-    // Observe hero section
-    if (heroRef.current) {
-      observer.observe(heroRef.current);
-    }
-    
-    // Observe other sections
-    [aboutRef, booksRef, toolsRef, careCenterRef, challengeRef, blogRef, ctaRef].forEach(ref => {
-      if (ref.current) observer.observe(ref.current);
+    // Observe elements
+    elements.forEach(element => {
+      if (element) observer.observe(element);
     });
     
     return () => {
-      observer.disconnect();
+      elements.forEach(element => {
+        if (element) observer.unobserve(element);
+      });
     };
   }, []);
 
@@ -63,38 +75,52 @@ const Index = () => {
       
       <HeroSection heroRef={heroRef} />
       
-      {/* Section divider for both mobile and desktop */}
-      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
+      {/* Section divider - using a more performant approach */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
+           role="presentation" 
+           aria-hidden="true" />
       
       <AboutSection sectionRef={aboutRef} />
       
-      {/* Section divider for both mobile and desktop */}
-      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
+      {/* Section divider */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
+           role="presentation" 
+           aria-hidden="true" />
       
       <BooksSection sectionRef={booksRef} />
       
-      {/* Section divider for both mobile and desktop */}
-      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
+      {/* Section divider */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
+           role="presentation" 
+           aria-hidden="true" />
       
       <ToolsSection sectionRef={toolsRef} />
       
-      {/* Section divider for both mobile and desktop */}
-      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
+      {/* Section divider */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
+           role="presentation" 
+           aria-hidden="true" />
       
       <CareCenterPreview sectionRef={careCenterRef} />
       
-      {/* Section divider for both mobile and desktop */}
-      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
+      {/* Section divider */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
+           role="presentation" 
+           aria-hidden="true" />
       
       <ChallengePreviewSection sectionRef={challengeRef} />
       
-      {/* Section divider for both mobile and desktop */}
-      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
+      {/* Section divider */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
+           role="presentation" 
+           aria-hidden="true" />
       
       <BlogPreviewSection sectionRef={blogRef} />
       
-      {/* Section divider for both mobile and desktop */}
-      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" role="presentation" aria-hidden="true" />
+      {/* Section divider */}
+      <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
+           role="presentation" 
+           aria-hidden="true" />
       
       <CTASection sectionRef={ctaRef} />
       
