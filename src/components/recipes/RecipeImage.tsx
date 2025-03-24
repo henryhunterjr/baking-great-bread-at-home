@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { ImageOff } from 'lucide-react';
 
 interface RecipeImageProps {
@@ -72,4 +72,5 @@ const RecipeImage: React.FC<RecipeImageProps> = ({ id, imageUrl, title, isHovere
   );
 };
 
-export default RecipeImage;
+// Memoize the RecipeImage component to prevent unnecessary re-renders
+export default memo(RecipeImage);

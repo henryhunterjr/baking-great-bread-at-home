@@ -5,6 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
+// Memoize the buttonVariants computation for reuse
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 transition-all duration-300",
   {
@@ -40,12 +41,30 @@ export interface ButtonProps
   asChild?: boolean
 }
 
+// Memoize the function for props comparison to prevent unnecessary re-renders
+const areEqual = (prevProps: ButtonProps, nextProps: ButtonProps) => {
+  return (
+    prevProps.className === nextProps.className &&
+    prevProps.variant === nextProps.variant &&
+    prevProps.size === nextProps.size &&
+    prevProps.asChild === nextProps.asChild &&
+    prevProps.disabled === nextProps.disabled
+  );
+};
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
+    
+    // Generate the class name only when props change
+    const buttonClassName = React.useMemo(
+      () => cn(buttonVariants({ variant, size, className })),
+      [variant, size, className]
+    );
+    
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={buttonClassName}
         ref={ref}
         {...props}
       />
@@ -54,4 +73,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = "Button"
 
-export { Button, buttonVariants }
+// Export the memoized button component
+const MemoizedButton = React.memo(Button, areEqual);
+
+export { MemoizedButton as Button, buttonVariants }

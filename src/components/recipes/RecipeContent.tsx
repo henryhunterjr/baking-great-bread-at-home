@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Recipe } from './types';
 
@@ -25,4 +25,5 @@ const RecipeContent: React.FC<RecipeContentProps> = ({ recipe }) => {
   );
 };
 
-export default RecipeContent;
+// Memoize the RecipeContent component
+export default memo(RecipeContent);

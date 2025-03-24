@@ -4,23 +4,35 @@ import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/hooks/use-theme';
 import FloatingAIButton from '@/components/ai/FloatingAIButton';
 import { useScrollToTop } from '@/hooks/use-scroll-to-top';
+import { lazy, Suspense } from 'react';
+import React from 'react';
 
+// Eagerly loaded components for critical paths
 import Index from '@/pages/Index';
-import AppStore from '@/pages/AppStore';
-import Blog from '@/pages/Blog';
-import CareCenter from '@/pages/CareCenter';
-import ChallengesArchive from '@/pages/ChallengesArchive';
-import Community from '@/pages/Community';
-import ComingSoon from '@/pages/ComingSoon';
 import NotFound from '@/pages/NotFound';
-import RecipeConverter from '@/pages/RecipeConverter';
-import AffiliateCollection from '@/pages/AffiliateCollection';
-import Tools from '@/pages/Tools';
-import Recipes from '@/pages/Recipes';
-import Books from '@/pages/Books';
-import About from '@/pages/About';
+
+// Lazy-loaded components for non-critical paths
+const AppStore = lazy(() => import('@/pages/AppStore'));
+const Blog = lazy(() => import('@/pages/Blog'));
+const CareCenter = lazy(() => import('@/pages/CareCenter'));
+const ChallengesArchive = lazy(() => import('@/pages/ChallengesArchive'));
+const Community = lazy(() => import('@/pages/Community'));
+const ComingSoon = lazy(() => import('@/pages/ComingSoon'));
+const RecipeConverter = lazy(() => import('@/pages/RecipeConverter'));
+const AffiliateCollection = lazy(() => import('@/pages/AffiliateCollection'));
+const Tools = lazy(() => import('@/pages/Tools'));
+const Recipes = lazy(() => import('@/pages/Recipes'));
+const Books = lazy(() => import('@/pages/Books'));
+const About = lazy(() => import('@/pages/About'));
 
 import './App.css';
+
+// Loading component for lazy-loaded routes
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-bread-800"></div>
+  </div>
+);
 
 function App() {
   // Use the scroll to top hook
@@ -32,19 +44,69 @@ function App() {
       <FloatingAIButton />
       <Routes>
         <Route path="/" element={<Index />} />
-        <Route path="/app" element={<AppStore />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/books" element={<Books />} />
-        <Route path="/care-center" element={<CareCenter />} />
-        <Route path="/challenges" element={<ChallengesArchive />} />
-        <Route path="/community" element={<Community />} />
-        <Route path="/recipe-converter" element={<RecipeConverter />} />
-        <Route path="/affiliate-collection" element={<AffiliateCollection />} />
-        <Route path="/tools" element={<Tools />} />
-        <Route path="/recipes" element={<Recipes />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/coming-soon" element={<ComingSoon />} />
         <Route path="*" element={<NotFound />} />
+        
+        {/* Lazy-loaded routes */}
+        <Route path="/app" element={
+          <Suspense fallback={<PageLoader />}>
+            <AppStore />
+          </Suspense>
+        } />
+        <Route path="/blog" element={
+          <Suspense fallback={<PageLoader />}>
+            <Blog />
+          </Suspense>
+        } />
+        <Route path="/books" element={
+          <Suspense fallback={<PageLoader />}>
+            <Books />
+          </Suspense>
+        } />
+        <Route path="/care-center" element={
+          <Suspense fallback={<PageLoader />}>
+            <CareCenter />
+          </Suspense>
+        } />
+        <Route path="/challenges" element={
+          <Suspense fallback={<PageLoader />}>
+            <ChallengesArchive />
+          </Suspense>
+        } />
+        <Route path="/community" element={
+          <Suspense fallback={<PageLoader />}>
+            <Community />
+          </Suspense>
+        } />
+        <Route path="/recipe-converter" element={
+          <Suspense fallback={<PageLoader />}>
+            <RecipeConverter />
+          </Suspense>
+        } />
+        <Route path="/affiliate-collection" element={
+          <Suspense fallback={<PageLoader />}>
+            <AffiliateCollection />
+          </Suspense>
+        } />
+        <Route path="/tools" element={
+          <Suspense fallback={<PageLoader />}>
+            <Tools />
+          </Suspense>
+        } />
+        <Route path="/recipes" element={
+          <Suspense fallback={<PageLoader />}>
+            <Recipes />
+          </Suspense>
+        } />
+        <Route path="/about" element={
+          <Suspense fallback={<PageLoader />}>
+            <About />
+          </Suspense>
+        } />
+        <Route path="/coming-soon" element={
+          <Suspense fallback={<PageLoader />}>
+            <ComingSoon />
+          </Suspense>
+        } />
       </Routes>
     </ThemeProvider>
   );

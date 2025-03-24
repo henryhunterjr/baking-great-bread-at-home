@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Recipe } from './types';
@@ -62,7 +62,10 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   );
 };
 
-export default RecipeCard;
+// Memoize the RecipeCard component to prevent unnecessary re-renders
+const MemoizedRecipeCard = memo(RecipeCard);
+
+export default MemoizedRecipeCard;
 
 // Need to re-export the Recipe type for backward compatibility
 export type { Recipe } from './types';
