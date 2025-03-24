@@ -36,17 +36,19 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onFileUpload, onTextExtra
     
     try {
       // Process image with Tesseract OCR
-      const worker = await createWorker();
-      
-      // Set up progress monitoring
-      worker.setParameters({
-        tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:!?()/\\-_\'"\n '
+      const worker = await createWorker({
+        logger: m => {
+          if (m.status === 'recognizing text') {
+            setProgress(m.progress * 100);
+          }
+        }
       });
       
-      worker.setLogger((m) => {
-        if (m.status === 'recognizing text') {
-          setProgress(m.progress * 100);
-        }
+      // Set parameters for better OCR
+      await worker.loadLanguage('eng');
+      await worker.initialize('eng');
+      await worker.setParameters({
+        tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:!?()/\\-_\'"\n '
       });
       
       // Recognize text from the image
