@@ -2,7 +2,7 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { createWorker } from 'tesseract.js';
 
-// Set a local worker path instead of relying on CDN
+// Set local worker path explicitly
 pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.js`;
 
 /**
@@ -19,47 +19,59 @@ export const extractTextFromPDF = async (
     // Convert the File to ArrayBuffer
     const arrayBuffer = await file.arrayBuffer();
     
-    // Load the PDF document
-    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-    
     // Set initial progress
     if (progressCallback) progressCallback(10);
+    
+    // Load the PDF document with explicit worker source
+    const loadingTask = pdfjsLib.getDocument({
+      data: arrayBuffer,
+      useWorkerFetch: false,
+      isEvalSupported: true,
+      disableFontFace: true
+    });
     
     const pdf = await loadingTask.promise;
     const numPages = pdf.numPages;
     
+    if (progressCallback) progressCallback(30);
+    
     let fullText = '';
-    let extractedText = '';
     
     // Extract text from each page
     for (let i = 1; i <= numPages; i++) {
-      // Update progress (distribute from 10% to 90% based on page count)
+      // Update progress (distribute from 30% to 90% based on page count)
       if (progressCallback) {
-        const pageProgress = 10 + Math.floor((i / numPages) * 80);
+        const pageProgress = 30 + Math.floor((i / numPages) * 60);
         progressCallback(pageProgress);
       }
       
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      
-      // Extract text items and join them
-      extractedText = textContent.items
-        .map((item: any) => item.str)
-        .join(' ');
-      
-      fullText += extractedText + '\n\n';
+      try {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        
+        // Extract text items and join them
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ');
+        
+        fullText += pageText + '\n\n';
+      } catch (pageError) {
+        console.error(`Error extracting text from page ${i}:`, pageError);
+        // Continue with next page instead of failing completely
+      }
     }
     
     // Check if we extracted meaningful text
     if (fullText.trim().length < 50) {
       // Not enough text was extracted, likely a scanned PDF
       // Fall back to OCR
+      console.log("Not enough text extracted from PDF, falling back to OCR");
       fullText = await extractTextWithOCR(file, progressCallback);
     }
     
     if (progressCallback) progressCallback(100);
     
-    return fullText;
+    return fullText || "No text could be extracted from this PDF.";
   } catch (error) {
     console.error('Error extracting text from PDF:', error);
     
@@ -84,34 +96,40 @@ export const extractTextWithOCR = async (
   progressCallback?: (progress: number) => void
 ): Promise<string> => {
   try {
-    if (progressCallback) progressCallback(30);
+    if (progressCallback) progressCallback(40);
     
-    // Create a worker for OCR processing - fix the logger issue
-    const worker = await createWorker();
+    // Create a worker for OCR processing with fixed logger
+    const worker = await createWorker({
+      logger: (m) => {
+        // Safe logging that won't cause circular reference issues
+        console.log(m.status);
+      }
+    });
     
-    // Custom progress handling
-    let lastProgress = 30;
-    const updateProgress = (progress: number) => {
-      if (progressCallback) {
-        // Map the OCR progress (0-1) to our progress scale (30-90)
-        const scaledProgress = 30 + Math.floor(progress * 60);
-        if (scaledProgress > lastProgress) {
-          lastProgress = scaledProgress;
-          progressCallback(scaledProgress);
-        }
+    let lastProgress = 40;
+    const updateProgress = () => {
+      if (progressCallback && lastProgress < 90) {
+        lastProgress += 5;
+        progressCallback(lastProgress);
       }
     };
     
     // Set up regular progress updates
-    const progressInterval = setInterval(() => {
-      if (lastProgress < 90) {
-        lastProgress += 5;
-        if (progressCallback) progressCallback(lastProgress);
-      }
-    }, 1000);
+    const progressInterval = setInterval(updateProgress, 1000);
     
-    // Recognize text from the PDF file
-    const { data } = await worker.recognize(file);
+    // Convert the PDF to an image and recognize text
+    // We're using a Data URL for more reliable handling
+    let imageURL;
+    try {
+      // Try to convert first page to image using a canvas (if browser supports it)
+      imageURL = await convertPDFPageToImage(file);
+    } catch (err) {
+      console.error('Failed to convert PDF to image:', err);
+      // Just use the file directly as fallback
+    }
+    
+    // Recognize text from the source (imageURL or file)
+    const { data } = await worker.recognize(imageURL || file);
     
     // Clear the interval
     clearInterval(progressInterval);
@@ -121,10 +139,51 @@ export const extractTextWithOCR = async (
     
     if (progressCallback) progressCallback(100);
     
-    return data.text;
+    return data.text || 'No text detected in the PDF.';
   } catch (error) {
     console.error('Error performing OCR on PDF:', error);
     throw new Error('Failed to perform OCR on PDF');
+  }
+};
+
+/**
+ * Convert the first page of a PDF to an image using canvas
+ */
+const convertPDFPageToImage = async (file: File): Promise<string> => {
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const loadingTask = pdfjsLib.getDocument({
+      data: arrayBuffer,
+      useWorkerFetch: false
+    });
+    
+    const pdf = await loadingTask.promise;
+    const page = await pdf.getPage(1);
+    
+    // Create a canvas to render the PDF page
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    
+    if (!context) {
+      throw new Error('Canvas context could not be created');
+    }
+    
+    // Set the dimensions
+    const viewport = page.getViewport({ scale: 1.5 }); // Scale up for better OCR results
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+    
+    // Render the PDF page to the canvas
+    await page.render({
+      canvasContext: context,
+      viewport: viewport
+    }).promise;
+    
+    // Convert canvas to image data URL
+    return canvas.toDataURL('image/png');
+  } catch (error) {
+    console.error('Error converting PDF to image:', error);
+    throw error;
   }
 };
 

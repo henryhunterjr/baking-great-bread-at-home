@@ -10,8 +10,15 @@ interface ProgressBarProps {
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ progress, processingType }) => {
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
+  const [lastProgress, setLastProgress] = useState(0);
   
   useEffect(() => {
+    // Track progress changes to detect stalls
+    if (progress > lastProgress) {
+      setLastProgress(progress);
+      setShowTimeoutWarning(false);
+    }
+    
     // If progress gets stuck at the same value for more than 20 seconds, show a timeout warning
     let stuckTimer: number | null = null;
     
@@ -29,7 +36,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress, processingType }) =
     return () => {
       if (stuckTimer) window.clearTimeout(stuckTimer);
     };
-  }, [progress, processingType]);
+  }, [progress, processingType, lastProgress]);
   
   if (!processingType) return null;
   

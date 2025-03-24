@@ -10,8 +10,13 @@ export const processImageFile = async (
   onError: (error: string) => void
 ) => {
   try {
-    // Create worker without the problematic logger callback
-    const worker = await createWorker();
+    // Create worker with proper logger to avoid circular reference issues
+    const worker = await createWorker({
+      logger: (m) => {
+        // Safe logging that won't cause circular reference issues
+        console.log(m.status);
+      }
+    });
     
     // Set initial progress
     onProgress(10);
@@ -56,19 +61,29 @@ export const processPDFFile = async (
   onComplete: (text: string) => void,
   onError: (error: string) => void
 ) => {
+  // Create a cancel token
+  let isCancelled = false;
+  
   try {
     // Set up a timeout to handle stalls
     const timeoutId = setTimeout(() => {
+      isCancelled = true;
       onError("Processing is taking longer than expected. Please try again or use a different file format.");
     }, 60000); // 1 minute timeout
     
-    // Extract text from the PDF
-    const extractedText = await extractTextFromPDF(file, onProgress);
+    // Extract text from the PDF with progress reporting
+    const extractedText = await extractTextFromPDF(file, (progress) => {
+      if (isCancelled) return;
+      onProgress(progress);
+    });
     
     // Clear the timeout since we succeeded
     clearTimeout(timeoutId);
     
-    if (extractedText.trim().length === 0) {
+    // If processing was cancelled, don't proceed
+    if (isCancelled) return;
+    
+    if (!extractedText || extractedText.trim().length === 0) {
       onError("No text found in the PDF. Please try with a different file.");
       return;
     }
@@ -80,6 +95,8 @@ export const processPDFFile = async (
     onComplete(cleanedText);
   } catch (err) {
     console.error('PDF processing error:', err);
-    onError("Failed to process the PDF. Please try again with a different file.");
+    if (!isCancelled) {
+      onError("Failed to process the PDF. Please try again with a different file.");
+    }
   }
 };
