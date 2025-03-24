@@ -17,6 +17,7 @@ export const extractTextWithOCR = async (
     logInfo("OCR: Initializing Tesseract worker");
     
     // Create worker with language - this is the correct v6 style
+    // In v6, only pass the language code as a string
     const worker = await createWorker('eng');
     
     // Set up a progress monitoring interval since v6 doesn't support direct progress events

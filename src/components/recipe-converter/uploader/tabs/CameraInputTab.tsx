@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Camera, Loader2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { createWorker } from 'tesseract.js';
+import { extractTextWithOCR } from '@/lib/ai-services/pdf/ocr-processor';
 
 interface CameraInputTabProps {
   onCameraPicture: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -31,41 +32,27 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onCameraPicture }) => {
     setError(null);
     
     try {
-      // Create worker with language - correct v6 usage
-      const worker = await createWorker('eng');
-      
-      // Manual progress update
-      let progressValue = 0;
-      const progressInterval = setInterval(() => {
-        if (progressValue < 95) {
-          progressValue += 5;
+      // Use our OCR processor to handle the image processing
+      await extractTextWithOCR(
+        file, 
+        (progressValue) => {
           setProgress(progressValue);
         }
-      }, 1000);
+      );
       
-      // Recognize text from the image using v6 API
-      const result = await worker.recognize(file);
-      
-      // Clear progress interval
-      clearInterval(progressInterval);
+      // Set progress to 100% when done
       setProgress(100);
       
-      // Clean up the worker
-      await worker.terminate();
-      
       // Create a synthetic event to pass to the original handler
-      if (result.data.text.trim().length > 0) {
-        // We need to create a synthetic change event with the extracted text
-        // But since we can't easily do that, we'll call the original handler 
-        // and then handle the actual OCR result in a separate component
-        onCameraPicture(e);
-      } else {
-        setError("No text found in the image. Please try with a clearer image.");
-      }
+      onCameraPicture(e);
+      
+      // Reset processing state
+      setTimeout(() => {
+        setIsProcessing(false);
+      }, 1000);
     } catch (err) {
       console.error('OCR processing error:', err);
       setError("Failed to process the image. Please try again with a different image.");
-    } finally {
       setIsProcessing(false);
     }
   };
