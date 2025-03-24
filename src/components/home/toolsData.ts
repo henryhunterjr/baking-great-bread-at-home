@@ -40,7 +40,7 @@ export const toolsData: Tool[] = [
     title: "Baker's Quiz",
     image: "/lovable-uploads/43096bea-2727-4df7-ab45-0e160b2c1f73.png",
     description: "Test your bread baking knowledge with our comprehensive and fun interactive quiz.",
-    link: "https://bakers-quizfest.lovable.app/",
+    link: "https://bit.ly/3BpqJ4A",
     isExternalLink: true
   },
   {
@@ -73,6 +73,14 @@ export const toolsData: Tool[] = [
     image: "/lovable-uploads/46ed338d-9a52-49da-8d38-1c86a20b37bc.png",
     description: "Advanced quiz about sourdough baking techniques and principles.",
     link: "https://websim.ai/c/9kOvx5voUJA6yAh",
+    isExternalLink: true
+  },
+  {
+    id: 10,
+    title: "Vitale Sourdough Co.",
+    image: "/lovable-uploads/9c2cd88d-e851-487d-8f9d-7d6f60a1f117.png",
+    description: "You will be baking bread in 3-Days with Vitale Sourdough Starter.",
+    link: "https://vitale-sourdough-co-jutermf.gamma.site/",
     isExternalLink: true
   }
 ];
@@ -137,5 +145,15 @@ export const affiliateProductsData: AffiliateProduct[] = [
     link: "https://hollandbowlmill.com/baking/?wpam_id=10",
     discountCode: "Use Code BREAD at Checkout to Save 10%",
     icon: "🪵"
+  },
+  {
+    id: 7,
+    brand: "Vitale Sourdough Co.",
+    name: "Dehydrated Sourdough Starter",
+    description: "You will be baking bread in 3-Days with Vitale Sourdough Starter.",
+    image: "/lovable-uploads/9c2cd88d-e851-487d-8f9d-7d6f60a1f117.png",
+    link: "https://www.etsy.com/listing/1647278386/you-will-be-baking-bread-in-3-days-with?etsrc=sdt",
+    discountCode: "",
+    icon: "🥖"
   }
 ];
