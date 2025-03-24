@@ -1,6 +1,9 @@
 
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import { Link } from 'react-router-dom';
+import { ChevronLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import ConversionService from '@/components/recipe-converter/ConversionService';
 import RecipeForm from '@/components/recipe-converter/RecipeForm';
 import RecipeCard from '@/components/recipe-converter/RecipeCard';
@@ -99,68 +102,82 @@ const RecipeConverter: React.FC = () => {
   };
   
   return (
-    <div className="container max-w-6xl py-8 md:py-12">
-      <h1 className="section-title text-center mb-3">From Card to Kitchen</h1>
-      <p className="section-subtitle text-center mb-8">
-        Convert old family recipes, scanned images, or digital clippings into clean, standardized recipe cards
-      </p>
-      
-      <div className="mb-8">
-        <Card className="overflow-hidden border-none shadow-lg">
-          <AspectRatio ratio={16/9} className="bg-muted">
-            <img 
-              src="/lovable-uploads/6bd70716-b37b-49fa-8e85-78c9c1002c23.png" 
-              alt="Vintage handwritten recipe card" 
-              className="object-cover w-full h-full brightness-90"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
-              <div className="p-6 text-white">
-                <h2 className="text-2xl font-serif font-semibold">Preserve Your Family Legacy</h2>
-                <p className="text-sm opacity-90">Transform treasured handwritten recipes into digital format that will last for generations</p>
-              </div>
-            </div>
-          </AspectRatio>
-        </Card>
+    <div className="min-h-screen pb-12">
+      {/* Navigation header */}
+      <div className="border-b border-muted/30 mb-8">
+        <div className="container max-w-6xl py-4 flex items-center">
+          <Link to="/">
+            <Button variant="ghost" size="sm" className="gap-1">
+              <ChevronLeft className="h-4 w-4" />
+              Back to Home
+            </Button>
+          </Link>
+        </div>
       </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          {!recipe.isConverted ? (
-            <ConversionService onConversionComplete={handleConversionComplete} />
-          ) : isEditing ? (
-            <RecipeForm 
-              initialRecipe={recipe} 
-              onSave={handleSaveRecipe} 
-              onCancel={() => setIsEditing(false)} 
-            />
-          ) : (
-            <div className="space-y-4">
-              <RecipeCard 
-                recipe={recipe} 
-                onEdit={() => setIsEditing(true)} 
-                onPrint={() => window.print()} 
-                onReset={() => {
-                  setRecipe(defaultRecipe);
-                  setIsEditing(false);
-                }}
+
+      <div className="container max-w-6xl">
+        <h1 className="section-title text-center mb-3">From Card to Kitchen</h1>
+        <p className="section-subtitle text-center mb-8">
+          Convert old family recipes, scanned images, or digital clippings into clean, standardized recipe cards
+        </p>
+        
+        <div className="mb-8">
+          <Card className="overflow-hidden border-none shadow-lg">
+            <AspectRatio ratio={16/9} className="bg-muted">
+              <img 
+                src="/lovable-uploads/6bd70716-b37b-49fa-8e85-78c9c1002c23.png" 
+                alt="Vintage handwritten recipe card" 
+                className="object-cover w-full h-full brightness-90"
               />
-            </div>
-          )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
+                <div className="p-6 text-white">
+                  <h2 className="text-2xl font-serif font-semibold">Preserve Your Family Legacy</h2>
+                  <p className="text-sm opacity-90">Transform treasured handwritten recipes into digital format that will last for generations</p>
+                </div>
+              </div>
+            </AspectRatio>
+          </Card>
         </div>
         
-        <div>
-          <Tabs defaultValue="assistant" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="assistant">AI Assistant</TabsTrigger>
-              <TabsTrigger value="favorites">My Recipes</TabsTrigger>
-            </TabsList>
-            <TabsContent value="assistant" className="mt-4">
-              <RecipeAssistant recipe={recipe} />
-            </TabsContent>
-            <TabsContent value="favorites" className="mt-4">
-              <RecipeSavedList onSelectRecipe={handleSelectSavedRecipe} />
-            </TabsContent>
-          </Tabs>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            {!recipe.isConverted ? (
+              <ConversionService onConversionComplete={handleConversionComplete} />
+            ) : isEditing ? (
+              <RecipeForm 
+                initialRecipe={recipe} 
+                onSave={handleSaveRecipe} 
+                onCancel={() => setIsEditing(false)} 
+              />
+            ) : (
+              <div className="space-y-4">
+                <RecipeCard 
+                  recipe={recipe} 
+                  onEdit={() => setIsEditing(true)} 
+                  onPrint={() => window.print()} 
+                  onReset={() => {
+                    setRecipe(defaultRecipe);
+                    setIsEditing(false);
+                  }}
+                />
+              </div>
+            )}
+          </div>
+          
+          <div>
+            <Tabs defaultValue="assistant" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="assistant">AI Assistant</TabsTrigger>
+                <TabsTrigger value="favorites">My Recipes</TabsTrigger>
+              </TabsList>
+              <TabsContent value="assistant" className="mt-4">
+                <RecipeAssistant recipe={recipe} />
+              </TabsContent>
+              <TabsContent value="favorites" className="mt-4">
+                <RecipeSavedList onSelectRecipe={handleSelectSavedRecipe} />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
     </div>
