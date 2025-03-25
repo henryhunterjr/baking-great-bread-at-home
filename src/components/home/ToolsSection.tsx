@@ -37,11 +37,15 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
               <Separator className="w-full border-bread-200 dark:border-bread-700" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-[#F6F6F7] dark:bg-bread-900/40 px-6 py-2 text-2xl md:text-3xl lg:text-4xl font-serif text-bread-800 dark:text-bread-200">
+              <span className="bg-[#F6F6F7] dark:bg-bread-900/40 px-6 py-2 text-3xl md:text-4xl lg:text-5xl font-serif text-bread-800 dark:text-bread-200">
                 Products I Recommend
               </span>
             </div>
           </div>
+          
+          <p className="text-center text-bread-700 dark:text-bread-300 text-lg md:text-xl max-w-3xl mx-auto mb-10 italic">
+            If I don't use it, I don't recommend it. These are the tools in my kitchen—and in my hands every week.
+          </p>
           
           <AffiliateProductsList products={featuredAffiliates} />
         </div>

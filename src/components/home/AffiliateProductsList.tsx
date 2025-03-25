@@ -4,22 +4,16 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AffiliateProductCard, { AffiliateProduct } from './AffiliateProductCard';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AffiliateProductsListProps {
   products: AffiliateProduct[];
 }
 
 const AffiliateProductsList: React.FC<AffiliateProductsListProps> = ({ products }) => {
-  const isMobile = useIsMobile();
-  
-  // Show all products on desktop, fewer on mobile for performance
-  const displayProducts = isMobile ? products.slice(0, 2) : products;
-  
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 mb-8">
-        {displayProducts.map(product => (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-10">
+        {products.map(product => (
           <AffiliateProductCard key={product.id} product={product} />
         ))}
       </div>
