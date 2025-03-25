@@ -13,21 +13,33 @@ export {
   type BlogSearchResponse
 } from './ai-service';
 
+import { configureAI, isAIConfigured } from './ai-service';
+import { logInfo, logError } from '@/utils/logger';
+
 // Initialize the AI service with any stored API key
 export const initializeAIService = (): boolean => {
   try {
     // Check if there's a stored API key in localStorage
     const storedApiKey = localStorage.getItem('openai_api_key');
     
-    if (storedApiKey) {
+    if (storedApiKey && storedApiKey.trim() !== '') {
       // Configure the AI service with the stored API key
       configureAI(storedApiKey);
-      return true;
+      
+      // Verify configuration was successful
+      if (isAIConfigured()) {
+        logInfo('AI service successfully initialized with stored API key');
+        return true;
+      } else {
+        logError('AI service configuration failed despite having an API key');
+        return false;
+      }
+    } else {
+      logInfo('No API key found in localStorage, AI service not initialized');
+      return false;
     }
-    
-    return false;
   } catch (error) {
-    console.error('Error initializing AI service:', error);
+    logError('Error initializing AI service:', { error });
     return false;
   }
 };

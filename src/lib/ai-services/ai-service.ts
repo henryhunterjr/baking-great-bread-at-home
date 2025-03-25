@@ -1,3 +1,4 @@
+
 import { RecipeData } from '@/types/recipeTypes';
 import { AI_CONFIG } from './ai-config';
 import { logInfo, logError } from '@/utils/logger';
@@ -44,6 +45,11 @@ class AIService {
   
   // Configure the service with an API key
   configure(apiKey: string): void {
+    if (!apiKey || apiKey.trim() === '') {
+      logError('Attempted to configure AI service with empty API key');
+      return;
+    }
+    
     this.apiKey = apiKey;
     this.isConfigured = true;
     logInfo('AI Service configured with new API key');
@@ -51,29 +57,22 @@ class AIService {
   
   // Check if the service is properly configured
   isReady(): boolean {
-    return this.isConfigured;
+    return this.isConfigured && !!this.apiKey && this.apiKey.trim() !== '';
   }
   
   // Search the blog for relevant content
   async searchBlog(query: string): Promise<BlogSearchResponse> {
-    if (!this.isConfigured) {
+    if (!this.isReady()) {
       return {
         success: false,
-        error: 'AI service not configured with API key'
+        error: 'AI service not configured with valid API key'
       };
     }
     
     try {
       logInfo('Searching blog for:', { query });
       
-      // This would be replaced with an actual API call to OpenAI
-      // For now, we'll simulate the response
-      
-      // In the real implementation we would:
-      // 1. Call our blog API to get relevant posts
-      // 2. Send those posts + query to OpenAI for relevance ranking
-      // 3. Return the most relevant results
-      
+      // Mock response for testing
       const mockResults = [
         {
           title: `Results for "${query}"`,
@@ -99,10 +98,17 @@ class AIService {
   
   // Process recipe text with AI to convert to structured format
   async processRecipeText(text: string): Promise<RecipeGenerationResponse> {
-    if (!this.isConfigured) {
+    if (!this.isReady()) {
       return {
         success: false,
-        error: 'AI service not configured with API key'
+        error: 'AI service not configured with valid API key'
+      };
+    }
+    
+    if (!text || text.trim() === '') {
+      return {
+        success: false,
+        error: 'No recipe text provided for processing'
       };
     }
     
@@ -113,7 +119,7 @@ class AIService {
       const cleanedText = cleanOCRText(text);
       
       // For now, we'll simulate the response
-      // In the real implementation, we would call the OpenAI API
+      // In a real implementation, we would call the OpenAI API
       
       const mockRecipe: RecipeData = {
         title: 'Sample Recipe from AI',
@@ -162,10 +168,17 @@ class AIService {
   
   // Generate a recipe from a prompt
   async generateRecipe(prompt: string): Promise<RecipeGenerationResponse> {
-    if (!this.isConfigured) {
+    if (!this.isReady()) {
       return {
         success: false,
-        error: 'AI service not configured with API key'
+        error: 'AI service not configured with valid API key'
+      };
+    }
+    
+    if (!prompt || prompt.trim() === '') {
+      return {
+        success: false,
+        error: 'No prompt provided for recipe generation'
       };
     }
     
@@ -223,91 +236,107 @@ class AIService {
   
   // Integrate with OpenAI
   async generateRecipeWithOpenAI(prompt: string): Promise<RecipeGenerationResponse> {
-    if (!this.isConfigured) {
+    if (!this.isReady()) {
       return {
         success: false,
-        error: 'AI service not configured with API key'
+        error: 'AI service not configured with valid API key'
+      };
+    }
+    
+    if (!prompt || prompt.trim() === '') {
+      return {
+        success: false,
+        error: 'No prompt provided for recipe generation'
       };
     }
     
     try {
       logInfo('Generating recipe with OpenAI', { prompt });
       
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: AI_CONFIG.openai.model,
-          messages: [
-            {
-              role: 'system',
-              content: `You are a professional baker specialized in creating detailed bread recipes. 
-              Format your response as a JSON object with the following structure:
-              {
-                "title": "Recipe name",
-                "description": "Brief introduction to the recipe",
-                "ingredients": ["ingredient 1", "ingredient 2", ...],
-                "steps": ["step 1", "step 2", ...],
-                "prepTime": "preparation time in minutes",
-                "cookTime": "cooking/baking time in minutes",
-                "tips": ["tip 1", "tip 2", ...],
-                "tags": ["tag1", "tag2", ...]
-              }
-              Do not include any explanations or markdown, just the JSON object.`
-            },
-            {
-              role: 'user',
-              content: `Create a detailed bread recipe for: ${prompt}`
-            }
-          ]
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      const content = data.choices?.[0]?.message?.content;
-      
-      if (!content) {
-        throw new Error('No content returned from OpenAI');
-      }
-      
       try {
-        // Extract the JSON from the response
-        const jsonMatch = content.match(/\{[\s\S]*\}/);
-        const jsonString = jsonMatch ? jsonMatch[0] : content;
-        const recipeData = JSON.parse(jsonString);
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: AI_CONFIG.openai.model || 'gpt-4-0613',
+            messages: [
+              {
+                role: 'system',
+                content: `You are a professional baker specialized in creating detailed bread recipes. 
+                Format your response as a JSON object with the following structure:
+                {
+                  "title": "Recipe name",
+                  "description": "Brief introduction to the recipe",
+                  "ingredients": ["ingredient 1", "ingredient 2", ...],
+                  "steps": ["step 1", "step 2", ...],
+                  "prepTime": "preparation time in minutes",
+                  "cookTime": "cooking/baking time in minutes",
+                  "tips": ["tip 1", "tip 2", ...],
+                  "tags": ["tag1", "tag2", ...]
+                }
+                Do not include any explanations or markdown, just the JSON object.`
+              },
+              {
+                role: 'user',
+                content: `Create a detailed bread recipe for: ${prompt}`
+              }
+            ]
+          })
+        });
         
-        // Convert to our RecipeData format
-        const recipe: RecipeData = {
-          title: recipeData.title,
-          introduction: recipeData.description,
-          ingredients: recipeData.ingredients,
-          instructions: recipeData.steps,
-          prepTime: `${recipeData.prepTime} minutes`,
-          bakeTime: `${recipeData.cookTime} minutes`,
-          totalTime: `${parseInt(recipeData.prepTime) + parseInt(recipeData.cookTime)} minutes`,
-          tips: recipeData.tips || [],
-          proTips: [],
-          equipmentNeeded: [],
-          imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a',
-          tags: recipeData.tags || [],
-          isConverted: true,
-          restTime: '',
-          isPublic: false
-        };
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          const statusText = response.statusText || 'Unknown error';
+          throw new Error(`OpenAI API error (${response.status}): ${statusText}. ${errorData.error?.message || ''}`);
+        }
         
-        return {
-          success: true,
-          recipe
-        };
-      } catch (parseError) {
-        throw new Error(`Failed to parse OpenAI response: ${parseError.message}`);
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content;
+        
+        if (!content) {
+          throw new Error('No content returned from OpenAI');
+        }
+        
+        try {
+          // Extract the JSON from the response
+          const jsonMatch = content.match(/\{[\s\S]*\}/);
+          const jsonString = jsonMatch ? jsonMatch[0] : content;
+          const recipeData = JSON.parse(jsonString);
+          
+          // Convert to our RecipeData format with defaults
+          const recipe: RecipeData = {
+            title: recipeData.title || 'New Recipe',
+            introduction: recipeData.description || '',
+            ingredients: recipeData.ingredients || [],
+            instructions: recipeData.steps || [],
+            prepTime: recipeData.prepTime ? `${recipeData.prepTime} minutes` : '',
+            bakeTime: recipeData.cookTime ? `${recipeData.cookTime} minutes` : '',
+            totalTime: recipeData.prepTime && recipeData.cookTime ? 
+              `${parseInt(recipeData.prepTime) + parseInt(recipeData.cookTime)} minutes` : '',
+            tips: recipeData.tips || [],
+            proTips: [],
+            equipmentNeeded: [],
+            imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a',
+            tags: recipeData.tags || [],
+            isConverted: true,
+            restTime: '',
+            isPublic: false
+          };
+          
+          return {
+            success: true,
+            recipe
+          };
+        } catch (parseError) {
+          logError('Failed to parse OpenAI response:', { error: parseError, content });
+          throw new Error(`Failed to parse OpenAI response: ${parseError.message}`);
+        }
+      } catch (apiError) {
+        logError('OpenAI API error:', { error: apiError });
+        throw new Error(`OpenAI API error: ${apiError.message}`);
       }
     } catch (error) {
       logError('Error generating recipe with OpenAI:', { error });
@@ -321,7 +350,7 @@ class AIService {
   
   // Process OCR results from images
   async processOCRText(text: string): Promise<string> {
-    if (!this.isConfigured) {
+    if (!this.isReady()) {
       return text;
     }
     

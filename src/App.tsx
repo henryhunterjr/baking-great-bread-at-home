@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { runBrowserCompatibilityCheck } from './utils/crossBrowserTesting';
 import { ThemeProvider } from '@/contexts/ThemeContext';
@@ -13,6 +13,8 @@ import { lazy, Suspense } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import DevToolsToggle from './components/dev/DevToolsToggle';
 import { initializeAIService } from './lib/ai-services';
+import { logError, logInfo } from './utils/logger';
+import { useToast } from './hooks/use-toast';
 import './App.css';
 
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
@@ -22,19 +24,36 @@ const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
 const AIHome = lazy(() => import('./pages/AIHome'));
 
 function App() {
+  const { toast } = useToast();
+  const [aiInitialized, setAiInitialized] = useState<boolean>(false);
+
   useEffect(() => {
     // Run compatibility check on app startup
     runBrowserCompatibilityCheck();
     
     // Initialize AI service from stored API key if available
     try {
-      initializeAIService();
-      console.log('AI service initialized successfully');
+      const initialized = initializeAIService();
+      setAiInitialized(initialized);
+      
+      if (initialized) {
+        logInfo('AI service initialized successfully');
+      } else {
+        logInfo('AI service not initialized - no API key found');
+      }
     } catch (error) {
-      console.error('Failed to initialize AI service:', error);
+      logError('Failed to initialize AI service:', error);
+      
+      // Show a toast with the error
+      toast({
+        variant: "destructive",
+        title: "AI Service Error",
+        description: "Failed to initialize AI services. Some features may be limited.",
+      });
+      
       // Continue app execution even if AI initialization fails
     }
-  }, []);
+  }, [toast]);
 
   return (
     <ThemeProvider>
@@ -50,7 +69,7 @@ function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-            <Route path="/ai" element={<AIHome />} />
+            <Route path="/ai" element={<AIHome aiInitialized={aiInitialized} />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>

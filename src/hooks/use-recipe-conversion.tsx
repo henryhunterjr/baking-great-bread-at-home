@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { RecipeData } from '@/types/recipeTypes';
 import { convertRecipeText } from '@/lib/recipe-conversion/conversion-service';
-import { logError } from '@/utils/logger';
+import { logError, logInfo } from '@/utils/logger';
 
 /**
  * Hook to manage recipe conversion state and process
@@ -20,11 +20,14 @@ export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) =
         title: "Empty Text",
         description: "Please enter some recipe text to convert.",
       });
+      setConversionError("Empty text cannot be processed");
       return;
     }
     
     setIsConverting(true);
     setConversionError(null);
+    
+    logInfo('Starting recipe conversion process', { textLength: text.length });
     
     try {
       await convertRecipeText(
@@ -36,6 +39,8 @@ export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) =
             title: "Recipe Converted!",
             description: "Your recipe has been successfully converted. You can now edit, save, or print it.",
           });
+          
+          logInfo('Recipe conversion completed successfully');
         },
         (error) => {
           const errorMessage = error.message || "We couldn't convert your recipe. Please try again or use a different format.";
