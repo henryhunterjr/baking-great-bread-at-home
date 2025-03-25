@@ -7,5 +7,10 @@ export const AI_CONFIG = {
     recipeProcessor: 'recipe-processor-v1',
     recipeGenerator: 'recipe-generator-v1',
     chatAssistant: 'kitchen-assistant-v1'
+  },
+  openai: {
+    apiUrl: 'https://api.openai.com/v1',
+    apiKey: import.meta.env.VITE_OPENAI_API_KEY, // This will be configured by the user
+    model: 'gpt-4o-mini' // Using the recommended model
   }
 };

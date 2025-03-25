@@ -6,6 +6,7 @@ export interface ChatMessage {
   attachedRecipe?: RecipeSearchResult;
   attachedBook?: BookSearchResult;
   attachedChallenge?: ChallengeSearchResult;
+  isGenerating?: boolean;
 }
 
 export interface RecipeSearchResult {
@@ -13,6 +14,7 @@ export interface RecipeSearchResult {
   description: string;
   imageUrl: string;
   link: string;
+  isGenerated?: boolean;
 }
 
 export interface BookSearchResult {
@@ -28,4 +30,17 @@ export interface ChallengeSearchResult {
   description: string;
   imageUrl: string;
   link: string;
+}
+
+export interface OpenAIRecipeResponse {
+  recipe: {
+    title: string;
+    description: string;
+    ingredients: string[];
+    instructions: string[];
+    tips?: string[];
+    prepTime?: string;
+    cookTime?: string;
+    servings?: number;
+  };
 }

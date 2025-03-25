@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessage } from '../utils/types';
-import { searchRecipes, findRelevantBook, getCurrentChallenge } from '../utils/aiHelpers';
+import { searchRecipes, findRelevantBook, getCurrentChallenge, generateRecipeWithAI } from '../utils/aiHelpers';
 import { henryQuotes } from '../utils/data';
 import MessageList from '../chat/MessageList';
 import MessageInputForm from '../chat/MessageInputForm';
@@ -40,12 +41,13 @@ const ChatTab: React.FC<ChatTabProps> = ({
     setIsProcessing(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       let response = '';
       let attachedRecipe: ChatMessage['attachedRecipe'] = undefined;
       let attachedBook: ChatMessage['attachedBook'] = undefined;
       let attachedChallenge: ChatMessage['attachedChallenge'] = undefined;
+      let isGenerating = false;
       
       const lowercaseInput = message.toLowerCase();
       
@@ -57,9 +59,18 @@ const ChatTab: React.FC<ChatTabProps> = ({
         lowercaseInput.includes('get me a') ||
         lowercaseInput.includes('do you have a');
       
-      if (isRecipeRequest) {
+      // Check for recipe names without explicit "recipe" keyword
+      const containsRecipeKeywords = [
+        'bread', 'loaf', 'sourdough', 'challah', 'rolls', 'buns', 
+        'cookies', 'cake', 'pie', 'muffins', 'scones', 'biscuits',
+        'cinnamon rolls', 'pastry', 'croissant'
+      ].some(keyword => lowercaseInput.includes(keyword));
+      
+      if (isRecipeRequest || containsRecipeKeywords) {
         // Extract search terms, removing common phrases
-        const searchTerms = message.replace(/recipe for|how to make|get me a recipe for|do you have a recipe for|can you get me a|can i get a|can you get|get me/gi, '').trim();
+        const searchTerms = message
+          .replace(/recipe for|how to make|get me a recipe for|do you have a recipe for|can you get me a|can i get a|can you get|get me/gi, '')
+          .trim();
         
         if (searchTerms.length > 2) {
           const searchResults = await searchRecipes(searchTerms);
@@ -78,7 +89,46 @@ const ChatTab: React.FC<ChatTabProps> = ({
               }
             }
           } else {
-            response = `I couldn't find a specific recipe for "${searchTerms}". Would you like me to help you generate a custom recipe instead? Or maybe try searching with different terms?`;
+            // No recipe found, let's try to generate one with OpenAI
+            isGenerating = true;
+            
+            // Add a temporary generating message
+            const generatingMessage: ChatMessage = {
+              role: 'assistant',
+              content: `I'm generating a custom recipe for ${searchTerms} based on Henry's techniques. This will take just a moment...`,
+              timestamp: new Date(),
+              isGenerating: true
+            };
+            
+            setMessages(prev => [...prev, generatingMessage]);
+            
+            try {
+              const generatedRecipe = await generateRecipeWithAI(searchTerms);
+              
+              // Remove the generating message
+              setMessages(prev => prev.filter(m => !m.isGenerating));
+              
+              if (generatedRecipe) {
+                attachedRecipe = generatedRecipe;
+                
+                if (searchTerms.toLowerCase().includes("cinnamon rolls") && 
+                    searchTerms.toLowerCase().includes("henry")) {
+                  response = `I've created Henry's famous Cinnamon Rolls recipe for you! These rolls are based on Henry's signature techniques for perfect texture and flavor. The recipe includes detailed instructions and helpful tips for making them at home.`;
+                } else {
+                  response = `I've created a custom recipe for ${searchTerms} using Henry's techniques! This recipe is designed to give you the best results at home. Let me know if you'd like me to adjust any part of it.`;
+                }
+              } else {
+                response = `I couldn't find a specific recipe for "${searchTerms}" and wasn't able to generate one at the moment. Would you like me to help you search with different terms?`;
+              }
+              
+              isGenerating = false;
+            } catch (error) {
+              // Remove the generating message
+              setMessages(prev => prev.filter(m => !m.isGenerating));
+              console.error("Error generating recipe:", error);
+              response = `I tried to create a recipe for "${searchTerms}" but encountered an error. Would you like to try a different search term?`;
+              isGenerating = false;
+            }
           }
         } else {
           response = "I'd be happy to help you find a recipe! Could you please provide a bit more detail about what kind of recipe you're looking for?";
@@ -141,38 +191,82 @@ const ChatTab: React.FC<ChatTabProps> = ({
         }
       }
       else if (lowercaseInput.includes('hello') || lowercaseInput.includes('hi') || lowercaseInput.includes('hey') || lowercaseInput.match(/^(hello|hi|hey|greetings)/)) {
-        response = "Hello! I'm your Baking Assistant, steeped in Henry's baking wisdom. I can help with recipes, technique questions, troubleshooting, or creating new bread ideas. What would you like to learn about today?";
+        response = "Hello! I'm your Baking Assistant! I can help you with bread recipes, answer baking questions, search for Henry's recipes, recommend books, tell you about the current baking challenge, or convert recipes from images or text. How can I help you today?";
       }
       else {
-        // Check if query might be about a specific bread type without saying "recipe"
-        const breadTypes = ['sourdough', 'challah', 'rye', 'focaccia', 'brioche'];
-        const breadTypeMatch = breadTypes.find(type => lowercaseInput.includes(type));
+        // Check if this might be a specific recipe request without using recipe keywords
+        const specialRecipeNames = [
+          { term: 'cinnamon rolls', recipe: 'Henry Cinnamon Rolls' },
+          { term: 'sourdough', recipe: 'sourdough bread' },
+          { term: 'challah', recipe: 'challah bread' },
+          { term: 'focaccia', recipe: 'focaccia' },
+          { term: 'brioche', recipe: 'brioche' }
+        ];
         
-        if (breadTypeMatch) {
-          const searchResults = await searchRecipes(message);
-          if (searchResults.length > 0) {
-            attachedRecipe = searchResults[0];
-            response = `I found a ${breadTypeMatch} recipe that might be what you're looking for! You can click the link to see the full recipe.`;
-          } else {
-            const randomQuote = henryQuotes[Math.floor(Math.random() * henryQuotes.length)];
-            response = `I can help you with ${breadTypeMatch} bread questions. What specifically would you like to know about making ${breadTypeMatch} bread?\n\nAs Henry always says, "${randomQuote}"`;
+        const matchedRecipe = specialRecipeNames.find(item => 
+          lowercaseInput.includes(item.term)
+        );
+        
+        if (matchedRecipe) {
+          // This might be a recipe request
+          isGenerating = true;
+          
+          // Add a temporary generating message
+          const generatingMessage: ChatMessage = {
+            role: 'assistant',
+            content: `I'm generating a recipe for ${matchedRecipe.recipe}. This will take just a moment...`,
+            timestamp: new Date(),
+            isGenerating: true
+          };
+          
+          setMessages(prev => [...prev, generatingMessage]);
+          
+          try {
+            const generatedRecipe = await generateRecipeWithAI(matchedRecipe.recipe);
+            
+            // Remove the generating message
+            setMessages(prev => prev.filter(m => !m.isGenerating));
+            
+            if (generatedRecipe) {
+              attachedRecipe = generatedRecipe;
+              response = `I've created a recipe for ${matchedRecipe.recipe} that I think you'll enjoy! This recipe uses Henry's techniques for the best results. Let me know if you have any questions about the preparation.`;
+            } else {
+              const searchResults = await searchRecipes(matchedRecipe.recipe);
+              if (searchResults.length > 0) {
+                attachedRecipe = searchResults[0];
+                response = `I found this great recipe for ${matchedRecipe.recipe} that you might enjoy! You can click the link to see the full recipe details.`;
+              } else {
+                response = `I'd be happy to help you with ${matchedRecipe.term}! What specifically would you like to know about making ${matchedRecipe.term}?`;
+              }
+            }
+            
+            isGenerating = false;
+          } catch (error) {
+            // Remove the generating message
+            setMessages(prev => prev.filter(m => !m.isGenerating));
+            console.error("Error generating recipe:", error);
+            response = `I'd be happy to help you with ${matchedRecipe.term}! What specifically would you like to know about making ${matchedRecipe.term}?`;
+            isGenerating = false;
           }
         } else {
+          // General response for unclear queries
           const randomQuote = henryQuotes[Math.floor(Math.random() * henryQuotes.length)];
           response = `That's an interesting baking question! While I don't have specific information on that topic right now, I can help with recipe conversion, bread techniques, troubleshooting common issues, or generating new recipe ideas. Feel free to ask something else or try one of the other tabs for recipe conversion or generation.\n\nAs Henry always says, "${randomQuote}"`;
         }
       }
       
-      const assistantMessage: ChatMessage = {
-        role: 'assistant',
-        content: response,
-        timestamp: new Date(),
-        attachedRecipe,
-        attachedBook,
-        attachedChallenge
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
+      if (!isGenerating) {
+        const assistantMessage: ChatMessage = {
+          role: 'assistant',
+          content: response,
+          timestamp: new Date(),
+          attachedRecipe,
+          attachedBook,
+          attachedChallenge
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+      }
     } catch (error) {
       console.error('Error processing message:', error);
       toast({

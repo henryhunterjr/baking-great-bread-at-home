@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { ExternalLink, Book, Calendar } from 'lucide-react';
+import { ExternalLink, Book, Calendar, ChefHat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChatMessage } from '../utils/types';
@@ -38,12 +39,19 @@ const MessageAttachment: React.FC<MessageAttachmentProps> = ({ message }) => {
                 variant="outline" 
                 size="sm" 
                 className="w-full text-xs h-7 mt-1"
-                asChild
+                asChild={!message.attachedRecipe.isGenerated}
               >
-                <a href={message.attachedRecipe.link} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="h-3 w-3 mr-1" />
-                  View Recipe
-                </a>
+                {message.attachedRecipe.isGenerated ? (
+                  <div className="flex items-center justify-center">
+                    <ChefHat className="h-3 w-3 mr-1" />
+                    AI Generated Recipe
+                  </div>
+                ) : (
+                  <a href={message.attachedRecipe.link} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="h-3 w-3 mr-1" />
+                    View Recipe
+                  </a>
+                )}
               </Button>
             </CardContent>
           </div>

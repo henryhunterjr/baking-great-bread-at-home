@@ -4,7 +4,7 @@ import { booksData } from './data';
 import BlogService from '@/services/BlogService';
 import { recipesData } from '@/data/recipesData';
 import { challenges } from '@/data/challengesData';
-import { generateRecipe } from '@/lib/ai-services/ai-service';
+import { generateRecipe, generateRecipeWithOpenAI } from '@/lib/ai-services/ai-service';
 
 // Current challenge is the first one in the challenges array
 export const getCurrentChallenge = () => challenges[0];
@@ -97,6 +97,29 @@ export const searchRecipes = async (query: string): Promise<RecipeSearchResult[]
     }
     
     return [];
+  }
+};
+
+// Generate a recipe using OpenAI API
+export const generateRecipeWithAI = async (query: string): Promise<RecipeSearchResult | null> => {
+  try {
+    const response = await generateRecipeWithOpenAI(query);
+    
+    if (!response || !response.recipe) {
+      return null;
+    }
+    
+    // Create a recipe result from the OpenAI response
+    return {
+      title: response.recipe.title,
+      description: response.recipe.description,
+      imageUrl: "/lovable-uploads/e000aa47-dec6-46ac-b437-e0a1985fcc5f.png", // Default image for AI-generated recipes
+      link: "#", // AI-generated recipes don't have a link yet
+      isGenerated: true
+    };
+  } catch (error) {
+    console.error("Error generating recipe with AI:", error);
+    return null;
   }
 };
 
