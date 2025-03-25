@@ -1,4 +1,3 @@
-
 import { Tool } from './ToolCard';
 import { AffiliateProduct } from './AffiliateProductCard';
 
@@ -48,7 +47,7 @@ export const toolsData: Tool[] = [
     title: "Sourdough for the Rest of Us",
     image: "/lovable-uploads/9c1c5006-46ce-47e5-8b43-615ce7e14ecc.png",
     description: "A simple, stress-free guide that makes sourdough baking accessible to everyone.",
-    link: "https://sourdough-simplified-gift.lovable.app/sourdough-for-the-rest",
+    link: "https://sourdough-simplified-gift.vercel.app/",
     isExternalLink: true
   },
   {

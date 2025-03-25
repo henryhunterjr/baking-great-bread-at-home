@@ -17,9 +17,9 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
     {
       id: 1,
       title: "Bread: A Journey Through History, Science, Art, and Community",
-      image: "/lovable-uploads/147235a4-ba60-4748-8b66-0f589298ffe0.png",
+      image: "/lovable-uploads/1da6a5af-6269-4a91-ad2e-8d6bbb3bfd5d.png",
       description: "Explore the cultural and scientific history of bread through the ages.",
-      link: "https://amzn.to/3znnSrA",
+      link: "https://a.co/d/8QuikPc",
       isExternalLink: true
     },
     {
@@ -57,9 +57,9 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
     {
       id: 6,
       title: "Sourdough for the Rest of Us",
-      image: "/lovable-uploads/1da6a5af-6269-4a91-ad2e-8d6bbb3bfd5d.png",
+      image: "/lovable-uploads/147235a4-ba60-4748-8b66-0f589298ffe0.png",
       description: "Perfection Not Required - A free guide to get you started with sourdough baking.",
-      link: "https://bit.ly/3XjRKP3",
+      link: "https://sourdough-simplified-gift.vercel.app/",
       isExternalLink: true
     }
   ];
