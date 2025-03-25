@@ -1,6 +1,12 @@
 
 import { ChatMessage } from '../../utils/types';
-import { searchRecipes, findRelevantBook, getCurrentChallenge, generateRecipeWithAI } from '../../utils/aiHelpers';
+import { 
+  searchBlogWithAI, 
+  generateRecipe, 
+  generateRecipeWithOpenAI, 
+  isAIConfigured 
+} from '@/lib/ai-services';
+import { findRelevantBook, getCurrentChallenge } from '../../utils/aiHelpers';
 import { challengeImages, DEFAULT_CHALLENGE_IMAGE } from '@/data/challengeImages';
 
 // Handle recipe search requests
@@ -35,13 +41,44 @@ export const handleRecipeRequest = async (
     
     console.log(`Extracted search terms: "${searchTerms}"`);
     
-    // Search for recipes
-    const recipes = await searchRecipes(searchTerms);
+    // Check if AI is configured
+    if (isAIConfigured()) {
+      // Use AI to search for recipes
+      const searchResponse = await searchBlogWithAI(searchTerms);
+      
+      if (searchResponse.success && searchResponse.results && searchResponse.results.length > 0) {
+        const recipe = searchResponse.results[0];
+        
+        const responseMessage: ChatMessage = {
+          role: 'assistant',
+          content: `I found a recipe that matches your search for "${query}": ${recipe.title}. Here it is!`,
+          timestamp: new Date(),
+          attachedRecipe: {
+            title: recipe.title,
+            description: recipe.excerpt,
+            imageUrl: recipe.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a',
+            link: recipe.link
+          }
+        };
+        
+        // Replace the searching message with the actual response
+        setMessages(prev => prev.map(msg => 
+          msg === searchingMessage ? responseMessage : msg
+        ));
+        
+        return;
+      }
+    }
+    
+    // If AI search fails or AI is not configured, fall back to local search
+    const searchResults = await import('../../utils/aiHelpers').then(module => 
+      module.searchRecipes(searchTerms)
+    );
     
     let responseMessage: ChatMessage;
     
-    if (recipes.length > 0) {
-      const recipe = recipes[0]; // Use the top matching recipe
+    if (searchResults.length > 0) {
+      const recipe = searchResults[0]; // Use the top matching recipe
       responseMessage = {
         role: 'assistant',
         content: `I found a recipe that matches your search for "${query}": ${recipe.title}. Here it is!`,
@@ -49,17 +86,42 @@ export const handleRecipeRequest = async (
         attachedRecipe: recipe
       };
     } else {
-      // No regular recipes found, try to generate a recipe with AI
-      const generatedRecipe = await generateRecipeWithAI(searchTerms);
-      
-      if (generatedRecipe) {
-        responseMessage = {
-          role: 'assistant',
-          content: `I don't have an exact match for "${query}", but I've generated a recipe for you based on your request:`,
-          timestamp: new Date(),
-          attachedRecipe: generatedRecipe
-        };
+      // No regular recipes found, try to generate a recipe with AI if configured
+      if (isAIConfigured()) {
+        try {
+          const generatedRecipeResponse = await generateRecipeWithOpenAI(searchTerms);
+          
+          if (generatedRecipeResponse.success && generatedRecipeResponse.recipe) {
+            responseMessage = {
+              role: 'assistant',
+              content: `I don't have an exact match for "${query}", but I've generated a recipe for you based on your request:`,
+              timestamp: new Date(),
+              attachedRecipe: {
+                title: generatedRecipeResponse.recipe.title,
+                description: generatedRecipeResponse.recipe.introduction,
+                imageUrl: generatedRecipeResponse.recipe.imageUrl,
+                link: '#',
+                isGenerated: true
+              }
+            };
+          } else {
+            // Fallback message if generation fails
+            responseMessage = {
+              role: 'assistant',
+              content: `I couldn't find any recipes matching "${query}". Would you like me to help you create a custom recipe instead? Just say "Generate a recipe for [your idea]" and I'll create one for you.`,
+              timestamp: new Date()
+            };
+          }
+        } catch (error) {
+          console.error('Error generating recipe with AI:', error);
+          responseMessage = {
+            role: 'assistant',
+            content: `I couldn't find any recipes matching "${query}". Would you like me to help you create a custom recipe instead? Just say "Generate a recipe for [your idea]" and I'll create one for you.`,
+            timestamp: new Date()
+          };
+        }
       } else {
+        // If AI is not configured
         responseMessage = {
           role: 'assistant',
           content: `I couldn't find any recipes matching "${query}". Would you like me to help you create a custom recipe instead? Just say "Generate a recipe for [your idea]" and I'll create one for you.`,
@@ -169,13 +231,56 @@ export const handleConvertRequest = (
 };
 
 // Handle recipe generation requests
-export const handleGenerateRequest = (
+export const handleGenerateRequest = async (
   query: string,
   setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>,
   setRecipePrompt: (prompt: string) => void,
   setActiveTab: (tab: string) => void,
   setIsProcessing: (value: boolean) => void
-): void => {
+): Promise<void> => {
+  // Check if AI is configured
+  if (isAIConfigured()) {
+    // Add a message to indicate we're generating the recipe
+    const generatingMessage: ChatMessage = {
+      role: 'assistant',
+      content: "I'm generating a custom recipe for you based on your request...",
+      timestamp: new Date(),
+      isGenerating: true
+    };
+    
+    setMessages(prev => [...prev, generatingMessage]);
+    
+    try {
+      // Generate the recipe with AI
+      const generatedRecipeResponse = await generateRecipe(query);
+      
+      if (generatedRecipeResponse.success && generatedRecipeResponse.recipe) {
+        // Replace the generating message with the actual response
+        setMessages(prev => prev.map(msg => 
+          msg === generatingMessage ? {
+            role: 'assistant',
+            content: `I've created a custom recipe for "${query}". Here it is!`,
+            timestamp: new Date(),
+            attachedRecipe: {
+              title: generatedRecipeResponse.recipe.title,
+              description: generatedRecipeResponse.recipe.introduction,
+              imageUrl: generatedRecipeResponse.recipe.imageUrl,
+              link: '#',
+              isGenerated: true
+            }
+          } : msg
+        ));
+        
+        setIsProcessing(false);
+        return;
+      }
+    } catch (error) {
+      console.error('Error generating recipe with AI:', error);
+      // Fall through to the default behavior
+    }
+  }
+  
+  // Default behavior (no AI or AI generation failed)
   // Move to the generate tab with the entered prompt
   setRecipePrompt(query);
   

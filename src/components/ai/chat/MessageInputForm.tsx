@@ -57,10 +57,23 @@ const MessageInputForm: React.FC<MessageInputFormProps> = ({
     }
   };
   
+  // Default questions for the suggested questions component
+  const defaultQuestions = [
+    "Find me a sourdough recipe",
+    "What's the current baking challenge?",
+    "Generate a bread recipe with rosemary",
+    "Convert my recipe for whole wheat bread",
+    "Recommend a good bread baking book",
+    "Do you have a recipe for cinnamon rolls?"
+  ];
+  
   return (
     <div className="p-3 md:p-4 border-t bg-background sticky bottom-0 w-full z-10">
       {showSuggestedQuestions && (
-        <SuggestedQuestions onQuestionSelect={handleSelectQuestion} />
+        <SuggestedQuestions 
+          questions={defaultQuestions}
+          onSelectQuestion={handleSelectQuestion}
+        />
       )}
 
       <form onSubmit={handleSubmit} className="flex items-center gap-2">

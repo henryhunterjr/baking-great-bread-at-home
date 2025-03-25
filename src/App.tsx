@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { runBrowserCompatibilityCheck } from './utils/crossBrowserTesting';
@@ -36,6 +35,9 @@ const PageLoader = () => (
     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-bread-800"></div>
   </div>
 );
+
+// Initialize AI service
+initializeAIService();
 
 function App() {
   useEffect(() => {
