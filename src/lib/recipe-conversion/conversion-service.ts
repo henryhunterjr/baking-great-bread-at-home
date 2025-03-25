@@ -2,6 +2,7 @@
 import { RecipeData } from '@/types/recipeTypes';
 import { processRecipeText } from '@/lib/ai-services';
 import { cleanOCRText } from './cleaners';
+import { logError } from '@/utils/logger';
 
 export const convertRecipeText = async (
   text: string, 
@@ -17,7 +18,7 @@ export const convertRecipeText = async (
     
     // Check if the response is successful and has a recipe
     if (response.success && response.recipe) {
-      // Convert the recipe to RecipeData format
+      // Convert the recipe to RecipeData format with default values for safety
       const convertedRecipe: RecipeData = {
         title: response.recipe.title || 'Untitled Recipe',
         introduction: response.recipe.introduction || '',
@@ -41,6 +42,7 @@ export const convertRecipeText = async (
       throw new Error(response.error || 'Failed to convert recipe');
     }
   } catch (error) {
+    logError('Recipe conversion error:', { error });
     onError(error instanceof Error ? error : new Error(String(error)));
   }
 };

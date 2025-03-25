@@ -15,16 +15,21 @@ export {
 
 // Initialize the AI service with any stored API key
 export const initializeAIService = (): boolean => {
-  // Check if there's a stored API key in localStorage
-  const storedApiKey = localStorage.getItem('openai_api_key');
-  
-  if (storedApiKey) {
-    // Configure the AI service with the stored API key
-    configureAI(storedApiKey);
-    return true;
+  try {
+    // Check if there's a stored API key in localStorage
+    const storedApiKey = localStorage.getItem('openai_api_key');
+    
+    if (storedApiKey) {
+      // Configure the AI service with the stored API key
+      configureAI(storedApiKey);
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Error initializing AI service:', error);
+    return false;
   }
-  
-  return false;
 };
 
 // Export the entire service as default

@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { runBrowserCompatibilityCheck } from './utils/crossBrowserTesting';
@@ -26,13 +27,19 @@ function App() {
     runBrowserCompatibilityCheck();
     
     // Initialize AI service from stored API key if available
-    initializeAIService();
+    try {
+      initializeAIService();
+      console.log('AI service initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize AI service:', error);
+      // Continue app execution even if AI initialization fails
+    }
   }, []);
 
   return (
     <ThemeProvider>
       <ErrorBoundary>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/blog" element={<BlogPage />} />
