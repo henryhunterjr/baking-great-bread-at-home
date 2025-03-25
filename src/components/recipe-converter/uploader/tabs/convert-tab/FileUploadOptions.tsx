@@ -40,18 +40,21 @@ const FileUploadOptions: React.FC<FileUploadOptionsProps> = ({
       />
       
       <CameraButton
+        onImageCapture={handleFileSelect}
         isDisabled={isConverting || isProcessing}
-        onCapture={handleFileSelect}
+        isProcessing={isProcessing}
       />
       
       <ClipboardButton
-        onPaste={handlePasteFromClipboard}
+        onPasteFromClipboard={handlePasteFromClipboard}
         isDisabled={isConverting || isProcessing}
+        isProcessing={isProcessing}
       />
       
       <ClearTextButton
-        onClear={clearText}
+        onClearText={clearText}
         isDisabled={isConverting || isProcessing}
+        isProcessing={isProcessing}
       />
     </div>
   );
