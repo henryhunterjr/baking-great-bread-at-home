@@ -27,7 +27,9 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
           alt={book.title} 
           className={`w-full h-full object-cover transition-transform duration-500 hover:scale-110 ${(book.id === 1 || book.id === 4) ? 'object-top' : 'object-center'}`}
           style={{
-            objectPosition: book.id === 1 ? 'center 15%' : book.id === 4 ? 'center 15%' : 'center'
+            objectPosition: book.id === 1 ? 'center 15%' : 
+                           book.id === 4 ? 'center 15%' : 
+                           book.id === 6 ? 'center 30%' : 'center'
           }}
         />
       </div>
