@@ -26,10 +26,14 @@ export interface BookSearchResult {
 }
 
 export interface ChallengeSearchResult {
+  id?: string;
   title: string;
   description: string;
   imageUrl: string;
   link: string;
+  date?: Date;
+  hashtag?: string;
+  isCurrent?: boolean;
 }
 
 export interface OpenAIRecipeResponse {

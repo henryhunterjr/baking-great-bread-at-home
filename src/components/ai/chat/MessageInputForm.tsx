@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
@@ -9,23 +9,39 @@ import { useIsMobile } from '@/hooks/use-mobile';
 interface MessageInputFormProps {
   onSendMessage: (message: string) => void;
   isProcessing: boolean;
-  showSuggestedQuestions: boolean;
+  showSuggestedQuestions?: boolean;
+  input?: string;
+  setInput?: React.Dispatch<React.SetStateAction<string>>;
+  onSubmit?: (e: FormEvent) => Promise<void> | void;
+  isLoading?: boolean;
 }
 
 const MessageInputForm: React.FC<MessageInputFormProps> = ({ 
   onSendMessage, 
   isProcessing,
-  showSuggestedQuestions
+  showSuggestedQuestions = false,
+  input: externalInput,
+  setInput: externalSetInput,
+  onSubmit: externalOnSubmit,
+  isLoading
 }) => {
-  const [chatInput, setChatInput] = useState('');
+  const [internalInput, setInternalInput] = useState('');
   const isMobile = useIsMobile();
   
-  const handleSubmit = (e: React.FormEvent) => {
+  // Use either external or internal state
+  const chatInput = externalInput !== undefined ? externalInput : internalInput;
+  const setChatInput = externalSetInput || setInternalInput;
+  
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
     
-    onSendMessage(chatInput);
-    setChatInput('');
+    if (externalOnSubmit) {
+      externalOnSubmit(e);
+    } else {
+      onSendMessage(chatInput);
+      setChatInput('');
+    }
   };
   
   const handleSelectQuestion = (question: string) => {
@@ -50,13 +66,13 @@ const MessageInputForm: React.FC<MessageInputFormProps> = ({
           placeholder="Ask about recipes, techniques, or challenges..."
           value={chatInput}
           onChange={(e) => setChatInput(e.target.value)}
-          disabled={isProcessing}
+          disabled={isProcessing || isLoading}
           className="bg-white/90 dark:bg-slate-800/90 border-2 border-bread-700/40 focus:border-bread-700 focus:ring-2 focus:ring-bread-600/30 shadow-md placeholder:text-slate-500 dark:placeholder:text-slate-400"
         />
         <Button 
           type="submit" 
           size="icon"
-          disabled={!chatInput.trim() || isProcessing}
+          disabled={!chatInput.trim() || isProcessing || isLoading}
           className="bg-bread-800 hover:bg-bread-700 shadow-md flex-shrink-0"
         >
           <Send className="h-4 w-4" />

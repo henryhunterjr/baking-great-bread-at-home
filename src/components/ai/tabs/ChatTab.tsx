@@ -8,6 +8,7 @@ import { ChatMessage } from '../utils/types';
 import MessageList from '../chat/MessageList';
 import MessageInputForm from '../chat/MessageInputForm';
 import SuggestedQuestions from '../chat/SuggestedQuestions';
+import { challengeImages, DEFAULT_CHALLENGE_IMAGE } from '@/data/challengeImages';
 
 interface ChatTabProps {
   messages: ChatMessage[];
@@ -185,11 +186,20 @@ const ChatTab: React.FC<ChatTabProps> = ({
   const handleChallengeRequest = async () => {
     const challenge = getCurrentChallenge();
     
+    // Get the challenge image from the mapping or use default
+    const imageUrl = challenge.id && challengeImages[challenge.id] 
+      ? challengeImages[challenge.id] 
+      : DEFAULT_CHALLENGE_IMAGE;
+    
     const challengeMessage: ChatMessage = {
       role: 'assistant',
       content: "Here's the current baking challenge. Join in and share your creation!",
       timestamp: new Date(),
-      attachedChallenge: challenge
+      attachedChallenge: {
+        ...challenge,
+        imageUrl: imageUrl,
+        link: challenge.link || '#'
+      }
     };
     
     setMessages(prev => [...prev, challengeMessage]);
@@ -257,22 +267,29 @@ const ChatTab: React.FC<ChatTabProps> = ({
   return (
     <div className="flex flex-col h-full relative">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        <MessageList messages={messages} />
+        <MessageList 
+          messages={messages}
+          isProcessing={isProcessing}
+        />
         <div ref={messagesEndRef} />
       </div>
       
       <div className="p-4 border-t">
         <MessageInputForm 
+          onSendMessage={() => {}} // Placeholder
+          isProcessing={isProcessing}
           input={input}
           setInput={setInput}
           onSubmit={handleSendMessage}
           isLoading={isProcessing}
+          showSuggestedQuestions={false}
         />
         
         {messages.length <= 1 && (
           <div className="mt-4">
             <p className="text-sm text-muted-foreground mb-2">Try asking:</p>
             <SuggestedQuestions 
+              onQuestionSelect={setInput}
               questions={suggestedQuestions}
               onSelect={setInput}
             />
