@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +15,7 @@ const AppPromoSection: React.FC<AppPromoSectionProps> = ({ sectionRef }) => {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center">
             <div className="order-2 md:order-1">
-              <Badge variant="tool" className="mb-4">Digital Tools</Badge>
+              <Badge variant="tool" className="mb-4 text-sm px-3 py-1">Digital Tools</Badge>
               <h2 className="font-serif text-3xl md:text-4xl font-medium mb-4">
                 Crust & Crumb App
               </h2>

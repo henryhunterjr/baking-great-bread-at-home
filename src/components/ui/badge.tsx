@@ -16,8 +16,8 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
-        tool: "border-transparent bg-accent text-accent-foreground font-bold", // Adding a high-contrast 'tool' variant
-        blog: "border-transparent bg-rose-600 text-white font-bold hover:bg-rose-700", // High contrast blog badge with improved color
+        tool: "border-transparent bg-[#8B5CF6] text-white font-bold shadow-sm", // Updated to high-contrast purple
+        blog: "border-transparent bg-rose-600 text-white font-bold hover:bg-rose-700 shadow-sm", // Kept rose color with shadow
       },
     },
     defaultVariants: {

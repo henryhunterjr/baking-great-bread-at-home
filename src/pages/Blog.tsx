@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useBlogPosts } from '@/services/BlogService';
 import BlogPostCard, { BlogPostCardSkeleton } from '@/components/BlogPostCard';
@@ -9,6 +8,7 @@ import { RefreshCw, Search, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { Badge } from '@/components/ui/badge';
 
 const Blog = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,7 +19,6 @@ const Blog = () => {
   
   const { posts, loading, error } = useBlogPosts(debouncedSearchQuery);
   
-  // Debounce search query to avoid excessive API calls
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
@@ -28,10 +27,8 @@ const Blog = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
   
-  // Set up refs for animation elements
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   
-  // Observer setup for animations
   useEffect(() => {
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry) => {
@@ -48,7 +45,6 @@ const Blog = () => {
     
     const observer = new IntersectionObserver(observerCallback, observerOptions);
     
-    // Observe sections
     sectionRefs.current.forEach((el) => {
       if (el) observer.observe(el);
     });
@@ -74,10 +70,8 @@ const Blog = () => {
   const refreshPosts = async () => {
     setIsRefreshing(true);
     
-    // Clear cache timestamp to force a fresh fetch
     localStorage.removeItem('blogPosts');
     
-    // This will trigger a re-fetch by changing the search query
     const currentQuery = debouncedSearchQuery;
     setDebouncedSearchQuery('');
     
@@ -97,16 +91,15 @@ const Blog = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      {/* Blog Header Section */}
       <section 
         ref={(el) => sectionRefs.current[0] = el}
         className="pt-32 pb-16 md:pt-40 md:pb-20 opacity-0"
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <span className="inline-block text-xs font-medium tracking-wider uppercase py-1 px-3 border border-bread-200 rounded-full text-bread-800 bg-bread-50 mb-6">
+            <Badge variant="blog" className="mb-6 px-4 py-1 text-sm tracking-wider">
               BLOG
-            </span>
+            </Badge>
             <h1 className="section-title text-4xl md:text-5xl font-serif font-medium mb-4">
               Baking Great Bread at Home Blog
             </h1>
@@ -120,7 +113,6 @@ const Blog = () => {
             />
           </div>
           
-          {/* Search Bar */}
           <div className="max-w-2xl mx-auto mb-16">
             <form onSubmit={handleSearch} className="flex gap-2">
               <div className="relative flex-grow">
@@ -158,7 +150,6 @@ const Blog = () => {
         </div>
       </section>
       
-      {/* Blog Posts Section */}
       <section 
         ref={(el) => sectionRefs.current[1] = el}
         className="pb-20 opacity-0"
