@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Badge } from '@/components/ui/badge';
 
 export interface Tool {
   id: number;
@@ -13,6 +14,7 @@ export interface Tool {
   description: string;
   link: string;
   isExternalLink: boolean;
+  isFeatured?: boolean;
 }
 
 interface ToolCardProps {
@@ -37,7 +39,10 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
           </div>
           <div className="md:w-2/3 p-6 flex flex-col justify-between">
             <div>
-              <h3 className="font-serif text-xl font-medium mb-2">{tool.title}</h3>
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-serif text-xl font-medium">{tool.title}</h3>
+                {tool.isFeatured && <Badge variant="baking">New</Badge>}
+              </div>
               <p className="text-muted-foreground text-sm mb-4">{tool.description}</p>
             </div>
             <Button 
@@ -76,7 +81,10 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
         </AspectRatio>
       </div>
       <CardContent className="p-6">
-        <h3 className="font-serif text-xl font-medium mb-2">{tool.title}</h3>
+        <div className="flex items-center gap-2 mb-2">
+          <h3 className="font-serif text-xl font-medium">{tool.title}</h3>
+          {tool.isFeatured && <Badge variant="baking">New</Badge>}
+        </div>
         <p className="text-muted-foreground text-sm mb-4">{tool.description}</p>
         <Button 
           size="sm" 
