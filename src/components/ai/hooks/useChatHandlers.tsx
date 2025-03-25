@@ -16,6 +16,7 @@ interface UseChatHandlersProps {
   setActiveTab: (tab: string) => void;
   setRecipeText: (text: string) => void;
   setRecipePrompt: (prompt: string) => void;
+  setIsProcessing?: (isProcessing: boolean) => void;
 }
 
 export const useChatHandlers = ({
@@ -23,15 +24,16 @@ export const useChatHandlers = ({
   setMessages,
   setActiveTab,
   setRecipeText,
-  setRecipePrompt
+  setRecipePrompt,
+  setIsProcessing
 }: UseChatHandlersProps) => {
   const [input, setInput] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isInternalProcessing, setIsInternalProcessing] = useState(false);
   
   const handleSendMessage = async (e: FormEvent) => {
     e.preventDefault();
     
-    if (!input.trim() || isProcessing) return;
+    if (!input.trim() || isInternalProcessing) return;
     
     // Add user message
     const userMessage: ChatMessage = {
@@ -42,7 +44,10 @@ export const useChatHandlers = ({
     
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    setIsProcessing(true);
+    
+    // Set processing state
+    setIsInternalProcessing(true);
+    if (setIsProcessing) setIsProcessing(true);
     
     try {
       const lowerInput = input.toLowerCase();
@@ -51,28 +56,28 @@ export const useChatHandlers = ({
       if (lowerInput.includes('recipe') || lowerInput.includes('bread') || 
           lowerInput.includes('bake') || lowerInput.includes('roll') ||
           lowerInput.includes('find') || lowerInput.includes('search')) {
-        await handleRecipeRequest(input, setMessages, setIsProcessing);
+        await handleRecipeRequest(input, setMessages, setIsProcessingComplete);
       }
       // Check for book search request
       else if (lowerInput.includes('book') || lowerInput.includes('reading')) {
-        await handleBookRequest(input, setMessages, setIsProcessing);
+        await handleBookRequest(input, setMessages, setIsProcessingComplete);
       }
       // Check for challenge request
       else if (lowerInput.includes('challenge') || lowerInput.includes('contest')) {
-        await handleChallengeRequest(setMessages, setIsProcessing);
+        await handleChallengeRequest(setMessages, setIsProcessingComplete);
       }
       // Check for text conversion request
       else if (lowerInput.includes('convert') || lowerInput.includes('translate')) {
-        handleConvertRequest(input, setMessages, setRecipeText, setActiveTab, setIsProcessing);
+        handleConvertRequest(input, setMessages, setRecipeText, setActiveTab, setIsProcessingComplete);
       }
       // Check for recipe generation request
       else if (lowerInput.includes('create') || lowerInput.includes('generate') || 
                lowerInput.includes('make me') || lowerInput.includes('custom')) {
-        handleGenerateRequest(input, setMessages, setRecipePrompt, setActiveTab, setIsProcessing);
+        handleGenerateRequest(input, setMessages, setRecipePrompt, setActiveTab, setIsProcessingComplete);
       }
       // Fall back to general response
       else {
-        handleGeneralRequest(input, setMessages, setIsProcessing);
+        handleGeneralRequest(input, setMessages, setIsProcessingComplete);
       }
     } catch (error) {
       console.error('Error handling message:', error);
@@ -82,15 +87,20 @@ export const useChatHandlers = ({
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
-      setIsProcessing(false);
+      setIsProcessingComplete();
     }
+  };
+  
+  const setIsProcessingComplete = () => {
+    setIsInternalProcessing(false);
+    if (setIsProcessing) setIsProcessing(false);
   };
   
   return {
     input,
     setInput,
-    isProcessing,
-    setIsProcessing,
+    isProcessing: isInternalProcessing,
+    setIsProcessing: setIsInternalProcessing,
     handleSendMessage
   };
 };

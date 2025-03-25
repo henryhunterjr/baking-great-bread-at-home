@@ -2,6 +2,7 @@
 import React, { useRef, useEffect } from 'react';
 import MessageList from '../../chat/MessageList';
 import { ChatMessage } from '../../utils/types';
+import { Loader2 } from 'lucide-react';
 
 interface ChatContainerProps {
   messages: ChatMessage[];
@@ -23,6 +24,14 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isProcessing })
         messages={messages}
         isProcessing={isProcessing}
       />
+      
+      {isProcessing && (
+        <div className="flex items-center justify-center py-2 animate-pulse">
+          <Loader2 className="h-5 w-5 animate-spin text-bread-600 dark:text-bread-400 mr-2" />
+          <p className="text-sm text-muted-foreground">Processing your request...</p>
+        </div>
+      )}
+      
       <div ref={messagesEndRef} />
     </div>
   );

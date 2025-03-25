@@ -36,7 +36,8 @@ const ChatTab: React.FC<ChatTabProps> = ({
     setMessages,
     setActiveTab,
     setRecipeText,
-    setRecipePrompt
+    setRecipePrompt,
+    setIsProcessing
   });
   
   return (

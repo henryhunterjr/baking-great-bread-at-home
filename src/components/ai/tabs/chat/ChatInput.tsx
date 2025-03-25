@@ -2,6 +2,7 @@
 import React, { useState, FormEvent } from 'react';
 import MessageInputForm from '../../chat/MessageInputForm';
 import SuggestedQuestions from '../../chat/SuggestedQuestions';
+import { Loader2 } from 'lucide-react';
 
 interface ChatInputProps {
   input: string;
@@ -37,10 +38,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
         onSubmit={handleSendMessage}
         isLoading={isProcessing}
         showSuggestedQuestions={false}
+        disabled={isProcessing}
       />
       
-      {showSuggestions && (
-        <div className="mt-4">
+      {showSuggestions && !isProcessing && (
+        <div className="mt-4 transition-opacity duration-300" style={{ opacity: isProcessing ? 0.5 : 1 }}>
           <SuggestedQuestions 
             onQuestionSelect={setInput}
             questions={suggestedQuestions}
