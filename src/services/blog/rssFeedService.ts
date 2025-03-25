@@ -1,6 +1,6 @@
 
 import { BlogPost } from './types';
-import { getPlaceholderImage } from './imageUtils';
+import { getPlaceholderImage } from './blogUtils';
 
 export const fetchFromRSSFeed = async (): Promise<BlogPost[]> => {
   const response = await fetch('https://bakinggreatbread.blog/feed/');
