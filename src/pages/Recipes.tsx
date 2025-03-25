@@ -16,6 +16,7 @@ const Recipes = () => {
   // Filter recipes by type if a type is selected
   const filteredRecipes = selectedType 
     ? allFilteredRecipes.filter(recipe => {
+        // Check if recipe has tags and if any tag matches the selected type
         const typeMatches = recipe.tags?.some(tag => 
           tag.toLowerCase() === selectedType.toLowerCase()) || false;
           

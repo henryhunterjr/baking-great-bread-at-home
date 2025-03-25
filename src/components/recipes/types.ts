@@ -7,4 +7,5 @@ export interface Recipe {
   date: string;
   link: string;
   blogPostId?: string;
+  tags?: string[]; // Adding this property to fix the type error
 }
