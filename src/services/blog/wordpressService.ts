@@ -28,20 +28,45 @@ const stripHtmlTags = (html: string): string => {
 };
 
 const extractFeaturedImage = (post: any): string => {
-  // Try to get featured media
+  // Try to get featured media with more robust handling
   if (post._embedded && 
       post._embedded['wp:featuredmedia'] && 
-      post._embedded['wp:featuredmedia'][0] && 
-      post._embedded['wp:featuredmedia'][0].source_url) {
-    return post._embedded['wp:featuredmedia'][0].source_url;
+      post._embedded['wp:featuredmedia'][0]) {
+      
+    // Try to get the medium_large size first (better for performance)
+    if (post._embedded['wp:featuredmedia'][0].media_details && 
+        post._embedded['wp:featuredmedia'][0].media_details.sizes) {
+      
+      const sizes = post._embedded['wp:featuredmedia'][0].media_details.sizes;
+      
+      // Prioritize sizes in order of preference
+      const sizePreference = ['medium_large', 'large', 'medium', 'full'];
+      
+      for (const size of sizePreference) {
+        if (sizes[size] && sizes[size].source_url) {
+          return sizes[size].source_url;
+        }
+      }
+    }
+    
+    // Fallback to source_url if sizes are not available
+    if (post._embedded['wp:featuredmedia'][0].source_url) {
+      return post._embedded['wp:featuredmedia'][0].source_url;
+    }
   }
   
-  // Fallback to first image in content
-  const contentMatch = post.content.rendered.match(/<img[^>]+src="([^">]+)"/);
-  if (contentMatch) {
-    return contentMatch[1];
+  // Fallback to first image in content with more robust error handling
+  try {
+    if (post.content && post.content.rendered) {
+      const contentMatch = post.content.rendered.match(/<img[^>]+src="([^">]+)"/);
+      if (contentMatch && contentMatch[1]) {
+        return contentMatch[1];
+      }
+    }
+  } catch (error) {
+    console.error('Error extracting image from content:', error);
   }
   
-  // Default placeholder
+  // Default placeholder with better error handling
   return getPlaceholderImage(post.id);
 };

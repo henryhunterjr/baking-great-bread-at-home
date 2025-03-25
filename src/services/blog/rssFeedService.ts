@@ -20,14 +20,43 @@ export const fetchFromRSSFeed = async (): Promise<BlogPost[]> => {
     const pubDate = item.querySelector('pubDate')?.textContent || '';
     const content = item.querySelector('content\\:encoded, encoded')?.textContent || '';
     
-    // Extract the first image from content
-    const imageMatch = content.match(/<img[^>]+src="([^">]+)"/);
-    const imageUrl = imageMatch ? imageMatch[1] : getPlaceholderImage(index);
+    // Extract the first image from content with more robust pattern matching
+    let imageUrl = '';
     
-    // Extract text content for excerpt
-    const div = document.createElement('div');
-    div.innerHTML = content;
-    const excerpt = div.textContent?.trim().substring(0, 150) + '...' || '';
+    try {
+      // Try to find any image tag in the content
+      const imgMatch = content.match(/<img\s+[^>]*src="([^"]*)"[^>]*>/i);
+      if (imgMatch && imgMatch[1]) {
+        imageUrl = imgMatch[1];
+      }
+      
+      // If no image found, try other media tags
+      if (!imageUrl) {
+        // Check for media:content tags
+        const mediaMatch = content.match(/<media:content\s+[^>]*url="([^"]*)"[^>]*>/i);
+        if (mediaMatch && mediaMatch[1]) {
+          imageUrl = mediaMatch[1];
+        }
+      }
+    } catch (error) {
+      console.error('Error extracting image from RSS content:', error);
+    }
+    
+    // Use placeholder if no image found
+    if (!imageUrl) {
+      imageUrl = getPlaceholderImage(index);
+    }
+    
+    // Extract text content for excerpt with better error handling
+    let excerpt = '';
+    try {
+      const div = document.createElement('div');
+      div.innerHTML = content;
+      excerpt = (div.textContent || div.innerText || '').trim().substring(0, 150) + '...';
+    } catch (error) {
+      console.error('Error extracting excerpt from RSS content:', error);
+      excerpt = 'No excerpt available...';
+    }
     
     return {
       id: index,

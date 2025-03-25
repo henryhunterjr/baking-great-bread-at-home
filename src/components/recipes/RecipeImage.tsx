@@ -11,14 +11,27 @@ interface RecipeImageProps {
 
 const RecipeImage: React.FC<RecipeImageProps> = ({ id, imageUrl, title, isHovered }) => {
   const [imageStatus, setImageStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
+  const [currentSrc, setCurrentSrc] = useState<string>(imageUrl);
   
   // Reset image status when recipe changes
   useEffect(() => {
     setImageStatus('loading');
+    setCurrentSrc(imageUrl);
   }, [id, imageUrl]);
 
-  // Fallback image - we'll use a consistent one that is known to work
-  const fallbackImage = "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop";
+  // Stable fallback images that are known to work well
+  const fallbackImages = [
+    "https://images.unsplash.com/photo-1586444248879-bc604cbd555a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1549931319-a545dcf3bc7c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1555507036-ab1f4038808a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1585478259715-1c195ae2b568?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"
+  ];
+  
+  // Get a deterministic fallback image based on the recipe ID
+  const getFallbackImage = () => {
+    const numericId = typeof id === 'string' ? parseInt(id, 10) || 0 : id;
+    return fallbackImages[numericId % fallbackImages.length];
+  };
   
   const handleImageLoad = () => {
     console.log(`Image loaded successfully for recipe ${id}: ${title}`);
@@ -27,12 +40,25 @@ const RecipeImage: React.FC<RecipeImageProps> = ({ id, imageUrl, title, isHovere
 
   const handleImageError = () => {
     console.log(`Image error for recipe ${id}: ${title}`);
-    console.log(`Image URL that failed: ${imageUrl}`);
+    console.log(`Image URL that failed: ${currentSrc}`);
+    
+    // If the current source is already a fallback image, try a different one
+    if (fallbackImages.includes(currentSrc)) {
+      // Try another fallback image
+      const nextFallback = getFallbackImage();
+      if (nextFallback !== currentSrc) {
+        setCurrentSrc(nextFallback);
+        return;
+      }
+    } else {
+      // Try the fallback image
+      setCurrentSrc(getFallbackImage());
+      return;
+    }
+    
+    // If we've tried all options, mark as error
     setImageStatus('error');
   };
-
-  // Determine which image URL to use
-  const displayImageUrl = imageStatus === 'error' ? fallbackImage : imageUrl;
 
   return (
     <div className="aspect-video overflow-hidden bg-bread-100 relative">
@@ -57,7 +83,7 @@ const RecipeImage: React.FC<RecipeImageProps> = ({ id, imageUrl, title, isHovere
       {/* Image - we always render it but control opacity based on status */}
       <img
         id={`recipe-img-${id}`}
-        src={displayImageUrl}
+        src={currentSrc}
         alt={`Recipe: ${title}`}
         className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
           imageStatus === 'loaded' ? 'opacity-100' : 'opacity-0'
@@ -65,8 +91,6 @@ const RecipeImage: React.FC<RecipeImageProps> = ({ id, imageUrl, title, isHovere
         onError={handleImageError}
         onLoad={handleImageLoad}
         loading="lazy"
-        srcSet={`${displayImageUrl}?w=400 400w, ${displayImageUrl}?w=800 800w, ${displayImageUrl} 1200w`}
-        sizes="(max-width: 640px) 400px, (max-width: 1024px) 800px, 1200px"
       />
     </div>
   );
