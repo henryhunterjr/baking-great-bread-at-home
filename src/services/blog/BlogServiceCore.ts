@@ -4,6 +4,8 @@ import { getBlogCache, isCacheValid, updateBlogCache } from './blogCache';
 import { fetchFromWordPressAPI } from './wordpressService';
 import { fetchFromRSSFeed } from './rssFeedService';
 import { stripHtmlTags, extractFeaturedImage } from './blogUtils';
+import SearchService from './SearchService';
+import FallbackRecipesService from './FallbackRecipesService';
 
 class BlogServiceCore {
   private static instance: BlogServiceCore;
