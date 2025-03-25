@@ -1,4 +1,3 @@
-
 import { RecipeData } from '@/types/recipeTypes';
 import { AI_CONFIG } from './ai-config';
 import { logInfo, logError } from '@/utils/logger';
@@ -24,6 +23,7 @@ export interface BlogSearchResponse extends AIResponse {
 // Recipe generation response
 export interface RecipeGenerationResponse extends AIResponse {
   recipe?: RecipeData;
+  error?: string;
 }
 
 // Create a class to handle all AI interactions
