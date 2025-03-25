@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import ConvertTab from '@/components/recipe-converter/uploader/tabs/ConvertTab';
 import { useToast } from '@/hooks/use-toast';
-import { processRecipeText } from '@/lib/ai-services/ai-service';
+import { processRecipeText } from '@/lib/ai-services';
 
 interface ConvertTabProps {
   recipeText: string;

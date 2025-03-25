@@ -1,9 +1,7 @@
 import { ChatMessage, RecipeSearchResult, OpenAIRecipeResponse } from './types';
 import { booksData } from './data';
 import BlogService from '@/services/BlogService';
-import { recipesData } from '@/data/recipesData';
-import { challenges } from '@/data/challengesData';
-import { generateRecipe, generateRecipeWithOpenAI } from '@/lib/ai-services/ai-service';
+import { generateRecipe, RecipeGenerationResponse } from '@/lib/ai-services';
 
 // Current challenge is the first one in the challenges array
 export const getCurrentChallenge = () => challenges[0];
@@ -199,10 +197,30 @@ export const getChallahRecipes = (): RecipeSearchResult[] => {
 };
 
 // Generate a recipe from a prompt
-export const handleGenerateRecipe = async (prompt: string) => {
-  if (!prompt.trim()) {
-    throw new Error("Empty prompt");
+export const handleGenerateRecipe = async (prompt: string): Promise<RecipeGenerationResponse> => {
+  try {
+    const response = await generateRecipe(prompt);
+    return response;
+  } catch (error) {
+    console.error('Error generating recipe:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
   }
-  
-  return await generateRecipe(prompt);
+};
+
+export const mapRecipeResponseToSearchResult = (response: RecipeGenerationResponse): RecipeSearchResult | null => {
+  if (!response.success || !response.recipe) {
+    return null;
+  }
+
+  // Create a recipe result from the OpenAI response
+  return {
+    title: response.recipe.title,
+    description: response.recipe.introduction,
+    imageUrl: "/lovable-uploads/e000aa47-dec6-46ac-b437-e0a1985fcc5f.png", // Default image for AI-generated recipes
+    link: "#", // AI-generated recipes don't have a link yet
+    isGenerated: true
+  };
 };

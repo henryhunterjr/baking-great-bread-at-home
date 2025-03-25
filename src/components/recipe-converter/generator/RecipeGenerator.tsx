@@ -1,31 +1,36 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Sparkles, Loader2 } from 'lucide-react';
-import { ChatMessage } from '../types/chat';
-import { generateRecipe } from '@/lib/ai-services'; // Updated import
 import { useToast } from '@/hooks/use-toast';
+import { RecipeData } from '@/types/recipeTypes';
+import { Loader2 } from 'lucide-react';
+import { generateRecipe } from '@/lib/ai-services';
 
 interface RecipeGeneratorProps {
-  addToChatHistory: (messages: ChatMessage[]) => void;
+  onGenerateRecipe: (recipe: RecipeData) => void;
 }
 
-const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({ addToChatHistory }) => {
+const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({ onGenerateRecipe }) => {
   const [recipePrompt, setRecipePrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
-  
-  const handleGenerateRecipe = async (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!recipePrompt.trim()) return;
+    
+    if (!recipePrompt.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Empty Prompt",
+        description: "Please describe the recipe you want to generate."
+      });
+      return;
+    }
     
     setIsGenerating(true);
     
     try {
-      // Add user message to chat history
+      // Store the user's prompt as a message
       const userMessage = { role: 'user' as const, content: `Generate a recipe for: ${recipePrompt}` };
       
       // Call the AI service to generate a recipe
@@ -40,41 +45,31 @@ const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({ addToChatHistory }) =
       // Create assistant message with generated recipe info
       const assistantMessage = { 
         role: 'assistant' as const, 
-        content: `I've generated a new recipe for "${generatedRecipe.title}" based on your request for "${recipePrompt}". It has been saved to your recipes. You can edit it further or start cooking right away!` 
+        content: `I've generated a recipe for ${generatedRecipe.title} based on your prompt.`
       };
       
-      // Add messages to chat history
-      addToChatHistory([userMessage, assistantMessage]);
+      // Pass the generated recipe back to the parent
+      onGenerateRecipe(generatedRecipe);
       
-      // Show success notification
-      toast({
-        title: "Recipe Generated!",
-        description: `Your recipe for "${generatedRecipe.title}" has been created.`,
-      });
-      
-      // Reset the prompt
+      // Clear the text input
       setRecipePrompt('');
       
+      toast({
+        title: "Recipe Generated",
+        description: "Your recipe has been generated successfully."
+      });
     } catch (error) {
-      console.error("Error generating recipe:", error);
-      const userMessage = { role: 'user' as const, content: `Generate a recipe for: ${recipePrompt}` };
-      const errorMessage = { 
-        role: 'assistant' as const, 
-        content: "I'm sorry, I couldn't generate that recipe right now. Please try again with a different request." 
-      };
-      
-      addToChatHistory([userMessage, errorMessage]);
-      
+      console.error('Error generating recipe:', error);
       toast({
         variant: "destructive",
-        title: "Generation Failed",
-        description: "There was a problem generating your recipe. Please try again.",
+        title: "Generation Error",
+        description: error instanceof Error ? error.message : "Error generating recipe. Please try again."
       });
     } finally {
       setIsGenerating(false);
     }
   };
-  
+
   return (
     <Card className="bg-secondary/50 dark:bg-slate-800/70 dark:border-slate-700">
       <CardContent className="pt-6">
@@ -89,7 +84,7 @@ const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({ addToChatHistory }) =
           </AlertDescription>
         </Alert>
         
-        <form onSubmit={handleGenerateRecipe} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <Textarea
             placeholder="Cinnamon rolls with walnuts and cream cheese frosting..."
             value={recipePrompt}
