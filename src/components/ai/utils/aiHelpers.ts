@@ -1,4 +1,3 @@
-
 import { ChatMessage, RecipeSearchResult, OpenAIRecipeResponse } from './types';
 import { booksData } from './data';
 import BlogService from '@/services/BlogService';
@@ -149,7 +148,7 @@ export const generateRecipeWithAI = async (query: string): Promise<RecipeSearchR
     // Create a recipe result from the OpenAI response
     return {
       title: response.recipe.title,
-      description: response.recipe.description,
+      description: response.recipe.introduction,
       imageUrl: "/lovable-uploads/e000aa47-dec6-46ac-b437-e0a1985fcc5f.png", // Default image for AI-generated recipes
       link: "#", // AI-generated recipes don't have a link yet
       isGenerated: true

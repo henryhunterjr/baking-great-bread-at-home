@@ -42,7 +42,13 @@ const AIConvertTab: React.FC<ConvertTabProps> = ({
     
     try {
       // Process the recipe
-      const convertedRecipe = await processRecipeText(recipeText);
+      const response = await processRecipeText(recipeText);
+      
+      if (!response.success || !response.recipe) {
+        throw new Error("Failed to convert recipe");
+      }
+      
+      const convertedRecipe = response.recipe;
       
       // Clear the text input
       setRecipeText('');

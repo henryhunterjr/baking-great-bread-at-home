@@ -29,7 +29,13 @@ const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({ addToChatHistory }) =
       const userMessage = { role: 'user' as const, content: `Generate a recipe for: ${recipePrompt}` };
       
       // Call the AI service to generate a recipe
-      const generatedRecipe = await generateRecipe(recipePrompt);
+      const response = await generateRecipe(recipePrompt);
+      
+      if (!response.success || !response.recipe) {
+        throw new Error("Failed to generate recipe");
+      }
+      
+      const generatedRecipe = response.recipe;
       
       // Create assistant message with generated recipe info
       const assistantMessage = { 

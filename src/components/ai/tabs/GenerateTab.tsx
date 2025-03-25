@@ -41,7 +41,13 @@ const GenerateTab: React.FC<GenerateTabProps> = ({
     setIsProcessing(true);
     
     try {
-      const recipe = await handleGenerateRecipe(recipePrompt);
+      const response = await handleGenerateRecipe(recipePrompt);
+      
+      if (!response.success || !response.recipe) {
+        throw new Error("Failed to generate recipe");
+      }
+      
+      const recipe = response.recipe;
       
       setRecipePrompt('');
       

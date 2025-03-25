@@ -63,22 +63,27 @@ export const convertRecipeText = async (
       timeoutPromise
     ]);
     
+    if (!result.success || !result.recipe) {
+      throw new Error("Failed to process recipe text");
+    }
+    
+    const recipeData = result.recipe;
+    
     // Map the AI service result to our RecipeData format
     const convertedRecipe: RecipeData = {
-      title: result.title || 'Untitled Recipe',
-      introduction: result.description || '',
-      ingredients: result.ingredients.map(ing => 
-        `${ing.quantity} ${ing.unit} ${ing.name}`.trim()),
-      prepTime: result.prepTime?.toString() || '',
-      restTime: '',
-      bakeTime: result.cookTime ? result.cookTime.toString() : '',
-      totalTime: (result.prepTime + (result.cookTime || 0)).toString() || '',
-      instructions: result.steps || [],
-      tips: result.notes ? [result.notes] : [],
-      proTips: [],
-      equipmentNeeded: [],
-      imageUrl: result.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
-      tags: result.tags || [],
+      title: recipeData.title || 'Untitled Recipe',
+      introduction: recipeData.introduction || '',
+      ingredients: recipeData.ingredients || [],
+      prepTime: recipeData.prepTime || '',
+      restTime: recipeData.restTime || '',
+      bakeTime: recipeData.bakeTime || '',
+      totalTime: recipeData.totalTime || '',
+      instructions: recipeData.instructions || [],
+      tips: recipeData.tips || [],
+      proTips: recipeData.proTips || [],
+      equipmentNeeded: recipeData.equipmentNeeded || [],
+      imageUrl: recipeData.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
+      tags: recipeData.tags || [],
       isPublic: false,
       isConverted: true
     };

@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { runBrowserCompatibilityCheck } from './utils/crossBrowserTesting';
@@ -10,6 +11,7 @@ import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import { lazy, Suspense } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import DevToolsToggle from './components/dev/DevToolsToggle';
+import { initializeAIService } from './lib/ai-services';
 import './App.css';
 
 // Import all the page components
