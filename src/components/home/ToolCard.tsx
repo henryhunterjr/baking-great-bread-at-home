@@ -41,7 +41,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <h3 className="font-serif text-xl font-medium">{tool.title}</h3>
-                {tool.isFeatured && <Badge variant="baking">New</Badge>}
+                {tool.isFeatured && <Badge variant="baking" className="px-2.5 py-0.5">New</Badge>}
               </div>
               <p className="text-muted-foreground text-sm mb-4">{tool.description}</p>
             </div>
@@ -81,9 +81,9 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, compact = false }) => {
         </AspectRatio>
       </div>
       <CardContent className="p-6">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center flex-wrap gap-2 mb-2">
           <h3 className="font-serif text-xl font-medium">{tool.title}</h3>
-          {tool.isFeatured && <Badge variant="baking">New</Badge>}
+          {tool.isFeatured && <Badge variant="baking" className="px-2.5 py-0.5">New</Badge>}
         </div>
         <p className="text-muted-foreground text-sm mb-4">{tool.description}</p>
         <Button 

@@ -27,9 +27,9 @@ const Tools = () => {
               </Link>
             </Button>
             
-            <div className="flex items-center gap-3 mb-2 md:mb-4">
+            <div className="flex items-center flex-wrap gap-3 mb-2 md:mb-4">
               <h1 className="font-serif text-3xl md:text-5xl font-medium">Baking Tools</h1>
-              <Badge variant="baking" className="transform -translate-y-1">Free Resources</Badge>
+              <Badge variant="baking" className="transform translate-y-0 md:-translate-y-1 px-3 py-1">Free Resources</Badge>
             </div>
             
             <p className="text-lg md:text-xl text-muted-foreground mb-6 md:mb-10 max-w-2xl">

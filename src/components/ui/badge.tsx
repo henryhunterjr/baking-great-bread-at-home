@@ -18,7 +18,7 @@ const badgeVariants = cva(
         outline: "text-foreground",
         tool: "border-transparent bg-[#8B5CF6] text-white font-bold shadow-sm", // Updated to high-contrast purple
         blog: "border-transparent bg-rose-600 text-white font-bold hover:bg-rose-700 shadow-sm", // Kept rose color with shadow
-        baking: "border-transparent bg-amber-500 text-black font-bold hover:bg-amber-600 shadow-sm", // New baking-specific badge for better contrast in dark mode
+        baking: "border-transparent bg-yellow-400 text-black font-extrabold hover:bg-yellow-500 shadow-md dark:bg-yellow-300 dark:text-black dark:hover:bg-yellow-400", // Enhanced visibility with brighter colors and shadow
       },
     },
     defaultVariants: {
