@@ -1,5 +1,5 @@
 
-import { ChatMessage, RecipeSearchResult } from './types';
+import { ChatMessage, RecipeSearchResult, OpenAIRecipeResponse } from './types';
 import { booksData } from './data';
 import BlogService from '@/services/BlogService';
 import { recipesData } from '@/data/recipesData';
@@ -13,17 +13,49 @@ export const getCurrentChallenge = () => challenges[0];
 export const searchRecipes = async (query: string): Promise<RecipeSearchResult[]> => {
   try {
     const blogService = BlogService.getInstance();
-    const blogPosts = await blogService.getPosts();
+    
+    // First attempt a direct search for exact matches
+    const directSearchResults = await blogService.searchPosts(query);
     
     // Make search case-insensitive and more flexible
-    const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 2);
+    const lowerQuery = query.toLowerCase();
+    const searchTerms = lowerQuery.split(' ').filter(term => term.length > 2);
     
-    // First look for exact matches in recipe titles
+    // Special handling for specific recipe searches
+    const specificRecipeQueries = {
+      'cinnamon roll': [
+        {
+          title: "Henry's Cinnamon Rolls",
+          description: "Soft and fluffy cinnamon rolls with a sweet glaze, perfect for weekend mornings.",
+          imageUrl: "/lovable-uploads/d509f155-02f5-4d8f-9830-a26e2632ba95.png",
+          link: "https://bakinggreatbread.blog/henrys-cinnamon-rolls/"
+        }
+      ],
+      'challah': getChallahRecipes()
+    };
+    
+    // Check for special recipe types first (exact matches)
+    for (const [recipeType, specialRecipes] of Object.entries(specificRecipeQueries)) {
+      if (lowerQuery.includes(recipeType)) {
+        console.log(`Found specific recipe match for ${recipeType}`);
+        return specialRecipes;
+      }
+    }
+    
+    // Process direct search results from the blog
+    const blogRecipes = directSearchResults.map(post => ({
+      title: post.title,
+      description: post.excerpt,
+      imageUrl: post.imageUrl,
+      link: post.link
+    }));
+    
+    // Find exact matches in recipe data
     const exactMatches = recipesData.filter(recipe => 
-      recipe.title.toLowerCase().includes(query.toLowerCase())
+      recipe.title.toLowerCase().includes(lowerQuery)
     );
     
-    // Then look for recipes that match specific terms like "Henry's" or "sourdough"
+    // Find other relevant matches in recipe data
     const termMatches = recipesData.filter(recipe => {
       // Skip recipes already in exact matches
       if (exactMatches.some(match => match.id === recipe.id)) {
@@ -33,9 +65,9 @@ export const searchRecipes = async (query: string): Promise<RecipeSearchResult[]
       const recipeText = (recipe.title + ' ' + recipe.description).toLowerCase();
       
       // Check for strong matches like "Henry's sourdough"
-      if (query.toLowerCase().includes("henry's") && 
+      if (lowerQuery.includes("henry's") && 
           (recipeText.includes("henry's") || recipeText.includes("henry")) && 
-          (query.toLowerCase().includes("sourdough") && recipeText.includes("sourdough"))) {
+          (lowerQuery.includes("sourdough") && recipeText.includes("sourdough"))) {
         return true;
       }
       
@@ -43,22 +75,8 @@ export const searchRecipes = async (query: string): Promise<RecipeSearchResult[]
       return searchTerms.every(term => recipeText.includes(term));
     });
     
-    // Check for blog posts that match the query
-    const blogRecipes = blogPosts
-      .filter(post => {
-        const postText = (post.title + ' ' + post.excerpt).toLowerCase();
-        return searchTerms.some(term => postText.includes(term)) ||
-               postText.includes(query.toLowerCase());
-      })
-      .map(post => ({
-        title: post.title,
-        description: post.excerpt,
-        imageUrl: post.imageUrl,
-        link: post.link
-      }));
-    
-    // Combine all results, prioritizing exact matches
-    const combinedResults = [...exactMatches, ...termMatches, ...blogRecipes];
+    // Combine all results, prioritizing blog results and exact matches
+    const combinedResults = [...blogRecipes, ...exactMatches, ...termMatches];
     
     // Remove duplicates by link or title
     const uniqueResults: RecipeSearchResult[] = [];
@@ -71,28 +89,47 @@ export const searchRecipes = async (query: string): Promise<RecipeSearchResult[]
       }
     });
     
-    // Add special handling for Henry's sourdough loaf
-    if (query.toLowerCase().includes("henry") && query.toLowerCase().includes("sourdough") &&
-        !uniqueResults.some(r => r.title.toLowerCase().includes("henry") && r.title.toLowerCase().includes("sourdough"))) {
-      uniqueResults.unshift({
-        title: "Henry's Foolproof Sourdough Loaf",
-        description: "A reliable and easy sourdough recipe with a touch of sweetness from honey.",
-        imageUrl: "/lovable-uploads/d32e1aa2-fbf9-4793-9f06-54206973eadd.png",
-        link: "https://bakinggreatbread.blog/2023/12/20/henry-foolproof-sourdough-loaf/"
-      });
+    console.log(`Search for "${query}" returned ${uniqueResults.length} results`);
+    
+    // Return results or special handling for common queries
+    if (uniqueResults.length > 0) {
+      return uniqueResults;
     }
     
-    return uniqueResults;
-  } catch (error) {
-    console.error("Error searching recipes:", error);
-    
-    // Fallback for Henry's sourdough loaf search
-    if (query.toLowerCase().includes("henry") && query.toLowerCase().includes("sourdough")) {
+    // Add special handling for Henry's sourdough loaf
+    if (lowerQuery.includes("henry") && lowerQuery.includes("sourdough")) {
       return [{
         title: "Henry's Foolproof Sourdough Loaf",
         description: "A reliable and easy sourdough recipe with a touch of sweetness from honey.",
         imageUrl: "/lovable-uploads/d32e1aa2-fbf9-4793-9f06-54206973eadd.png",
         link: "https://bakinggreatbread.blog/2023/12/20/henry-foolproof-sourdough-loaf/"
+      }];
+    }
+    
+    return [];
+  } catch (error) {
+    console.error("Error searching recipes:", error);
+    
+    // Fallback for common searches
+    const lowerQuery = query.toLowerCase();
+    
+    // Fallback for Henry's sourdough loaf search
+    if (lowerQuery.includes("henry") && lowerQuery.includes("sourdough")) {
+      return [{
+        title: "Henry's Foolproof Sourdough Loaf",
+        description: "A reliable and easy sourdough recipe with a touch of sweetness from honey.",
+        imageUrl: "/lovable-uploads/d32e1aa2-fbf9-4793-9f06-54206973eadd.png",
+        link: "https://bakinggreatbread.blog/2023/12/20/henry-foolproof-sourdough-loaf/"
+      }];
+    }
+    
+    // Fallback for cinnamon rolls
+    if (lowerQuery.includes("cinnamon roll") || lowerQuery.includes("cinnamon bun")) {
+      return [{
+        title: "Henry's Cinnamon Rolls",
+        description: "Soft and fluffy cinnamon rolls with a sweet glaze, perfect for weekend mornings.",
+        imageUrl: "/lovable-uploads/d509f155-02f5-4d8f-9830-a26e2632ba95.png",
+        link: "https://bakinggreatbread.blog/henrys-cinnamon-rolls/"
       }];
     }
     

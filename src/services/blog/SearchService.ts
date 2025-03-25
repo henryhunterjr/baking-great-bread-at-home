@@ -12,6 +12,9 @@ class SearchService {
       'focaccia': ['italian', 'flat', 'olive oil'],
       'rye': ['pumpernickel', 'deli', 'caraway'],
       'ciabatta': ['italian', 'holes', 'rustic'],
+      'cinnamon rolls': ['cinnamon bun', 'sweet roll', 'breakfast roll', 'sticky bun', 'morning bun'],
+      'dinner rolls': ['bread rolls', 'soft rolls', 'parker house', 'pull-apart'],
+      'banana bread': ['banana loaf', 'fruit bread', 'quick bread'],
     };
     
     // Enhanced search for challah specifically
@@ -24,6 +27,16 @@ class SearchService {
              fullText.includes('egg bread') ||
              fullText.includes('holiday bread') ||
              (fullText.includes('bread') && fullText.includes('braided'));
+    }
+    
+    // Enhanced search for cinnamon rolls specifically
+    if (searchTerm.includes('cinnamon roll') || searchTerm.includes('cinnamon bun')) {
+      const fullText = (post.title + ' ' + post.excerpt).toLowerCase();
+      return fullText.includes('cinnamon roll') || 
+             fullText.includes('cinnamon bun') || 
+             fullText.includes('sweet roll') ||
+             (fullText.includes('cinnamon') && fullText.includes('roll')) ||
+             (fullText.includes('cinnamon') && fullText.includes('bun'));
     }
     
     // Check if search term is in our related terms map

@@ -21,7 +21,8 @@ const SuggestedQuestions: React.FC<SuggestedQuestionsProps> = ({
     "What's the current baking challenge?",
     "Generate a bread recipe with rosemary",
     "Convert my recipe for whole wheat bread",
-    "Recommend a good bread baking book"
+    "Recommend a good bread baking book",
+    "Do you have a recipe for cinnamon rolls?"
   ];
   
   const displayQuestions = questions || defaultQuestions;

@@ -7,7 +7,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MessageListProps {
   messages: ChatMessage[];
-  isProcessing?: boolean; // Make this optional with a default value
+  isProcessing?: boolean; // This is now optional with a default value
 }
 
 const MessageList: React.FC<MessageListProps> = ({ 

@@ -60,7 +60,8 @@ const ChatTab: React.FC<ChatTabProps> = ({
       
       // Check for recipe search request
       if (lowerInput.includes('recipe') || lowerInput.includes('bread') || 
-          lowerInput.includes('bake') || lowerInput.includes('sourdough')) {
+          lowerInput.includes('bake') || lowerInput.includes('roll') ||
+          lowerInput.includes('find') || lowerInput.includes('search')) {
         await handleRecipeRequest(input);
       }
       // Check for book search request
@@ -98,6 +99,9 @@ const ChatTab: React.FC<ChatTabProps> = ({
   };
 
   const handleRecipeRequest = async (query: string) => {
+    // Log the search query for debugging
+    console.log(`Searching for recipe: "${query}"`);
+    
     // Add a temporary message showing the assistant is searching
     const searchingMessage: ChatMessage = {
       role: 'assistant',
@@ -109,8 +113,20 @@ const ChatTab: React.FC<ChatTabProps> = ({
     setMessages(prev => [...prev, searchingMessage]);
     
     try {
+      // Extract key terms from the query
+      const searchTerms = query.toLowerCase()
+        .replace(/do you have a recipe for/i, '')
+        .replace(/can you find/i, '')
+        .replace(/can you search/i, '')
+        .replace(/can you help me find/i, '')
+        .replace(/for/i, '')
+        .replace(/a/i, '')
+        .trim();
+      
+      console.log(`Extracted search terms: "${searchTerms}"`);
+      
       // Search for recipes
-      const recipes = await searchRecipes(query);
+      const recipes = await searchRecipes(searchTerms);
       
       let responseMessage: ChatMessage;
       
@@ -124,7 +140,7 @@ const ChatTab: React.FC<ChatTabProps> = ({
         };
       } else {
         // No regular recipes found, try to generate a recipe with AI
-        const generatedRecipe = await generateRecipeWithAI(query);
+        const generatedRecipe = await generateRecipeWithAI(searchTerms);
         
         if (generatedRecipe) {
           responseMessage = {
@@ -198,7 +214,8 @@ const ChatTab: React.FC<ChatTabProps> = ({
       attachedChallenge: {
         ...challenge,
         imageUrl: imageUrl,
-        link: challenge.link || '#'
+        link: challenge.link || '#',
+        isCurrent: true
       }
     };
     
@@ -261,7 +278,8 @@ const ChatTab: React.FC<ChatTabProps> = ({
     "What's the current baking challenge?",
     "Generate a bread recipe with rosemary",
     "Convert my recipe for whole wheat bread",
-    "Recommend a good bread baking book"
+    "Recommend a good bread baking book",
+    "Do you have a recipe for cinnamon rolls?"
   ];
   
   return (
