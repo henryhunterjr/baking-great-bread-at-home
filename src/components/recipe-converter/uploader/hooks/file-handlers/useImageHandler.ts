@@ -28,8 +28,12 @@ export const useImageHandler = () => {
       
       const task = await processImage(
         file,
-        (extractedText) => options.onSuccess(extractedText),
+        (extractedText) => {
+          setIsProcessing(false);
+          options.onSuccess(extractedText);
+        },
         (error) => {
+          setIsProcessing(false);
           toast({
             variant: "destructive",
             title: "OCR Error",
@@ -44,16 +48,24 @@ export const useImageHandler = () => {
       }
     } catch (error) {
       logError('Error processing image file:', { error });
+      setIsProcessing(false);
       options.onError(error instanceof Error 
         ? error.message 
         : "Failed to process the image. Please try another image or format.");
-    } finally {
-      setIsProcessing(false);
     }
+  };
+  
+  const cancelImageProcessing = (): boolean => {
+    if (cancelCurrentProcessing()) {
+      setIsProcessing(false);
+      return true;
+    }
+    return false;
   };
   
   return {
     isProcessing,
-    handleImageFile
+    handleImageFile,
+    cancelImageProcessing
   };
 };

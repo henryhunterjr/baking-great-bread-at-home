@@ -1,19 +1,26 @@
 
 import React, { useState, useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, X, Loader2, Clock } from 'lucide-react';
+import { AlertCircle, X, Loader2, Clock, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ProgressBarProps {
   progress: number;
   processingType: 'image' | 'pdf' | null;
   onCancel?: () => void;
+  onRetry?: () => void;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ progress, processingType, onCancel }) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({ 
+  progress, 
+  processingType, 
+  onCancel,
+  onRetry 
+}) => {
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
   const [lastProgress, setLastProgress] = useState(0);
   const [stuckTime, setStuckTime] = useState(0);
+  const [showSlowWarning, setShowSlowWarning] = useState(false);
   
   useEffect(() => {
     // Track progress changes to detect stalls
@@ -34,6 +41,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress, processingType, onC
           if (newTime >= 15 && progress === lastProgress) {
             setShowTimeoutWarning(true);
           }
+          // If processing is taking more than 30 seconds overall, show slow warning
+          if (newTime >= 30 && !showSlowWarning) {
+            setShowSlowWarning(true);
+          }
           return newTime;
         });
       }, 1000);
@@ -42,13 +53,14 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress, processingType, onC
     // Reset warning if progress changes or completes
     if (progress === 100) {
       setShowTimeoutWarning(false);
+      setShowSlowWarning(false);
       setStuckTime(0);
     }
     
     return () => {
       if (stuckTimer) window.clearInterval(stuckTimer);
     };
-  }, [progress, processingType, lastProgress]);
+  }, [progress, processingType, lastProgress, showSlowWarning]);
   
   if (!processingType) return null;
   
@@ -82,7 +94,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress, processingType, onC
             <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
           )}
         </div>
-        {onCancel && (
+        {onCancel && progress < 100 && (
           <Button 
             variant="ghost" 
             size="sm" 
@@ -103,17 +115,36 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress, processingType, onC
           <div>
             <p className="font-medium">Processing is taking longer than expected</p>
             <p>This could be due to a complex file or a processing issue. You can continue waiting or cancel and try a different format.</p>
-            {onCancel && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={onCancel} 
-                className="mt-2 h-8 text-xs border-amber-600 text-amber-600 hover:bg-amber-100"
-              >
-                Cancel Processing
-              </Button>
-            )}
+            <div className="flex gap-2 mt-2">
+              {onCancel && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={onCancel} 
+                  className="h-8 text-xs border-amber-600 text-amber-600 hover:bg-amber-100"
+                >
+                  Cancel Processing
+                </Button>
+              )}
+              {onRetry && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={onRetry} 
+                  className="h-8 text-xs border-amber-600 text-amber-600 hover:bg-amber-100"
+                >
+                  <RefreshCw className="h-3 w-3 mr-1" />
+                  Retry
+                </Button>
+              )}
+            </div>
           </div>
+        </div>
+      )}
+      
+      {showSlowWarning && !showTimeoutWarning && (
+        <div className="text-xs text-amber-600 mt-1">
+          Processing large or complex files can take up to a minute. Please be patient.
         </div>
       )}
     </div>

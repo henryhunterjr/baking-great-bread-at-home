@@ -9,43 +9,49 @@ import { useFileHandlers } from './hooks/useFileHandlers';
 interface FileUploadOptionsProps {
   setRecipeText: (text: string) => void;
   isConverting: boolean;
+  onError?: (error: string | null) => void;
 }
 
-const FileUploadOptions: React.FC<FileUploadOptionsProps> = ({ 
-  setRecipeText, 
-  isConverting 
+const FileUploadOptions: React.FC<FileUploadOptionsProps> = ({
+  setRecipeText,
+  isConverting,
+  onError
 }) => {
-  const {
-    isProcessing,
-    handleFileSelect,
-    handlePasteFromClipboard,
-    clearText
-  } = useFileHandlers({ setRecipeText });
+  const { 
+    isProcessing, 
+    handleFileSelect, 
+    handlePasteFromClipboard, 
+    clearText,
+    cancelProcessing
+  } = useFileHandlers({ 
+    setRecipeText,
+    onError: (error) => {
+      if (onError) onError(error);
+    }
+  });
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
-      <FileUploadButton 
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <FileUploadButton
         onFileSelect={handleFileSelect}
         isDisabled={isConverting}
         isProcessing={isProcessing}
+        onCancel={cancelProcessing}
       />
       
-      <CameraButton 
-        onImageCapture={handleFileSelect}
-        isDisabled={isConverting}
-        isProcessing={isProcessing}
+      <CameraButton
+        isDisabled={isConverting || isProcessing}
+        onCapture={handleFileSelect}
       />
       
-      <ClipboardButton 
-        onPasteFromClipboard={handlePasteFromClipboard}
-        isDisabled={isConverting}
-        isProcessing={isProcessing}
+      <ClipboardButton
+        onPaste={handlePasteFromClipboard}
+        isDisabled={isConverting || isProcessing}
       />
       
-      <ClearTextButton 
-        onClearText={clearText}
-        isDisabled={isConverting}
-        isProcessing={isProcessing}
+      <ClearTextButton
+        onClear={clearText}
+        isDisabled={isConverting || isProcessing}
       />
     </div>
   );

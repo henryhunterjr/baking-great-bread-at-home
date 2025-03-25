@@ -28,8 +28,12 @@ export const usePDFHandler = () => {
       
       const task = await processPDF(
         file,
-        (extractedText) => options.onSuccess(extractedText),
+        (extractedText) => {
+          setIsProcessing(false);
+          options.onSuccess(extractedText);
+        },
         (error) => {
+          setIsProcessing(false);
           toast({
             variant: "destructive",
             title: "PDF Error",
@@ -44,16 +48,24 @@ export const usePDFHandler = () => {
       }
     } catch (error) {
       logError('Error processing PDF file:', { error });
+      setIsProcessing(false);
       options.onError(error instanceof Error 
         ? error.message 
         : "Failed to process the PDF. Please try another file or format.");
-    } finally {
-      setIsProcessing(false);
     }
+  };
+  
+  const cancelPDFProcessing = (): boolean => {
+    if (cancelCurrentProcessing()) {
+      setIsProcessing(false);
+      return true;
+    }
+    return false;
   };
   
   return {
     isProcessing,
-    handlePDFFile
+    handlePDFFile,
+    cancelPDFProcessing
   };
 };

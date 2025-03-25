@@ -18,6 +18,16 @@ export const convertRecipeText = async (
       throw new Error("Please enter some recipe text to convert.");
     }
     
+    // Set a maximum length to avoid processing extremely large texts
+    const MAX_TEXT_LENGTH = 20000; // 20KB is plenty for most recipes
+    if (text.length > MAX_TEXT_LENGTH) {
+      logInfo("Truncating very long recipe text", { 
+        originalLength: text.length,
+        truncatedLength: MAX_TEXT_LENGTH
+      });
+      text = text.substring(0, MAX_TEXT_LENGTH);
+    }
+    
     logInfo("Starting recipe conversion process", { textLength: text.length });
     
     // First check if this is a valid JSON recipe in our standard format
@@ -42,24 +52,33 @@ export const convertRecipeText = async (
       textLength: cleanedText.length 
     });
     
-    const result = await processRecipeText(cleanedText);
+    // Add a timeout for the AI service call
+    const timeoutPromise = new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error('Recipe conversion timed out after 60 seconds')), 60000)
+    );
+    
+    // Race the AI service against the timeout
+    const result = await Promise.race([
+      processRecipeText(cleanedText),
+      timeoutPromise
+    ]);
     
     // Map the AI service result to our RecipeData format
     const convertedRecipe: RecipeData = {
-      title: result.title,
-      introduction: result.description,
+      title: result.title || 'Untitled Recipe',
+      introduction: result.description || '',
       ingredients: result.ingredients.map(ing => 
         `${ing.quantity} ${ing.unit} ${ing.name}`.trim()),
-      prepTime: result.prepTime.toString(),
+      prepTime: result.prepTime?.toString() || '',
       restTime: '',
       bakeTime: result.cookTime ? result.cookTime.toString() : '',
-      totalTime: (result.prepTime + (result.cookTime || 0)).toString(),
-      instructions: result.steps,
+      totalTime: (result.prepTime + (result.cookTime || 0)).toString() || '',
+      instructions: result.steps || [],
       tips: result.notes ? [result.notes] : [],
       proTips: [],
       equipmentNeeded: [],
       imageUrl: result.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
-      tags: result.tags,
+      tags: result.tags || [],
       isPublic: false,
       isConverted: true
     };
@@ -73,6 +92,25 @@ export const convertRecipeText = async (
     onSuccess(convertedRecipe);
   } catch (error) {
     logError("Recipe conversion failed", { error });
-    onError(error instanceof Error ? error : new Error(String(error)));
+    
+    // Transform common errors to more user-friendly messages
+    let errorToReport: Error;
+    if (error instanceof Error) {
+      if (error.message.includes('timed out')) {
+        errorToReport = new Error(
+          "The recipe conversion took too long. Try with a shorter recipe or simpler format."
+        );
+      } else if (error.message.includes('network') || error.message.includes('fetch')) {
+        errorToReport = new Error(
+          "Network error while converting recipe. Please check your internet connection and try again."
+        );
+      } else {
+        errorToReport = error;
+      }
+    } else {
+      errorToReport = new Error(String(error));
+    }
+    
+    onError(errorToReport);
   }
 };

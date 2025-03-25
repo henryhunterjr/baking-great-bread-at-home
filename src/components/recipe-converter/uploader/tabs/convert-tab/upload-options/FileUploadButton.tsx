@@ -1,18 +1,20 @@
 
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Upload } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 
 interface FileUploadButtonProps {
   onFileSelect: (file: File) => Promise<void>;
   isDisabled: boolean;
   isProcessing: boolean;
+  onCancel?: () => void;
 }
 
 const FileUploadButton: React.FC<FileUploadButtonProps> = ({
   onFileSelect,
   isDisabled,
-  isProcessing
+  isProcessing,
+  onCancel
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -32,8 +34,14 @@ const FileUploadButton: React.FC<FileUploadButtonProps> = ({
     <Button 
       variant="outline" 
       className="flex flex-col items-center justify-center h-24 p-2"
-      onClick={() => fileInputRef.current?.click()}
-      disabled={isDisabled || isProcessing}
+      onClick={() => {
+        if (isProcessing && onCancel) {
+          onCancel();
+        } else {
+          fileInputRef.current?.click();
+        }
+      }}
+      disabled={isDisabled}
     >
       <input
         type="file"
@@ -43,15 +51,22 @@ const FileUploadButton: React.FC<FileUploadButtonProps> = ({
         onChange={handleFileChange}
       />
       {isProcessing ? (
-        <div className="h-8 w-8 mb-2 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-bread-800"></div>
-        </div>
+        <>
+          <div className="h-8 w-8 mb-2 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-bread-800"></div>
+          </div>
+          <span className="text-xs text-center">
+            {onCancel ? "Processing... (Click to Cancel)" : "Processing..."}
+          </span>
+        </>
       ) : (
-        <Upload className="h-8 w-8 mb-2 text-bread-800" />
+        <>
+          <Upload className="h-8 w-8 mb-2 text-bread-800" />
+          <span className="text-xs text-center">
+            Upload Image or File
+          </span>
+        </>
       )}
-      <span className="text-xs text-center">
-        {isProcessing ? "Processing..." : "Upload Image or File"}
-      </span>
     </Button>
   );
 };
