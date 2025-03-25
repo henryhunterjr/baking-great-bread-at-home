@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import RecipesHeader from '@/components/recipes/RecipesHeader';
@@ -10,7 +10,22 @@ import FloatingAIButton from '@/components/ai/FloatingAIButton';
 
 const Recipes = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const { filteredRecipes, isLoading } = useRecipes(searchQuery);
+  const [selectedType, setSelectedType] = useState('');
+  const { filteredRecipes: allFilteredRecipes, isLoading } = useRecipes(searchQuery);
+  
+  // Filter recipes by type if a type is selected
+  const filteredRecipes = selectedType 
+    ? allFilteredRecipes.filter(recipe => {
+        const typeMatches = recipe.tags?.some(tag => 
+          tag.toLowerCase() === selectedType.toLowerCase()) || false;
+          
+        // Check title and description for type keywords to increase matches
+        const titleContainsType = recipe.title.toLowerCase().includes(selectedType.toLowerCase());
+        const descriptionContainsType = recipe.description.toLowerCase().includes(selectedType.toLowerCase());
+          
+        return typeMatches || titleContainsType || descriptionContainsType;
+      })
+    : allFilteredRecipes;
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -20,7 +35,9 @@ const Recipes = () => {
         {/* Header Section */}
         <RecipesHeader 
           searchQuery={searchQuery} 
-          setSearchQuery={setSearchQuery} 
+          setSearchQuery={setSearchQuery}
+          selectedType={selectedType}
+          setSelectedType={setSelectedType}
         />
         
         {/* Recipes Grid Section */}
@@ -29,6 +46,8 @@ const Recipes = () => {
           searchQuery={searchQuery}
           filteredRecipes={filteredRecipes}
           setSearchQuery={setSearchQuery}
+          selectedType={selectedType}
+          setSelectedType={setSelectedType}
         />
       </RecipeAnimationWrapper>
       

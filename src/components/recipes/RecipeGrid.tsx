@@ -11,25 +11,60 @@ interface RecipeGridProps {
   searchQuery: string;
   filteredRecipes: Recipe[];
   setSearchQuery: (query: string) => void;
+  selectedType: string;
+  setSelectedType: (type: string) => void;
 }
 
-const RecipeGrid = ({ isLoading, searchQuery, filteredRecipes, setSearchQuery }: RecipeGridProps) => {
-  const resultText = searchQuery 
-    ? filteredRecipes.length === 0 
-      ? 'No recipes found for' 
-      : filteredRecipes.length === 1
-        ? '1 recipe found for'
-        : `${filteredRecipes.length} recipes found for`
-    : '';
+const RecipeGrid = ({ 
+  isLoading, 
+  searchQuery, 
+  filteredRecipes, 
+  setSearchQuery,
+  selectedType,
+  setSelectedType
+}: RecipeGridProps) => {
+  const getResultText = () => {
+    if (selectedType && !searchQuery) {
+      return filteredRecipes.length === 0 
+        ? 'No recipes found for type' 
+        : filteredRecipes.length === 1
+          ? '1 recipe found for type'
+          : `${filteredRecipes.length} recipes found for type`;
+    } else if (searchQuery) {
+      return filteredRecipes.length === 0 
+        ? 'No recipes found for' 
+        : filteredRecipes.length === 1
+          ? '1 recipe found for'
+          : `${filteredRecipes.length} recipes found for`;
+    }
+    return '';
+  };
+
+  const getResultHighlight = () => {
+    if (selectedType && !searchQuery) {
+      const typeLabel = selectedType.charAt(0).toUpperCase() + selectedType.slice(1).replace('-', ' ');
+      return typeLabel;
+    } else if (searchQuery) {
+      return `"${searchQuery}"`;
+    }
+    return '';
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setSelectedType('');
+  };
 
   return (
     <section className="pb-20" aria-label="Recipe results">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {searchQuery && (
+        {(searchQuery || selectedType) && (
           <div className="mb-8 text-center">
             <h2 className="text-xl font-serif" id="search-results">
-              {resultText}
-              <span className="font-medium text-bread-800 dark:text-bread-300"> "{searchQuery}"</span>
+              {getResultText()}
+              {getResultHighlight() && (
+                <span className="font-medium text-bread-800 dark:text-bread-300"> {getResultHighlight()}</span>
+              )}
             </h2>
           </div>
         )}
@@ -53,11 +88,11 @@ const RecipeGrid = ({ isLoading, searchQuery, filteredRecipes, setSearchQuery }:
           <div className="text-center py-12 max-w-lg mx-auto" aria-live="polite">
             <h3 className="font-serif text-xl mb-2">No Recipes Found</h3>
             <p className="text-muted-foreground mb-6">
-              We couldn't find any recipes matching your search. Try using different keywords or browse our blog for more content.
+              We couldn't find any recipes matching your {searchQuery ? 'search' : 'filter'}. Try using different keywords or browse our blog for more content.
             </p>
             <Button 
               variant="outline" 
-              onClick={() => setSearchQuery('')}
+              onClick={handleClearFilters}
               className="border-bread-200 text-bread-800 hover:bg-bread-100"
               aria-label="View all recipes"
             >
@@ -67,7 +102,7 @@ const RecipeGrid = ({ isLoading, searchQuery, filteredRecipes, setSearchQuery }:
         )}
         
         {/* View More Link - if more recipes are available */}
-        {!searchQuery && filteredRecipes.length > 0 && (
+        {!searchQuery && !selectedType && filteredRecipes.length > 0 && (
           <div className="text-center mt-16">
             <a 
               href="/blog" 

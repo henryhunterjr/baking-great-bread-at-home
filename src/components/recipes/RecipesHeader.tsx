@@ -4,13 +4,21 @@ import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import RecipeTypeFilter from './RecipeTypeFilter';
 
 interface RecipesHeaderProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  selectedType: string;
+  setSelectedType: (type: string) => void;
 }
 
-const RecipesHeader = ({ searchQuery, setSearchQuery }: RecipesHeaderProps) => {
+const RecipesHeader = ({ 
+  searchQuery, 
+  setSearchQuery,
+  selectedType,
+  setSelectedType
+}: RecipesHeaderProps) => {
   return (
     <section className="pt-32 pb-16 md:pt-40 md:pb-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -53,15 +61,10 @@ const RecipesHeader = ({ searchQuery, setSearchQuery }: RecipesHeaderProps) => {
                 aria-label="Search recipes"
               />
             </div>
-            <Button 
-              variant="outline" 
-              size="icon"
-              className="border-bread-200 text-bread-800 h-auto w-full sm:w-auto aspect-square sm:aspect-auto px-4 transition-all duration-300 hover:bg-bread-100 hover:border-bread-300"
-              aria-label="Filter recipes"
-            >
-              <Filter className="h-4 w-4 sm:mr-2" aria-hidden="true" />
-              <span className="hidden sm:inline">Filter</span>
-            </Button>
+            <RecipeTypeFilter 
+              selectedType={selectedType}
+              setSelectedType={setSelectedType}
+            />
           </div>
         </div>
       </div>
