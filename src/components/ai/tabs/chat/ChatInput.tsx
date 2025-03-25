@@ -44,9 +44,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
       {showSuggestions && !isProcessing && (
         <div className="mt-4 transition-opacity duration-300" style={{ opacity: isProcessing ? 0.5 : 1 }}>
           <SuggestedQuestions 
-            onQuestionSelect={setInput}
             questions={suggestedQuestions}
-            onSelect={setInput}
+            onSelectQuestion={setInput}
           />
         </div>
       )}

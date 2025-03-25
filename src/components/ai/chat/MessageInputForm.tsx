@@ -14,6 +14,7 @@ interface MessageInputFormProps {
   setInput?: React.Dispatch<React.SetStateAction<string>>;
   onSubmit?: (e: FormEvent) => Promise<void> | void;
   isLoading?: boolean;
+  disabled?: boolean; // Added the disabled prop
 }
 
 const MessageInputForm: React.FC<MessageInputFormProps> = ({ 
@@ -23,7 +24,8 @@ const MessageInputForm: React.FC<MessageInputFormProps> = ({
   input: externalInput,
   setInput: externalSetInput,
   onSubmit: externalOnSubmit,
-  isLoading
+  isLoading,
+  disabled
 }) => {
   const [internalInput, setInternalInput] = useState('');
   const isMobile = useIsMobile();
@@ -66,13 +68,13 @@ const MessageInputForm: React.FC<MessageInputFormProps> = ({
           placeholder="Ask about recipes, techniques, or challenges..."
           value={chatInput}
           onChange={(e) => setChatInput(e.target.value)}
-          disabled={isProcessing || isLoading}
+          disabled={isProcessing || isLoading || disabled}
           className="bg-white/90 dark:bg-slate-800/90 border-2 border-bread-700/40 focus:border-bread-700 focus:ring-2 focus:ring-bread-600/30 shadow-md placeholder:text-slate-500 dark:placeholder:text-slate-400"
         />
         <Button 
           type="submit" 
           size="icon"
-          disabled={!chatInput.trim() || isProcessing || isLoading}
+          disabled={!chatInput.trim() || isProcessing || isLoading || disabled}
           className="bg-bread-800 hover:bg-bread-700 shadow-md flex-shrink-0"
         >
           <Send className="h-4 w-4" />
