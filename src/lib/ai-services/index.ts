@@ -16,6 +16,19 @@ export {
 import { initializeAIService, verifyAIServiceStatus } from './initialize';
 import { getOpenAIApiKey, isOpenAIConfigured } from './ai-config';
 
+// Export context-aware AI functionality
+export { 
+  contextAwareAI,
+  initializeContextAwareAI,
+  type ContextAwareResponse
+} from './context-aware-ai';
+
+// Export content indexing functionality
+export {
+  contentIndexer,
+  initializeContentIndexer
+} from './content-indexing/content-indexer';
+
 // Re-export initialization functions
 export { 
   initializeAIService,

@@ -1,61 +1,57 @@
 
-import { configureAI } from './ai-service';
-import { getOpenAIApiKey, updateOpenAIApiKey } from './ai-config';
 import { logInfo, logError } from '@/utils/logger';
+import { verifyAPIKey } from './ai-config';
+import { initializeContentIndexer } from './content-indexing/content-indexer';
+import { initializeContextAwareAI } from './context-aware-ai';
 
 /**
- * Initialize the AI service with saved API keys
+ * Initialize AI service and content indexing
  */
-export const initializeAIService = (): boolean => {
+export const initializeAIService = async (): Promise<void> => {
   try {
-    // Get API key from the consolidated sources
-    const apiKey = getOpenAIApiKey();
+    logInfo('Initializing AI service');
     
-    // Log the initialization attempt for debugging
-    console.group('OpenAI API Key Initialization');
-    console.log('API Key Available:', !!apiKey);
-    console.log('API Key Length:', apiKey ? apiKey.length : 0);
+    // Verify the API key
+    const isValid = await verifyAPIKey();
     
-    if (apiKey) {
-      logInfo('Initializing AI service with API key');
-      configureAI(apiKey);
-      // Update the OpenAI API key in the configuration
-      updateOpenAIApiKey();
-      console.log('Configuration Successful ✅');
-      console.groupEnd();
-      return true;
+    if (isValid) {
+      logInfo('✅ AI Service initialized with valid API key');
     } else {
-      logInfo('No valid API key found for OpenAI integration');
-      console.log('No Valid API Key Found ❌');
-      console.groupEnd();
-      return false;
+      logInfo('⚠️ AI Service initialized without valid API key');
     }
+    
+    // Initialize content indexing
+    try {
+      await initializeContentIndexer();
+      logInfo('✅ Content indexing initialized');
+    } catch (error) {
+      logError('Error initializing content indexing', { error });
+    }
+    
+    // Initialize context-aware AI
+    try {
+      await initializeContextAwareAI();
+      logInfo('✅ Context-aware AI initialized');
+    } catch (error) {
+      logError('Error initializing context-aware AI', { error });
+    }
+    
   } catch (error) {
-    logError('Failed to initialize AI service:', { error });
-    console.error('Initialization Error:', error);
-    console.groupEnd();
-    return false;
+    logError('Failed to initialize AI service', { error });
   }
 };
 
-// Add function to check initialization status
-export const verifyAIServiceStatus = (): { 
-  isConfigured: boolean; 
-  keySource: string | null;
-  model: string;
-} => {
-  const apiKey = getOpenAIApiKey();
-  let keySource = null;
-  
-  if (import.meta.env.VITE_OPENAI_API_KEY) {
-    keySource = 'environment';
-  } else if (localStorage.getItem('openai_api_key')) {
-    keySource = 'localStorage';
+/**
+ * Verify AI service status
+ */
+export const verifyAIServiceStatus = async (): Promise<boolean> => {
+  try {
+    // Attempt to verify the API key
+    const isValid = await verifyAPIKey();
+    
+    return isValid;
+  } catch (error) {
+    logError('Error verifying AI service status', { error });
+    return false;
   }
-  
-  return {
-    isConfigured: !!apiKey,
-    keySource,
-    model: 'gpt-4o-mini'
-  };
 };

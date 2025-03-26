@@ -3,15 +3,29 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Send } from 'lucide-react';
+import { Loader2, Send, Search, BookOpen, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { searchBlogWithAI, isAIConfigured } from '@/lib/ai-services';
+import { contextAwareAI, initializeContextAwareAI } from '@/lib/ai-services/context-aware-ai';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
   isProcessing?: boolean;
+  sources?: Array<{
+    title: string;
+    excerpt: string;
+    url: string;
+    type: string;
+  }>;
+}
+
+interface SourceReference {
+  title: string;
+  excerpt: string;
+  url: string;
+  type: string;
 }
 
 interface ContextAwareChatProps {
@@ -34,8 +48,28 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
   ]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isAiInitialized, setIsAiInitialized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  
+  // Initialize the context-aware AI service
+  useEffect(() => {
+    const initAI = async () => {
+      try {
+        await initializeContextAwareAI();
+        setIsAiInitialized(true);
+      } catch (error) {
+        console.error('Failed to initialize context-aware AI:', error);
+        toast({
+          variant: "destructive",
+          title: "AI Initialization Failed",
+          description: "There was a problem setting up the AI assistant. Some features may be limited."
+        });
+      }
+    };
+    
+    initAI();
+  }, [toast]);
   
   // Scroll to bottom whenever messages change
   useEffect(() => {
@@ -65,14 +99,14 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
     setIsProcessing(true);
     
     try {
-      // Check if OpenAI is configured
-      if (!isAIConfigured()) {
+      // Check if context-aware AI is initialized
+      if (!isAiInitialized) {
         // Replace the pending message with error
         setMessages(prev => 
           prev.map(msg => 
             msg === pendingMessage ? {
               ...msg,
-              content: "I need an OpenAI API key to provide AI-powered responses. Please add your API key in the settings.",
+              content: "I'm still initializing my knowledge base. Please try again in a moment.",
               isProcessing: false
             } : msg
           )
@@ -81,54 +115,42 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
         return;
       }
       
-      // Determine if it's a search query
-      const isSearchQuery = /find|search|looking for|recipe for|how to make/i.test(input);
+      // Process the message with context-aware AI
+      const aiResponse = await contextAwareAI.processQuery(input);
       
-      if (isSearchQuery) {
-        // Use blog search feature for recipe-related queries
-        const searchResponse = await searchBlogWithAI(input);
-        
-        if (searchResponse.success && searchResponse.results && searchResponse.results.length > 0) {
-          // Format search results as a nice message
-          const result = searchResponse.results[0];
-          const responseContent = `I found a recipe that might help: **${result.title}**\n\n${result.excerpt}\n\n[View the full recipe](${result.link})`;
-          
-          // Replace the pending message with the response
-          setMessages(prev => 
-            prev.map(msg => 
-              msg === pendingMessage ? {
-                ...msg,
-                content: responseContent,
-                isProcessing: false
-              } : msg
-            )
-          );
-        } else {
-          // Replace with a generic response if search failed
-          setMessages(prev => 
-            prev.map(msg => 
-              msg === pendingMessage ? {
-                ...msg,
-                content: "I couldn't find specific recipes matching your query. Could you try asking in a different way or provide more details about what you're looking for?",
-                isProcessing: false
-              } : msg
-            )
-          );
-        }
+      if (aiResponse.success) {
+        // Replace the pending message with the response
+        setMessages(prev => 
+          prev.map(msg => 
+            msg === pendingMessage ? {
+              ...msg,
+              content: aiResponse.answer,
+              isProcessing: false,
+              sources: aiResponse.sources
+            } : msg
+          )
+        );
       } else {
-        // For general questions, use a more generic response
-        // In a real implementation, this would call the OpenAI API directly
-        setTimeout(() => {
-          setMessages(prev => 
-            prev.map(msg => 
-              msg === pendingMessage ? {
-                ...msg,
-                content: "I'm still learning about bread baking. For recipe-specific questions, try asking about a particular type of bread or technique, and I'll search our collection for you.",
-                isProcessing: false
-              } : msg
-            )
-          );
-        }, 1000);
+        // Handle API error
+        const errorMessage = aiResponse.error || "Sorry, I encountered an error processing your request. Please try again later.";
+        
+        // Replace the pending message with error
+        setMessages(prev => 
+          prev.map(msg => 
+            msg === pendingMessage ? {
+              ...msg,
+              content: errorMessage,
+              isProcessing: false
+            } : msg
+          )
+        );
+        
+        // Show a toast for the error
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to process your message. Please try again."
+        });
       }
     } catch (error) {
       console.error('Error processing message:', error);
@@ -160,6 +182,39 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
     }
   };
   
+  const renderSourceItem = (source: SourceReference) => {
+    let icon;
+    
+    switch (source.type) {
+      case 'blog':
+        icon = <FileText className="h-4 w-4 mr-2 text-blue-500" />;
+        break;
+      case 'book':
+        icon = <BookOpen className="h-4 w-4 mr-2 text-green-500" />;
+        break;
+      case 'recipe':
+      default:
+        icon = <Search className="h-4 w-4 mr-2 text-primary" />;
+    }
+    
+    return (
+      <div className="flex items-start mb-2 p-2 bg-muted/30 rounded text-sm">
+        {icon}
+        <div>
+          <a 
+            href={source.url} 
+            className="font-medium hover:underline text-primary"
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
+            {source.title}
+          </a>
+          <p className="text-muted-foreground text-xs mt-1">{source.excerpt}</p>
+        </div>
+      </div>
+    );
+  };
+  
   return (
     <Card className="flex flex-col h-full">
       <CardHeader>
@@ -185,7 +240,21 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
                     <span>Thinking...</span>
                   </div>
                 ) : (
-                  <div className="whitespace-pre-wrap">{message.content}</div>
+                  <>
+                    <div className="whitespace-pre-wrap">{message.content}</div>
+                    
+                    {/* Show sources if available */}
+                    {message.sources && message.sources.length > 0 && (
+                      <div className="mt-3 pt-2 border-t border-muted">
+                        <p className="text-xs font-medium mb-2">Sources:</p>
+                        {message.sources.map((source, idx) => (
+                          <div key={idx}>
+                            {renderSourceItem(source)}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
