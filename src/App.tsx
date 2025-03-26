@@ -49,9 +49,10 @@ function App() {
       logError('Failed to initialize AI service:', error);
       setAiInitialized(false);
       
+      // Fix toast call to use the proper API
       toast({
-        variant: "destructive",
-        description: "Failed to initialize AI services. Some features may be limited."
+        description: "Failed to initialize AI services. Some features may be limited.",
+        variant: "destructive"
       });
     }
   }, []);

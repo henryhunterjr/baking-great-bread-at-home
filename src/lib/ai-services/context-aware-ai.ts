@@ -1,4 +1,3 @@
-
 import { logInfo, logError } from '@/utils/logger';
 import { AI_CONFIG, getOpenAIApiKey } from './ai-config';
 
@@ -73,7 +72,7 @@ class ContextAwareAI {
   }
   
   // Process a user query with relevant context
-  public async processQuery(query: string): Promise<ContextAwareAIResponse> {
+  public async processQuery(query: string): Promise<ContextAwareResponse> {
     try {
       if (!this.isInitialized) {
         await this.initialize();

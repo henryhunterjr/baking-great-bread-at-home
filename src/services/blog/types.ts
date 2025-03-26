@@ -6,6 +6,7 @@ export interface BlogPost {
   date: string;
   imageUrl: string;
   link: string;
+  tags?: string[]; // Add tags property that was missing
 }
 
 export interface BlogCache {

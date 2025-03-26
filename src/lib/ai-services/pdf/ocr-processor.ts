@@ -1,4 +1,3 @@
-
 import { logInfo, logError } from '@/utils/logger';
 import { createWorker } from 'tesseract.js';
 import { ProgressCallback } from './types';
@@ -37,13 +36,14 @@ const initializeOCR = async (): Promise<boolean> => {
       }
     }
     
-    // Create a new worker with proper logger configuration
-    tesseractWorker = await createWorker({
-      logger: (progress: any) => {
-        if (progress.status === 'recognizing text') {
-          const progressPercent = Math.round(progress.progress * 100);
-          logInfo(`OCR Progress: ${progressPercent}%`);
-        }
+    // Create a new worker - fix the logger configuration
+    tesseractWorker = await createWorker();
+    
+    // Set up logging after worker creation
+    tesseractWorker.setLogger((progress: any) => {
+      if (progress.status === 'recognizing text') {
+        const progressPercent = Math.round(progress.progress * 100);
+        logInfo(`OCR Progress: ${progressPercent}%`);
       }
     });
     
@@ -113,16 +113,10 @@ export const processImageWithOCR = async (
     
     if (progressCallback) progressCallback(40);
     
-    // Recognize text with progress tracking
-    const result = await tesseractWorker.recognize(imageDataUrl, {
-      progress: (progress: any) => {
-        // Map Tesseract's 0-1 progress to our 40-90 range
-        if (progressCallback && progress.progress !== undefined) {
-          const mappedProgress = 40 + Math.round(progress.progress * 50);
-          progressCallback(mappedProgress);
-        }
-      }
-    });
+    // Recognize text with progress tracking - fixed options
+    const result = await tesseractWorker.recognize(imageDataUrl);
+    
+    // Handle progress tracking separately through the logger
     
     if (progressCallback) progressCallback(90);
     
