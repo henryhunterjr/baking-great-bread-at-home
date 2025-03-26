@@ -1,7 +1,9 @@
-import { ChatMessage, RecipeSearchResult, OpenAIRecipeResponse } from './types';
+
+import { ChatMessage, RecipeSearchResult } from './types';
 import { booksData } from './data';
 import BlogService from '@/services/BlogService';
 import { generateRecipe, RecipeGenerationResponse } from '@/lib/ai-services';
+import { challenges, recipesData, generateRecipeWithOpenAI } from './mockData';
 
 // Current challenge is the first one in the challenges array
 export const getCurrentChallenge = () => challenges[0];

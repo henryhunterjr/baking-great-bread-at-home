@@ -1,28 +1,39 @@
 
-import { ReactNode } from 'react';
-
-export interface EquipmentItem {
-  id?: string;
-  name: string;
-  affiliateLink?: string;
-}
-
 export interface RecipeData {
+  id?: string;
   title: string;
-  introduction: string;
+  introduction?: string;
+  prepTime?: string;
+  cookTime?: string;
+  totalTime?: string;
+  servings?: string;
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
+  cuisineType?: string;
+  tags?: string[];
   ingredients: string[];
-  prepTime: string;
-  restTime: string;
-  bakeTime: string;
-  totalTime: string;
+  equipment?: string[];
   instructions: string[];
-  tips: string[];
-  proTips: string[];
-  equipmentNeeded: EquipmentItem[];
-  imageUrl: string;
-  tags: string[];
-  isPublic: boolean;
-  isConverted: boolean;
+  notes?: string[];
+  tips?: string[];
+  imageUrl?: string;
+  createdBy?: string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  source?: string;
+  isPublic?: boolean;
+  rating?: number;
+  calories?: number;
+  nutrition?: {
+    protein?: string;
+    carbs?: string;
+    fat?: string;
+    sugar?: string;
+    fiber?: string;
+  };
 }
 
-export interface RecipeFormValues extends RecipeData {}
+export interface RecipeGenerationResponse {
+  success: boolean;
+  recipe?: RecipeData;
+  error?: string;
+}

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { RecipeData } from '@/pages/RecipeConverter';
+import { RecipeData } from '@/types/recipeTypes';
 import { ChatMessage } from './types/chat';
 import ChatSection from './chat/ChatSection';
 import RecipeGenerator from './generator/RecipeGenerator';
@@ -17,14 +17,19 @@ const RecipeAssistant: React.FC<RecipeAssistantProps> = ({ recipe }) => {
     }
   ]);
   
-  const addToChatHistory = (messages: ChatMessage[]) => {
-    setChatHistory(prevHistory => [...prevHistory, ...messages]);
+  const handleGenerateRecipe = (generatedRecipe: RecipeData) => {
+    // Handle the generated recipe here
+    const newMessage: ChatMessage = {
+      role: 'assistant',
+      content: `I've generated a recipe for ${generatedRecipe.title}. Would you like me to explain any part of it in detail?`
+    };
+    setChatHistory(prevHistory => [...prevHistory, newMessage]);
   };
   
   return (
     <div className="space-y-4">
       <ChatSection recipe={recipe} />
-      <RecipeGenerator addToChatHistory={addToChatHistory} />
+      <RecipeGenerator onGenerateRecipe={handleGenerateRecipe} />
     </div>
   );
 };
