@@ -18,21 +18,8 @@ export const extractTextWithOCR = async (
     progressCallback(10);
     logInfo("OCR: Initializing Tesseract worker");
     
-    // Fix: Use proper worker creation for Tesseract.js v6
-    worker = await createWorker();
-    
-    // Set up logger after worker initialization
-    worker.setLogger((m: any) => {
-      if (m.status === 'recognizing text') {
-        // Map progress (0-1) to our range (30-90%)
-        const mappedProgress = Math.floor(30 + (m.progress * 60));
-        progressCallback(mappedProgress);
-      }
-    });
-    
-    // Initialize with English language
-    await worker.loadLanguage('eng');
-    await worker.initialize('eng');
+    // Initialize worker and load language
+    worker = await createWorker('eng');
     
     progressCallback(30);
     
@@ -51,8 +38,20 @@ export const extractTextWithOCR = async (
     // Set progress to 30% after preparing image
     logInfo("OCR: Image prepared, starting recognition");
     
-    // Use proper v6 API recognition
-    const result = await worker.recognize(imageData);
+    // Begin recognition with progress monitoring
+    const recognizeResult = worker.recognize(imageData);
+    
+    // Monitor progress if the API supports it
+    if (recognizeResult.progress) {
+      recognizeResult.progress(p => {
+        // Map progress (0-1) to our range (30-90%)
+        const mappedProgress = Math.floor(30 + (p * 60));
+        progressCallback(mappedProgress);
+      });
+    }
+    
+    // Get the result
+    const result = await recognizeResult;
     
     // Get text from the result
     const extractedText = result.data.text || '';

@@ -41,12 +41,12 @@ export const extractTextFromPDF = async (
     if (progressCallback) progressCallback(10);
     
     // Validate file size before processing
-    if (file.size > 15 * 1024 * 1024) { // 15MB limit
-      throw new Error("PDF file is too large (max 15MB). Try using a smaller file or text input.");
+    if (file.size > 25 * 1024 * 1024) { // 25MB limit - increased from 15MB
+      throw new Error("PDF file is too large (max 25MB). Try using a smaller file or text input.");
     }
     
-    // Use a shorter timeout for initial loading (12 seconds - reduced from 15)
-    pdfDocument = await loadPdfDocument(file, 12000);
+    // Use a longer timeout for initial loading (30 seconds - increased from 12)
+    pdfDocument = await loadPdfDocument(file, 30000);
     
     // Check if processing was cancelled during loading
     if (isRequestCancelled) {

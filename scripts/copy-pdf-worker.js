@@ -15,6 +15,9 @@ const cmapsSrc = path.resolve(__dirname, '../node_modules/pdfjs-dist/cmaps');
 const workerDest = path.resolve(__dirname, '../public/pdf.worker.min.js');
 const cmapsDest = path.resolve(__dirname, '../public/cmaps');
 
+console.log('PDF.js worker source path:', workerSrc);
+console.log('PDF.js worker destination path:', workerDest);
+
 // Create cmaps directory if it doesn't exist
 if (!fs.existsSync(cmapsDest)) {
   fs.mkdirSync(cmapsDest, { recursive: true });
@@ -23,29 +26,41 @@ if (!fs.existsSync(cmapsDest)) {
 
 // Copy worker file
 try {
-  fs.copyFileSync(workerSrc, workerDest);
-  console.log('PDF.js worker file copied to public folder');
+  if (!fs.existsSync(workerSrc)) {
+    console.error('ERROR: PDF.js worker file not found at source path.');
+    console.log('Please ensure pdfjs-dist is installed correctly.');
+  } else {
+    fs.copyFileSync(workerSrc, workerDest);
+    console.log('PDF.js worker file copied to public folder');
+  }
 } catch (error) {
   console.error('Error copying PDF.js worker file:', error);
 }
 
 // Copy cmaps files
 try {
-  // Get list of all files in cmaps directory
-  const cmapFiles = fs.readdirSync(cmapsSrc);
-  
-  // Copy each file
-  cmapFiles.forEach(file => {
-    const srcFile = path.join(cmapsSrc, file);
-    const destFile = path.join(cmapsDest, file);
+  if (!fs.existsSync(cmapsSrc)) {
+    console.error('ERROR: PDF.js cmaps directory not found.');
+    console.log('Please ensure pdfjs-dist is installed correctly.');
+  } else {
+    // Get list of all files in cmaps directory
+    const cmapFiles = fs.readdirSync(cmapsSrc);
     
-    // Only copy files (not directories)
-    if (fs.statSync(srcFile).isFile()) {
-      fs.copyFileSync(srcFile, destFile);
-    }
-  });
-  
-  console.log(`${cmapFiles.length} cmap files copied to public folder`);
+    // Copy each file
+    let copiedCount = 0;
+    cmapFiles.forEach(file => {
+      const srcFile = path.join(cmapsSrc, file);
+      const destFile = path.join(cmapsDest, file);
+      
+      // Only copy files (not directories)
+      if (fs.statSync(srcFile).isFile()) {
+        fs.copyFileSync(srcFile, destFile);
+        copiedCount++;
+      }
+    });
+    
+    console.log(`${copiedCount} cmap files copied to public folder`);
+  }
 } catch (error) {
   console.error('Error copying cmap files:', error);
 }

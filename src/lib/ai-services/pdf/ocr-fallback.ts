@@ -23,8 +23,8 @@ export const attemptOCRFallback = async (
     // Update progress if callback provided
     if (progressCallback) progressCallback(75);
     
-    // Convert first page of PDF to image with shorter timeout (reduced from 10000ms)
-    const imageDataUrl = await convertPDFPageToImage(file, 8000);
+    // Convert first page of PDF to image with longer timeout (increased from 8000ms)
+    const imageDataUrl = await convertPDFPageToImage(file, 20000);
     
     if (progressCallback) progressCallback(85);
     
