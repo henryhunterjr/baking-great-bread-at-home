@@ -1,4 +1,3 @@
-
 import React, { useState, memo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -25,10 +24,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     toast({
       title: isFavorite ? "Recipe removed from favorites" : "Recipe saved to favorites",
       description: isFavorite ? "You can re-add it anytime." : "Access your saved recipes from your profile.",
-      action: {
-        label: "View Favorites",
-        onClick: () => console.log("View favorites clicked")
-      }
+      action: <button onClick={() => console.log("View favorites clicked")}>View Favorites</button>
     });
   };
   
