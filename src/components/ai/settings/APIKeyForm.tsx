@@ -5,9 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Check, Key, ExternalLink } from 'lucide-react';
-import { configureAI, isAIConfigured } from '@/lib/ai-services';
+import { configureAI, verifyAPIKey, isOpenAIConfigured } from '@/lib/ai-services/ai-config';
 import { verifyAIServiceStatus } from '@/lib/ai-services/initialize';
 import { useToast } from '@/hooks/use-toast';
+import { logInfo } from '@/utils/logger';
 
 interface APIKeyFormProps {
   onConfigured?: () => void;
@@ -34,22 +35,41 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onConfigured }) => {
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        const isValid = await verifyAIServiceStatus();
-        setIsKeySet(isValid);
-        setStatus({
-          isConfigured: isValid,
-          keySource: isValid ? 'localStorage' : null,
-          model: 'gpt-4o-mini'
-        });
+        // Check if API key is configured
+        const isValid = isOpenAIConfigured();
+        
+        // If there's a key, verify it
+        if (isValid) {
+          const keyVerified = await verifyAPIKey();
+          setIsKeySet(keyVerified);
+          setStatus({
+            isConfigured: keyVerified,
+            keySource: keyVerified ? 'localStorage' : null,
+            model: 'gpt-4o-mini'
+          });
+          
+          if (keyVerified && onConfigured) {
+            onConfigured();
+          }
+          
+          logInfo('API key status checked', { isConfigured: keyVerified });
+        } else {
+          setIsKeySet(false);
+          setStatus({
+            isConfigured: false,
+            keySource: null,
+            model: ''
+          });
+        }
       } catch (error) {
         console.error('Error checking API status:', error);
       }
     };
     
     checkStatus();
-  }, []);
+  }, [onConfigured]);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
     if (!apiKey.trim()) {
@@ -75,28 +95,38 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onConfigured }) => {
         return;
       }
       
-      // Store API key in localStorage for persisting between sessions
-      localStorage.setItem('openai_api_key', apiKey);
-      
       // Configure the AI service with the key
       configureAI(apiKey);
       
-      // Update status
-      setIsKeySet(true);
-      setStatus({
-        isConfigured: true,
-        keySource: 'localStorage',
-        model: 'gpt-4o-mini'
-      });
+      // Verify the key after configuring
+      const isValid = await verifyAPIKey();
       
-      toast({
-        title: 'API Key Configured',
-        description: 'Your API key has been successfully configured.',
-        variant: 'default'
-      });
-      
-      if (onConfigured) {
-        onConfigured();
+      if (isValid) {
+        // Update status
+        setIsKeySet(true);
+        setStatus({
+          isConfigured: true,
+          keySource: 'localStorage',
+          model: 'gpt-4o-mini'
+        });
+        
+        toast({
+          title: 'API Key Configured',
+          description: 'Your API key has been successfully configured.',
+          variant: 'default'
+        });
+        
+        if (onConfigured) {
+          onConfigured();
+        }
+        
+        logInfo('API key successfully configured');
+      } else {
+        toast({
+          title: 'Invalid API Key',
+          description: 'The API key could not be verified. Please check and try again.',
+          variant: 'destructive'
+        });
       }
     } catch (error) {
       toast({

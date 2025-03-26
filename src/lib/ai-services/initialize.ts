@@ -1,6 +1,6 @@
 
 import { logInfo, logError } from '@/utils/logger';
-import { verifyAPIKey } from './ai-config';
+import { verifyAPIKey, isOpenAIConfigured, updateOpenAIApiKey } from './ai-config';
 import { initializeContentIndexer } from './content-indexing/content-indexer';
 import { initializeContextAwareAI } from './context-aware-ai';
 
@@ -11,8 +11,12 @@ export const initializeAIService = async (): Promise<void> => {
   try {
     logInfo('Initializing AI service');
     
+    // Make sure we have the latest API key from localStorage
+    updateOpenAIApiKey();
+    
     // Verify the API key
-    const isValid = await verifyAPIKey();
+    const isConfigured = isOpenAIConfigured();
+    const isValid = isConfigured ? await verifyAPIKey() : false;
     
     if (isValid) {
       logInfo('✅ AI Service initialized with valid API key');
@@ -47,6 +51,7 @@ export const initializeAIService = async (): Promise<void> => {
 export const verifyAIServiceStatus = async (): Promise<boolean> => {
   try {
     // Attempt to verify the API key
+    updateOpenAIApiKey(); // Make sure we have the latest key
     const isValid = await verifyAPIKey();
     
     return isValid;

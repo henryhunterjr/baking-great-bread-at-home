@@ -35,7 +35,13 @@ export const getOpenAIApiKey = (): string | null => {
 
 // Function to check if the OpenAI integration can be used
 export const isOpenAIConfigured = (): boolean => {
-  return getOpenAIApiKey() !== null;
+  const apiKey = getOpenAIApiKey();
+  // Update AI_CONFIG with the current key
+  if (apiKey) {
+    AI_CONFIG.openai.apiKey = apiKey;
+    return true;
+  }
+  return false;
 };
 
 // Function to update the OpenAI API key in the configuration
@@ -82,3 +88,6 @@ export const verifyAPIKey = async (): Promise<boolean> => {
     return false;
   }
 };
+
+// Initialize the OpenAI API key on module load
+updateOpenAIApiKey();
