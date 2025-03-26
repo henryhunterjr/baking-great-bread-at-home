@@ -202,7 +202,10 @@ class ContentIndexer {
         const transformedMatches = result.matches ? 
           result.matches.map(match => ({
             key: match.key || '',  // Ensure key is always a string
-            indices: match.indices || [],
+            indices: match.indices ? 
+              // Convert readonly tuples to regular mutable tuples
+              match.indices.map(indexPair => [indexPair[0], indexPair[1]] as [number, number]) : 
+              [] as [number, number][],
             value: match.value || ''
           })) : [];
           
