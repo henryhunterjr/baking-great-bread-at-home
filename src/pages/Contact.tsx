@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 
 const Contact = () => {
+  useScrollToTop();
   const [formData, setFormData] = useState({
     name: "",
     email: "",

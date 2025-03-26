@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { runBrowserCompatibilityCheck } from './utils/crossBrowserTesting';
@@ -9,6 +8,7 @@ import BlogPost from './pages/BlogPost';
 import RecipeConverter from './pages/RecipeConverter';
 import AboutPage from './pages/AboutPage';
 import NotFoundPage from './pages/NotFoundPage';
+import Contact from './pages/Contact';
 import { lazy, Suspense } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import DevToolsToggle from './components/dev/DevToolsToggle';
@@ -18,20 +18,21 @@ import { useToast } from './hooks/use-toast';
 import './App.css';
 
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
-const ContactPage = lazy(() => import('./pages/ContactPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
 const AIHome = lazy(() => import('./pages/AIHome'));
+const ComingSoon = lazy(() => import('./pages/ComingSoon'));
+const Challenges = lazy(() => import('./pages/Challenges'));
+const Tools = lazy(() => import('./pages/Tools'));
+const Books = lazy(() => import('./pages/Books'));
 
 function App() {
   const { toast } = useToast();
   const [aiInitialized, setAiInitialized] = useState<boolean>(false);
 
   useEffect(() => {
-    // Run compatibility check on app startup
     runBrowserCompatibilityCheck();
     
-    // Initialize AI service from stored API key if available
     try {
       const initialized = initializeAIService();
       setAiInitialized(initialized);
@@ -44,14 +45,11 @@ function App() {
     } catch (error) {
       logError('Failed to initialize AI service:', error);
       
-      // Show a toast with the error
       toast({
         variant: "destructive",
         title: "AI Service Error",
         description: "Failed to initialize AI services. Some features may be limited.",
       });
-      
-      // Continue app execution even if AI initialization fails
     }
   }, [toast]);
 
@@ -66,10 +64,14 @@ function App() {
             <Route path="/recipe-converter" element={<RecipeConverter />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/favorites" element={<FavoritesPage />} />
-            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms-of-service" element={<TermsOfServicePage />} />
             <Route path="/ai" element={<AIHome aiInitialized={aiInitialized} />} />
+            <Route path="/community" element={<ComingSoon />} />
+            <Route path="/challenges" element={<Challenges />} />
+            <Route path="/tools" element={<Tools />} />
+            <Route path="/books" element={<Books />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
