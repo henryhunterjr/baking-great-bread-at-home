@@ -1,5 +1,4 @@
-
-import { useState, FormEvent } from 'react';
+import { useState, useCallback } from 'react';
 import { ChatMessage } from '../utils/types';
 import {
   handleRecipeRequest,
@@ -8,7 +7,7 @@ import {
   handleConvertRequest,
   handleGenerateRequest,
   handleGeneralRequest
-} from '../tabs/chat/ChatRequestHandlers';
+} from '../tabs/chat/handlers';
 
 interface UseChatHandlersProps {
   messages: ChatMessage[];
@@ -16,7 +15,7 @@ interface UseChatHandlersProps {
   setActiveTab: (tab: string) => void;
   setRecipeText: (text: string) => void;
   setRecipePrompt: (prompt: string) => void;
-  setIsProcessing?: (isProcessing: boolean) => void;
+  setIsProcessing: (isProcessing: boolean) => void;
 }
 
 export const useChatHandlers = ({
@@ -28,14 +27,15 @@ export const useChatHandlers = ({
   setIsProcessing
 }: UseChatHandlersProps) => {
   const [input, setInput] = useState('');
-  const [isInternalProcessing, setIsInternalProcessing] = useState(false);
-  
-  const handleSendMessage = async (e: FormEvent) => {
+
+  const handleSendMessage = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!input.trim() || isInternalProcessing) return;
+    if (!input.trim()) return;
     
-    // Add user message
+    setIsProcessing(true);
+    
+    // Add user message to the chat
     const userMessage: ChatMessage = {
       role: 'user',
       content: input,
@@ -43,64 +43,30 @@ export const useChatHandlers = ({
     };
     
     setMessages(prev => [...prev, userMessage]);
-    setInput('');
+    setInput(''); // Clear the input field immediately after sending
     
-    // Set processing state
-    setIsInternalProcessing(true);
-    if (setIsProcessing) setIsProcessing(true);
+    const query = input.trim();
+    const lowerQuery = query.toLowerCase();
     
-    try {
-      const lowerInput = input.toLowerCase();
-      
-      // Check for recipe search request
-      if (lowerInput.includes('recipe') || lowerInput.includes('bread') || 
-          lowerInput.includes('bake') || lowerInput.includes('roll') ||
-          lowerInput.includes('find') || lowerInput.includes('search')) {
-        await handleRecipeRequest(input, setMessages, setIsProcessingComplete);
-      }
-      // Check for book search request
-      else if (lowerInput.includes('book') || lowerInput.includes('reading')) {
-        await handleBookRequest(input, setMessages, setIsProcessingComplete);
-      }
-      // Check for challenge request
-      else if (lowerInput.includes('challenge') || lowerInput.includes('contest')) {
-        await handleChallengeRequest(setMessages, setIsProcessingComplete);
-      }
-      // Check for text conversion request
-      else if (lowerInput.includes('convert') || lowerInput.includes('translate')) {
-        handleConvertRequest(input, setMessages, setRecipeText, setActiveTab, setIsProcessingComplete);
-      }
-      // Check for recipe generation request
-      else if (lowerInput.includes('create') || lowerInput.includes('generate') || 
-               lowerInput.includes('make me') || lowerInput.includes('custom')) {
-        handleGenerateRequest(input, setMessages, setRecipePrompt, setActiveTab, setIsProcessingComplete);
-      }
-      // Fall back to general response
-      else {
-        handleGeneralRequest(input, setMessages, setIsProcessingComplete);
-      }
-    } catch (error) {
-      console.error('Error handling message:', error);
-      const errorMessage: ChatMessage = {
-        role: 'assistant',
-        content: "I'm sorry, I encountered an error processing your request. Please try again.",
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMessage]);
-      setIsProcessingComplete();
+    // Route the request to the appropriate handler
+    if (lowerQuery.startsWith('find') || lowerQuery.includes('recipe') || lowerQuery.includes('recipes')) {
+      await handleRecipeRequest(query, setMessages, setIsProcessing);
+    } else if (lowerQuery.includes('book')) {
+      await handleBookRequest(query, setMessages, setIsProcessing);
+    } else if (lowerQuery.includes('challenge')) {
+      await handleChallengeRequest(setMessages, setIsProcessing);
+    } else if (lowerQuery.includes('convert')) {
+      handleConvertRequest(query, setMessages, setRecipeText, setActiveTab, setIsProcessing);
+    } else if (lowerQuery.includes('generate') || lowerQuery.includes('create')) {
+      await handleGenerateRequest(query, setMessages, setRecipePrompt, setActiveTab, setIsProcessing);
+    } else {
+      handleGeneralRequest(query, setMessages, setIsProcessing);
     }
-  };
-  
-  const setIsProcessingComplete = () => {
-    setIsInternalProcessing(false);
-    if (setIsProcessing) setIsProcessing(false);
-  };
-  
+  }, [input, setMessages, setActiveTab, setRecipeText, setRecipePrompt, setIsProcessing]);
+
   return {
     input,
     setInput,
-    isProcessing: isInternalProcessing,
-    setIsProcessing: setIsInternalProcessing,
     handleSendMessage
   };
 };
