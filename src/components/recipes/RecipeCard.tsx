@@ -1,7 +1,7 @@
 
 import React, { useState, memo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { Recipe } from './types';
 import FavoriteButton from './FavoriteButton';
 import RecipeImage from './RecipeImage';
@@ -15,6 +15,7 @@ interface RecipeCardProps {
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const { toast } = useToast();
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();

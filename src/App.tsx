@@ -15,7 +15,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import DevToolsToggle from './components/dev/DevToolsToggle';
 import { initializeAIService } from './lib/ai-services';
 import { logError, logInfo } from './utils/logger';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import './App.css';
 
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
