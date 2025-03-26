@@ -48,7 +48,7 @@ export class SearchService {
       const normalizedQuery = this.normalizeSearchQuery(query);
       
       // Convert our ContentIndexOptions to Fuse.js search options
-      const searchOptions: Fuse.IFuseSearchOptions = {};
+      const searchOptions: Fuse.FuseSearchOptions = {};
       
       if (options?.limit !== undefined) {
         searchOptions.limit = options.limit;
