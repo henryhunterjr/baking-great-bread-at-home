@@ -1,6 +1,6 @@
 
 import { logInfo, logError } from '@/utils/logger';
-import { createWorker, Worker, PSM } from 'tesseract.js';
+import { createWorker, Worker } from 'tesseract.js';
 import { ProgressCallback } from './types';
 
 // Tesseract.js worker instance
@@ -37,18 +37,17 @@ const initializeOCR = async (): Promise<boolean> => {
       }
     }
     
-    // Create a new worker
-    tesseractWorker = await createWorker();
-    
-    // Set up logging after worker creation
-    tesseractWorker.setLogger((m) => {
-      if (m.status === 'recognizing text') {
-        const progressPercent = Math.round(m.progress * 100);
-        logInfo(`OCR Progress: ${progressPercent}%`);
+    // Create a new worker with logger configuration
+    tesseractWorker = await createWorker({
+      logger: m => {
+        if (m.status === 'recognizing text') {
+          const progressPercent = Math.round(m.progress * 100);
+          logInfo(`OCR Progress: ${progressPercent}%`);
+        }
       }
     });
     
-    // Load English language data
+    // Initialize the worker with English language
     await tesseractWorker.loadLanguage('eng');
     await tesseractWorker.initialize('eng');
     
@@ -106,10 +105,9 @@ export const processImageWithOCR = async (
     
     if (progressCallback) progressCallback(30);
     
-    // Configure Tesseract for recipe text
+    // Configure Tesseract for recipe text and recognize
     await tesseractWorker.setParameters({
       tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:\'"-()[]{}!?@#$%^&*+=/<>°℃℉½¼¾⅓⅔ ',
-      tessedit_pageseg_mode: PSM.SINGLE_BLOCK,
     });
     
     if (progressCallback) progressCallback(40);

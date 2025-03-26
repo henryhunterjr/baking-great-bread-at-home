@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -6,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import BlogPostCard from '../components/BlogPostCard';
-import useBlogPosts from '../services/blog/useBlogPosts';
+import { useBlogPosts } from '../services/blog/useBlogPosts';
 import { BlogPost } from '../services/blog/types';
 
 const BlogPage = () => {
@@ -77,7 +78,14 @@ const BlogPage = () => {
     );
   }
   
-  const allTags = posts ? Array.from(new Set(posts.flatMap(post => post.tags || []))) : [];
+  // Extract all unique tags from posts with proper type safety
+  const allTags = posts ? Array.from(
+    new Set(
+      posts
+        .flatMap(post => (post.tags || []))
+        .filter(tag => typeof tag === 'string')
+    )
+  ) : [];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -97,7 +105,7 @@ const BlogPage = () => {
           <div className="flex items-center space-x-2">
             {allTags.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {allTags.map(tag => (
+                {allTags.map((tag) => (
                   <Button
                     key={tag}
                     variant={selectedTag === tag ? "secondary" : "outline"}

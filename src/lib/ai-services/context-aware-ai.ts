@@ -6,8 +6,8 @@ import { ContentSearchEngine } from './context-aware/search';
 import { AIProcessor } from './context-aware/processing';
 import { ContextAwareResponse } from './context-aware/types';
 
-// Re-export the response type
-export { ContextAwareResponse } from './context-aware/types';
+// Re-export the response type using 'export type' to fix the TS1205 error
+export type { ContextAwareResponse } from './context-aware/types';
 
 // Context-aware AI service
 class ContextAwareAI {
