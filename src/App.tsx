@@ -16,7 +16,6 @@ import DevToolsToggle from './components/dev/DevToolsToggle';
 import { initializeAIService } from './lib/ai-services';
 import { logError, logInfo } from './utils/logger';
 import { toast } from 'sonner';
-import { Toaster } from '@/components/ui/toaster';
 import './App.css';
 
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
@@ -74,7 +73,6 @@ function App() {
           </Routes>
         </Suspense>
       </ErrorBoundary>
-      <Toaster />
       <DevToolsToggle />
     </ThemeProvider>
   );
