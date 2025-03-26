@@ -48,3 +48,22 @@ export interface OpenAIRecipeResponse {
     servings?: number;
   };
 }
+
+// Adding the missing types that aiHelpers.ts needs
+export interface BookRecommendation {
+  id?: number;
+  title: string;
+  author: string;
+  description: string;
+  imageUrl: string;
+  link: string;
+  keywords?: string[];
+}
+
+export interface ChallengeInfo {
+  id: string;
+  title: string;
+  description: string;
+  dueDate: string;
+  link: string;
+}

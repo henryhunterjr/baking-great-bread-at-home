@@ -15,8 +15,8 @@ export const henryQuotes = [
   "Baking is science, but great bread is art."
 ];
 
-// Henry's books data
-export const booksData = [
+// Add the missing books array that aiHelpers.ts needs
+export const books = [
   {
     id: 1,
     title: "Vitale Sourdough Mastery",
