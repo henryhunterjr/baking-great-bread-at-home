@@ -1,17 +1,14 @@
-
 import { RecipeData } from '@/types/recipeTypes';
 import { AI_CONFIG } from './ai-config';
 import { logInfo, logError } from '@/utils/logger';
 import { cleanOCRText } from './text-cleaner';
 
-// Interface for AI service responses
 export interface AIResponse {
   success: boolean;
   message?: string;
   error?: string;
 }
 
-// Blog search response
 export interface BlogSearchResponse extends AIResponse {
   results?: {
     title: string;
@@ -21,13 +18,11 @@ export interface BlogSearchResponse extends AIResponse {
   }[];
 }
 
-// Recipe generation response
 export interface RecipeGenerationResponse extends AIResponse {
   recipe?: RecipeData;
   error?: string;
 }
 
-// Create a class to handle all AI interactions
 class AIService {
   private static instance: AIService;
   private apiKey: string;
@@ -38,9 +33,12 @@ class AIService {
     this.isConfigured = !!this.apiKey;
     
     if (!this.isConfigured) {
-      logInfo('AI Service not configured with API key');
+      logError('AI Service NOT configured with API key');
     } else {
-      logInfo('AI Service initialized with API key');
+      logInfo('AI Service initialized with API key', { 
+        keyPresent: !!this.apiKey, 
+        keyLength: this.apiKey?.length 
+      });
     }
   }
   
@@ -51,7 +49,6 @@ class AIService {
     return AIService.instance;
   }
   
-  // Configure the service with an API key
   configure(apiKey: string): void {
     if (!apiKey || apiKey.trim() === '') {
       logError('Attempted to configure AI service with empty API key');
@@ -63,12 +60,10 @@ class AIService {
     logInfo('AI Service configured with new API key');
   }
   
-  // Check if the service is properly configured
   isReady(): boolean {
     return this.isConfigured && !!this.apiKey && this.apiKey.trim() !== '';
   }
   
-  // Search the blog for relevant content
   async searchBlog(query: string): Promise<BlogSearchResponse> {
     if (!this.isReady()) {
       return {
@@ -80,7 +75,6 @@ class AIService {
     try {
       logInfo('Searching blog for:', { query });
       
-      // Real OpenAI call for blog search
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -111,7 +105,6 @@ class AIService {
       const data = await response.json();
       const content = data.choices?.[0]?.message?.content;
       
-      // Parse results from OpenAI
       try {
         const jsonMatch = content.match(/\[[\s\S]*\]/);
         const jsonString = jsonMatch ? jsonMatch[0] : '[]';
@@ -128,7 +121,6 @@ class AIService {
         };
       } catch (parseError) {
         console.error('Failed to parse OpenAI response:', parseError);
-        // Fallback response
         return {
           success: true,
           results: [{
@@ -149,7 +141,6 @@ class AIService {
     }
   }
   
-  // Generate a recipe from a prompt
   async generateRecipe(prompt: string): Promise<RecipeGenerationResponse> {
     if (!this.isReady()) {
       return {
@@ -179,7 +170,6 @@ class AIService {
     }
   }
   
-  // Integrate with OpenAI
   async generateRecipeWithOpenAI(prompt: string): Promise<RecipeGenerationResponse> {
     if (!this.isReady()) {
       return {
@@ -247,12 +237,10 @@ class AIService {
         }
         
         try {
-          // Extract the JSON from the response
           const jsonMatch = content.match(/\{[\s\S]*\}/);
           const jsonString = jsonMatch ? jsonMatch[0] : content;
           const recipeData = JSON.parse(jsonString);
           
-          // Convert to our RecipeData format with defaults
           const recipe: RecipeData = {
             title: recipeData.title || 'New Recipe',
             introduction: recipeData.description || '',
@@ -294,7 +282,6 @@ class AIService {
     }
   }
   
-  // Process OCR results from images
   async processOCRText(text: string): Promise<string> {
     if (!this.isReady()) {
       return text;
@@ -303,8 +290,6 @@ class AIService {
     try {
       logInfo('Processing OCR text with AI', { textLength: text.length });
       
-      // For now, we'll just clean up the text
-      // In the real implementation, we would send this to OpenAI for further processing
       return cleanOCRText(text);
     } catch (error) {
       logError('Error processing OCR text with AI:', { error });
@@ -313,10 +298,8 @@ class AIService {
   }
 }
 
-// Create singleton instance
 const aiServiceInstance = new AIService();
 
-// Export helper functions for easier use
 export const configureAI = (apiKey: string): void => {
   aiServiceInstance.configure(apiKey);
 };
@@ -330,7 +313,6 @@ export const searchBlogWithAI = async (query: string): Promise<BlogSearchRespons
 };
 
 export const processRecipeText = async (text: string): Promise<RecipeGenerationResponse> => {
-  // This is just a wrapper for generateRecipeWithOpenAI with text as input
   return aiServiceInstance.generateRecipeWithOpenAI(text);
 };
 
@@ -346,5 +328,4 @@ export const processOCRWithAI = async (text: string): Promise<string> => {
   return aiServiceInstance.processOCRText(text);
 };
 
-// Export the service instance for direct access if needed
 export default aiServiceInstance;
