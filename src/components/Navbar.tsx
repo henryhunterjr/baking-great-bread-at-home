@@ -84,10 +84,9 @@ const Navbar = () => {
     { name: 'Books & Guides', path: '/books' },
     { name: 'Baking Tools', path: '/tools' },
     { name: 'Recipe Converter', path: '/recipe-converter' },
-    { name: 'Challenge', path: '/challenge' },
-    { name: 'Challenges Archive', path: '/challenges' },
+    { name: 'Challenges', path: '/challenges' },
     { name: 'Blog', path: '/blog' },
-    { name: 'App', path: '/app' },
+    { name: 'AI', path: '/ai' },
     { name: 'Community', path: '/community' },
     { name: 'Contact', path: '/contact' },
   ];
