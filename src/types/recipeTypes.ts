@@ -6,6 +6,8 @@ export interface RecipeData {
   prepTime?: string;
   cookTime?: string;
   totalTime?: string;
+  restTime?: string;
+  bakeTime?: string;
   servings?: string;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
   cuisineType?: string;
@@ -15,14 +17,17 @@ export interface RecipeData {
   instructions: string[];
   notes?: string[];
   tips?: string[];
+  proTips?: string[];
   imageUrl?: string;
   createdBy?: string;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   source?: string;
   isPublic?: boolean;
+  isConverted?: boolean;
   rating?: number;
   calories?: number;
+  equipmentNeeded?: EquipmentItem[];
   nutrition?: {
     protein?: string;
     carbs?: string;
@@ -30,6 +35,16 @@ export interface RecipeData {
     sugar?: string;
     fiber?: string;
   };
+}
+
+export interface EquipmentItem {
+  id?: string;
+  name: string;
+  affiliateLink?: string;
+}
+
+export interface RecipeFormValues extends RecipeData {
+  // Any additional fields specific to form handling
 }
 
 export interface RecipeGenerationResponse {
