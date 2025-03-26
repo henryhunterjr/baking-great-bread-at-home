@@ -16,7 +16,7 @@ import DevToolsToggle from './components/dev/DevToolsToggle';
 import { initializeAIService } from './lib/ai-services';
 import { logError, logInfo } from './utils/logger';
 import { toast } from 'sonner';
-import { Toaster } from 'sonner';
+import { Toaster } from '@/components/ui/toaster';
 import './App.css';
 
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
@@ -29,6 +29,8 @@ const Tools = lazy(() => import('./pages/Tools'));
 const Books = lazy(() => import('./pages/Books'));
 
 function App() {
+  const [aiInitialized, setAiInitialized] = useState(false);
+
   useEffect(() => {
     runBrowserCompatibilityCheck();
     
@@ -36,11 +38,14 @@ function App() {
       const initialized = initializeAIService();
       if (initialized) {
         logInfo('AI service initialized successfully');
+        setAiInitialized(true);
       } else {
         logInfo('AI service not initialized - no API key found');
+        setAiInitialized(false);
       }
     } catch (error) {
       logError('Failed to initialize AI service:', error);
+      setAiInitialized(false);
       
       toast.error("AI Service Error: Failed to initialize AI services. Some features may be limited.");
     }
@@ -60,7 +65,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-            <Route path="/ai" element={<AIHome />} />
+            <Route path="/ai" element={<AIHome aiInitialized={aiInitialized} />} />
             <Route path="/community" element={<ComingSoon />} />
             <Route path="/challenges" element={<Challenges />} />
             <Route path="/tools" element={<Tools />} />
@@ -69,7 +74,7 @@ function App() {
           </Routes>
         </Suspense>
       </ErrorBoundary>
-      <Toaster position="bottom-right" />
+      <Toaster />
       <DevToolsToggle />
     </ThemeProvider>
   );
