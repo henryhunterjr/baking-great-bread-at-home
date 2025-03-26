@@ -137,10 +137,11 @@ describe('SearchService', () => {
   test('should handle search options', () => {
     searchService.initializeSearchEngine();
     
-    searchService.search('test', { threshold: 0.5, includeScore: false });
+    searchService.search('test', { limit: 10, includeScore: false });
     
+    // Check that the correct options were passed to the Fuse search method
     expect(mockFuseSearch).toHaveBeenCalledWith('test', expect.objectContaining({
-      threshold: 0.5,
+      limit: 10,
       includeScore: false
     }));
   });

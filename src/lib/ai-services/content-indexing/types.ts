@@ -33,4 +33,5 @@ export interface ContentIndexOptions {
   matchAllTokens?: boolean;
   includeScore?: boolean;
   includeMatches?: boolean;
+  limit?: number; // Added the missing limit property
 }

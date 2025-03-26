@@ -47,12 +47,20 @@ export class SearchService {
       // Normalize query for better matching
       const normalizedQuery = this.normalizeSearchQuery(query);
       
-      const searchOptions = {
-        limit: options?.limit ?? 20, // Increased from 10 to ensure we find more results
-        threshold: options?.threshold ?? 0.4, // Increased threshold to allow more matches
-        includeScore: options?.includeScore ?? true,
-        includeMatches: options?.includeMatches ?? true,
-      };
+      // Convert our ContentIndexOptions to Fuse.js search options
+      const searchOptions: Fuse.IFuseSearchOptions = {};
+      
+      if (options?.limit !== undefined) {
+        searchOptions.limit = options.limit;
+      }
+      
+      if (options?.includeScore !== undefined) {
+        searchOptions.includeScore = options.includeScore;
+      }
+      
+      if (options?.includeMatches !== undefined) {
+        searchOptions.includeMatches = options.includeMatches;
+      }
       
       // First try direct search with the normalized query
       let results = this.searchEngine.search(normalizedQuery, searchOptions);
@@ -63,10 +71,7 @@ export class SearchService {
         const keyTerms = this.extractKeyTerms(query);
         if (keyTerms) {
           logInfo('Trying more targeted search with key terms', { keyTerms });
-          results = this.searchEngine.search(keyTerms, {
-            ...searchOptions,
-            threshold: 0.3 // More strict threshold for key terms search
-          });
+          results = this.searchEngine.search(keyTerms, searchOptions);
         }
       }
       
