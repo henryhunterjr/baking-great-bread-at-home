@@ -81,6 +81,21 @@ describe('SearchService', () => {
           }
         ];
       }
+      if (query.includes('henry') || query.includes('foolproof')) {
+        return [
+          {
+            item: getTestContent()[0],
+            score: 0.2,
+            matches: [
+              {
+                key: 'title',
+                indices: [[0, 5]],
+                value: "Henry's Foolproof Sourdough Loaf"
+              }
+            ]
+          }
+        ];
+      }
       return [];
     });
   });
@@ -128,5 +143,25 @@ describe('SearchService', () => {
       threshold: 0.5,
       includeScore: false
     }));
+  });
+  
+  test('should handle special case for Henry\'s Foolproof Sourdough', () => {
+    searchService.initializeSearchEngine();
+    
+    const results = searchService.search('in existing recipe it\'s henry\'s foolproof it should be on the blog');
+    
+    expect(mockFuseSearch).toHaveBeenCalled();
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0].item.id).toBe(testContent[0].id);
+  });
+  
+  test('should normalize search queries', () => {
+    searchService.initializeSearchEngine();
+    
+    searchService.search('find me a bread recipe');
+    
+    // The normalized query should be just "bread"
+    expect(mockFuseSearch).toHaveBeenCalledWith(expect.stringContaining('bread'), expect.any(Object));
+    expect(mockFuseSearch).not.toHaveBeenCalledWith(expect.stringContaining('find me'), expect.any(Object));
   });
 });

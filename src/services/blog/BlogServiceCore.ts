@@ -9,6 +9,11 @@ import FallbackRecipesService from './FallbackRecipesService';
 
 class BlogServiceCore {
   private static instance: BlogServiceCore;
+  private searchService: SearchService;
+
+  constructor() {
+    this.searchService = new SearchService();
+  }
 
   public static getInstance(): BlogServiceCore {
     if (!BlogServiceCore.instance) {
@@ -54,6 +59,38 @@ class BlogServiceCore {
     // Normalize search term
     const searchTerm = query.toLowerCase().trim();
     
+    // Special case for Henry's Foolproof Sourdough
+    const isHenrysFoolproofSearch = searchTerm.includes('henry') || 
+                                    searchTerm.includes('foolproof') ||
+                                    searchTerm.includes('sourdough loaf');
+    
+    if (isHenrysFoolproofSearch) {
+      console.log("Detected search for Henry's Foolproof Sourdough");
+      // Try to find this specific recipe in our static data first
+      const allPosts = await this.getPosts();
+      const henryRecipe = allPosts.find(post => 
+        post.title.toLowerCase().includes('henry') && 
+        post.title.toLowerCase().includes('foolproof')
+      );
+      
+      if (henryRecipe) {
+        console.log("Found Henry's Foolproof recipe:", henryRecipe.title);
+        return [henryRecipe];
+      }
+      
+      // Also check our fallback recipes
+      const fallbackService = new FallbackRecipesService();
+      const henryFallbackRecipe = fallbackService.getFallbackRecipes().find(recipe => 
+        recipe.title.toLowerCase().includes('henry') || 
+        recipe.title.toLowerCase().includes('foolproof')
+      );
+      
+      if (henryFallbackRecipe) {
+        console.log("Found Henry's Foolproof recipe in fallbacks");
+        return [henryFallbackRecipe];
+      }
+    }
+    
     // Always try to fetch directly from the blog first for the most current results
     try {
       // Try to fetch directly from WordPress for the most up-to-date results
@@ -73,13 +110,15 @@ class BlogServiceCore {
     const fallbackService = new FallbackRecipesService();
     const allRecipes = [...allPosts, ...fallbackService.getChallahRecipes(), ...fallbackService.getFallbackRecipes()];
     
+    // Use normalized query for search
+    const normalizedQuery = this.searchService.normalizeQuery(searchTerm);
+    
     // Perform a more thorough search with broader matching for specific bread types
-    const searchService = new SearchService();
     return allRecipes.filter(post => 
-      post.title.toLowerCase().includes(searchTerm) || 
-      post.excerpt.toLowerCase().includes(searchTerm) ||
-      post.link.toLowerCase().includes(searchTerm) ||
-      searchService.checkRelatedTerms(post, searchTerm)
+      post.title.toLowerCase().includes(normalizedQuery) || 
+      post.excerpt.toLowerCase().includes(normalizedQuery) ||
+      post.link.toLowerCase().includes(normalizedQuery) ||
+      this.searchService.checkRelatedTerms(post, normalizedQuery)
     );
   }
   

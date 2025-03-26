@@ -6,7 +6,7 @@ class SearchService {
     // Map of terms to related terms for bread recipes with expanded challah-related terms
     const relatedTermsMap: Record<string, string[]> = {
       'challah': ['braided', 'jewish', 'bread', 'egg bread', 'sabbath', 'shabbat', 'holiday', 'honey', 'sweet', 'traditional', 'kosher', 'brioche-like'],
-      'sourdough': ['starter', 'levain', 'fermented', 'wild yeast'],
+      'sourdough': ['starter', 'levain', 'fermented', 'wild yeast', 'foolproof', 'henry', 'henry\'s', 'loaf'],
       'bagel': ['boiled', 'new york', 'jewish'],
       'brioche': ['french', 'rich', 'buttery', 'egg'],
       'focaccia': ['italian', 'flat', 'olive oil'],
@@ -15,7 +15,17 @@ class SearchService {
       'cinnamon rolls': ['cinnamon bun', 'sweet roll', 'breakfast roll', 'sticky bun', 'morning bun'],
       'dinner rolls': ['bread rolls', 'soft rolls', 'parker house', 'pull-apart'],
       'banana bread': ['banana loaf', 'fruit bread', 'quick bread'],
+      'henry\'s': ['foolproof', 'sourdough', 'loaf', 'henry']
     };
+    
+    // Special case for Henry's Foolproof Sourdough
+    if (searchTerm.toLowerCase().includes('henry') || 
+        searchTerm.toLowerCase().includes('foolproof')) {
+      return post.title.toLowerCase().includes('henry') || 
+             post.title.toLowerCase().includes('foolproof') ||
+             post.excerpt.toLowerCase().includes('henry') ||
+             post.excerpt.toLowerCase().includes('foolproof');
+    }
     
     // Enhanced search for challah specifically
     if (searchTerm === 'challah') {
@@ -52,6 +62,17 @@ class SearchService {
     }
     
     return false;
+  }
+  
+  /**
+   * Normalize search query for better matching
+   */
+  normalizeQuery(query: string): string {
+    // Remove filler phrases and clean up the query
+    return query.toLowerCase()
+      .replace(/find me|can you find|are there|do you have|a recipe for|recipes for|on the blog|from the blog|in existing recipe it's|it should be|should be/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 }
 
