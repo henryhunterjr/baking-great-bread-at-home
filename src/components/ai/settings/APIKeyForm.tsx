@@ -1,11 +1,12 @@
 
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Check, Key } from 'lucide-react';
 import { configureAI, isAIConfigured } from '@/lib/ai-services';
+import { verifyAIServiceStatus } from '@/lib/ai-services/initialize';
 import { useToast } from '@/hooks/use-toast';
 
 interface APIKeyFormProps {
@@ -15,8 +16,20 @@ interface APIKeyFormProps {
 const APIKeyForm: React.FC<APIKeyFormProps> = ({ onConfigured }) => {
   const [apiKey, setApiKey] = useState('');
   const [isConfiguring, setIsConfiguring] = useState(false);
-  const [isKeySet, setIsKeySet] = useState(isAIConfigured());
+  const [isKeySet, setIsKeySet] = useState(false);
+  const [status, setStatus] = useState<{
+    isConfigured: boolean;
+    keySource: string | null;
+    model: string;
+  }>({ isConfigured: false, keySource: null, model: '' });
   const { toast } = useToast();
+
+  // Check the configuration status on mount
+  useEffect(() => {
+    const aiStatus = verifyAIServiceStatus();
+    setIsKeySet(aiStatus.isConfigured);
+    setStatus(aiStatus);
+  }, []);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -33,13 +46,27 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onConfigured }) => {
     setIsConfiguring(true);
     
     try {
+      // Validate API key format (simple validation)
+      if (!apiKey.startsWith('sk-') || apiKey.length < 20) {
+        toast({
+          title: 'Invalid API Key Format',
+          description: 'The API key does not appear to be in the correct format. OpenAI API keys typically start with "sk-"',
+          variant: 'destructive'
+        });
+        setIsConfiguring(false);
+        return;
+      }
+      
       // Store API key in localStorage for persisting between sessions
       localStorage.setItem('openai_api_key', apiKey);
       
       // Configure the AI service with the key
       configureAI(apiKey);
       
-      setIsKeySet(true);
+      // Update status
+      const aiStatus = verifyAIServiceStatus();
+      setIsKeySet(aiStatus.isConfigured);
+      setStatus(aiStatus);
       
       toast({
         title: 'API Key Configured',
@@ -66,7 +93,7 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onConfigured }) => {
       <CardHeader>
         <CardTitle className="flex items-center">
           <Key className="mr-2 h-5 w-5" />
-          AI Service Configuration
+          OpenAI API Configuration
         </CardTitle>
         <CardDescription>
           Enter your OpenAI API key to enable AI-powered features like recipe conversion, blog search, and more.
@@ -75,9 +102,17 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onConfigured }) => {
       
       <CardContent>
         {isKeySet ? (
-          <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
-            <Check className="h-5 w-5" />
-            <p>API key configured successfully.</p>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
+              <Check className="h-5 w-5" />
+              <p>API key configured successfully.</p>
+            </div>
+            
+            <div className="text-sm text-muted-foreground space-y-1">
+              <p><strong>Status:</strong> Active</p>
+              <p><strong>Key Source:</strong> {status.keySource || 'Unknown'}</p>
+              <p><strong>Model:</strong> {status.model}</p>
+            </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
@@ -128,6 +163,7 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onConfigured }) => {
                 description: 'Your API key has been removed.',
                 variant: 'default'
               });
+              setStatus({ isConfigured: false, keySource: null, model: '' });
             }}
           >
             Change API Key

@@ -1,5 +1,5 @@
 import { RecipeData } from '@/types/recipeTypes';
-import { AI_CONFIG } from './ai-config';
+import { AI_CONFIG, getOpenAIApiKey, isOpenAIConfigured } from './ai-config';
 import { logInfo, logError } from '@/utils/logger';
 import { cleanOCRText } from './text-cleaner';
 
@@ -25,11 +25,11 @@ export interface RecipeGenerationResponse extends AIResponse {
 
 class AIService {
   private static instance: AIService;
-  private apiKey: string;
+  private apiKey: string | null;
   private isConfigured: boolean = false;
   
   constructor() {
-    this.apiKey = AI_CONFIG.openai.apiKey || '';
+    this.apiKey = getOpenAIApiKey();
     this.isConfigured = !!this.apiKey;
     
     if (!this.isConfigured) {
@@ -61,11 +61,14 @@ class AIService {
   }
   
   isReady(): boolean {
-    return this.isConfigured && !!this.apiKey && this.apiKey.trim() !== '';
+    const latestKey = getOpenAIApiKey();
+    return !!latestKey && latestKey.trim() !== '';
   }
   
   async searchBlog(query: string): Promise<BlogSearchResponse> {
-    if (!this.isReady()) {
+    const apiKey = getOpenAIApiKey();
+    
+    if (!apiKey) {
       return {
         success: false,
         error: 'AI service not configured with valid API key'
@@ -84,18 +87,47 @@ class AIService {
       
       logInfo('Searching blog for:', { query: cleanQuery });
       
-      const fallbackResults = this.getFallbackResults(cleanQuery);
-      if (fallbackResults.length > 0) {
-        return {
-          success: true,
-          results: fallbackResults
-        };
+      let useOpenAI = true;
+      
+      try {
+        const testResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: AI_CONFIG.openai.model,
+            messages: [
+              { role: 'system', content: 'This is a test message.' },
+              { role: 'user', content: 'Test' }
+            ],
+          })
+        });
+        
+        if (testResponse.status === 401 || testResponse.status === 403) {
+          logError('OpenAI API key validation failed:', { status: testResponse.status });
+          useOpenAI = false;
+        }
+      } catch (error) {
+        logError('Error testing OpenAI connectivity:', { error });
+        useOpenAI = false;
+      }
+      
+      if (!useOpenAI) {
+        const fallbackResults = this.getFallbackResults(cleanQuery);
+        if (fallbackResults.length > 0) {
+          return {
+            success: true,
+            results: fallbackResults
+          };
+        }
       }
       
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -139,6 +171,7 @@ class AIService {
       } catch (parseError) {
         console.error('Failed to parse OpenAI response:', parseError);
         
+        const fallbackResults = this.getFallbackResults(cleanQuery);
         if (fallbackResults.length > 0) {
           return {
             success: true,
@@ -241,37 +274,10 @@ class AIService {
     return [];
   }
   
-  async generateRecipe(prompt: string): Promise<RecipeGenerationResponse> {
-    if (!this.isReady()) {
-      return {
-        success: false,
-        error: 'AI service not configured with valid API key'
-      };
-    }
-    
-    if (!prompt || prompt.trim() === '') {
-      return {
-        success: false,
-        error: 'No prompt provided for recipe generation'
-      };
-    }
-    
-    try {
-      logInfo('Generating recipe with AI from prompt', { prompt });
-      
-      return this.generateRecipeWithOpenAI(prompt);
-    } catch (error) {
-      logError('Error generating recipe with AI:', { error });
-      
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
-      };
-    }
-  }
-  
   async generateRecipeWithOpenAI(prompt: string): Promise<RecipeGenerationResponse> {
-    if (!this.isReady()) {
+    const apiKey = getOpenAIApiKey();
+    
+    if (!apiKey) {
       return {
         success: false,
         error: 'AI service not configured with valid API key'
@@ -292,7 +298,7 @@ class AIService {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
+            'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
@@ -405,23 +411,23 @@ export const configureAI = (apiKey: string): void => {
 };
 
 export const isAIConfigured = (): boolean => {
-  return aiServiceInstance.isReady();
+  return isOpenAIConfigured();
 };
 
 export const searchBlogWithAI = async (query: string): Promise<BlogSearchResponse> => {
   return aiServiceInstance.searchBlog(query);
 };
 
-export const processRecipeText = async (text: string): Promise<RecipeGenerationResponse> => {
-  return aiServiceInstance.generateRecipeWithOpenAI(text);
+export const generateRecipeWithOpenAI = async (prompt: string): Promise<RecipeGenerationResponse> => {
+  return aiServiceInstance.generateRecipeWithOpenAI(prompt);
 };
 
 export const generateRecipe = async (prompt: string): Promise<RecipeGenerationResponse> => {
-  return aiServiceInstance.generateRecipe(prompt);
+  return aiServiceInstance.generateRecipeWithOpenAI(prompt);
 };
 
-export const generateRecipeWithOpenAI = async (prompt: string): Promise<RecipeGenerationResponse> => {
-  return aiServiceInstance.generateRecipeWithOpenAI(prompt);
+export const processRecipeText = async (text: string): Promise<RecipeGenerationResponse> => {
+  return aiServiceInstance.generateRecipeWithOpenAI(text);
 };
 
 export const processOCRWithAI = async (text: string): Promise<string> => {
@@ -429,3 +435,4 @@ export const processOCRWithAI = async (text: string): Promise<string> => {
 };
 
 export default aiServiceInstance;
+
