@@ -29,20 +29,26 @@ export const handleRecipeRequest = async (
   setMessages(prev => [...prev, searchingMessage]);
   
   try {
-    // Extract key terms from the query
+    // Clean and extract key terms from the query
     const searchTerms = query.toLowerCase()
       .replace(/do you have a recipe for/i, '')
+      .replace(/do you have a/i, '')
       .replace(/can you find/i, '')
       .replace(/can you search/i, '')
       .replace(/can you help me find/i, '')
+      .replace(/will you find me a/i, '')
       .replace(/find me a/i, '')
       .replace(/for/i, '')
       .replace(/a/i, '')
+      .replace(/me/i, '')
+      .replace(/please/i, '')
       .trim();
     
     console.log(`Extracted search terms: "${searchTerms}"`);
     
-    // Check if AI is configured
+    // Try different search approaches in sequence
+    
+    // First, try the AI-powered search if configured
     if (isAIConfigured()) {
       // Use AI to search for recipes
       const searchResponse = await searchBlogWithAI(searchTerms);
@@ -67,71 +73,74 @@ export const handleRecipeRequest = async (
           msg === searchingMessage ? responseMessage : msg
         ));
         
+        setIsProcessing(false);
         return;
       }
     }
     
-    // If AI search fails or AI is not configured, fall back to local search
+    // As a fallback, try local search
     const searchResults = await searchRecipes(searchTerms);
-    
-    let responseMessage: ChatMessage;
     
     if (searchResults.length > 0) {
       const recipe = searchResults[0]; // Use the top matching recipe
-      responseMessage = {
+      const responseMessage: ChatMessage = {
         role: 'assistant',
         content: `I found a recipe that matches your search for "${searchTerms}": ${recipe.title}. Here it is!`,
         timestamp: new Date(),
         attachedRecipe: recipe
       };
-    } else {
-      // No regular recipes found, try to generate a recipe with AI if configured
-      if (isAIConfigured()) {
-        try {
-          const generatedRecipeResponse = await generateRecipeWithOpenAI(searchTerms);
-          
-          if (generatedRecipeResponse.success && generatedRecipeResponse.recipe) {
-            responseMessage = {
-              role: 'assistant',
-              content: `Here's a ${searchTerms} recipe I've created for you:`,
-              timestamp: new Date(),
-              attachedRecipe: {
-                title: generatedRecipeResponse.recipe.title,
-                description: generatedRecipeResponse.recipe.introduction,
-                imageUrl: generatedRecipeResponse.recipe.imageUrl,
-                link: '#',
-                isGenerated: true
-              }
-            };
-          } else {
-            // Fallback message if generation fails
-            responseMessage = {
-              role: 'assistant',
-              content: `I couldn't find any recipes matching "${searchTerms}". Would you like me to help you create a custom recipe instead? Just say "Generate a recipe for ${searchTerms}" and I'll create one for you.`,
-              timestamp: new Date()
-            };
-          }
-        } catch (error) {
-          console.error('Error generating recipe with AI:', error);
-          responseMessage = {
+      
+      // Replace the searching message with the actual response
+      setMessages(prev => prev.map(msg => 
+        msg === searchingMessage ? responseMessage : msg
+      ));
+      
+      setIsProcessing(false);
+      return;
+    }
+    
+    // If no results found, try to generate a recipe with AI if configured
+    if (isAIConfigured()) {
+      try {
+        const generatedRecipeResponse = await generateRecipeWithOpenAI(searchTerms);
+        
+        if (generatedRecipeResponse.success && generatedRecipeResponse.recipe) {
+          const responseMessage: ChatMessage = {
             role: 'assistant',
-            content: `I couldn't find any recipes matching "${searchTerms}". Would you like me to help you create a custom recipe instead? Just say "Generate a recipe for ${searchTerms}" and I'll create one for you.`,
-            timestamp: new Date()
+            content: `Here's a ${searchTerms} recipe I've created for you:`,
+            timestamp: new Date(),
+            attachedRecipe: {
+              title: generatedRecipeResponse.recipe.title,
+              description: generatedRecipeResponse.recipe.introduction,
+              imageUrl: generatedRecipeResponse.recipe.imageUrl,
+              link: '#',
+              isGenerated: true
+            }
           };
+          
+          // Replace the searching message with the generated recipe
+          setMessages(prev => prev.map(msg => 
+            msg === searchingMessage ? responseMessage : msg
+          ));
+          
+          setIsProcessing(false);
+          return;
         }
-      } else {
-        // If AI is not configured
-        responseMessage = {
-          role: 'assistant',
-          content: `I couldn't find any recipes matching "${searchTerms}". Would you like me to help you create a custom recipe instead? Just say "Generate a recipe for ${searchTerms}" and I'll create one for you.`,
-          timestamp: new Date()
-        };
+      } catch (error) {
+        console.error('Error generating recipe with AI:', error);
+        // Fall through to the default message
       }
     }
     
-    // Replace the searching message with the actual response
+    // If all else fails, show a fallback message
+    const fallbackMessage: ChatMessage = {
+      role: 'assistant',
+      content: `I couldn't find any recipes matching "${searchTerms}". Would you like me to help you create a custom recipe instead? Just say "Generate a recipe for ${searchTerms}" and I'll create one for you.`,
+      timestamp: new Date()
+    };
+    
     setMessages(prev => prev.map(msg => 
-      msg === searchingMessage ? responseMessage : msg
+      msg === searchingMessage ? fallbackMessage : msg
     ));
   } catch (error) {
     console.error('Error searching recipes:', error);

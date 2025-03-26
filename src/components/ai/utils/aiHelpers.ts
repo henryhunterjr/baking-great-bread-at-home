@@ -1,5 +1,5 @@
 
-import { BookRecommendation, ChallengeInfo } from './types';
+import { BookRecommendation, ChallengeInfo, RecipeSearchResult } from './types';
 import { books } from './data';
 import { generateRecipeWithOpenAI } from '@/lib/ai-services';
 
@@ -48,15 +48,26 @@ export const getCurrentChallenge = (): ChallengeInfo => {
  * @param query The search query
  * @returns An array of matching recipes
  */
-export const searchRecipes = async (query: string) => {
-  const normalizedQuery = query.toLowerCase();
+export const searchRecipes = async (query: string): Promise<RecipeSearchResult[]> => {
+  const normalizedQuery = query.toLowerCase().trim();
   
-  // For now, return a hardcoded list of recipes based on the query
-  // In a real app, this would search an API or database
-  
-  // Special handling for sourdough queries
-  if (normalizedQuery.includes('sourdough')) {
-    return [
+  // Hardcoded recipes database for common recipe types
+  const recipesDatabase: Record<string, RecipeSearchResult[]> = {
+    'banana': [
+      {
+        title: 'Classic Banana Bread',
+        description: 'A moist and flavorful banana bread that\'s perfect for using up overripe bananas.',
+        imageUrl: 'https://images.unsplash.com/photo-1594086385051-a72d28c7b99a?q=80&w=1000&auto=format&fit=crop',
+        link: '/recipes/classic-banana-bread'
+      },
+      {
+        title: 'Banana Muffins with Streusel Topping',
+        description: 'Delicious banana muffins topped with a crunchy streusel. Perfect for breakfast or dessert.',
+        imageUrl: 'https://images.unsplash.com/photo-1588373756058-3d8b757a72e1?q=80&w=1000&auto=format&fit=crop',
+        link: '/recipes/banana-muffins'
+      }
+    ],
+    'sourdough': [
       {
         title: 'Basic Sourdough Bread',
         description: 'A simple and reliable sourdough recipe for beginners.',
@@ -68,11 +79,73 @@ export const searchRecipes = async (query: string) => {
         description: 'A rustic round loaf with a crisp crust and open crumb.',
         imageUrl: 'https://images.unsplash.com/photo-1559548331-f9cb98280344?q=80&w=1000&auto=format&fit=crop',
         link: '/recipes/sourdough-boule'
+      },
+      {
+        title: 'Henry\'s Foolproof Sourdough Loaf',
+        description: 'A reliable and easy sourdough recipe with a touch of sweetness from honey.',
+        imageUrl: '/lovable-uploads/d32e1aa2-fbf9-4793-9f06-54206973eadd.png',
+        link: '/recipes/henry-foolproof-sourdough'
       }
-    ];
+    ],
+    'challah': [
+      {
+        title: 'Traditional Challah Bread',
+        description: 'A beautiful braided Jewish bread that\'s slightly sweet and perfect for special occasions.',
+        imageUrl: 'https://images.unsplash.com/photo-1603818652201-1c5a3fb9aa7c?q=80&w=1000&auto=format&fit=crop',
+        link: '/recipes/traditional-challah'
+      },
+      {
+        title: 'Sourdough Discard Challah',
+        description: 'A braided bread with a beautifully open crumb and deep flavor, using sourdough discard.',
+        imageUrl: '/lovable-uploads/564dc984-af39-40cd-9f11-d081182aaf5a.png',
+        link: '/recipes/sourdough-discard-challah'
+      }
+    ],
+    'cinnamon': [
+      {
+        title: 'Cardamom-Infused Cinnamon Rolls',
+        description: 'Indulgent cinnamon rolls with a unique cardamom twist.',
+        imageUrl: '/lovable-uploads/379f3564-8f61-454c-9abe-3c7394d3794d.png',
+        link: '/recipes/cardamom-cinnamon-rolls'
+      },
+      {
+        title: 'Cardamom-Infused Cinnamon Knots',
+        description: 'Soft and subtly spiced, these cinnamon knots have a delightful cardamom flavor.',
+        imageUrl: 'https://images.unsplash.com/photo-1568254183919-f9b136cc5710?q=80&w=1000&auto=format&fit=crop',
+        link: '/recipes/cardamom-cinnamon-knots'
+      }
+    ],
+    'dinner roll': [
+      {
+        title: 'The Ultimate Dinner Rolls',
+        description: 'Soft, fluffy dinner rolls that will elevate any meal.',
+        imageUrl: '/lovable-uploads/9a3c90f1-3424-45f9-b98b-35b547650d50.png',
+        link: '/recipes/ultimate-dinner-rolls'
+      }
+    ]
+  };
+  
+  // Check direct matches first
+  for (const [key, recipes] of Object.entries(recipesDatabase)) {
+    if (normalizedQuery.includes(key)) {
+      return recipes;
+    }
   }
   
-  // Default empty results
+  // Check for partial matches
+  if (normalizedQuery.includes('bread') && normalizedQuery.includes('banana')) {
+    return recipesDatabase['banana'];
+  }
+  
+  if (normalizedQuery.includes('roll') && normalizedQuery.includes('cinnamon')) {
+    return recipesDatabase['cinnamon'];
+  }
+  
+  if (normalizedQuery.includes('roll') && normalizedQuery.includes('dinner')) {
+    return recipesDatabase['dinner roll'];
+  }
+  
+  // Default empty results if no match found
   return [];
 };
 

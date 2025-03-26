@@ -73,7 +73,24 @@ class AIService {
     }
     
     try {
-      logInfo('Searching blog for:', { query });
+      const cleanQuery = query.toLowerCase()
+        .replace(/do you have a/i, '')
+        .replace(/can you find/i, '')
+        .replace(/will you find me a/i, '')
+        .replace(/find me a/i, '')
+        .replace(/me/i, '')
+        .replace(/please/i, '')
+        .trim();
+      
+      logInfo('Searching blog for:', { query: cleanQuery });
+      
+      const fallbackResults = this.getFallbackResults(cleanQuery);
+      if (fallbackResults.length > 0) {
+        return {
+          success: true,
+          results: fallbackResults
+        };
+      }
       
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -90,7 +107,7 @@ class AIService {
             },
             {
               role: 'user',
-              content: `Find bread recipes related to: ${query}`
+              content: `Find bread recipes related to: ${cleanQuery}`
             }
           ],
           temperature: 0.5,
@@ -113,7 +130,7 @@ class AIService {
         return {
           success: true,
           results: results.map((result: any) => ({
-            title: result.title || `Recipe for ${query}`,
+            title: result.title || `Recipe for ${cleanQuery}`,
             excerpt: result.description || 'A delicious bread recipe.',
             link: result.link || '#',
             imageUrl: result.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a'
@@ -121,11 +138,19 @@ class AIService {
         };
       } catch (parseError) {
         console.error('Failed to parse OpenAI response:', parseError);
+        
+        if (fallbackResults.length > 0) {
+          return {
+            success: true,
+            results: fallbackResults
+          };
+        }
+        
         return {
           success: true,
           results: [{
-            title: `${query.charAt(0).toUpperCase() + query.slice(1)} Recipe`,
-            excerpt: `A delicious ${query} recipe perfect for home bakers.`,
+            title: `${cleanQuery.charAt(0).toUpperCase() + cleanQuery.slice(1)} Recipe`,
+            excerpt: `A delicious ${cleanQuery} recipe perfect for home bakers.`,
             link: '#',
             imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a'
           }]
@@ -134,11 +159,86 @@ class AIService {
     } catch (error) {
       logError('Error searching blog with AI:', { error });
       
+      const fallbackResults = this.getFallbackResults(query);
+      if (fallbackResults.length > 0) {
+        return {
+          success: true,
+          results: fallbackResults
+        };
+      }
+      
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred'
       };
     }
+  }
+  
+  private getFallbackResults(query: string): any[] {
+    const cleanQuery = query.toLowerCase().trim();
+    
+    const fallbackRecipes: Record<string, any[]> = {
+      'banana bread': [
+        {
+          title: 'Henry\'s Classic Banana Bread',
+          excerpt: 'A moist and flavorful banana bread that\'s perfect for using up overripe bananas. This family recipe has been perfected over generations.',
+          link: '/recipes/classic-banana-bread',
+          imageUrl: 'https://images.unsplash.com/photo-1594086385051-a72d28c7b99a?q=80&w=1000&auto=format&fit=crop'
+        },
+        {
+          title: 'Whole Wheat Banana Bread',
+          excerpt: 'A healthier take on the classic, using whole wheat flour and less sugar while maintaining that delicious banana flavor.',
+          link: '/recipes/whole-wheat-banana-bread',
+          imageUrl: 'https://images.unsplash.com/photo-1585023657880-8d726c65ba4e?q=80&w=1000&auto=format&fit=crop'
+        }
+      ],
+      'sourdough': [
+        {
+          title: 'Basic Sourdough Bread',
+          excerpt: 'A simple and reliable sourdough recipe for beginners.',
+          link: '/recipes/sourdough-basic',
+          imageUrl: 'https://images.unsplash.com/photo-1585478259715-94acd1a91687?q=80&w=1000&auto=format&fit=crop'
+        },
+        {
+          title: 'Rustic Sourdough Boule',
+          excerpt: 'A rustic round loaf with a crisp crust and open crumb.',
+          link: '/recipes/sourdough-boule',
+          imageUrl: 'https://images.unsplash.com/photo-1559548331-f9cb98280344?q=80&w=1000&auto=format&fit=crop'
+        }
+      ],
+      'challah': [
+        {
+          title: 'Traditional Challah Bread',
+          excerpt: 'A beautiful braided Jewish bread that\'s slightly sweet and perfect for special occasions.',
+          link: '/recipes/traditional-challah',
+          imageUrl: 'https://images.unsplash.com/photo-1603818652201-1c5a3fb9aa7c?q=80&w=1000&auto=format&fit=crop'
+        }
+      ],
+      'cinnamon roll': [
+        {
+          title: 'Cardamom-Infused Cinnamon Rolls',
+          excerpt: 'Indulgent cinnamon rolls with a unique cardamom twist.',
+          link: '/recipes/cardamom-cinnamon-rolls',
+          imageUrl: '/lovable-uploads/379f3564-8f61-454c-9abe-3c7394d3794d.png'
+        }
+      ]
+    };
+    
+    for (const [key, recipes] of Object.entries(fallbackRecipes)) {
+      if (cleanQuery.includes(key) || key.includes(cleanQuery)) {
+        return recipes;
+      }
+    }
+    
+    if (cleanQuery.includes('banana')) {
+      return fallbackRecipes['banana bread'];
+    }
+    
+    if (cleanQuery.includes('cinnamon')) {
+      return fallbackRecipes['cinnamon roll'];
+    }
+    
+    return [];
   }
   
   async generateRecipe(prompt: string): Promise<RecipeGenerationResponse> {
