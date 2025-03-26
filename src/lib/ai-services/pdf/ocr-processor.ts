@@ -1,193 +1,194 @@
 
-import { createWorker } from 'tesseract.js';
 import { logInfo, logError } from '@/utils/logger';
+import { createWorker, PSM, OEM } from 'tesseract.js';
+import { ProgressCallback } from './types';
 
-type ProgressCallback = (progress: number) => void;
+// Tesseract.js worker instance
+let tesseractWorker: Tesseract.Worker | null = null;
+let isInitializing = false;
+let isInitialized = false;
 
-/**
- * Extract text from an image file using OCR with enhanced reliability
- */
-export const extractTextWithOCR = async (
-  imageSource: File | string,
-  progressCallback: ProgressCallback = () => {}
-): Promise<string> => {
-  let worker: any = null;
-  let canceled = false;
+// Initialize the OCR service with proper error handling
+const initializeOCR = async (): Promise<boolean> => {
+  if (isInitialized && tesseractWorker) {
+    return true;
+  }
+  
+  if (isInitializing) {
+    // Wait for initialization to complete
+    while (isInitializing) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    return isInitialized;
+  }
   
   try {
-    // Start progress at 10%
-    progressCallback(10);
-    logInfo("OCR: Initializing Tesseract worker");
+    isInitializing = true;
+    logInfo('Initializing OCR service (Tesseract.js)');
     
-    // Initialize worker with better error handling and timeout management
-    try {
-      worker = await Promise.race([
-        createWorker('eng'),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Worker initialization timed out')), 30000)
-        )
-      ]);
-    } catch (initError) {
-      logError("OCR: Worker initialization failed", { error: initError });
-      throw new Error(`OCR engine initialization failed: ${initError instanceof Error ? initError.message : 'Unknown error'}`);
-    }
-    
-    progressCallback(30);
-    logInfo("OCR: Worker initialized successfully");
-    
-    // Process the image (File or dataURL)
-    let imageData: string | Uint8Array;
-    
-    try {
-      if (typeof imageSource === 'string') {
-        // If already a data URL, use directly
-        imageData = imageSource;
-      } else {
-        // If it's a File, read as array buffer for better compatibility
-        const arrayBuffer = await imageSource.arrayBuffer();
-        imageData = new Uint8Array(arrayBuffer);
+    // Clean up any existing worker
+    if (tesseractWorker) {
+      try {
+        await tesseractWorker.terminate();
+        tesseractWorker = null;
+      } catch (error) {
+        logError('Error terminating existing Tesseract worker', { error });
+        // Continue with initialization
       }
-    } catch (imageError) {
-      logError("OCR: Image preparation failed", { error: imageError });
-      throw new Error(`Failed to prepare image for OCR: ${imageError instanceof Error ? imageError.message : 'Unknown error'}`);
     }
     
-    logInfo("OCR: Image prepared, starting recognition");
-    
-    // Begin recognition with progress monitoring
-    const recognizeResult = worker.recognize(imageData);
-    
-    // Set up more detailed progress tracking
-    if (recognizeResult.progress) {
-      recognizeResult.progress(p => {
-        if (canceled) return;
-        
-        // Map progress (0-1) to our range (30-90%)
-        const mappedProgress = Math.floor(30 + (p * 60));
-        progressCallback(mappedProgress);
-        
-        // Log progress milestones
-        if (p === 0.25 || p === 0.5 || p === 0.75 || p === 1) {
-          logInfo(`OCR: Recognition progress: ${Math.round(p * 100)}%`);
+    // Create a new worker with proper logger configuration
+    // Provide the correct type for the OEM parameter
+    tesseractWorker = await createWorker({
+      logger: progress => {
+        if (progress.status === 'recognizing text') {
+          const progressPercent = Math.round(progress.progress * 100);
+          logInfo(`OCR Progress: ${progressPercent}%`);
         }
-      });
-    }
-    
-    // Add a timeout for recognition to prevent hanging
-    const result = await Promise.race([
-      recognizeResult,
-      new Promise((_, reject) => 
-        setTimeout(() => {
-          reject(new Error('OCR recognition timed out after 120 seconds'));
-          canceled = true;
-        }, 120000)
-      )
-    ]);
-    
-    // Get text from the result
-    const extractedText = result.data.text || '';
-    
-    // Clean up the text
-    const cleanedText = cleanUpOCRText(extractedText);
-    
-    // Set to 100% complete
-    progressCallback(100);
-    logInfo("OCR: Recognition complete", { 
-      originalTextLength: extractedText.length,
-      cleanedTextLength: cleanedText.length
+      },
+      // Supply a numeric value for OEM (optical engine mode)
+      // 1 corresponds to LSTM_ONLY
+      oem: 1 as OEM,
+      // PSM Modes (Page Segmentation Mode) 
+      // 6 is for "Assume a single uniform block of text"
+      psm: 6 as PSM
     });
     
-    // Check if we got meaningful text
-    if (cleanedText.trim().length < 50) {
-      logError("OCR: Extracted text too short or empty", { 
-        textLength: cleanedText.length
-      });
-      
-      if (cleanedText.trim().length === 0) {
-        throw new Error("OCR couldn't detect any text in the image. Please try with a clearer image.");
-      } else {
-        logInfo("OCR: Found minimal text, but proceeding", { 
-          text: cleanedText
-        });
-      }
+    // Load English language data
+    await tesseractWorker.loadLanguage('eng');
+    await tesseractWorker.initialize('eng');
+    
+    // Log successful initialization
+    logInfo('OCR service successfully initialized');
+    isInitialized = true;
+    return true;
+  } catch (error) {
+    logError('Error initializing OCR service', { error });
+    isInitialized = false;
+    tesseractWorker = null;
+    return false;
+  } finally {
+    isInitializing = false;
+  }
+};
+
+// Function to verify OCR availability
+export const verifyOCRAvailability = async (): Promise<boolean> => {
+  try {
+    return await initializeOCR();
+  } catch (error) {
+    logError('OCR service unavailable', { error });
+    return false;
+  }
+};
+
+/**
+ * Process an image file with OCR to extract text 
+ * @param imageFile - The image file to process
+ * @param progressCallback - Optional callback for progress updates
+ * @returns The extracted text
+ */
+export const processImageWithOCR = async (
+  imageFile: File | Blob,
+  progressCallback?: ProgressCallback
+): Promise<string> => {
+  // Start progress reporting
+  if (progressCallback) progressCallback(10);
+  
+  try {
+    // Initialize OCR if not already initialized
+    const isOCRReady = await initializeOCR();
+    
+    if (!isOCRReady || !tesseractWorker) {
+      throw new Error("OCR service failed to initialize");
     }
     
-    // Terminate the worker to free resources
-    if (worker) {
-      try {
-        await worker.terminate();
-        worker = null;
-        logInfo("OCR: Worker terminated successfully");
-      } catch (terminateError) {
-        logError("OCR: Error terminating worker", { error: terminateError });
-        // Non-critical error, continue
+    if (progressCallback) progressCallback(20);
+    
+    // Convert file to image data URL
+    const imageDataUrl = await fileToDataURL(imageFile);
+    
+    if (progressCallback) progressCallback(30);
+    
+    // Configure Tesseract for recipe text
+    await tesseractWorker.setParameters({
+      tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:\'"-()[]{}!?@#$%^&*+=/<>°℃℉½¼¾⅓⅔ ',
+      tessedit_pageseg_mode: '6', // Assume a single uniform block of text
+    });
+    
+    if (progressCallback) progressCallback(40);
+    
+    // Recognize text with progress tracking
+    const result = await tesseractWorker.recognize(imageDataUrl, {
+      progressFunc: (progress) => {
+        // Map Tesseract's 0-1 progress to our 40-90 range
+        if (progressCallback && progress.progress !== undefined) {
+          const mappedProgress = 40 + Math.round(progress.progress * 50);
+          progressCallback(mappedProgress);
+        }
       }
-    }
+    });
+    
+    if (progressCallback) progressCallback(90);
+    
+    // Extract and clean the text
+    const extractedText = result.data.text || '';
+    const cleanedText = cleanOCRText(extractedText);
+    
+    if (progressCallback) progressCallback(100);
     
     return cleanedText;
   } catch (error) {
-    logError('OCR processing error:', { error });
-    
-    // Always clean up resources on error
-    if (worker) {
-      try {
-        await worker.terminate();
-      } catch (e) {
-        logError('Error terminating Tesseract worker:', { error: e });
-      }
-    }
-    
-    // Provide a more specific error message based on the error type
-    if (error instanceof Error) {
-      if (error.message.includes('timeout') || error.message.includes('timed out')) {
-        throw new Error("OCR processing took too long. Try using a smaller or clearer image.");
-      } else if (error.message.includes('memory')) {
-        throw new Error("OCR processing ran out of memory. Try using a smaller image or different input method.");
-      } else if (error.message.includes('initialization')) {
-        throw new Error("Failed to initialize OCR engine. Please try again or use a different input method.");
-      }
-    }
-    
+    logError('Error processing image with OCR', { error });
     throw new Error(`OCR processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
-/**
- * Clean up OCR extracted text with improved quality
- */
-const cleanUpOCRText = (text: string): string => {
-  if (!text) return '';
+// Clean up OCR text by removing excessive whitespace and fixing common OCR errors
+const cleanOCRText = (text: string): string => {
+  // Remove excessive whitespace
+  let cleaned = text.replace(/\s+/g, ' ');
   
-  return text
-    .replace(/\r\n/g, '\n')                 // Normalize line endings
-    .replace(/\n{3,}/g, '\n\n')             // Replace multiple line breaks with just two
-    .replace(/[\t ]+/g, ' ')                // Replace multiple spaces/tabs with a single space
-    .replace(/^\s+|\s+$/gm, '')             // Trim leading/trailing whitespace from each line
-    .replace(/(\d)l(\s|$)/g, '$1l$2')       // Fix common OCR errors with numbers
-    .replace(/(\d),(\d)/g, '$1.$2')         // Fix decimal points misread as commas
-    .replace(/(\d+)\/(\d+)/g, '$1/$2')      // Fix fractions
-    .replace(/lngredients/gi, 'Ingredients') // Fix common recipe words
-    .replace(/D1rections/gi, 'Directions')
-    .replace(/[Ii]nstructions?:/g, 'Instructions:')
-    .trim();                                // Trim the entire text
+  // Fix common OCR errors
+  cleaned = cleaned
+    .replace(/l\/2/g, '1/2')  // Fix for half fraction
+    .replace(/l\/4/g, '1/4')  // Fix for quarter fraction
+    .replace(/l\/3/g, '1/3')  // Fix for third fraction
+    .replace(/0\/2/g, '1/2')  // Another common OCR error for fractions
+    .trim();
+  
+  return cleaned;
 };
 
-/**
- * Verify if OCR service is available and working
- */
-export const verifyOCRAvailability = async (): Promise<boolean> => {
-  try {
-    // Create a small worker to test if Tesseract is working
-    const testWorker = await createWorker('eng', {
-      logger: () => {} // Silence logger for test
-    });
-    
-    // Terminate test worker immediately
-    await testWorker.terminate();
-    logInfo("OCR service availability verified successfully");
-    return true;
-  } catch (error) {
-    logError("OCR service availability check failed", { error });
-    return false;
+// Convert a file to a data URL
+const fileToDataURL = (file: File | Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file);
+  });
+};
+
+// Ensure the OCR service is properly cleaned up
+export const cleanupOCR = async (): Promise<void> => {
+  if (tesseractWorker) {
+    try {
+      await tesseractWorker.terminate();
+      tesseractWorker = null;
+      isInitialized = false;
+      logInfo('OCR service cleaned up');
+    } catch (error) {
+      logError('Error cleaning up OCR service', { error });
+    }
   }
 };
+
+// Auto-cleanup on module unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    if (tesseractWorker) {
+      tesseractWorker.terminate().catch(console.error);
+    }
+  });
+}

@@ -8,7 +8,7 @@ import BlogPage from './pages/BlogPage';
 import BlogPost from './pages/BlogPost';
 import RecipeConverter from './pages/RecipeConverter';
 import AboutPage from './pages/AboutPage';
-import NotFoundPage from './pages/NotFoundPage';
+import NotFound from './pages/NotFound';
 import Contact from './pages/Contact';
 import { lazy, Suspense } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -17,6 +17,8 @@ import { initializeAIService } from './lib/ai-services';
 import { logError, logInfo } from './utils/logger';
 import { toast } from '@/hooks/use-toast';
 import FloatingAIButton from './components/ai/FloatingAIButton';
+import CareCenter from './pages/CareCenter';
+import Settings from './pages/Settings';
 import './App.css';
 
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
@@ -47,7 +49,11 @@ function App() {
       logError('Failed to initialize AI service:', error);
       setAiInitialized(false);
       
-      toast.error("AI Service Error: Failed to initialize AI services. Some features may be limited.");
+      toast({
+        title: "AI Service Error",
+        description: "Failed to initialize AI services. Some features may be limited.",
+        variant: "destructive"
+      });
     }
   }, []);
 
@@ -70,7 +76,9 @@ function App() {
             <Route path="/challenges" element={<Challenges />} />
             <Route path="/tools" element={<Tools />} />
             <Route path="/books" element={<Books />} />
-            <Route path="*" element={<NotFoundPage />} />
+            <Route path="/care-center" element={<CareCenter />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </ErrorBoundary>

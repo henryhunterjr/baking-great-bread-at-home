@@ -96,11 +96,11 @@ const ConversionService: React.FC<ConversionServiceProps> = ({ onConversionCompl
   };
 
   const navigateToSettings = () => {
+    navigate('/settings');
     toast({
       title: "Navigating to Settings",
       description: "Please add your OpenAI API key in the settings page.",
     });
-    navigate('/settings');
   };
 
   return (

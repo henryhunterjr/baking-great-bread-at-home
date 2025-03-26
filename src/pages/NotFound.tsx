@@ -5,8 +5,11 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 
 const NotFound = () => {
+  useScrollToTop();
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />

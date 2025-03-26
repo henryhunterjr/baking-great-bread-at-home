@@ -17,14 +17,14 @@ const ImportantLinksSection = forwardRef<HTMLElement, ImportantLinksSectionProps
       title: "Testimonials",
       description: "See what others are saying about our bread baking techniques",
       icon: <MessageSquare className="h-6 w-6" />,
-      path: "/testimonials",
+      path: "/blog?category=testimonials",
       color: "bg-bread-100 dark:bg-bread-900/60"
     },
     {
       title: "Christmas Special",
       description: "Explore our holiday bread recipes and traditions",
       icon: <CalendarCheck className="h-6 w-6" />,
-      path: "/christmas",
+      path: "/blog?category=christmas",
       color: "bg-bread-50 dark:bg-bread-900/40"
     },
     {

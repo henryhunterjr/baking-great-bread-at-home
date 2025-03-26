@@ -23,6 +23,17 @@ const ChallengePreviewSection = ({ sectionRef }: ChallengePreviewSectionProps) =
     return null;
   }
   
+  const handleViewChallenges = () => {
+    navigate('/challenges');
+  };
+  
+  const handleJoinChallenge = (e: React.MouseEvent) => {
+    if (!currentChallenge.link) {
+      e.preventDefault();
+      navigate('/challenges');
+    }
+  };
+  
   return (
     <section 
       ref={sectionRef}
@@ -71,17 +82,25 @@ const ChallengePreviewSection = ({ sectionRef }: ChallengePreviewSectionProps) =
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button 
                   className="bg-bread-800 hover:bg-bread-900 text-white"
-                  asChild
+                  onClick={handleJoinChallenge}
+                  asChild={!!currentChallenge.link}
                 >
-                  <a href={currentChallenge.link} target="_blank" rel="noopener noreferrer">
-                    Join This Challenge
-                    <ExternalLink className="ml-2 h-4 w-4" />
-                  </a>
+                  {currentChallenge.link ? (
+                    <a href={currentChallenge.link} target="_blank" rel="noopener noreferrer">
+                      Join This Challenge
+                      <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
+                  ) : (
+                    <>
+                      Join This Challenge
+                      <ExternalLink className="ml-2 h-4 w-4" />
+                    </>
+                  )}
                 </Button>
                 
                 <Button 
                   variant="outline" 
-                  onClick={() => navigate('/challenges')}
+                  onClick={handleViewChallenges}
                   className="border-bread-200 text-bread-800 hover:bg-bread-50 dark:border-bread-700 dark:text-bread-300"
                 >
                   View All Challenges
