@@ -42,3 +42,27 @@ export const isOpenAIConfigured = (): boolean => {
 export const updateOpenAIApiKey = (): void => {
   AI_CONFIG.openai.apiKey = getOpenAIApiKey();
 };
+
+// New function to verify the API key
+export const verifyAPIKey = async (): Promise<boolean> => {
+  const apiKey = getOpenAIApiKey();
+  
+  if (!apiKey) {
+    return false;
+  }
+  
+  try {
+    // Simple validation - check if API key has the expected format
+    // For OpenAI, keys typically start with "sk-"
+    if (apiKey.startsWith('sk-') && apiKey.length > 20) {
+      // In a real implementation, you would make a lightweight API call here
+      // to verify the key is valid with OpenAI
+      updateOpenAIApiKey(); // Update the key in the configuration
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Error verifying API key:', error);
+    return false;
+  }
+};

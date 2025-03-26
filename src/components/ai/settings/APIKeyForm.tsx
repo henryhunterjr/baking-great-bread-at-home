@@ -13,22 +13,40 @@ interface APIKeyFormProps {
   onConfigured?: () => void;
 }
 
+interface APIStatus {
+  isConfigured: boolean;
+  keySource: string | null;
+  model: string;
+}
+
 const APIKeyForm: React.FC<APIKeyFormProps> = ({ onConfigured }) => {
   const [apiKey, setApiKey] = useState('');
   const [isConfiguring, setIsConfiguring] = useState(false);
   const [isKeySet, setIsKeySet] = useState(false);
-  const [status, setStatus] = useState<{
-    isConfigured: boolean;
-    keySource: string | null;
-    model: string;
-  }>({ isConfigured: false, keySource: null, model: '' });
+  const [status, setStatus] = useState<APIStatus>({ 
+    isConfigured: false, 
+    keySource: null, 
+    model: '' 
+  });
   const { toast } = useToast();
 
   // Check the configuration status on mount
   useEffect(() => {
-    const aiStatus = verifyAIServiceStatus();
-    setIsKeySet(aiStatus.isConfigured);
-    setStatus(aiStatus);
+    const checkStatus = async () => {
+      try {
+        const isValid = await verifyAIServiceStatus();
+        setIsKeySet(isValid);
+        setStatus({
+          isConfigured: isValid,
+          keySource: isValid ? 'localStorage' : null,
+          model: 'gpt-4o-mini'
+        });
+      } catch (error) {
+        console.error('Error checking API status:', error);
+      }
+    };
+    
+    checkStatus();
   }, []);
 
   const handleSubmit = (e: FormEvent) => {
@@ -64,9 +82,12 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onConfigured }) => {
       configureAI(apiKey);
       
       // Update status
-      const aiStatus = verifyAIServiceStatus();
-      setIsKeySet(aiStatus.isConfigured);
-      setStatus(aiStatus);
+      setIsKeySet(true);
+      setStatus({
+        isConfigured: true,
+        keySource: 'localStorage',
+        model: 'gpt-4o-mini'
+      });
       
       toast({
         title: 'API Key Configured',

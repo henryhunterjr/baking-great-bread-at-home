@@ -87,7 +87,7 @@ class ContentIndexer {
       const allRecipes = [...recipesData, ...breadRecipes];
       
       const indexedRecipes = allRecipes.map(recipe => ({
-        id: recipe.id,
+        id: String(recipe.id), // Convert to string to match IndexedContent type
         title: recipe.title,
         content: recipe.description,
         excerpt: recipe.description.substring(0, 150) + '...',
@@ -187,7 +187,8 @@ class ContentIndexer {
     try {
       logInfo('Searching content index', { query });
       
-      const searchOptions: Fuse.IFuseOptions<IndexedContent> = {
+      const searchOptions = {
+        limit: 10, // Add a default limit to satisfy the type
         threshold: options?.threshold ?? 0.3,
         includeScore: options?.includeScore ?? true,
         includeMatches: options?.includeMatches ?? true,
@@ -198,7 +199,7 @@ class ContentIndexer {
       return results.map(result => ({
         item: result.item,
         score: result.score || 1,
-        matches: result.matches
+        matches: result.matches ? [...result.matches] : [] // Convert readonly array to mutable array
       }));
     } catch (error) {
       logError('Error searching content index', { error, query });
