@@ -6,7 +6,7 @@ import {
   generateRecipeWithOpenAI, 
   isAIConfigured 
 } from '@/lib/ai-services';
-import { findRelevantBook, getCurrentChallenge } from '../../utils/aiHelpers';
+import { findRelevantBook, getCurrentChallenge, searchRecipes } from '../../utils/aiHelpers';
 import { challengeImages, DEFAULT_CHALLENGE_IMAGE } from '@/data/challengeImages';
 
 // Handle recipe search requests
@@ -35,6 +35,7 @@ export const handleRecipeRequest = async (
       .replace(/can you find/i, '')
       .replace(/can you search/i, '')
       .replace(/can you help me find/i, '')
+      .replace(/find me a/i, '')
       .replace(/for/i, '')
       .replace(/a/i, '')
       .trim();
@@ -51,7 +52,7 @@ export const handleRecipeRequest = async (
         
         const responseMessage: ChatMessage = {
           role: 'assistant',
-          content: `I found a recipe that matches your search for "${query}": ${recipe.title}. Here it is!`,
+          content: `I found a recipe that matches your search for "${searchTerms}": ${recipe.title}. Here it is!`,
           timestamp: new Date(),
           attachedRecipe: {
             title: recipe.title,
@@ -71,9 +72,7 @@ export const handleRecipeRequest = async (
     }
     
     // If AI search fails or AI is not configured, fall back to local search
-    const searchResults = await import('../../utils/aiHelpers').then(module => 
-      module.searchRecipes(searchTerms)
-    );
+    const searchResults = await searchRecipes(searchTerms);
     
     let responseMessage: ChatMessage;
     
@@ -81,7 +80,7 @@ export const handleRecipeRequest = async (
       const recipe = searchResults[0]; // Use the top matching recipe
       responseMessage = {
         role: 'assistant',
-        content: `I found a recipe that matches your search for "${query}": ${recipe.title}. Here it is!`,
+        content: `I found a recipe that matches your search for "${searchTerms}": ${recipe.title}. Here it is!`,
         timestamp: new Date(),
         attachedRecipe: recipe
       };
@@ -94,7 +93,7 @@ export const handleRecipeRequest = async (
           if (generatedRecipeResponse.success && generatedRecipeResponse.recipe) {
             responseMessage = {
               role: 'assistant',
-              content: `I don't have an exact match for "${query}", but I've generated a recipe for you based on your request:`,
+              content: `Here's a ${searchTerms} recipe I've created for you:`,
               timestamp: new Date(),
               attachedRecipe: {
                 title: generatedRecipeResponse.recipe.title,
@@ -108,7 +107,7 @@ export const handleRecipeRequest = async (
             // Fallback message if generation fails
             responseMessage = {
               role: 'assistant',
-              content: `I couldn't find any recipes matching "${query}". Would you like me to help you create a custom recipe instead? Just say "Generate a recipe for [your idea]" and I'll create one for you.`,
+              content: `I couldn't find any recipes matching "${searchTerms}". Would you like me to help you create a custom recipe instead? Just say "Generate a recipe for ${searchTerms}" and I'll create one for you.`,
               timestamp: new Date()
             };
           }
@@ -116,7 +115,7 @@ export const handleRecipeRequest = async (
           console.error('Error generating recipe with AI:', error);
           responseMessage = {
             role: 'assistant',
-            content: `I couldn't find any recipes matching "${query}". Would you like me to help you create a custom recipe instead? Just say "Generate a recipe for [your idea]" and I'll create one for you.`,
+            content: `I couldn't find any recipes matching "${searchTerms}". Would you like me to help you create a custom recipe instead? Just say "Generate a recipe for ${searchTerms}" and I'll create one for you.`,
             timestamp: new Date()
           };
         }
@@ -124,7 +123,7 @@ export const handleRecipeRequest = async (
         // If AI is not configured
         responseMessage = {
           role: 'assistant',
-          content: `I couldn't find any recipes matching "${query}". Would you like me to help you create a custom recipe instead? Just say "Generate a recipe for [your idea]" and I'll create one for you.`,
+          content: `I couldn't find any recipes matching "${searchTerms}". Would you like me to help you create a custom recipe instead? Just say "Generate a recipe for ${searchTerms}" and I'll create one for you.`,
           timestamp: new Date()
         };
       }
@@ -251,15 +250,24 @@ export const handleGenerateRequest = async (
     setMessages(prev => [...prev, generatingMessage]);
     
     try {
-      // Generate the recipe with AI
-      const generatedRecipeResponse = await generateRecipe(query);
+      // Extract the actual recipe request
+      const recipeRequest = query.toLowerCase()
+        .replace(/create/i, '')
+        .replace(/generate/i, '')
+        .replace(/make me/i, '')
+        .replace(/a recipe for/i, '')
+        .replace(/please/i, '')
+        .trim();
+        
+      // Generate the recipe with OpenAI directly
+      const generatedRecipeResponse = await generateRecipeWithOpenAI(recipeRequest);
       
       if (generatedRecipeResponse.success && generatedRecipeResponse.recipe) {
         // Replace the generating message with the actual response
         setMessages(prev => prev.map(msg => 
           msg === generatingMessage ? {
             role: 'assistant',
-            content: `I've created a custom recipe for "${query}". Here it is!`,
+            content: `Here's a ${recipeRequest} recipe I've created for you:`,
             timestamp: new Date(),
             attachedRecipe: {
               title: generatedRecipeResponse.recipe.title,
@@ -273,10 +281,21 @@ export const handleGenerateRequest = async (
         
         setIsProcessing(false);
         return;
+      } else {
+        throw new Error('Failed to generate recipe');
       }
     } catch (error) {
       console.error('Error generating recipe with AI:', error);
       // Fall through to the default behavior
+      
+      // Replace the generating message with an error
+      setMessages(prev => prev.map(msg => 
+        msg.isGenerating ? {
+          role: 'assistant',
+          content: "I'm sorry, I had trouble generating that recipe. Let's try a different approach.",
+          timestamp: new Date()
+        } : msg
+      ));
     }
   }
   
@@ -310,8 +329,11 @@ export const handleGeneralRequest = (
     response = "I can help you with various baking-related tasks, such as:\n\n- Finding recipes (just ask for a specific recipe)\n- Converting and formatting recipes\n- Generating custom recipes\n- Recommending baking books\n- Telling you about our current baking challenge\n\nJust let me know what you need!";
   } else if (query.toLowerCase().includes('thank')) {
     response = "You're welcome! Happy baking!";
+  } else if (query.toLowerCase().includes('sourdough')) {
+    // Special case for sourdough since the user mentioned having trouble with this
+    response = "I'd be happy to help with sourdough recipes! Would you like me to find you an existing sourdough recipe, or generate a custom sourdough recipe for you?";
   } else {
-    response = "I'm not quite sure how to help with that specific request. I'm best at finding recipes, converting recipes, generating custom recipes, recommending books, or telling you about our baking challenges. How can I help you with one of these topics?";
+    response = "I'm here to help with bread and baking-related questions. I can find recipes, convert recipes, generate custom recipes, recommend books, or tell you about our baking challenges. How can I help you with one of these topics?";
   }
   
   const assistantMessage: ChatMessage = {

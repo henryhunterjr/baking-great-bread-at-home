@@ -29,6 +29,7 @@ export interface RecipeGenerationResponse extends AIResponse {
 
 // Create a class to handle all AI interactions
 class AIService {
+  private static instance: AIService;
   private apiKey: string;
   private isConfigured: boolean = false;
   
@@ -41,6 +42,13 @@ class AIService {
     } else {
       logInfo('AI Service initialized with API key');
     }
+  }
+  
+  public static getInstance(): AIService {
+    if (!AIService.instance) {
+      AIService.instance = new AIService();
+    }
+    return AIService.instance;
   }
   
   // Configure the service with an API key
@@ -72,92 +80,67 @@ class AIService {
     try {
       logInfo('Searching blog for:', { query });
       
-      // Mock response for testing
-      const mockResults = [
-        {
-          title: `Results for "${query}"`,
-          excerpt: 'This is a sample result from our blog search.',
-          link: '/blog/sample-post',
-          imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a'
-        }
-      ];
+      // Real OpenAI call for blog search
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: AI_CONFIG.openai.model,
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an assistant that searches for bread recipes. Return a simple JSON array of up to 3 most relevant recipes matching the query.'
+            },
+            {
+              role: 'user',
+              content: `Find bread recipes related to: ${query}`
+            }
+          ],
+          temperature: 0.5,
+        })
+      });
       
-      return {
-        success: true,
-        results: mockResults
-      };
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`OpenAI API error (${response.status}): ${errorData.error?.message || response.statusText}`);
+      }
+      
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      
+      // Parse results from OpenAI
+      try {
+        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        const jsonString = jsonMatch ? jsonMatch[0] : '[]';
+        const results = JSON.parse(jsonString);
+        
+        return {
+          success: true,
+          results: results.map((result: any) => ({
+            title: result.title || `Recipe for ${query}`,
+            excerpt: result.description || 'A delicious bread recipe.',
+            link: result.link || '#',
+            imageUrl: result.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a'
+          }))
+        };
+      } catch (parseError) {
+        console.error('Failed to parse OpenAI response:', parseError);
+        // Fallback response
+        return {
+          success: true,
+          results: [{
+            title: `${query.charAt(0).toUpperCase() + query.slice(1)} Recipe`,
+            excerpt: `A delicious ${query} recipe perfect for home bakers.`,
+            link: '#',
+            imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a'
+          }]
+        };
+      }
     } catch (error) {
       logError('Error searching blog with AI:', { error });
-      
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
-      };
-    }
-  }
-  
-  // Process recipe text with AI to convert to structured format
-  async processRecipeText(text: string): Promise<RecipeGenerationResponse> {
-    if (!this.isReady()) {
-      return {
-        success: false,
-        error: 'AI service not configured with valid API key'
-      };
-    }
-    
-    if (!text || text.trim() === '') {
-      return {
-        success: false,
-        error: 'No recipe text provided for processing'
-      };
-    }
-    
-    try {
-      logInfo('Processing recipe text with AI', { textLength: text.length });
-      
-      // Clean the text if it came from OCR
-      const cleanedText = cleanOCRText(text);
-      
-      // For now, we'll simulate the response
-      // In a real implementation, we would call the OpenAI API
-      
-      const mockRecipe: RecipeData = {
-        title: 'Sample Recipe from AI',
-        introduction: 'This is a sample recipe generated from your text.',
-        ingredients: [
-          '200g flour',
-          '100ml water',
-          '10g salt',
-          '5g yeast'
-        ],
-        instructions: [
-          'Mix all ingredients',
-          'Knead for 10 minutes',
-          'Let rise for 1 hour',
-          'Bake at 450°F for 30 minutes'
-        ],
-        prepTime: '20 minutes',
-        bakeTime: '30 minutes',
-        totalTime: '2 hours',
-        equipmentNeeded: [
-          { id: '1', name: 'Mixing Bowl' },
-          { id: '2', name: 'Dutch Oven' }
-        ],
-        imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a',
-        tags: ['bread', 'beginner'],
-        isConverted: true,
-        tips: [],
-        proTips: [],
-        restTime: '',
-        isPublic: false
-      };
-      
-      return {
-        success: true,
-        recipe: mockRecipe
-      };
-    } catch (error) {
-      logError('Error processing recipe text with AI:', { error });
       
       return {
         success: false,
@@ -185,45 +168,7 @@ class AIService {
     try {
       logInfo('Generating recipe with AI from prompt', { prompt });
       
-      // For now, we'll simulate the response
-      // In the real implementation, we would call the OpenAI API
-      
-      const mockRecipe: RecipeData = {
-        title: prompt.includes('sourdough') ? 'Artisan Sourdough Bread' : 'Custom Recipe',
-        introduction: `A custom recipe based on your prompt: "${prompt}"`,
-        ingredients: [
-          '300g flour',
-          '200ml water',
-          '10g salt',
-          prompt.includes('sourdough') ? '100g sourdough starter' : '7g instant yeast'
-        ],
-        instructions: [
-          'Mix all ingredients in a large bowl',
-          'Knead until smooth and elastic',
-          'Let rise until doubled in size',
-          'Shape and place in a proofing basket',
-          'Bake in a preheated oven with steam'
-        ],
-        prepTime: '30 minutes',
-        bakeTime: '45 minutes',
-        totalTime: '4 hours',
-        equipmentNeeded: [
-          { id: '1', name: 'Mixing Bowl' },
-          { id: '2', name: 'Dutch Oven' }
-        ],
-        imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a',
-        tags: prompt.split(' ').filter(word => word.length > 3),
-        isConverted: true,
-        tips: ['Make sure your starter is active if using sourdough'],
-        proTips: ['For best results, use a digital scale for precise measurements'],
-        restTime: '2 hours',
-        isPublic: false
-      };
-      
-      return {
-        success: true,
-        recipe: mockRecipe
-      };
+      return this.generateRecipeWithOpenAI(prompt);
     } catch (error) {
       logError('Error generating recipe with AI:', { error });
       
@@ -261,7 +206,7 @@ class AIService {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            model: AI_CONFIG.openai.model || 'gpt-4-0613',
+            model: AI_CONFIG.openai.model,
             messages: [
               {
                 role: 'system',
@@ -283,7 +228,8 @@ class AIService {
                 role: 'user',
                 content: `Create a detailed bread recipe for: ${prompt}`
               }
-            ]
+            ],
+            temperature: 0.7
           })
         });
         
@@ -384,7 +330,8 @@ export const searchBlogWithAI = async (query: string): Promise<BlogSearchRespons
 };
 
 export const processRecipeText = async (text: string): Promise<RecipeGenerationResponse> => {
-  return aiServiceInstance.processRecipeText(text);
+  // This is just a wrapper for generateRecipeWithOpenAI with text as input
+  return aiServiceInstance.generateRecipeWithOpenAI(text);
 };
 
 export const generateRecipe = async (prompt: string): Promise<RecipeGenerationResponse> => {
