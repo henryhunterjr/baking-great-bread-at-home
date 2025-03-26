@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, Check, Key } from 'lucide-react';
+import { AlertCircle, Check, Key, ExternalLink } from 'lucide-react';
 import { configureAI, isAIConfigured } from '@/lib/ai-services';
 import { verifyAIServiceStatus } from '@/lib/ai-services/initialize';
 import { useToast } from '@/hooks/use-toast';
@@ -155,6 +155,18 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onConfigured }) => {
                 <p className="text-sm">
                   Your API key is stored locally and never sent to our servers. It is used only for direct communication between your browser and OpenAI.
                 </p>
+              </div>
+
+              <div className="pt-2">
+                <a 
+                  href="https://platform.openai.com/api-keys" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm flex items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Get your OpenAI API key
+                </a>
               </div>
             </div>
           </form>

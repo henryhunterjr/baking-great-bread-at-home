@@ -2,11 +2,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Send, Search, BookOpen, FileText, Copy, ExternalLink } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Loader2, Send, Search, BookOpen, FileText, Copy, ExternalLink, AlertCircle, Key } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { searchBlogWithAI, isAIConfigured } from '@/lib/ai-services';
 import { contextAwareAI, initializeContextAwareAI } from '@/lib/ai-services/context-aware-ai';
+import { useNavigate } from 'react-router-dom';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -50,8 +51,10 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isAiInitialized, setIsAiInitialized] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [showApiKeyPrompt, setShowApiKeyPrompt] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // Initialize the context-aware AI service
   useEffect(() => {
@@ -66,6 +69,12 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
         });
       } catch (error) {
         console.error('Failed to initialize context-aware AI:', error);
+        
+        // Check if the error is related to missing API key
+        if (error instanceof Error && error.message.includes('API key')) {
+          setShowApiKeyPrompt(true);
+        }
+        
         toast({
           variant: "destructive",
           title: "AI Initialization Failed",
@@ -107,6 +116,23 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
     setIsProcessing(true);
     
     try {
+      // Check if API key is configured
+      if (!isAIConfigured()) {
+        // Replace the pending message with API key message
+        setMessages(prev => 
+          prev.map(msg => 
+            msg === pendingMessage ? {
+              ...msg,
+              content: "I need an OpenAI API key to assist you properly. Please configure your API key in settings.",
+              isProcessing: false
+            } : msg
+          )
+        );
+        setShowApiKeyPrompt(true);
+        setIsProcessing(false);
+        return;
+      }
+      
       // Check if context-aware AI is initialized
       if (isInitializing) {
         // Replace the pending message with initialization status
@@ -269,11 +295,33 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
   const handleSuggestedQuestion = (question: string) => {
     setInput(question);
   };
+
+  const navigateToSettings = () => {
+    navigate('/settings');
+  };
   
   return (
     <Card className="flex flex-col h-full">
       <CardHeader>
         <CardTitle>Baking Assistant</CardTitle>
+        {showApiKeyPrompt && (
+          <CardDescription className="flex items-start gap-2 mt-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md text-amber-800 dark:text-amber-200">
+            <AlertCircle className="h-5 w-5 flex-shrink-0 text-amber-500" />
+            <div>
+              <p className="font-medium mb-1">OpenAI API Key Required</p>
+              <p className="text-sm">To use AI features, you need to add your OpenAI API key in settings.</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mt-2 border-amber-500 text-amber-600 hover:bg-amber-50"
+                onClick={navigateToSettings}
+              >
+                <Key className="h-3 w-3 mr-2" />
+                Configure API Key
+              </Button>
+            </div>
+          </CardDescription>
+        )}
       </CardHeader>
       <CardContent className="flex-1 overflow-y-auto">
         <div className="space-y-4">
@@ -362,7 +410,8 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
         </div>
         {showSettings && !isAIConfigured() && (
           <div className="mt-2 text-xs text-muted-foreground">
-            <a href="/settings" className="text-primary hover:underline">
+            <a href="/settings" className="text-primary hover:underline flex items-center gap-1">
+              <Key className="h-3 w-3" />
               Add your OpenAI API key in settings to enable AI features
             </a>
           </div>

@@ -43,6 +43,22 @@ export const updateOpenAIApiKey = (): void => {
   AI_CONFIG.openai.apiKey = getOpenAIApiKey();
 };
 
+// Function to configure the AI service with a provided API key
+export const configureAI = (apiKey: string): void => {
+  if (!apiKey || apiKey.trim() === '') {
+    console.error('Invalid API key provided');
+    return;
+  }
+  
+  // Store the API key in localStorage
+  localStorage.setItem('openai_api_key', apiKey);
+  
+  // Update the configuration
+  AI_CONFIG.openai.apiKey = apiKey;
+  
+  console.log('AI service configured with API key');
+};
+
 // New function to verify the API key
 export const verifyAPIKey = async (): Promise<boolean> => {
   const apiKey = getOpenAIApiKey();
