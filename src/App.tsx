@@ -16,6 +16,7 @@ import DevToolsToggle from './components/dev/DevToolsToggle';
 import { initializeAIService } from './lib/ai-services';
 import { logError, logInfo } from './utils/logger';
 import { toast } from '@/hooks/use-toast';
+import FloatingAIButton from './components/ai/FloatingAIButton';
 import './App.css';
 
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
@@ -74,6 +75,7 @@ function App() {
         </Suspense>
       </ErrorBoundary>
       <DevToolsToggle />
+      <FloatingAIButton />
     </ThemeProvider>
   );
 }

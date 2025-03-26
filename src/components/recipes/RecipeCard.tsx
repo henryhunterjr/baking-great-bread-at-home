@@ -22,7 +22,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     e.stopPropagation();
     setIsFavorite(!isFavorite);
     
-    toast(isFavorite ? "Recipe removed from favorites" : "Recipe saved to favorites", {
+    toast({
+      title: isFavorite ? "Recipe removed from favorites" : "Recipe saved to favorites",
       description: isFavorite ? "You can re-add it anytime." : "Access your saved recipes from your profile.",
       action: {
         label: "View Favorites",
