@@ -41,19 +41,21 @@ export function log(level: LogLevel, message: string, context?: Record<string, a
     recentLogs.shift();
   }
 
-  // Output to console
+  // Output to console with standardized format
+  const contextStr = context ? ` ${JSON.stringify(context)}` : '';
+  
   switch (level) {
     case LogLevel.INFO:
-      console.info(`[${entry.timestamp}] ${message}`, context);
+      console.info(`[${entry.timestamp}] [INFO] ${message}${contextStr}`);
       break;
     case LogLevel.WARN:
-      console.warn(`[${entry.timestamp}] ${message}`, context);
+      console.warn(`[${entry.timestamp}] [WARN] ${message}${contextStr}`);
       break;
     case LogLevel.ERROR:
-      console.error(`[${entry.timestamp}] ${message}`, context);
+      console.error(`[${entry.timestamp}] [ERROR] ${message}${contextStr}`);
       break;
     case LogLevel.DEBUG:
-      console.debug(`[${entry.timestamp}] ${message}`, context);
+      console.debug(`[${entry.timestamp}] [DEBUG] ${message}${contextStr}`);
       break;
   }
 
@@ -61,7 +63,7 @@ export function log(level: LogLevel, message: string, context?: Record<string, a
   // sendToLoggingService(entry);
 }
 
-// Convenience methods
+// Convenience methods with standardized signatures
 export const logInfo = (message: string, context?: Record<string, any>) => log(LogLevel.INFO, message, context);
 export const logWarn = (message: string, context?: Record<string, any>) => log(LogLevel.WARN, message, context);
 export const logError = (message: string, context?: Record<string, any>) => log(LogLevel.ERROR, message, context);
@@ -79,4 +81,11 @@ export function getRecentLogs(): LogEntry[] {
  */
 export function clearLogs(): void {
   recentLogs.length = 0;
+}
+
+/**
+ * Initialize dev error handler (for local development)
+ */
+export function initLogging(): void {
+  logInfo('Logging system initialized', { timestamp: new Date().toISOString() });
 }

@@ -1,15 +1,14 @@
 
+import * as pdfjsLib from 'pdfjs-dist';
 import { logInfo, logError } from '@/utils/logger';
-import type * as pdfjsLib from 'pdfjs-dist';
 import { ProgressCallback } from './types';
-import { cleanPDFText } from './text-cleaner';
 
 /**
  * Extract text from all pages of a PDF document
  * @param pdfDocument The PDF document to extract text from
- * @param maxPages Maximum number of pages to process (for performance)
- * @param progressCallback Callback for progress updates
- * @returns The extracted text from all pages
+ * @param maxPages Maximum number of pages to process (0 = all pages)
+ * @param progressCallback Optional callback for progress updates
+ * @returns The extracted text as a string
  */
 export const extractTextFromPages = async (
   pdfDocument: pdfjsLib.PDFDocumentProxy,
@@ -18,53 +17,56 @@ export const extractTextFromPages = async (
 ): Promise<string> => {
   try {
     const numPages = pdfDocument.numPages;
-    const actualMaxPages = maxPages > 0 ? Math.min(maxPages, numPages) : numPages;
+    const pagesToProcess = maxPages > 0 ? Math.min(maxPages, numPages) : numPages;
     
-    logInfo(`Starting text extraction from PDF with ${numPages} pages`, {
-      totalPages: numPages,
-      processingPages: actualMaxPages
+    logInfo("PDF text extraction: Starting extraction process", { 
+      totalPages: numPages, 
+      pagesToProcess 
     });
     
-    let allText = '';
+    let fullText = '';
     
-    // Extract text from each page
-    for (let i = 1; i <= actualMaxPages; i++) {
+    // Process each page
+    for (let i = 1; i <= pagesToProcess; i++) {
       try {
         const page = await pdfDocument.getPage(i);
         const textContent = await page.getTextContent();
         
-        // Extract text from the page content
+        // Extract text items and join them with spaces and proper line breaks
         const pageText = textContent.items
-          .map(item => 'str' in item ? item.str : '')
-          .join(' ');
+          .map((item: any) => 'str' in item ? item.str : '')
+          .join(' ')
+          .replace(/\s+/g, ' '); // Normalize whitespace
         
-        allText += pageText + '\n';
+        fullText += pageText + '\n\n';
+        
+        // Update progress
+        if (progressCallback) {
+          const progress = Math.floor(20 + ((i / pagesToProcess) * 60));
+          progressCallback(progress);
+        }
         
         // Clean up page resources
         page.cleanup();
-        
-        // Report progress
-        if (progressCallback) {
-          const progressPercent = Math.round(20 + (i / actualMaxPages) * 50);
-          progressCallback(progressPercent);
-        }
-        
-        logInfo(`Extracted text from page ${i}/${actualMaxPages}`, { 
-          pageNumber: i, 
-          textLength: pageText.length 
-        });
       } catch (pageError) {
-        logError(`Error extracting text from page ${i}`, { error: pageError });
-        // Continue to the next page even if this one fails
+        logError('Error extracting text from page', { 
+          page: i, 
+          error: pageError instanceof Error ? pageError.message : 'Unknown error' 
+        });
+        // Continue with next page on error
       }
     }
     
-    // Clean the extracted text
-    const cleanedText = cleanPDFText(allText);
+    logInfo("PDF text extraction: Completed successfully", { 
+      extractedTextLength: fullText.length 
+    });
     
-    return cleanedText;
+    return fullText;
   } catch (error) {
-    logError('Error extracting text from PDF pages', { error });
-    throw new Error(`Failed to extract text from PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    logError('Error extracting text from PDF pages', { 
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    throw error;
   }
 };

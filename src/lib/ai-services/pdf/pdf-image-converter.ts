@@ -42,7 +42,10 @@ export const convertPDFPageToImage = async (file: File): Promise<string> => {
     canvas.height = viewport.height;
     canvas.width = viewport.width;
     
-    logInfo(`Rendering PDF page to canvas (${canvas.width}x${canvas.height})`);
+    logInfo("Rendering PDF page to canvas", {
+      width: canvas.width,
+      height: canvas.height
+    });
     
     // Render the PDF page to the canvas
     await page.render({
@@ -53,7 +56,10 @@ export const convertPDFPageToImage = async (file: File): Promise<string> => {
     // Convert canvas to image data URL
     return canvas.toDataURL('image/png');
   } catch (error) {
-    logError('Error converting PDF to image:', error);
+    logError('Error converting PDF to image', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     throw error;
   }
 };

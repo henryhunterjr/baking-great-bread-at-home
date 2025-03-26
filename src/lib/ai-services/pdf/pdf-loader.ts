@@ -16,7 +16,7 @@ export const loadPdfDocument = async (file: File): Promise<pdfjsLib.PDFDocumentP
     // Convert the File to ArrayBuffer
     const arrayBuffer = await file.arrayBuffer();
     
-    logInfo("PDF processing: Starting to load document...");
+    logInfo("PDF processing: Starting to load document");
     
     // Initialize PDF.js with proper options for better compatibility
     const loadingTask = pdfjsLib.getDocument({
@@ -40,11 +40,16 @@ export const loadPdfDocument = async (file: File): Promise<pdfjsLib.PDFDocumentP
       timeoutPromise
     ]) as pdfjsLib.PDFDocumentProxy;
     
-    logInfo(`PDF processing: Document loaded with ${pdfDocument.numPages} pages`);
+    logInfo("PDF processing: Document loaded successfully", { 
+      pageCount: pdfDocument.numPages 
+    });
     
     return pdfDocument;
   } catch (error) {
-    logError('Error loading PDF document:', { error });
+    logError('Error loading PDF document', { 
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     throw new Error(`Failed to load PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };

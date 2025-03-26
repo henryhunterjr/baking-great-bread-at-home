@@ -15,14 +15,25 @@ export const convertRecipeText = async (
   }
 
   try {
-    logInfo('Starting recipe conversion', { textLength: text.length });
+    logInfo('Starting recipe conversion', { 
+      textLength: text.length,
+      textPreview: text.substring(0, 100)
+    });
     
     // Clean the text first
     const cleanedText = cleanOCRText(text);
     
     if (!cleanedText || cleanedText.trim() === '') {
+      logError('Text cleaning resulted in empty content', {
+        originalTextLength: text.length
+      });
       throw new Error('Text cleaning resulted in empty content');
     }
+    
+    logInfo('Text cleaned successfully', {
+      originalLength: text.length,
+      cleanedLength: cleanedText.length
+    });
     
     // Process the recipe text
     const response = await processRecipeText(cleanedText);
@@ -50,13 +61,24 @@ export const convertRecipeText = async (
         isConverted: true
       };
       
-      logInfo('Recipe conversion successful', { recipeTitle: convertedRecipe.title });
+      logInfo('Recipe conversion successful', { 
+        recipeTitle: convertedRecipe.title,
+        ingredientsCount: convertedRecipe.ingredients.length,
+        instructionsCount: convertedRecipe.instructions.length
+      });
+      
       onSuccess(convertedRecipe);
     } else {
-      throw new Error(response.error || 'Failed to convert recipe: No valid recipe data returned');
+      const errorMessage = response.error || 'Failed to convert recipe: No valid recipe data returned';
+      logError('Recipe conversion failed', { error: errorMessage });
+      throw new Error(errorMessage);
     }
   } catch (error) {
-    logError('Recipe conversion error:', { error });
+    logError('Recipe conversion error', { 
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    
     onError(error instanceof Error ? error : new Error(String(error)));
   }
 };
