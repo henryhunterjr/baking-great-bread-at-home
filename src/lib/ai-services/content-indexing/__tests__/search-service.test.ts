@@ -1,7 +1,6 @@
 
 import { SearchService } from '../core/search-service';
 import { getTestContent, mockLogger } from './test-utils';
-import Fuse from 'fuse.js';
 
 // Mock the logger
 jest.mock('@/utils/logger', () => ({
@@ -11,58 +10,22 @@ jest.mock('@/utils/logger', () => ({
   logDebug: (...args: any[]) => mockLogger.logDebug(...args)
 }));
 
-// Sample mock implementation for Fuse
+// Create a mock implementation for Fuse
+const mockFuseSearch = jest.fn();
+const mockFuseInstance = {
+  search: mockFuseSearch
+};
+
+// Mock the Fuse constructor
 jest.mock('fuse.js', () => {
-  return jest.fn().mockImplementation(() => {
-    return {
-      search: jest.fn().mockImplementation((query: string) => {
-        // Very simplified mock implementation
-        if (query.includes('bread')) {
-          return [
-            {
-              item: getTestContent()[0],
-              score: 0.3,
-              matches: [
-                {
-                  key: 'content',
-                  indices: [[10, 15]] as unknown as readonly Fuse.RangeTuple[],
-                  value: 'This is a test recipe with sourdough and flour.'
-                }
-              ]
-            },
-            {
-              item: getTestContent()[1],
-              score: 0.2,
-              matches: [
-                {
-                  key: 'content',
-                  indices: [[22, 27]] as unknown as readonly Fuse.RangeTuple[],
-                  value: 'This is a blog post about making bread at home.'
-                }
-              ]
-            }
-          ];
-        }
-        if (query.includes('cinnamon')) {
-          return [
-            {
-              item: getTestContent()[2],
-              score: 0.1,
-              matches: [
-                {
-                  key: 'title',
-                  indices: [[0, 8]] as unknown as readonly Fuse.RangeTuple[],
-                  value: 'Cinnamon Rolls Recipe'
-                }
-              ]
-            }
-          ];
-        }
-        return [];
-      })
-    };
-  });
+  return {
+    __esModule: true,
+    default: jest.fn().mockImplementation(() => mockFuseInstance)
+  };
 });
+
+// Import the mocked Fuse after mocking
+import Fuse from 'fuse.js';
 
 describe('SearchService', () => {
   let searchService: SearchService;
@@ -71,7 +34,55 @@ describe('SearchService', () => {
   beforeEach(() => {
     testContent = getTestContent();
     searchService = new SearchService(testContent);
-    (Fuse as jest.Mock).mockClear();
+    
+    // Clear all mocks
+    jest.clearAllMocks();
+    
+    // Setup search mock implementations for different test cases
+    mockFuseSearch.mockImplementation((query: string) => {
+      if (query.includes('bread')) {
+        return [
+          {
+            item: getTestContent()[0],
+            score: 0.3,
+            matches: [
+              {
+                key: 'content',
+                indices: [[10, 15]],
+                value: 'This is a test recipe with sourdough and flour.'
+              }
+            ]
+          },
+          {
+            item: getTestContent()[1],
+            score: 0.2,
+            matches: [
+              {
+                key: 'content',
+                indices: [[22, 27]],
+                value: 'This is a blog post about making bread at home.'
+              }
+            ]
+          }
+        ];
+      }
+      if (query.includes('cinnamon')) {
+        return [
+          {
+            item: getTestContent()[2],
+            score: 0.1,
+            matches: [
+              {
+                key: 'title',
+                indices: [[0, 8]],
+                value: 'Cinnamon Rolls Recipe'
+              }
+            ]
+          }
+        ];
+      }
+      return [];
+    });
   });
   
   test('should initialize search engine', () => {
@@ -110,11 +121,10 @@ describe('SearchService', () => {
   
   test('should handle search options', () => {
     searchService.initializeSearchEngine();
-    const searchInstance = (Fuse as jest.Mock).mock.results[0].value;
     
     searchService.search('test', { threshold: 0.5, includeScore: false });
     
-    expect(searchInstance.search).toHaveBeenCalledWith('test', expect.objectContaining({
+    expect(mockFuseSearch).toHaveBeenCalledWith('test', expect.objectContaining({
       threshold: 0.5,
       includeScore: false
     }));
