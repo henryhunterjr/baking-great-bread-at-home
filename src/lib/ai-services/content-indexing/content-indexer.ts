@@ -196,11 +196,22 @@ class ContentIndexer {
       
       const results = this.searchEngine.search(query, searchOptions);
       
-      return results.map(result => ({
-        item: result.item,
-        score: result.score || 1,
-        matches: result.matches ? [...result.matches] : [] // Convert readonly array to mutable array
-      }));
+      // Transform Fuse.js results to match our SearchResult type
+      return results.map(result => {
+        // Properly transform matches to ensure they have the required properties
+        const transformedMatches = result.matches ? 
+          result.matches.map(match => ({
+            key: match.key || '',  // Ensure key is always a string
+            indices: match.indices || [],
+            value: match.value || ''
+          })) : [];
+          
+        return {
+          item: result.item,
+          score: result.score || 1,
+          matches: transformedMatches
+        };
+      });
     } catch (error) {
       logError('Error searching content index', { error, query });
       return [];
