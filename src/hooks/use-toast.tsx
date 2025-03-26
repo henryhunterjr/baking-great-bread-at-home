@@ -1,7 +1,6 @@
 
 import { toast } from "sonner";
 
-// Define the toast options interface
 export interface ToastOptions {
   title?: string;
   description?: string;
@@ -10,9 +9,7 @@ export interface ToastOptions {
   duration?: number;
 }
 
-// Create a hook that provides a standardized interface for toast messages
 export function useToast() {
-  // Create a wrapper around sonner's toast to handle our custom options
   const showToast = ({
     title,
     description,
@@ -26,7 +23,6 @@ export function useToast() {
       duration,
     };
 
-    // Handle variants
     if (variant === "destructive") {
       return toast.error(title, options);
     }
@@ -39,5 +35,4 @@ export function useToast() {
   };
 }
 
-// Also export the toast functions directly for use without the hook
 export { toast };

@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { RecipeData } from '@/pages/RecipeConverter';
-import { AlertCircle, Bookmark, BookOpen, List, RefreshCw } from 'lucide-react';
+import { AlertCircle, Bookmark, BookOpen, RefreshCw } from 'lucide-react';
 
 interface RecipeSavedListProps {
   onSelectRecipe: (recipe: RecipeData) => void;
