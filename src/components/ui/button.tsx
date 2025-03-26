@@ -41,30 +41,12 @@ export interface ButtonProps
   asChild?: boolean
 }
 
-// Memoize the function for props comparison to prevent unnecessary re-renders
-const areEqual = (prevProps: ButtonProps, nextProps: ButtonProps) => {
-  return (
-    prevProps.className === nextProps.className &&
-    prevProps.variant === nextProps.variant &&
-    prevProps.size === nextProps.size &&
-    prevProps.asChild === nextProps.asChild &&
-    prevProps.disabled === nextProps.disabled
-  );
-};
-
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
-    
-    // Generate the class name only when props change
-    const buttonClassName = React.useMemo(
-      () => cn(buttonVariants({ variant, size, className })),
-      [variant, size, className]
-    );
-    
     return (
       <Comp
-        className={buttonClassName}
+        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
       />
@@ -73,7 +55,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = "Button"
 
-// Export the memoized button component
-const MemoizedButton = React.memo(Button, areEqual);
-
-export { MemoizedButton as Button, buttonVariants }
+export { Button, buttonVariants }
