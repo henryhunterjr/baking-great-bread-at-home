@@ -1,6 +1,6 @@
 
 import { OpenAIRecipeResponse } from '@/components/ai/utils/types';
-import { AI_CONFIG } from './ai-config';
+import { AI_CONFIG, updateOpenAIApiKey } from './ai-config';
 
 /**
  * Generate a recipe using OpenAI
@@ -9,6 +9,9 @@ import { AI_CONFIG } from './ai-config';
  */
 export const generateRecipeWithOpenAI = async (prompt: string): Promise<OpenAIRecipeResponse> => {
   try {
+    // Update the OpenAI API key before making the request
+    updateOpenAIApiKey();
+    
     if (!AI_CONFIG.openai.apiKey) {
       throw new Error('OpenAI API key not configured');
     }

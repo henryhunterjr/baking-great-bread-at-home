@@ -11,7 +11,8 @@ export const AI_CONFIG = {
   openai: {
     apiUrl: 'https://api.openai.com/v1',
     model: 'gpt-4o-mini', // Using a more reliable model for reliable results
-    defaultSystemPrompt: 'You are a helpful assistant specializing in bread baking and recipes.'
+    defaultSystemPrompt: 'You are a helpful assistant specializing in bread baking and recipes.',
+    apiKey: null // This will be set by the getOpenAIApiKey function
   }
 };
 
@@ -35,4 +36,9 @@ export const getOpenAIApiKey = (): string | null => {
 // Function to check if the OpenAI integration can be used
 export const isOpenAIConfigured = (): boolean => {
   return getOpenAIApiKey() !== null;
+};
+
+// Function to update the OpenAI API key in the configuration
+export const updateOpenAIApiKey = (): void => {
+  AI_CONFIG.openai.apiKey = getOpenAIApiKey();
 };

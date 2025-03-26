@@ -1,6 +1,6 @@
 
 import { configureAI } from './ai-service';
-import { getOpenAIApiKey } from './ai-config';
+import { getOpenAIApiKey, updateOpenAIApiKey } from './ai-config';
 import { logInfo, logError } from '@/utils/logger';
 
 /**
@@ -19,6 +19,8 @@ export const initializeAIService = (): boolean => {
     if (apiKey) {
       logInfo('Initializing AI service with API key');
       configureAI(apiKey);
+      // Update the OpenAI API key in the configuration
+      updateOpenAIApiKey();
       console.log('Configuration Successful ✅');
       console.groupEnd();
       return true;
