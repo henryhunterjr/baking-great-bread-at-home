@@ -1,9 +1,10 @@
+
 import { logInfo, logError } from '@/utils/logger';
-import { createWorker } from 'tesseract.js';
+import { createWorker, Worker, PSM } from 'tesseract.js';
 import { ProgressCallback } from './types';
 
 // Tesseract.js worker instance
-let tesseractWorker: any = null;
+let tesseractWorker: Worker | null = null;
 let isInitializing = false;
 let isInitialized = false;
 
@@ -36,13 +37,13 @@ const initializeOCR = async (): Promise<boolean> => {
       }
     }
     
-    // Create a new worker - fix the logger configuration
+    // Create a new worker
     tesseractWorker = await createWorker();
     
     // Set up logging after worker creation
-    tesseractWorker.setLogger((progress: any) => {
-      if (progress.status === 'recognizing text') {
-        const progressPercent = Math.round(progress.progress * 100);
+    tesseractWorker.setLogger((m) => {
+      if (m.status === 'recognizing text') {
+        const progressPercent = Math.round(m.progress * 100);
         logInfo(`OCR Progress: ${progressPercent}%`);
       }
     });
@@ -108,15 +109,13 @@ export const processImageWithOCR = async (
     // Configure Tesseract for recipe text
     await tesseractWorker.setParameters({
       tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:\'"-()[]{}!?@#$%^&*+=/<>°℃℉½¼¾⅓⅔ ',
-      tessedit_pageseg_mode: 6, // Assume a single uniform block of text
+      tessedit_pageseg_mode: PSM.SINGLE_BLOCK,
     });
     
     if (progressCallback) progressCallback(40);
     
-    // Recognize text with progress tracking - fixed options
+    // Recognize text with progress tracking
     const result = await tesseractWorker.recognize(imageDataUrl);
-    
-    // Handle progress tracking separately through the logger
     
     if (progressCallback) progressCallback(90);
     

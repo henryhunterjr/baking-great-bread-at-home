@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { runBrowserCompatibilityCheck } from './utils/crossBrowserTesting';
@@ -15,7 +14,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import DevToolsToggle from './components/dev/DevToolsToggle';
 import { initializeAIService } from './lib/ai-services';
 import { logError, logInfo } from './utils/logger';
-import { useToast } from '@/hooks/use-toast';  // Update import
+import { useToast } from '@/hooks/use-toast';
 import FloatingAIButton from './components/ai/FloatingAIButton';
 import CareCenter from './pages/CareCenter';
 import Settings from './pages/Settings';
@@ -32,7 +31,7 @@ const Books = lazy(() => import('./pages/Books'));
 
 function App() {
   const [aiInitialized, setAiInitialized] = useState(false);
-  const { toast } = useToast();  // Use useToast hook to get toast method
+  const { toast } = useToast();
 
   useEffect(() => {
     runBrowserCompatibilityCheck();
@@ -50,14 +49,13 @@ function App() {
       logError('Failed to initialize AI service:', error);
       setAiInitialized(false);
       
-      // Correct toast usage
       toast({
         title: "AI Service Error",
         description: "Failed to initialize AI services. Some features may be limited.",
         variant: "destructive"
       });
     }
-  }, []);
+  }, [toast]);
 
   return (
     <ThemeProvider>
