@@ -15,7 +15,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import DevToolsToggle from './components/dev/DevToolsToggle';
 import { initializeAIService } from './lib/ai-services';
 import { logError, logInfo } from './utils/logger';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';  // Update import
 import FloatingAIButton from './components/ai/FloatingAIButton';
 import CareCenter from './pages/CareCenter';
 import Settings from './pages/Settings';
@@ -32,6 +32,7 @@ const Books = lazy(() => import('./pages/Books'));
 
 function App() {
   const [aiInitialized, setAiInitialized] = useState(false);
+  const { toast } = useToast();  // Use useToast hook to get toast method
 
   useEffect(() => {
     runBrowserCompatibilityCheck();
@@ -49,8 +50,9 @@ function App() {
       logError('Failed to initialize AI service:', error);
       setAiInitialized(false);
       
-      // Fix toast call to use the proper API
+      // Correct toast usage
       toast({
+        title: "AI Service Error",
         description: "Failed to initialize AI services. Some features may be limited.",
         variant: "destructive"
       });
