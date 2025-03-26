@@ -1,6 +1,6 @@
 
 import { ChatMessage } from '../../../utils/types';
-import { getCurrentChallenge } from '../../../utils/aiHelpers';
+import { getCurrentChallenge } from '../../../utils/helpers';
 import { challengeImages, DEFAULT_CHALLENGE_IMAGE } from '@/data/challengeImages';
 
 // Handle baking challenge requests

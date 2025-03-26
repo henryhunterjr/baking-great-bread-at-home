@@ -1,6 +1,5 @@
-
 import { ChatMessage } from '../../../utils/types';
-import { searchRecipes, handleGenerateRecipe } from '../../../utils/aiHelpers';
+import { searchRecipes, handleGenerateRecipe } from '../../../utils/helpers';
 import { 
   searchBlogWithAI, 
   generateRecipeWithOpenAI, 

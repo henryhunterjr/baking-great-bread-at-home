@@ -1,6 +1,6 @@
 
 import { ChatMessage } from '../../../utils/types';
-import { findRelevantBook } from '../../../utils/aiHelpers';
+import { findRelevantBook } from '../../../utils/helpers';
 
 // Handle book recommendation requests
 export const handleBookRequest = async (

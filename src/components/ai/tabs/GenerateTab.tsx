@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles } from 'lucide-react';
 import { recipeExamples } from '../utils/data';
-import { handleGenerateRecipe } from '../utils/aiHelpers';
+import { handleGenerateRecipe } from '../utils/helpers';
 
 interface GenerateTabProps {
   recipePrompt: string;
