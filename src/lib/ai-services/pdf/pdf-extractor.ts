@@ -6,6 +6,9 @@ import { attemptOCRFallback } from './ocr-fallback';
 import { CancellableTask, ExtractTextResult, ProgressCallback } from './types';
 import * as pdfjsLib from 'pdfjs-dist';
 
+// Maximum number of pages to process for performance
+const MAX_PAGES_TO_PROCESS = 10;
+
 /**
  * Extract text from a PDF file
  * @param file PDF file to process
@@ -37,8 +40,8 @@ export const extractTextFromPDF = async (
     // Set initial progress
     if (progressCallback) progressCallback(10);
     
-    // Load the PDF document
-    pdfDocument = await loadPdfDocument(file);
+    // Use a shorter timeout for initial loading (15 seconds)
+    pdfDocument = await loadPdfDocument(file, 15000);
     
     // Check if processing was cancelled during loading
     if (isRequestCancelled) {
@@ -47,8 +50,16 @@ export const extractTextFromPDF = async (
     
     if (progressCallback) progressCallback(20);
     
-    // Fix: Pass the maximum number of pages as a number, and progressCallback separately
-    const fullText = await extractTextFromPages(pdfDocument, 5, progressCallback);
+    // Limit the number of pages to process
+    const pagesToProcess = Math.min(pdfDocument.numPages, MAX_PAGES_TO_PROCESS);
+    logInfo("PDF processing: Processing first pages", { pagesToProcess });
+    
+    // Extract text with a page limit
+    const fullText = await extractTextFromPages(
+      pdfDocument, 
+      pagesToProcess, 
+      progressCallback
+    );
     
     // Clean up PDF document resources
     if (pdfDocument) {
@@ -95,6 +106,7 @@ export const extractTextFromPDF = async (
     
     // Try OCR as fallback for any error
     try {
+      logInfo("PDF processing: Standard extraction failed, attempting OCR fallback");
       if (progressCallback) progressCallback(60);
       const ocrText = await attemptOCRFallback(file, progressCallback);
       return ocrText || "No text could be extracted from this PDF. Try another file or input method.";

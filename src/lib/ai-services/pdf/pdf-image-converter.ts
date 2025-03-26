@@ -7,26 +7,43 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 /**
  * Convert the first page of a PDF to an image using canvas
+ * @param file PDF file to convert
+ * @param timeout Timeout in milliseconds (default: 15000ms / 15 seconds)
  * @returns A Data URL string with the image content
  */
-export const convertPDFPageToImage = async (file: File): Promise<string> => {
+export const convertPDFPageToImage = async (
+  file: File,
+  timeout = 15000
+): Promise<string> => {
   try {
     const arrayBuffer = await file.arrayBuffer();
     const loadingTask = pdfjsLib.getDocument({
       data: arrayBuffer,
       cMapUrl: '/cmaps/',
-      cMapPacked: true
+      cMapPacked: true,
+      disableRange: true,
+      disableStream: true
     });
     
-    // Set a timeout to prevent hanging
-    const pdfPromise = Promise.race([
-      loadingTask.promise,
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('PDF loading timed out')), 20000)
-      )
-    ]);
+    // Create a timeout promise
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      const timeoutId = setTimeout(() => {
+        loadingTask.destroy().catch(e => {
+          logError('Error destroying PDF loading task during timeout', { error: e });
+        });
+        reject(new Error(`PDF loading timed out after ${timeout/1000} seconds`));
+      }, timeout);
+      
+      return () => clearTimeout(timeoutId);
+    });
     
-    const pdf = await pdfPromise as pdfjsLib.PDFDocumentProxy;
+    // Race between loading and timeout
+    const pdf = await Promise.race([
+      loadingTask.promise,
+      timeoutPromise
+    ]) as pdfjsLib.PDFDocumentProxy;
+    
+    // Get the first page only
     const page = await pdf.getPage(1);
     
     // Create a canvas to render the PDF page
@@ -37,8 +54,8 @@ export const convertPDFPageToImage = async (file: File): Promise<string> => {
       throw new Error('Canvas context could not be created');
     }
     
-    // Set the dimensions
-    const viewport = page.getViewport({ scale: 1.5 }); // Scale up for better OCR results
+    // Set the dimensions with a reasonable scale for OCR
+    const viewport = page.getViewport({ scale: 1.5 });
     canvas.height = viewport.height;
     canvas.width = viewport.width;
     
@@ -52,6 +69,13 @@ export const convertPDFPageToImage = async (file: File): Promise<string> => {
       canvasContext: context,
       viewport: viewport
     }).promise;
+    
+    // Clean up PDF resources
+    try {
+      pdf.destroy();
+    } catch (e) {
+      logError('Error destroying PDF document', { error: e });
+    }
     
     // Convert canvas to image data URL
     return canvas.toDataURL('image/png');
