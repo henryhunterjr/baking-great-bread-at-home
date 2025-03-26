@@ -1,6 +1,11 @@
 
 import { logInfo, logError } from '@/utils/logger';
-import { verifyAPIKey, isOpenAIConfigured, updateOpenAIApiKey } from './ai-config';
+import { 
+  verifyAPIKey, 
+  isOpenAIConfigured, 
+  updateOpenAIApiKey, 
+  checkAPIKeyStatus 
+} from './ai-config';
 import { initializeContentIndexer } from './content-indexing/content-indexer';
 import { initializeContextAwareAI } from './context-aware-ai';
 
@@ -14,6 +19,10 @@ export const initializeAIService = async (): Promise<void> => {
     // Make sure we have the latest API key from localStorage
     updateOpenAIApiKey();
     
+    // Check and log detailed API key status
+    const keyStatus = checkAPIKeyStatus();
+    logInfo('API Key Status during initialization', keyStatus);
+    
     // Verify the API key
     const isConfigured = isOpenAIConfigured();
     const isValid = isConfigured ? await verifyAPIKey() : false;
@@ -21,7 +30,11 @@ export const initializeAIService = async (): Promise<void> => {
     if (isValid) {
       logInfo('✅ AI Service initialized with valid API key');
     } else {
-      logInfo('⚠️ AI Service initialized without valid API key');
+      if (isConfigured) {
+        logInfo('⚠️ API key found but validation failed. The key may be invalid.');
+      } else {
+        logInfo('⚠️ AI Service initialized without API key');
+      }
     }
     
     // Initialize content indexing
@@ -50,10 +63,17 @@ export const initializeAIService = async (): Promise<void> => {
  */
 export const verifyAIServiceStatus = async (): Promise<boolean> => {
   try {
+    // Make sure we have the latest key
+    updateOpenAIApiKey(); 
+    
+    // Log detailed API key status
+    const keyStatus = checkAPIKeyStatus();
+    logInfo('API Key Status during verification', keyStatus);
+    
     // Attempt to verify the API key
-    updateOpenAIApiKey(); // Make sure we have the latest key
     const isValid = await verifyAPIKey();
     
+    logInfo('AI service status verification', { isValid });
     return isValid;
   } catch (error) {
     logError('Error verifying AI service status', { error });

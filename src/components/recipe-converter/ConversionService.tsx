@@ -7,7 +7,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Key } from 'lucide-react';
-import { isOpenAIConfigured, updateOpenAIApiKey } from '@/lib/ai-services/ai-config';
+import { 
+  isOpenAIConfigured, 
+  updateOpenAIApiKey, 
+  checkAPIKeyStatus 
+} from '@/lib/ai-services/ai-config';
 import { useNavigate } from 'react-router-dom';
 
 interface ConversionServiceProps {
@@ -27,6 +31,16 @@ const ConversionService: React.FC<ConversionServiceProps> = ({ onConversionCompl
       // Make sure we have the latest key from localStorage
       updateOpenAIApiKey();
       const configured = isOpenAIConfigured();
+      
+      // Log API key status for debugging
+      const status = checkAPIKeyStatus();
+      console.log('AI configuration check:', { 
+        configured, 
+        hasKey: status.hasKey, 
+        keyFormat: status.keyFormat, 
+        source: status.source 
+      });
+      
       setIsAIConfigured(configured);
     };
     
@@ -34,8 +48,11 @@ const ConversionService: React.FC<ConversionServiceProps> = ({ onConversionCompl
     checkAIConfiguration();
     
     // Setup listener for localStorage changes
-    const handleStorageChange = () => {
-      checkAIConfiguration();
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'openai_api_key' || event.key === null) {
+        console.log('Local storage changed, rechecking API key');
+        checkAIConfiguration();
+      }
     };
     
     window.addEventListener('storage', handleStorageChange);
@@ -54,6 +71,12 @@ const ConversionService: React.FC<ConversionServiceProps> = ({ onConversionCompl
       // Check if OpenAI API is configured
       if (!isAIConfigured) {
         setConversionError("AI service not configured with valid API key. Please add your OpenAI API key in settings.");
+        
+        toast({
+          variant: "destructive",
+          title: "API Key Required",
+          description: "Please configure your OpenAI API key in settings to use AI recipe conversion.",
+        });
         return;
       }
 
@@ -61,11 +84,22 @@ const ConversionService: React.FC<ConversionServiceProps> = ({ onConversionCompl
       await handleConversion(text);
     } catch (error) {
       console.error('Conversion error:', error);
-      setConversionError(error instanceof Error ? error.message : 'An error occurred during conversion');
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred during conversion';
+      setConversionError(errorMessage);
+      
+      toast({
+        variant: "destructive",
+        title: "Conversion Failed",
+        description: errorMessage,
+      });
     }
   };
 
   const navigateToSettings = () => {
+    toast({
+      title: "Navigating to Settings",
+      description: "Please add your OpenAI API key in the settings page.",
+    });
     navigate('/settings');
   };
 
