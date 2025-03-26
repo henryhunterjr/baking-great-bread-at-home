@@ -1,3 +1,4 @@
+
 import { RecipeData } from '@/types/recipeTypes';
 import { AI_CONFIG, getOpenAIApiKey, isOpenAIConfigured } from './ai-config';
 import { logInfo, logError } from '@/utils/logger';
@@ -435,4 +436,3 @@ export const processOCRWithAI = async (text: string): Promise<string> => {
 };
 
 export default aiServiceInstance;
-
