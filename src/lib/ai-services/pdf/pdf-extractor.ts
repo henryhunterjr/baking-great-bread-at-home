@@ -5,18 +5,21 @@ import { extractTextFromPages } from './text-extractor';
 import { attemptOCRFallback } from './ocr-fallback';
 import { CancellableTask, ExtractTextResult, ProgressCallback } from './types';
 import * as pdfjsLib from 'pdfjs-dist';
-import { ensurePDFWorkerFiles } from './pdf-worker-service';
+import { ensurePDFWorkerFiles, configurePDFWorkerCORS } from './pdf-worker-service';
 
 // Maximum number of pages to process for performance
-const MAX_PAGES_TO_PROCESS = 8; // Reduced from 10 for better performance
+const MAX_PAGES_TO_PROCESS = 8;
 
-// Initialize the PDF worker service on module load
-ensurePDFWorkerFiles().catch(error => 
+// Initialize the PDF worker service and CORS configuration on module load
+Promise.all([
+  ensurePDFWorkerFiles(),
+  configurePDFWorkerCORS()
+]).catch(error => 
   logError('Failed to initialize PDF worker service', { error })
 );
 
 /**
- * Extract text from a PDF file
+ * Extract text from a PDF file with enhanced reliability and error handling
  * @param file PDF file to process
  * @param progressCallback Optional callback for progress updates
  * @returns The extracted text from the PDF or a cancellable task
@@ -46,13 +49,35 @@ export const extractTextFromPDF = async (
     // Set initial progress
     if (progressCallback) progressCallback(10);
     
+    // Log the beginning of processing
+    logInfo("PDF processing: Starting extraction", { 
+      fileName: file.name, 
+      fileSize: file.size,
+      fileType: file.type 
+    });
+    
     // Validate file size before processing
-    if (file.size > 25 * 1024 * 1024) { // 25MB limit - increased from 15MB
+    if (file.size > 25 * 1024 * 1024) { // 25MB limit
       throw new Error("PDF file is too large (max 25MB). Try using a smaller file or text input.");
     }
     
-    // Use a longer timeout for initial loading (30 seconds - increased from 12)
-    pdfDocument = await loadPdfDocument(file, 30000);
+    // Validate file type more strictly
+    if (!file.type.toLowerCase().includes('pdf')) {
+      throw new Error("Invalid file type. Please upload a valid PDF document.");
+    }
+    
+    // Use a longer timeout for initial loading (30 seconds)
+    try {
+      pdfDocument = await loadPdfDocument(file, 30000);
+    } catch (loadError) {
+      logError("PDF processing: Document loading failed", { error: loadError });
+      
+      // Try OCR as fallback immediately for loading errors
+      if (progressCallback) progressCallback(60);
+      logInfo("PDF processing: Document loading failed, attempting OCR fallback");
+      const ocrText = await attemptOCRFallback(file, progressCallback);
+      return ocrText;
+    }
     
     // Check if processing was cancelled during loading
     if (isRequestCancelled) {
@@ -63,7 +88,10 @@ export const extractTextFromPDF = async (
     
     // Limit the number of pages to process
     const pagesToProcess = Math.min(pdfDocument.numPages, MAX_PAGES_TO_PROCESS);
-    logInfo("PDF processing: Processing first pages", { pagesToProcess });
+    logInfo("PDF processing: Processing pages", { 
+      totalPages: pdfDocument.numPages,
+      pagesToProcess 
+    });
     
     // Extract text with a page limit
     const fullText = await extractTextFromPages(
@@ -77,6 +105,7 @@ export const extractTextFromPDF = async (
       try {
         pdfDocument.destroy();
         pdfDocument = null;
+        logInfo("PDF processing: Document resources released");
       } catch (e) {
         logError("Error destroying PDF document", { error: e });
       }
@@ -90,13 +119,22 @@ export const extractTextFromPDF = async (
       // Fall back to OCR
       if (progressCallback) progressCallback(70);
       const ocrText = await attemptOCRFallback(file, progressCallback);
-      return ocrText.trim() || "No text could be extracted from this PDF. Try another file or input method.";
+      
+      if (ocrText.trim().length > 0) {
+        logInfo("PDF processing: OCR fallback successful");
+        return ocrText;
+      } else {
+        return "No text could be extracted from this PDF. The document may be empty, secured, or contain only images.";
+      }
     }
     
     if (progressCallback) progressCallback(100);
+    logInfo("PDF processing: Extraction complete successfully", { 
+      extractedTextLength: fullText.length 
+    });
     
     // Return extracted text
-    return fullText.trim() || "No text could be extracted from this PDF. Try another file or input method.";
+    return fullText.trim();
   } catch (error) {
     // Clean up resources if they still exist
     if (pdfDocument) {
@@ -122,10 +160,10 @@ export const extractTextFromPDF = async (
       const ocrText = await attemptOCRFallback(file, progressCallback);
       
       if (!ocrText || ocrText.trim().length < 20) {
-        return "Limited text could be extracted from this PDF. The quality may be too low or it may contain mostly images. Try manually typing the recipe.";
+        return "Limited text could be extracted from this PDF. The quality may be too low or it may contain mostly images.";
       }
       
-      return ocrText || "No text could be extracted from this PDF. Try another file or input method.";
+      return ocrText;
     } catch (ocrError) {
       logError('OCR fallback also failed:', { error: ocrError });
       

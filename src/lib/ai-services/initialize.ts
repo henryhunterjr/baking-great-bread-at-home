@@ -8,9 +8,11 @@ import {
 } from './ai-config';
 import { initializeContentIndexer } from './content-indexing/content-indexer';
 import { initializeContextAwareAI } from './context-aware-ai';
+import { ensurePDFWorkerFiles, configurePDFWorkerCORS } from './pdf/pdf-worker-service';
+import { verifyOCRAvailability } from './pdf/ocr-processor';
 
 /**
- * Initialize AI service and content indexing
+ * Initialize AI service and content indexing with enhanced reliability
  */
 export const initializeAIService = async (): Promise<void> => {
   try {
@@ -37,6 +39,29 @@ export const initializeAIService = async (): Promise<void> => {
       }
     }
     
+    // Initialize PDF worker files
+    try {
+      await ensurePDFWorkerFiles();
+      configurePDFWorkerCORS();
+      logInfo('✅ PDF worker service initialized');
+    } catch (error) {
+      logError('Error initializing PDF worker service', { error });
+    }
+    
+    // Verify OCR availability
+    try {
+      const ocrAvailable = await verifyOCRAvailability();
+      if (ocrAvailable) {
+        logInfo('✅ OCR service initialized');
+      } else {
+        logError('OCR service initialization failed', { 
+          error: 'Tesseract.js not available or initialization error'
+        });
+      }
+    } catch (error) {
+      logError('Error verifying OCR availability', { error });
+    }
+    
     // Initialize content indexing
     try {
       await initializeContentIndexer();
@@ -59,9 +84,15 @@ export const initializeAIService = async (): Promise<void> => {
 };
 
 /**
- * Verify AI service status
+ * Verify AI service status with comprehensive diagnostics
  */
-export const verifyAIServiceStatus = async (): Promise<boolean> => {
+export const verifyAIServiceStatus = async (): Promise<{
+  apiKeyValid: boolean;
+  pdfWorkerAvailable: boolean;
+  ocrAvailable: boolean;
+  contentIndexingAvailable: boolean;
+  overallStatus: boolean;
+}> => {
   try {
     // Make sure we have the latest key
     updateOpenAIApiKey(); 
@@ -71,12 +102,44 @@ export const verifyAIServiceStatus = async (): Promise<boolean> => {
     logInfo('API Key Status during verification', keyStatus);
     
     // Attempt to verify the API key
-    const isValid = await verifyAPIKey();
+    const apiKeyValid = await verifyAPIKey();
     
-    logInfo('AI service status verification', { isValid });
-    return isValid;
+    // Check PDF worker availability
+    const pdfWorkerAvailable = await ensurePDFWorkerFiles().then(() => true).catch(() => false);
+    
+    // Check OCR availability
+    const ocrAvailable = await verifyOCRAvailability();
+    
+    // Check content indexing
+    let contentIndexingAvailable = false;
+    try {
+      await initializeContentIndexer();
+      contentIndexingAvailable = true;
+    } catch (error) {
+      logError('Content indexing verification failed', { error });
+    }
+    
+    // Determine overall status (API key not required for overall status)
+    const overallStatus = pdfWorkerAvailable && (ocrAvailable || contentIndexingAvailable);
+    
+    const statusReport = {
+      apiKeyValid,
+      pdfWorkerAvailable,
+      ocrAvailable, 
+      contentIndexingAvailable,
+      overallStatus
+    };
+    
+    logInfo('AI service status verification complete', statusReport);
+    return statusReport;
   } catch (error) {
     logError('Error verifying AI service status', { error });
-    return false;
+    return {
+      apiKeyValid: false,
+      pdfWorkerAvailable: false,
+      ocrAvailable: false,
+      contentIndexingAvailable: false,
+      overallStatus: false
+    };
   }
 };
