@@ -23,7 +23,7 @@ const config = {
   clearMocks: true,
   collectCoverage: true,
   coverageDirectory: '<rootDir>/coverage',
-  coverageReporters: ['text', 'lcov', 'clover'],
+  coverageReporters: ['text', 'lcov', 'clover', 'json-summary'],
   coveragePathIgnorePatterns: [
     '/node_modules/',
     '/__tests__/',

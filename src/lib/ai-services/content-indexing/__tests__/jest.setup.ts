@@ -1,10 +1,9 @@
 
 // Global setup for Jest tests
-import 'jest-extended';
 
-// This will extend Jest with additional matchers
+// Extend Jest with additional matchers
 expect.extend({
-  // Add custom matcher for testing deep object equality ignoring specific keys
+  // Custom matcher for testing deep object equality ignoring specific keys
   toEqualExcept(received, expected, excludedKeys) {
     const objWithoutKeys = (obj, keys) => {
       const result = { ...obj };
@@ -25,23 +24,43 @@ expect.extend({
           : `Expected objects to be equal when ignoring ${excludedKeys.join(', ')}`
     };
   },
+
+  // Add custom matcher for array containment with partial object matching
+  toContainObject(received, expected) {
+    const pass = received.some(item => 
+      Object.keys(expected).every(key => 
+        item[key] === expected[key]
+      )
+    );
+    
+    return {
+      pass,
+      message: () => 
+        pass
+          ? `Expected array not to contain object ${this.utils.printExpected(expected)}`
+          : `Expected array to contain object ${this.utils.printExpected(expected)}`
+    };
+  },
+  
+  // Add custom matcher for checking if a function changes a value
+  toChangeValueBy(received, accessor, delta) {
+    const before = accessor();
+    received();
+    const after = accessor();
+    const pass = after - before === delta;
+    
+    return {
+      pass,
+      message: () => 
+        pass
+          ? `Expected function not to change value by ${delta}`
+          : `Expected function to change value by ${delta}, but it changed by ${after - before}`
+    };
+  }
 });
 
 // Environment setup for consistent test execution
 process.env.NODE_ENV = 'test';
-
-// Silence console output during tests if needed
-// Uncomment these if you want to silence console during tests
-/*
-global.console = {
-  ...console,
-  log: jest.fn(),
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-  debug: jest.fn(),
-};
-*/
 
 // Define global mocks if needed for all tests
 global.requestAnimationFrame = callback => setTimeout(callback, 0);
