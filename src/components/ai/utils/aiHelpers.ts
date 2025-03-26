@@ -49,7 +49,24 @@ export const getCurrentChallenge = (): ChallengeInfo => {
  * @returns An array of matching recipes
  */
 export const searchRecipes = async (query: string): Promise<RecipeSearchResult[]> => {
-  const normalizedQuery = query.toLowerCase().trim();
+  console.log(`[searchRecipes] Raw query: "${query}"`);
+  
+  // Clean up the query to improve matching
+  const normalizedQuery = query.toLowerCase()
+    .replace(/find me/i, '')
+    .replace(/can you find/i, '')
+    .replace(/are there/i, '')
+    .replace(/do you have/i, '')
+    .replace(/a recipe for/i, '')
+    .replace(/recipes for/i, '')
+    .replace(/from the blog/i, '')
+    .replace(/on the blog/i, '')
+    .replace(/search the blog for/i, '')
+    .replace(/can you search for/i, '')
+    .replace(/please/i, '')
+    .trim();
+  
+  console.log(`[searchRecipes] Normalized query: "${normalizedQuery}"`);
   
   // Hardcoded recipes database for common recipe types
   const recipesDatabase: Record<string, RecipeSearchResult[]> = {
@@ -65,6 +82,18 @@ export const searchRecipes = async (query: string): Promise<RecipeSearchResult[]
         description: 'Delicious banana muffins topped with a crunchy streusel. Perfect for breakfast or dessert.',
         imageUrl: 'https://images.unsplash.com/photo-1588373756058-3d8b757a72e1?q=80&w=1000&auto=format&fit=crop',
         link: '/recipes/banana-muffins'
+      },
+      {
+        title: 'Whole Wheat Banana Bread',
+        description: 'A healthier take on the classic, using whole wheat flour and less sugar while maintaining that delicious banana flavor.',
+        imageUrl: 'https://images.unsplash.com/photo-1585023657880-8d726c65ba4e?q=80&w=1000&auto=format&fit=crop',
+        link: '/recipes/whole-wheat-banana-bread'
+      },
+      {
+        title: 'Chocolate Chip Banana Bread',
+        description: 'The perfect combination of ripe bananas and chocolate chips in a moist, delicious loaf.',
+        imageUrl: '/lovable-uploads/b924f7a9-e665-495b-b90f-d8d5166775f8.png',
+        link: '/recipes/chocolate-chip-banana-bread'
       }
     ],
     'sourdough': [
@@ -125,26 +154,31 @@ export const searchRecipes = async (query: string): Promise<RecipeSearchResult[]
     ]
   };
   
+  // Add banana bread as its own category for more direct matches
+  recipesDatabase['banana bread'] = recipesDatabase['banana'];
+  
   // Check direct matches first
   for (const [key, recipes] of Object.entries(recipesDatabase)) {
     if (normalizedQuery.includes(key)) {
+      console.log(`[searchRecipes] Found direct match for key: "${key}"`);
       return recipes;
     }
   }
   
-  // Check for partial matches
-  if (normalizedQuery.includes('bread') && normalizedQuery.includes('banana')) {
-    return recipesDatabase['banana'];
+  // Check for partial matches using each word
+  const queryWords = normalizedQuery.split(' ');
+  for (const word of queryWords) {
+    if (word.length < 3) continue; // Skip very short words
+    
+    for (const [key, recipes] of Object.entries(recipesDatabase)) {
+      if (key.includes(word) || word.includes(key)) {
+        console.log(`[searchRecipes] Found partial match: word="${word}", key="${key}"`);
+        return recipes;
+      }
+    }
   }
   
-  if (normalizedQuery.includes('roll') && normalizedQuery.includes('cinnamon')) {
-    return recipesDatabase['cinnamon'];
-  }
-  
-  if (normalizedQuery.includes('roll') && normalizedQuery.includes('dinner')) {
-    return recipesDatabase['dinner roll'];
-  }
-  
+  console.log(`[searchRecipes] No matches found for query: "${normalizedQuery}"`);
   // Default empty results if no match found
   return [];
 };
