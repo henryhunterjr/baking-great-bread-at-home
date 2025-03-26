@@ -15,9 +15,15 @@ const BlogPage = () => {
 
   // Filter posts by category if category is specified
   const filteredPosts = category 
-    ? posts?.filter(post => post.categories?.some(cat => 
-        cat.toLowerCase().includes(category.toLowerCase())
-      )) 
+    ? posts?.filter(post => {
+        // Check if the post has tags that match the category
+        if (post.tags && Array.isArray(post.tags)) {
+          return post.tags.some(tag => 
+            tag.toLowerCase().includes(category.toLowerCase())
+          );
+        }
+        return false;
+      }) 
     : posts;
 
   return (

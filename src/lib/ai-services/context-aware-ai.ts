@@ -23,7 +23,8 @@ interface SearchResult {
   total: number;
 }
 
-interface ContextAwareAIResponse {
+// Export this interface so it can be imported in other files
+export interface ContextAwareResponse {
   success: boolean;
   answer: string;
   error?: string;

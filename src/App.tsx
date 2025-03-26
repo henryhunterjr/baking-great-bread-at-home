@@ -50,9 +50,8 @@ function App() {
       setAiInitialized(false);
       
       toast({
-        title: "AI Service Error",
-        description: "Failed to initialize AI services. Some features may be limited.",
-        variant: "destructive"
+        variant: "destructive",
+        description: "Failed to initialize AI services. Some features may be limited."
       });
     }
   }, []);

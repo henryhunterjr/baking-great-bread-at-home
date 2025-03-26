@@ -1,10 +1,10 @@
 
 import { logInfo, logError } from '@/utils/logger';
-import { createWorker, PSM, OEM } from 'tesseract.js';
+import { createWorker } from 'tesseract.js';
 import { ProgressCallback } from './types';
 
 // Tesseract.js worker instance
-let tesseractWorker: Tesseract.Worker | null = null;
+let tesseractWorker: any = null;
 let isInitializing = false;
 let isInitialized = false;
 
@@ -38,20 +38,13 @@ const initializeOCR = async (): Promise<boolean> => {
     }
     
     // Create a new worker with proper logger configuration
-    // Provide the correct type for the OEM parameter
     tesseractWorker = await createWorker({
-      logger: progress => {
+      logger: (progress: any) => {
         if (progress.status === 'recognizing text') {
           const progressPercent = Math.round(progress.progress * 100);
           logInfo(`OCR Progress: ${progressPercent}%`);
         }
-      },
-      // Supply a numeric value for OEM (optical engine mode)
-      // 1 corresponds to LSTM_ONLY
-      oem: 1 as OEM,
-      // PSM Modes (Page Segmentation Mode) 
-      // 6 is for "Assume a single uniform block of text"
-      psm: 6 as PSM
+      }
     });
     
     // Load English language data
@@ -89,7 +82,7 @@ export const verifyOCRAvailability = async (): Promise<boolean> => {
  * @returns The extracted text
  */
 export const processImageWithOCR = async (
-  imageFile: File | Blob,
+  imageFile: File | Blob | string,
   progressCallback?: ProgressCallback
 ): Promise<string> => {
   // Start progress reporting
@@ -105,22 +98,24 @@ export const processImageWithOCR = async (
     
     if (progressCallback) progressCallback(20);
     
-    // Convert file to image data URL
-    const imageDataUrl = await fileToDataURL(imageFile);
+    // Convert file to image data URL if it's not already a string
+    const imageDataUrl = typeof imageFile === 'string' 
+      ? imageFile 
+      : await fileToDataURL(imageFile);
     
     if (progressCallback) progressCallback(30);
     
     // Configure Tesseract for recipe text
     await tesseractWorker.setParameters({
       tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:\'"-()[]{}!?@#$%^&*+=/<>°℃℉½¼¾⅓⅔ ',
-      tessedit_pageseg_mode: '6', // Assume a single uniform block of text
+      tessedit_pageseg_mode: 6, // Assume a single uniform block of text
     });
     
     if (progressCallback) progressCallback(40);
     
     // Recognize text with progress tracking
     const result = await tesseractWorker.recognize(imageDataUrl, {
-      progressFunc: (progress) => {
+      progress: (progress: any) => {
         // Map Tesseract's 0-1 progress to our 40-90 range
         if (progressCallback && progress.progress !== undefined) {
           const mappedProgress = 40 + Math.round(progress.progress * 50);
@@ -183,6 +178,9 @@ export const cleanupOCR = async (): Promise<void> => {
     }
   }
 };
+
+// Export the function with the name that other modules are expecting
+export const extractTextWithOCR = processImageWithOCR;
 
 // Auto-cleanup on module unload
 if (typeof window !== 'undefined') {
