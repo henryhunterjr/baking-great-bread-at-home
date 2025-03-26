@@ -56,9 +56,27 @@ export const mockLogger = {
 };
 
 // Helper to reset all mocks between tests
-export const resetAllMocks = () => {
+export const resetAllMocks = (): void => {
+  jest.resetAllMocks();
+  
+  // Reset all of our custom mocks
   mockLogger.logInfo.mockReset();
   mockLogger.logError.mockReset();
   mockLogger.logWarn.mockReset();
   mockLogger.logDebug.mockReset();
+};
+
+// Generate random content for testing
+export const generateRandomContent = (count = 1): IndexedContent[] => {
+  return Array.from({ length: count }, (_, i) => ({
+    id: `random-${Date.now()}-${i}`,
+    title: `Random Title ${i}`,
+    content: `Random content for testing ${i}`,
+    excerpt: `Random excerpt ${i}...`,
+    type: Math.random() > 0.5 ? 'recipe' : 'blog' as ContentType,
+    tags: [`tag-${i}`, 'random'],
+    url: `/random/${i}`,
+    imageUrl: `/random-image-${i}.jpg`,
+    metadata: { date: new Date().toISOString() }
+  }));
 };
