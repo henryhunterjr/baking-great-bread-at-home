@@ -5,9 +5,15 @@ import { extractTextFromPages } from './text-extractor';
 import { attemptOCRFallback } from './ocr-fallback';
 import { CancellableTask, ExtractTextResult, ProgressCallback } from './types';
 import * as pdfjsLib from 'pdfjs-dist';
+import { ensurePDFWorkerFiles } from './pdf-worker-service';
 
 // Maximum number of pages to process for performance
 const MAX_PAGES_TO_PROCESS = 8; // Reduced from 10 for better performance
+
+// Initialize the PDF worker service on module load
+ensurePDFWorkerFiles().catch(error => 
+  logError('Failed to initialize PDF worker service', { error })
+);
 
 /**
  * Extract text from a PDF file
