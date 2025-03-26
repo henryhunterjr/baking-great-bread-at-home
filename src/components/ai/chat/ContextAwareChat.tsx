@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Send, Search, BookOpen, FileText } from 'lucide-react';
+import { Loader2, Send, Search, BookOpen, FileText, Copy, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { searchBlogWithAI, isAIConfigured } from '@/lib/ai-services';
 import { contextAwareAI, initializeContextAwareAI } from '@/lib/ai-services/context-aware-ai';
@@ -49,15 +49,21 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isAiInitialized, setIsAiInitialized] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
   // Initialize the context-aware AI service
   useEffect(() => {
     const initAI = async () => {
+      setIsInitializing(true);
       try {
         await initializeContextAwareAI();
         setIsAiInitialized(true);
+        toast({
+          title: "AI Assistant Ready",
+          description: "The baking assistant has been initialized with knowledge from our recipes and blog posts.",
+        });
       } catch (error) {
         console.error('Failed to initialize context-aware AI:', error);
         toast({
@@ -65,6 +71,8 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
           title: "AI Initialization Failed",
           description: "There was a problem setting up the AI assistant. Some features may be limited."
         });
+      } finally {
+        setIsInitializing(false);
       }
     };
     
@@ -77,7 +85,7 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
   }, [messages]);
   
   const handleSendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isProcessing) return;
     
     // Add user message
     const userMessage: Message = {
@@ -100,13 +108,28 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
     
     try {
       // Check if context-aware AI is initialized
+      if (isInitializing) {
+        // Replace the pending message with initialization status
+        setMessages(prev => 
+          prev.map(msg => 
+            msg === pendingMessage ? {
+              ...msg,
+              content: "I'm still loading my knowledge base. Please wait a moment...",
+              isProcessing: false
+            } : msg
+          )
+        );
+        setIsProcessing(false);
+        return;
+      }
+      
       if (!isAiInitialized) {
         // Replace the pending message with error
         setMessages(prev => 
           prev.map(msg => 
             msg === pendingMessage ? {
               ...msg,
-              content: "I'm still initializing my knowledge base. Please try again in a moment.",
+              content: "I'm having trouble accessing my knowledge base. Please try refreshing the page.",
               isProcessing: false
             } : msg
           )
@@ -182,6 +205,15 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
     }
   };
   
+  const copySourceToClipboard = (source: SourceReference) => {
+    const text = `${source.title}\n${source.excerpt}\nURL: ${source.url}`;
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied to clipboard",
+      description: "Source information copied to clipboard."
+    });
+  };
+  
   const renderSourceItem = (source: SourceReference) => {
     let icon;
     
@@ -200,19 +232,42 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
     return (
       <div className="flex items-start mb-2 p-2 bg-muted/30 rounded text-sm">
         {icon}
-        <div>
+        <div className="flex-1 mr-2">
           <a 
             href={source.url} 
-            className="font-medium hover:underline text-primary"
+            className="font-medium hover:underline text-primary flex items-center"
             target="_blank" 
             rel="noopener noreferrer"
           >
             {source.title}
+            <ExternalLink className="h-3 w-3 ml-1" />
           </a>
           <p className="text-muted-foreground text-xs mt-1">{source.excerpt}</p>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6"
+          onClick={() => copySourceToClipboard(source)}
+          title="Copy source information"
+        >
+          <Copy className="h-3 w-3" />
+        </Button>
       </div>
     );
+  };
+  
+  // Suggested questions for users to get started
+  const suggestedQuestions = [
+    "How do I make sourdough bread?",
+    "What's Henry's Foolproof Sourdough recipe?",
+    "How do I know when my bread is done baking?",
+    "What's the difference between active dry and instant yeast?",
+    "How do I make a Challah bread?"
+  ];
+  
+  const handleSuggestedQuestion = (question: string) => {
+    setInput(question);
   };
   
   return (
@@ -261,21 +316,41 @@ const ContextAwareChat: React.FC<ContextAwareChatProps> = ({
           ))}
           <div ref={messagesEndRef} />
         </div>
+        
+        {/* Suggested questions */}
+        {messages.length <= 2 && !isProcessing && (
+          <div className="mt-4">
+            <p className="text-sm text-muted-foreground mb-2">Try asking:</p>
+            <div className="flex flex-wrap gap-2">
+              {suggestedQuestions.map((question, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSuggestedQuestion(question)}
+                  className="text-xs"
+                >
+                  {question}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
       <CardFooter className="border-t bg-background pt-2">
         <div className="flex w-full items-center space-x-2">
           <Input
             type="text"
-            placeholder={placeholder}
+            placeholder={isInitializing ? "Loading knowledge base..." : placeholder}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            disabled={isProcessing}
+            disabled={isProcessing || isInitializing}
             className="flex-grow"
           />
           <Button 
             onClick={handleSendMessage} 
-            disabled={isProcessing || !input.trim()}
+            disabled={isProcessing || !input.trim() || isInitializing}
             size="icon"
           >
             {isProcessing ? (
