@@ -7,12 +7,12 @@ import { logInfo, logError } from '@/utils/logger';
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 // Default timeout for PDF loading in milliseconds
-const DEFAULT_TIMEOUT = 20000; // 20 seconds
+const DEFAULT_TIMEOUT = 15000; // 15 seconds - reduced from 20 seconds
 
 /**
  * Load a PDF document from a file
  * @param file PDF file to load
- * @param timeout Optional timeout in milliseconds (default: 20000ms)
+ * @param timeout Optional timeout in milliseconds (default: 15000ms)
  * @returns A promise that resolves to a PDFDocumentProxy
  */
 export const loadPdfDocument = async (
@@ -37,7 +37,10 @@ export const loadPdfDocument = async (
       // Disable range requests which can cause issues in some environments
       disableRange: true,
       // Disable streaming to improve compatibility
-      disableStream: true
+      disableStream: true,
+      // Add worker parameters to improve performance
+      verbosity: 0,
+      isEvalSupported: false
     });
     
     // Set a timeout for PDF loading to prevent hanging
@@ -46,7 +49,7 @@ export const loadPdfDocument = async (
         loadingTask.destroy().catch(e => {
           logError('Error destroying PDF loading task during timeout', { error: e });
         });
-        reject(new Error(`PDF loading timed out after ${timeout/1000} seconds`));
+        reject(new Error(`PDF loading timed out after ${timeout/1000} seconds. Please try another file or check your connection.`));
       }, timeout);
       
       // Make the timeout ID available for potential cancellation
@@ -69,6 +72,18 @@ export const loadPdfDocument = async (
       error: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined
     });
-    throw new Error(`Failed to load PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    
+    // Improved error messaging with specific recommendations
+    if (error instanceof Error) {
+      if (error.message.includes('timed out')) {
+        throw new Error(`Failed to load PDF: ${error.message}. Please try with a smaller file or use image upload instead.`);
+      } else if (error.message.includes('worker') || error.message.includes('fetch')) {
+        throw new Error(`Failed to load PDF: Network or worker issue. Please check your connection and try again.`);
+      } else if (error.message.includes('password')) {
+        throw new Error(`Failed to load PDF: This document appears to be password protected. Please provide an unprotected PDF.`);
+      }
+    }
+    
+    throw new Error(`Failed to load PDF: ${error instanceof Error ? error.message : 'Unknown error'}. Please try another file format.`);
   }
 };

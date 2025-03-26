@@ -37,12 +37,12 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       stuckTimer = window.setInterval(() => {
         setStuckTime(prev => {
           const newTime = prev + 1;
-          // If stuck for more than 15 seconds at the same progress, show warning
-          if (newTime >= 15 && progress === lastProgress) {
+          // If stuck for more than 10 seconds at the same progress, show warning (reduced from 15)
+          if (newTime >= 10 && progress === lastProgress) {
             setShowTimeoutWarning(true);
           }
-          // If processing is taking more than 30 seconds overall, show slow warning
-          if (newTime >= 30 && !showSlowWarning) {
+          // If processing is taking more than 25 seconds overall, show slow warning (reduced from 30)
+          if (newTime >= 25 && !showSlowWarning) {
             setShowSlowWarning(true);
           }
           return newTime;
@@ -64,22 +64,37 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   
   if (!processingType) return null;
   
-  // Generate dynamic message based on progress and processing type
+  // Generate more detailed dynamic message based on progress and processing type
   const getStatusMessage = () => {
     if (processingType === 'pdf') {
-      if (progress < 20) return "Initializing PDF processor...";
-      if (progress < 40) return "Reading PDF pages...";
-      if (progress < 60) return "Extracting text content...";
-      if (progress < 80) return "Processing extracted content...";
-      if (progress < 95) return "Finalizing text extraction...";
+      if (progress < 10) return "Preparing PDF file...";
+      if (progress < 20) return "Loading PDF document...";
+      if (progress < 40) return "Extracting text from pages...";
+      if (progress < 60) return "Processing content...";
+      if (progress < 70) return "Finalizing extraction...";
+      if (progress < 80) return "Checking extraction quality...";
+      if (progress === 80) return "Starting OCR fallback...";
+      if (progress < 90) return "Running OCR recognition...";
+      if (progress < 95) return "Processing OCR results...";
       return "Processing complete!";
     } else {
-      if (progress < 20) return "Initializing image processor...";
-      if (progress < 40) return "Analyzing image...";
-      if (progress < 60) return "Running OCR text recognition...";
+      if (progress < 20) return "Reading image...";
+      if (progress < 40) return "Preparing image for OCR...";
+      if (progress < 60) return "Running text recognition...";
       if (progress < 80) return "Extracting text from image...";
       if (progress < 95) return "Finalizing text extraction...";
       return "Processing complete!";
+    }
+  };
+  
+  // Generate more detailed help text for warnings
+  const getHelpText = () => {
+    if (processingType === 'pdf') {
+      if (progress < 20) return "PDF loading can take time for large or complex documents. You can try with a simpler PDF.";
+      if (progress < 60) return "Text extraction works best with well-formatted PDFs. OCR will be used as a fallback if needed.";
+      if (progress >= 80) return "OCR is processing your PDF as an image. This works best with clear, high-contrast text.";
+    } else {
+      return "OCR works best with clear, high-contrast text. Handwritten or stylized text may take longer.";
     }
   };
   
@@ -108,6 +123,13 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       </div>
       
       <Progress value={progress} className="h-2" />
+      
+      {/* Help text for normal processing */}
+      {!showTimeoutWarning && progress < 95 && (
+        <div className="text-xs text-muted-foreground mt-1">
+          {getHelpText()}
+        </div>
+      )}
       
       {showTimeoutWarning && (
         <div className="flex items-start gap-2 text-amber-600 text-xs mt-2 p-2 bg-amber-50 rounded border border-amber-200">

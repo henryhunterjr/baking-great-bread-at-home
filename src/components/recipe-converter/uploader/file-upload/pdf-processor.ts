@@ -14,9 +14,22 @@ export const processPDFFile = async (
   
   // Create a cancel token
   let isCancelled = false;
+  let processingTask: CancellableTask | null = null;
   
   try {
     logInfo("Processing PDF file:", { filename: file.name, filesize: file.size });
+    
+    // Validate file size before processing
+    if (file.size > 15 * 1024 * 1024) { // 15MB limit
+      onError("PDF file is too large (max 15MB). Try using a smaller file or text input.");
+      return null;
+    }
+    
+    // Validate file type more strictly
+    if (!file.type.toLowerCase().includes('pdf')) {
+      onError("Invalid file type. Please upload a valid PDF document.");
+      return null;
+    }
     
     // Add timeout protection for the entire process
     const extractionPromise = Promise.race([
@@ -27,7 +40,7 @@ export const processPDFFile = async (
         onProgress(progress);
       }),
       new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('PDF processing timed out after 2 minutes')), 120000)
+        setTimeout(() => reject(new Error('PDF processing timed out after 90 seconds')), 90000) // Reduced from 120 seconds
       )
     ]);
     
@@ -44,10 +57,10 @@ export const processPDFFile = async (
     
     // Check if the result is a cancellable task object
     if (typeof extractResult === 'object' && extractResult !== null && 'cancel' in extractResult) {
-      const cancellableTask = extractResult as CancellableTask;
+      processingTask = extractResult as CancellableTask;
       return {
         cancel: () => {
-          cancellableTask.cancel();
+          if (processingTask) processingTask.cancel();
           isCancelled = true;
         }
       };
@@ -58,9 +71,15 @@ export const processPDFFile = async (
     
     logInfo("PDF extraction complete, text length:", { length: extractedText.length });
     
+    // Improved empty text detection with better messaging
     if (extractedText.trim().length === 0) {
-      onError("No text found in the PDF. Please try with a different file.");
+      onError("No text was found in this PDF. It may contain only images or be scanned. Try uploading an image version instead.");
       return null;
+    }
+    
+    // Check if text is potentially incomplete or low quality
+    if (extractedText.trim().length < 200) {
+      logInfo("PDF extraction returned limited text", { textLength: extractedText.length });
     }
     
     // Clean the extracted text
@@ -75,13 +94,27 @@ export const processPDFFile = async (
     logError('PDF processing error:', { error: err });
     
     if (!isCancelled) {
-      onError(`Failed to process the PDF: ${err instanceof Error ? err.message : 'Unknown error'}. Please try again with a different file.`);
+      // Provide more specific error messages based on the error type
+      if (err instanceof Error) {
+        if (err.message.includes('timed out')) {
+          onError(`The PDF processing timed out. Try a smaller or simpler PDF, or try pasting the recipe text directly.`);
+        } else if (err.message.includes('password')) {
+          onError(`This PDF appears to be password protected. Please provide an unprotected PDF document.`);
+        } else if (err.message.includes('worker') || err.message.includes('network')) {
+          onError(`A network error occurred while processing the PDF. Please check your connection and try again.`);
+        } else {
+          onError(`Failed to process the PDF: ${err.message}. Please try again with a different file.`);
+        }
+      } else {
+        onError(`Failed to process the PDF. Please try again with a different file or format.`);
+      }
     }
   }
   
   return {
     cancel: () => {
       isCancelled = true;
+      if (processingTask) processingTask.cancel();
       logInfo("PDF processing cancelled by user", {});
     }
   };

@@ -7,7 +7,7 @@ import { CancellableTask, ExtractTextResult, ProgressCallback } from './types';
 import * as pdfjsLib from 'pdfjs-dist';
 
 // Maximum number of pages to process for performance
-const MAX_PAGES_TO_PROCESS = 10;
+const MAX_PAGES_TO_PROCESS = 8; // Reduced from 10 for better performance
 
 /**
  * Extract text from a PDF file
@@ -40,8 +40,13 @@ export const extractTextFromPDF = async (
     // Set initial progress
     if (progressCallback) progressCallback(10);
     
-    // Use a shorter timeout for initial loading (15 seconds)
-    pdfDocument = await loadPdfDocument(file, 15000);
+    // Validate file size before processing
+    if (file.size > 15 * 1024 * 1024) { // 15MB limit
+      throw new Error("PDF file is too large (max 15MB). Try using a smaller file or text input.");
+    }
+    
+    // Use a shorter timeout for initial loading (12 seconds - reduced from 15)
+    pdfDocument = await loadPdfDocument(file, 12000);
     
     // Check if processing was cancelled during loading
     if (isRequestCancelled) {
@@ -109,10 +114,27 @@ export const extractTextFromPDF = async (
       logInfo("PDF processing: Standard extraction failed, attempting OCR fallback");
       if (progressCallback) progressCallback(60);
       const ocrText = await attemptOCRFallback(file, progressCallback);
+      
+      if (!ocrText || ocrText.trim().length < 20) {
+        return "Limited text could be extracted from this PDF. The quality may be too low or it may contain mostly images. Try manually typing the recipe.";
+      }
+      
       return ocrText || "No text could be extracted from this PDF. Try another file or input method.";
     } catch (ocrError) {
       logError('OCR fallback also failed:', { error: ocrError });
-      throw new Error('Failed to extract text from PDF: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      
+      // Provide better error message based on the failure type
+      if (error instanceof Error) {
+        if (error.message.includes('timed out')) {
+          throw new Error('PDF processing timed out. The file may be too large or complex. Try a simpler PDF or use text input instead.');
+        } else if (error.message.includes('password')) {
+          throw new Error('This PDF appears to be password protected. Please provide an unprotected PDF.');
+        } else if (error.message.includes('worker') || error.message.includes('network')) {
+          throw new Error('PDF processing failed due to network issues. Please check your connection and try again.');
+        }
+      }
+      
+      throw new Error('Failed to extract text from PDF: ' + (error instanceof Error ? error.message : 'Unknown error') + '. Try using a different file or method.');
     }
   }
   
