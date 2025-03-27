@@ -1,10 +1,10 @@
 
 import { logInfo, logError } from '@/utils/logger';
-import { createWorker, Worker } from 'tesseract.js';
+import { createWorker } from 'tesseract.js';
 import { ProgressCallback } from './types';
 
 // Tesseract.js worker instance
-let tesseractWorker: Worker | null = null;
+let tesseractWorker: any = null;
 let isInitializing = false;
 let isInitialized = false;
 
@@ -37,20 +37,19 @@ const initializeOCR = async (): Promise<boolean> => {
       }
     }
     
-    // Create a new worker with logging support
-    tesseractWorker = await createWorker();
-    
-    // Set up progress logging
-    tesseractWorker.setProgressHandler((progress) => {
-      if (progress.status === 'recognizing text') {
-        const progressPercent = Math.round(progress.progress * 100);
-        logInfo(`OCR Progress: ${progressPercent}%`);
+    // Create a new worker
+    tesseractWorker = await createWorker({
+      logger: progress => {
+        if (progress.status === 'recognizing text') {
+          const progressPercent = Math.round(progress.progress * 100);
+          logInfo(`OCR Progress: ${progressPercent}%`);
+        }
       }
     });
     
     // Initialize the worker with English language
     await tesseractWorker.loadLanguage('eng');
-    await tesseractWorker.recognize('');  // Initialize by recognizing an empty string
+    await tesseractWorker.initialize('eng');
     
     // Log successful initialization
     logInfo('OCR service successfully initialized');
@@ -113,21 +112,23 @@ export const processImageWithOCR = async (
     
     if (progressCallback) progressCallback(40);
     
-    // Set up a custom progress handler for more granular updates
+    // Track progress for the recognizing phase
     let lastProgress = 40;
-    tesseractWorker.setProgressHandler((progress) => {
-      if (progress.status === 'recognizing text' && progressCallback) {
-        // Map the tesseract progress (0-1) to our range (40-90)
-        const mappedProgress = Math.round(40 + (progress.progress * 50));
-        if (mappedProgress > lastProgress) {
-          lastProgress = mappedProgress;
-          progressCallback(mappedProgress);
+    // The progress handler is already set in the worker creation
+    
+    // Recognize text with progress tracking
+    const result = await tesseractWorker.recognize(imageDataUrl, {
+      logger: progress => {
+        if (progress.status === 'recognizing text' && progressCallback) {
+          // Map the tesseract progress (0-1) to our range (40-90)
+          const mappedProgress = Math.round(40 + (progress.progress * 50));
+          if (mappedProgress > lastProgress) {
+            lastProgress = mappedProgress;
+            progressCallback(mappedProgress);
+          }
         }
       }
     });
-    
-    // Recognize text with progress tracking
-    const result = await tesseractWorker.recognize(imageDataUrl);
     
     if (progressCallback) progressCallback(90);
     
