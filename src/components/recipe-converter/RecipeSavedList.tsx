@@ -1,19 +1,32 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { RecipeData } from '@/pages/RecipeConverter';
+import { RecipeData } from '@/types/recipeTypes';
 import { AlertCircle, Bookmark, BookOpen, RefreshCw } from 'lucide-react';
 
 interface RecipeSavedListProps {
   onSelectRecipe: (recipe: RecipeData) => void;
+  activeTab?: string;
 }
 
-const RecipeSavedList: React.FC<RecipeSavedListProps> = ({ onSelectRecipe }) => {
+const RecipeSavedList: React.FC<RecipeSavedListProps> = ({ 
+  onSelectRecipe,
+  activeTab
+}) => {
   const { toast } = useToast();
   const [savedRecipes, setSavedRecipes] = useState<RecipeData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
+  // Load saved recipes initially and when activeTab changes to "favorites"
+  useEffect(() => {
+    if (activeTab === "favorites") {
+      loadSavedRecipes();
+    }
+  }, [activeTab]);
+  
+  // Initial load
   useEffect(() => {
     loadSavedRecipes();
   }, []);
@@ -22,6 +35,14 @@ const RecipeSavedList: React.FC<RecipeSavedListProps> = ({ onSelectRecipe }) => 
     setIsLoading(true);
     try {
       const recipes = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
+      
+      // Sort recipes by updatedAt date (newest first)
+      recipes.sort((a: RecipeData, b: RecipeData) => {
+        const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+        const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+        return dateB - dateA;
+      });
+      
       setSavedRecipes(recipes);
     } catch (error) {
       console.error('Error loading saved recipes:', error);

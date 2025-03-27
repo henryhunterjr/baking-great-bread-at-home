@@ -63,17 +63,46 @@ export const useRecipeConverter = () => {
   };
   
   const handleSaveRecipe = (updatedRecipe: RecipeData) => {
+    // If no recipe ID exists, create one (for new recipes)
+    if (!updatedRecipe.id) {
+      updatedRecipe.id = uuidv4();
+    }
+    
+    // Add timestamp if not present
+    if (!updatedRecipe.createdAt) {
+      updatedRecipe.createdAt = new Date().toISOString();
+    }
+    
+    // Always update the updatedAt timestamp
+    updatedRecipe.updatedAt = new Date().toISOString();
+    
     setRecipe(updatedRecipe);
     setIsEditing(false);
     
+    // Get existing recipes from localStorage
     const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
-    savedRecipes.push(updatedRecipe);
-    localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
     
-    toast({
-      title: "Recipe Saved!",
-      description: "Your recipe has been saved to your collection.",
-    });
+    // Check if this recipe already exists in saved recipes
+    const existingRecipeIndex = savedRecipes.findIndex((r: RecipeData) => r.id === updatedRecipe.id);
+    
+    if (existingRecipeIndex >= 0) {
+      // Update existing recipe
+      savedRecipes[existingRecipeIndex] = updatedRecipe;
+      toast({
+        title: "Recipe Updated!",
+        description: "Your recipe has been updated in your collection.",
+      });
+    } else {
+      // Add new recipe
+      savedRecipes.push(updatedRecipe);
+      toast({
+        title: "Recipe Saved!",
+        description: "Your recipe has been added to your collection.",
+      });
+    }
+    
+    // Save back to localStorage
+    localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
     
     // Auto-switch to favorites tab after saving
     setActiveTab("favorites");

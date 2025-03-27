@@ -43,6 +43,7 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
           onEdit={() => onSetIsEditing(true)} 
           onPrint={() => window.print()} 
           onReset={onResetRecipe}
+          onSave={() => onSaveRecipe(recipe)}
         />
       )}
     </div>

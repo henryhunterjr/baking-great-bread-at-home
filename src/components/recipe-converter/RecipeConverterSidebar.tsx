@@ -40,7 +40,10 @@ const RecipeConverterSidebar: React.FC<RecipeConverterSidebarProps> = ({
         <RecipeAssistant recipe={recipe} />
       </TabsContent>
       <TabsContent value="favorites" className="mt-4">
-        <RecipeSavedList onSelectRecipe={onSelectRecipe} />
+        <RecipeSavedList 
+          onSelectRecipe={onSelectRecipe} 
+          activeTab={activeTab}
+        />
       </TabsContent>
       
       {recipe.isConverted && !isEditing && activeTab === "assistant" && (
