@@ -51,12 +51,17 @@ export const processImageWithOCR = async (
     
     if (progressCallback) progressCallback(40);
     
-    // Create a progress reporter for the recognition phase
-    const progressReporter = createProgressReporter(progressCallback, 40, 90);
+    // Create an inline progress reporter function for the recognition phase
+    const inlineProgressCallback = (progress: any) => {
+      if (progress.status === 'recognizing text' && progressCallback) {
+        const mappedProgress = Math.round(40 + (progress.progress * 50)); // Map to 40-90%
+        progressCallback(mappedProgress);
+      }
+    };
     
-    // Recognize text with progress tracking
+    // Recognize text with inline progress tracking
     const result = await tesseractWorker.recognize(imageDataUrl, {
-      logger: progressReporter
+      logger: inlineProgressCallback
     });
     
     if (progressCallback) progressCallback(90);

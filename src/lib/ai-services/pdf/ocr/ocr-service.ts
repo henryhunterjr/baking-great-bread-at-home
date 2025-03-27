@@ -38,11 +38,12 @@ export const initializeOCR = async (): Promise<boolean> => {
       }
     }
     
-    // Create a new worker with progress logging
-    tesseractWorker = await createWorker('eng', {
-      logger: m => {
-        if (m.status === 'recognizing text') {
-          const progressPercent = Math.round(m.progress * 100);
+    // Create a new worker with inline progress logger
+    // Use the correct API signature for Tesseract.js v6
+    tesseractWorker = await createWorker('eng', 1, {
+      logger: progress => {
+        if (progress.status === 'recognizing text') {
+          const progressPercent = Math.round(progress.progress * 100);
           logInfo(`OCR Progress: ${progressPercent}%`);
         }
       }

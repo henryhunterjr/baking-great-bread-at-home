@@ -20,7 +20,7 @@ export const AI_CONFIG = {
 export const getOpenAIApiKey = (): string | null => {
   // First check environment variable (for development)
   const envApiKey = import.meta.env.VITE_OPENAI_API_KEY;
-  if (envApiKey) {
+  if (envApiKey && envApiKey.trim() !== '') {
     return envApiKey;
   }
   

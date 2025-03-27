@@ -41,6 +41,7 @@ export const createProgressReporter = (
 ) => {
   let lastReportedProgress = rangeStart;
   
+  // Create a serializable function that can be passed to the worker
   return (m: any) => {
     if (m.status === 'recognizing text' && progressCallback) {
       // Map the tesseract progress (0-1) to our custom range
