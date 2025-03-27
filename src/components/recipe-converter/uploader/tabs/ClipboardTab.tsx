@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Clipboard } from 'lucide-react';
+import { Clipboard, Save, RefreshCw } from 'lucide-react';
 import ConvertButton from '../ConvertButton';
 
 interface ClipboardTabProps {
@@ -25,13 +25,27 @@ const ClipboardTab: React.FC<ClipboardTabProps> = ({
         <p className="text-muted-foreground mb-4">
           Paste recipe text from your clipboard
         </p>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handlePaste}
-        >
-          Paste From Clipboard
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2 justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handlePaste}
+          >
+            Paste From Clipboard
+          </Button>
+          
+          {recipeText && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => window.location.reload()}
+              className="flex items-center gap-1"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Try Another Recipe
+            </Button>
+          )}
+        </div>
       </div>
       
       {recipeText && (

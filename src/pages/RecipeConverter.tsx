@@ -21,7 +21,8 @@ const RecipeConverter: React.FC = () => {
     handleConversionComplete,
     handleSaveRecipe,
     handleSelectSavedRecipe,
-    resetRecipe
+    resetRecipe,
+    conversionError
   } = useRecipeConverter();
   
   return (
@@ -41,6 +42,7 @@ const RecipeConverter: React.FC = () => {
               onConversionComplete={handleConversionComplete}
               onSaveRecipe={handleSaveRecipe}
               onResetRecipe={resetRecipe}
+              conversionError={conversionError}
             />
           </div>
           

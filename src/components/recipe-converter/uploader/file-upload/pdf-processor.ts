@@ -5,7 +5,7 @@ import { cleanOCRText } from '@/lib/ai-services/text-cleaner';
 
 // Constants for timeouts and limits
 const MAX_PDF_SIZE_MB = 15; // Increased from 8MB to 15MB
-const PDF_TIMEOUT_MS = 60000; // Increased from 40s to 60s
+const PDF_TIMEOUT_MS = 90000; // Increased from 60s to 90s
 
 /**
  * Process a PDF file and extract its text
@@ -44,6 +44,16 @@ export const processPDFFile = async (
     let lastProgressUpdate = Date.now();
     let currentProgress = 10;
     
+    // Show a warning after 20 seconds
+    const warningTimeoutId = window.setTimeout(() => {
+      if (!isCancelled) {
+        // Don't use onError here, just log a warning
+        logInfo("PDF processing warning: taking longer than expected");
+        onProgress(Math.min(currentProgress + 1, 98)); // Increment progress slightly
+        // We're not cancelling, just warning
+      }
+    }, 20000);
+    
     // Periodic progress updates for large files
     const progressIntervalId = window.setInterval(() => {
       if (isCancelled) {
@@ -55,7 +65,8 @@ export const processPDFFile = async (
       const elapsedMs = Date.now() - lastProgressUpdate;
       if (elapsedMs > 2000) { // Every 2 seconds
         // Simulate progress to keep user informed during long-running operations
-        currentProgress = Math.min(currentProgress + 2, 95); // Cap at 95% until we get actual completion
+        // Progress more slowly to give more time
+        currentProgress = Math.min(currentProgress + 1, 98); // Cap at 98% until we get actual completion
         onProgress(currentProgress);
         lastProgressUpdate = Date.now();
       }
@@ -66,6 +77,7 @@ export const processPDFFile = async (
       if (!isCancelled) {
         isCancelled = true;
         window.clearInterval(progressIntervalId);
+        window.clearTimeout(warningTimeoutId);
         logError('PDF processing timed out', { timeout: PDF_TIMEOUT_MS });
         onError(`PDF processing timed out after ${PDF_TIMEOUT_MS/1000} seconds. The file may be too large or complex. Try a smaller file or extract just the recipe portion.`);
         
@@ -80,7 +92,7 @@ export const processPDFFile = async (
     const extractResult = await extractTextFromPDF(file, (progress) => {
       if (isCancelled) return;
       
-      window.clearInterval(progressIntervalId); // Clear the simulated progress
+      // Update progress but don't clear the interval yet
       currentProgress = Math.min(Math.round(progress * 100), 98);
       onProgress(currentProgress); // Cap at 98% until complete
       lastProgressUpdate = Date.now();
@@ -92,6 +104,7 @@ export const processPDFFile = async (
       timeoutId = null;
     }
     window.clearInterval(progressIntervalId);
+    window.clearTimeout(warningTimeoutId);
     
     // If processing was cancelled, don't proceed
     if (isCancelled) return null;
@@ -114,6 +127,7 @@ export const processPDFFile = async (
             timeoutId = null;
           }
           window.clearInterval(progressIntervalId);
+          window.clearTimeout(warningTimeoutId);
           logInfo("PDF processing cancelled by user");
         }
       };

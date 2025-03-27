@@ -16,6 +16,7 @@ interface RecipeConverterContentProps {
   onConversionComplete: (recipe: RecipeData) => void;
   onSaveRecipe: (recipe: RecipeData) => void;
   onResetRecipe: () => void;
+  conversionError?: string | null;
 }
 
 const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
@@ -25,13 +26,17 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
   onSetIsEditing,
   onConversionComplete,
   onSaveRecipe,
-  onResetRecipe
+  onResetRecipe,
+  conversionError: pageConversionError
 }) => {
   // Create a form context to wrap all components
   const methods = useForm();
   
   // Use the recipe conversion hook
   const { isConverting, conversionError, handleConversion } = useRecipeConversion(onConversionComplete);
+  
+  // Combine conversion errors from both sources
+  const displayError = pageConversionError || conversionError;
   
   return (
     <div className="space-y-4">
@@ -42,7 +47,8 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
           <ConversionService 
             onConvertRecipe={handleConversion}
             isConverting={isConverting}
-            conversionError={conversionError}
+            conversionError={displayError}
+            onReset={onResetRecipe}
           />
         ) : isEditing ? (
           <RecipeForm 

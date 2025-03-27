@@ -28,6 +28,7 @@ export const useRecipeConverter = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showConversionSuccess, setShowConversionSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState("assistant");
+  const [conversionError, setConversionError] = useState<string | null>(null);
   
   useEffect(() => {
     // Show success alert for 7 seconds after conversion
@@ -52,6 +53,7 @@ export const useRecipeConverter = () => {
     
     setRecipe(processedRecipe);
     setIsEditing(true);
+    setConversionError(null);
     
     toast({
       title: "Recipe Converted!",
@@ -120,11 +122,14 @@ export const useRecipeConverter = () => {
     
     setRecipe(processedRecipe);
     setIsEditing(false);
+    setConversionError(null);
   };
   
   const resetRecipe = () => {
     setRecipe(defaultRecipe);
     setIsEditing(false);
+    setConversionError(null);
+    setActiveTab("assistant");
   };
   
   return {
@@ -137,6 +142,8 @@ export const useRecipeConverter = () => {
     handleConversionComplete,
     handleSaveRecipe,
     handleSelectSavedRecipe,
-    resetRecipe
+    resetRecipe,
+    conversionError,
+    setConversionError
   };
 };
