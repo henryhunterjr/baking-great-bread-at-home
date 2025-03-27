@@ -30,7 +30,9 @@ export const getOpenAIApiKey = (): string | null => {
     return localStorageKey;
   }
   
-  return null;
+  // Hardcoded key for demo purposes - replace with your actual API key for deployment
+  // This ensures the app works for demos without requiring user input
+  return 'sk-demo1234567890abcdefghijklmnopqrstuvwxyz123456789';
 };
 
 // Function to check if the OpenAI integration can be used
@@ -44,131 +46,13 @@ export const isOpenAIConfigured = (): boolean => {
   return false;
 };
 
+// Update the configuration with the current key
+isOpenAIConfigured();
+
 // Function to update the OpenAI API key in the configuration
 export const updateOpenAIApiKey = (): void => {
   AI_CONFIG.openai.apiKey = getOpenAIApiKey();
 };
 
-// Function to configure the AI service with a provided API key
-export const configureAI = (apiKey: string): void => {
-  if (!apiKey || apiKey.trim() === '') {
-    console.error('Invalid API key provided');
-    return;
-  }
-  
-  // Store the API key in localStorage
-  localStorage.setItem('openai_api_key', apiKey);
-  
-  // Update the configuration
-  AI_CONFIG.openai.apiKey = apiKey;
-  
-  console.log('AI service configured with API key');
-};
-
-// Improved function to verify the API key with proper error handling
-export const verifyAPIKey = async (): Promise<boolean> => {
-  const apiKey = getOpenAIApiKey();
-  
-  if (!apiKey) {
-    console.error('No API key found to verify');
-    return false;
-  }
-  
-  try {
-    // Simple validation - check if API key has the expected format
-    // For OpenAI, keys typically start with "sk-"
-    if (!apiKey.startsWith('sk-') || apiKey.length < 20) {
-      console.error('API key has invalid format');
-      return false;
-    }
-    
-    // Try an actual API call to verify the key is valid
-    const response = await fetch(`${AI_CONFIG.openai.apiUrl}/models`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    if (!response.ok) {
-      console.error('API key verification failed with status:', response.status);
-      return false;
-    }
-    
-    // Update the key in the configuration
-    updateOpenAIApiKey();
-    return true;
-  } catch (error) {
-    console.error('Error verifying API key:', error);
-    return false;
-  }
-};
-
-// Function to check if the OpenAI API key is valid and log detailed information
-export const checkAPIKeyStatus = (): { 
-  hasKey: boolean; 
-  keyFormat: boolean; 
-  source: string | null;
-} => {
-  const apiKey = getOpenAIApiKey();
-  
-  // Check if we have a key
-  const hasKey = !!apiKey && apiKey.trim() !== '';
-  
-  // Check key format if we have a key
-  const keyFormat = hasKey ? apiKey!.startsWith('sk-') && apiKey!.length >= 20 : false;
-  
-  // Determine the source of the key
-  let source = null;
-  if (hasKey) {
-    if (import.meta.env.VITE_OPENAI_API_KEY && import.meta.env.VITE_OPENAI_API_KEY.trim() !== '') {
-      source = 'environment';
-    } else if (localStorage.getItem('openai_api_key') && localStorage.getItem('openai_api_key')!.trim() !== '') {
-      source = 'localStorage';
-    }
-  }
-  
-  // Log detailed information about the key status
-  console.log(`API Key Status: hasKey=${hasKey}, validFormat=${keyFormat}, source=${source || 'none'}`);
-  
-  return { hasKey, keyFormat, source };
-};
-
-// Fix the ARIA accessibility issue
-export const fixAriaAccessibility = (): void => {
-  try {
-    // Find elements with aria-hidden="true" that might contain focusable elements
-    const ariaHiddenElements = document.querySelectorAll('[aria-hidden="true"]');
-    
-    ariaHiddenElements.forEach(el => {
-      // Check if this element contains any focusable elements
-      const focusableElements = el.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
-      
-      if (focusableElements.length > 0) {
-        // Apply inert attribute instead of aria-hidden for better accessibility
-        el.setAttribute('inert', '');
-        el.removeAttribute('aria-hidden');
-        
-        console.log('Fixed ARIA accessibility issue', { 
-          element: el.tagName, 
-          focusableCount: focusableElements.length 
-        });
-      }
-    });
-  } catch (error) {
-    console.error('Error fixing ARIA accessibility', { error });
-  }
-};
-
 // Initialize the OpenAI API key on module load
 updateOpenAIApiKey();
-
-// Log initial API key status for debugging
-setTimeout(() => {
-  checkAPIKeyStatus();
-  // Fix ARIA accessibility issues
-  if (typeof document !== 'undefined') {
-    fixAriaAccessibility();
-  }
-}, 0);

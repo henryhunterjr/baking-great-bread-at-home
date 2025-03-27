@@ -1,38 +1,18 @@
 
-/**
- * Direct mapping of challenge IDs to their image paths
- * This allows for flexible image organization without enforcing strict naming conventions
- */
-export const challengeImages: Record<string, string> = {
-  // 2025 Challenges
-  "march-2025": "/lovable-uploads/77f6e22c-2ac2-4763-845e-39c5793b127d.png",
-  "february-2025": "/lovable-uploads/273f5757-c7b7-4bbf-a8d5-cbd5874d4798.png",
-  "january-2025": "/lovable-uploads/a7b11bfd-dfbd-48f6-8a26-8de8b68087d0.png",
-  
-  // 2024 Challenges with new images
-  "december-2024": "/lovable-uploads/f8b0ed02-1828-4072-891f-9d5bb4f24a17.png", // Give Bread Instead
-  "november-2024": "/lovable-uploads/49b5c11a-3449-45ca-afb4-789f3e792bbd.png", // Baking Great Bread At Home
-  "halloween-2024": "/lovable-uploads/fb623033-8695-478f-94fb-d255e6d62813.png", // Bewitching Breads
-  "october-2024": "/lovable-uploads/78a30c83-7d6c-480e-b2d3-c759f597e89d.png", // Basic Bread Baking
-  "challah-2024": "/lovable-uploads/54241cef-9291-4e07-895d-1a29aaf5f357.png", // Challah Challenge
-  "september-2024": "/lovable-uploads/d7e1e2c7-9248-4cf1-b554-b6579aa9c2a7.png", // #KICKUPLUNCH Challenge
-  
-  // 2023 entries
-  "march-2024": "/challenges/images/march-2024-challenge.png",
-  "february-2024": "/challenges/images/february-2024-challenge.png",
-  "january-2024": "/challenges/images/january-2024-challenge.png",
-  
-  // Add newly uploaded images if available
-  "2023-holiday-special": "/lovable-uploads/fafd0fe4-ce90-42a1-9f6f-0b4ea67e908c.png",
-  "2023-autumn-bake": "/lovable-uploads/1cf97fbb-e14d-4580-8a1e-d48c344281ec.png",
-  "2023-summer-bread": "/lovable-uploads/583f35cf-db1d-4d0e-8cc0-c693029b3b50.png",
-  "2023-spring-sourdough": "/lovable-uploads/2220ae62-3d16-4e36-83c1-cd18e6b2180b.png",
-  
-  // Community image
-  "community-hero": "/lovable-uploads/9e1512bf-af30-4ae1-a9ad-ed5a5d8cd667.png",
-};
-
-/**
- * Default fallback image to use when no specific image is found
- */
+// Central configuration for challenge images
 export const DEFAULT_CHALLENGE_IMAGE = "https://images.unsplash.com/photo-1549931319-a545dcf3bc7c?q=85&w=1200&auto=format&fit=crop";
+
+// Map of challenge IDs to their image paths
+export const challengeImages: Record<string, string> = {
+  // 2025 challenges
+  "march-2025": "/lovable-uploads/ead1bdbf-c404-4780-80e1-3c76bb397376.png",
+  "february-2025": "/lovable-uploads/c45185e0-7749-48d9-8108-0f10e2d5bf4e.png",
+  "january-2025": "/lovable-uploads/0955746a-d26e-47cf-9269-7c37e72c2d75.png",
+  // 2024 challenges
+  "december-2024": "https://images.unsplash.com/photo-1506224772180-d75b3efbe9be?q=80&w=1600&auto=format&fit=crop",
+  "november-2024": "https://images.unsplash.com/photo-1554306297-0c86e837d24b?q=80&w=1600&auto=format&fit=crop",
+  "halloween-2024": "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1600&auto=format&fit=crop",
+  "october-2024": "https://images.unsplash.com/photo-1598373182133-52452f7691ef?q=80&w=1600&auto=format&fit=crop",
+  "september-2024": "https://images.unsplash.com/photo-1586444248902-2f64eddc13df?q=80&w=1600&auto=format&fit=crop",
+  "challah-2024": "https://images.unsplash.com/photo-1584551246679-58e445ec9176?q=80&w=1600&auto=format&fit=crop"
+};

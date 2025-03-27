@@ -18,6 +18,9 @@ const RecipeConverterHeader: React.FC = () => {
               src="/lovable-uploads/964b8d2f-2dcb-4bb2-bb75-8d1fc2490166.png" 
               alt="Vintage handwritten recipe card" 
               className="object-cover w-full h-full brightness-90"
+              onError={(e) => {
+                e.currentTarget.src = "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop";
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
               <div className="p-6 text-white">

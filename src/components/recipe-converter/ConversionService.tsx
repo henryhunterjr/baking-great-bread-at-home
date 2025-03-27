@@ -1,6 +1,5 @@
 
-import React, { useState } from 'react';
-import { RecipeData } from '@/types/recipeTypes';
+import React from 'react';
 import { logInfo } from '@/utils/logger';
 import RecipeUploader from './RecipeUploader';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -16,10 +15,11 @@ const ConversionService: React.FC<ConversionServiceProps> = ({
   isConverting, 
   conversionError 
 }) => {
-  const form = useForm();
+  // Create a form context to wrap the RecipeUploader
+  const methods = useForm();
   
   return (
-    <FormProvider {...form}>
+    <FormProvider {...methods}>
       <div className="space-y-6">
         <h2 className="text-2xl font-serif font-bold mb-6">Convert Your Recipe</h2>
         <RecipeUploader 

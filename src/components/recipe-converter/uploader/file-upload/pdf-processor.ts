@@ -1,12 +1,11 @@
-
 import { extractTextFromPDF } from '@/lib/ai-services/pdf';
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
 import { cleanOCRText } from '@/lib/ai-services/text-cleaner';
 
 // Constants for timeouts and limits
-const MAX_PDF_SIZE_MB = 8;
-const PDF_TIMEOUT_MS = 40000; // 40 seconds
+const MAX_PDF_SIZE_MB = 15; // Increased from 8MB to 15MB
+const PDF_TIMEOUT_MS = 60000; // Increased from 40s to 60s
 
 /**
  * Process a PDF file and extract its text
@@ -38,15 +37,35 @@ export const processPDFFile = async (
       return null;
     }
     
-    // Initial progress
+    // Initial progress update
     onProgress(10);
     
-    // Create timeout for user feedback
+    // Create timeout with periodic progress updates to prevent UI freezing
+    let lastProgressUpdate = Date.now();
+    
+    // Periodic progress updates for large files
+    const progressIntervalId = window.setInterval(() => {
+      if (isCancelled) {
+        window.clearInterval(progressIntervalId);
+        return;
+      }
+      
+      // Calculate elapsed time
+      const elapsedMs = Date.now() - lastProgressUpdate;
+      if (elapsedMs > 2000) { // Every 2 seconds
+        // Simulate progress to keep user informed during long-running operations
+        onProgress(prev => Math.min(prev + 2, 95)); // Cap at 95% until we get actual completion
+        lastProgressUpdate = Date.now();
+      }
+    }, 2000);
+    
+    // Set timeout for overall process
     timeoutId = window.setTimeout(() => {
       if (!isCancelled) {
         isCancelled = true;
+        window.clearInterval(progressIntervalId);
         logError('PDF processing timed out', { timeout: PDF_TIMEOUT_MS });
-        onError(`PDF processing timed out after ${PDF_TIMEOUT_MS/1000} seconds. Try a smaller file or extract just the recipe text and use text input instead.`);
+        onError(`PDF processing timed out after ${PDF_TIMEOUT_MS/1000} seconds. The file may be too large or complex. Try a smaller file or extract just the recipe portion.`);
         
         // Try to cancel the processing task if it exists
         if (processingTask && processingTask.cancel) {
@@ -55,26 +74,21 @@ export const processPDFFile = async (
       }
     }, PDF_TIMEOUT_MS);
     
-    // Track the last progress update to avoid UI flicker
-    let lastProgressUpdate = 10;
-    
     // Extract text from the PDF with throttled progress reporting
     const extractResult = await extractTextFromPDF(file, (progress) => {
       if (isCancelled) return;
       
-      // Only update if progress has increased by at least 5%
-      if (progress > lastProgressUpdate + 5) {
-        lastProgressUpdate = progress;
-        logInfo("PDF processing progress:", { progress });
-        onProgress(progress);
-      }
+      window.clearInterval(progressIntervalId); // Clear the simulated progress
+      onProgress(Math.min(Math.round(progress * 100), 98)); // Cap at 98% until complete
+      lastProgressUpdate = Date.now();
     });
     
-    // Clear the timeout since we finished successfully
+    // Clear the timeout and interval since we finished successfully
     if (timeoutId !== null) {
       window.clearTimeout(timeoutId);
       timeoutId = null;
     }
+    window.clearInterval(progressIntervalId);
     
     // If processing was cancelled, don't proceed
     if (isCancelled) return null;
@@ -96,6 +110,7 @@ export const processPDFFile = async (
             window.clearTimeout(timeoutId);
             timeoutId = null;
           }
+          window.clearInterval(progressIntervalId);
           logInfo("PDF processing cancelled by user");
         }
       };
@@ -109,13 +124,13 @@ export const processPDFFile = async (
     
     logInfo("PDF extraction complete", { textLength: extractedText.length });
     
-    // Improved empty text detection with better messaging
+    // Better empty text detection with improved messaging
     if (!extractedText || extractedText.trim().length === 0) {
       onError("No text was found in this PDF. It may contain only images or be scanned. Try uploading an image version instead, or copy the recipe text manually.");
       return null;
     }
     
-    // Clean the extracted text
+    // Process and clean the extracted text
     const cleanedText = cleanOCRText(extractedText);
     
     // Pass the cleaned text to the callback
@@ -147,20 +162,4 @@ export const processPDFFile = async (
     
     return null;
   }
-  
-  // Return a cancellation function
-  return {
-    cancel: () => {
-      isCancelled = true;
-      // Clear the timeout if it exists
-      if (timeoutId !== null) {
-        window.clearTimeout(timeoutId);
-        timeoutId = null;
-      }
-      if (processingTask && processingTask.cancel) {
-        processingTask.cancel();
-      }
-      logInfo("PDF processing cancelled by user");
-    }
-  };
 };
