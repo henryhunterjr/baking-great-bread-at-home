@@ -52,10 +52,10 @@ export const processImageWithOCR = async (
     if (progressCallback) progressCallback(40);
     
     // Create a progress reporter that properly handles the Tesseract.js progress object
-    const progressThrottler = createProgressReporter((progressData) => {
+    const progressThrottler = createProgressReporter((progressData: any) => {
       if (progressCallback && progressData !== null) {
         // Safely check if the progress data is an object with the required properties
-        if (typeof progressData === 'object' && progressData !== null) {
+        if (progressData && typeof progressData === 'object') {
           // Use type guard to check if status and progress properties exist
           if ('status' in progressData && 
               'progress' in progressData && 
