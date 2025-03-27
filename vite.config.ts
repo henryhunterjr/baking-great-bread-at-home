@@ -11,9 +11,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  // Add this section for proper SPA routing
+  // Set server port to 8080 as required
   server: {
-    port: 3000,
+    port: 8080,
     strictPort: true,
   },
   build: {
