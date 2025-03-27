@@ -15,7 +15,7 @@ const RecipeConverterHeader: React.FC = () => {
         <Card className="overflow-hidden border-none shadow-lg">
           <AspectRatio ratio={16/9} className="bg-muted">
             <img 
-              src="/lovable-uploads/6bd70716-b37b-49fa-8e85-78c9c1002c23.png" 
+              src="/lovable-uploads/964b8d2f-2dcb-4bb2-bb75-8d1fc2490166.png" 
               alt="Vintage handwritten recipe card" 
               className="object-cover w-full h-full brightness-90"
             />

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Home, FileText, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -22,12 +22,29 @@ const NotFound = () => {
             <p className="text-muted-foreground mb-8">
               We couldn't find the page you're looking for. It might have been moved, renamed, or doesn't exist.
             </p>
-            <Button asChild className="bg-bread-800 hover:bg-bread-900 text-white">
-              <Link to="/">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Home
-              </Link>
-            </Button>
+            
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button asChild className="bg-bread-800 hover:bg-bread-900 text-white">
+                <Link to="/">
+                  <Home className="mr-2 h-4 w-4" />
+                  Home
+                </Link>
+              </Button>
+              
+              <Button asChild variant="outline">
+                <Link to="/recipe-converter">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Recipe Converter
+                </Link>
+              </Button>
+              
+              <Button asChild variant="outline">
+                <Link to="/settings">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </main>

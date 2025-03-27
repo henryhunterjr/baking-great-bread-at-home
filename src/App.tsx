@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { runBrowserCompatibilityCheck } from './utils/crossBrowserTesting';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import HomePage from './pages/HomePage';
@@ -25,13 +25,13 @@ const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
 const AIHome = lazy(() => import('./pages/AIHome'));
-const AIChat = lazy(() => import('./pages/AIChat')); // Import the AIChat page
+const AIChat = lazy(() => import('./pages/AIChat'));
 const ComingSoon = lazy(() => import('./pages/ComingSoon'));
 const Challenges = lazy(() => import('./pages/Challenges'));
-const PastChallenges = lazy(() => import('./pages/PastChallenges')); // Import the PastChallenges page
+const PastChallenges = lazy(() => import('./pages/PastChallenges'));
 const Tools = lazy(() => import('./pages/Tools'));
 const Books = lazy(() => import('./pages/Books'));
-const MyRecipes = lazy(() => import('./pages/MyRecipes')); // Import the MyRecipes page
+const MyRecipes = lazy(() => import('./pages/MyRecipes'));
 
 function App() {
   const [aiInitialized, setAiInitialized] = useState(false);
@@ -83,15 +83,20 @@ function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms-of-service" element={<TermsOfServicePage />} />
             <Route path="/ai" element={<AIHome aiInitialized={aiInitialized} />} />
-            <Route path="/ai/chat" element={<AIChat />} /> {/* Add route for AIChat */}
+            <Route path="/ai/chat" element={<AIChat />} />
             <Route path="/community" element={<ComingSoon />} />
             <Route path="/challenges" element={<Challenges />} />
-            <Route path="/challenges/past" element={<PastChallenges />} /> {/* Add route for past challenges */}
+            <Route path="/challenges/past" element={<PastChallenges />} />
             <Route path="/tools" element={<Tools />} />
             <Route path="/books" element={<Books />} />
             <Route path="/care-center" element={<CareCenter />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/my-recipes" element={<MyRecipes />} /> {/* Add route for my recipes */}
+            <Route path="/my-recipes" element={<MyRecipes />} />
+            
+            {/* Redirect old paths to new ones if needed */}
+            <Route path="/recipes" element={<Navigate to="/my-recipes" replace />} />
+            
+            {/* This must be the last route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
