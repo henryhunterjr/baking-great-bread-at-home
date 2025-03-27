@@ -51,17 +51,18 @@ export const processImageWithOCR = async (
     
     if (progressCallback) progressCallback(40);
     
-    // Create an inline progress reporter function for the recognition phase
-    const inlineProgressCallback = (progress: any) => {
-      if (progress.status === 'recognizing text' && progressCallback) {
+    // Create a simple progress reporter that doesn't get passed to the worker
+    // to avoid DataCloneError in postMessage (fixes Worker issue)
+    const progressThrottler = createProgressReporter((progress) => {
+      if (progressCallback && progress.status === 'recognizing text') {
         const mappedProgress = Math.round(40 + (progress.progress * 50)); // Map to 40-90%
         progressCallback(mappedProgress);
       }
-    };
+    });
     
-    // Recognize text with inline progress tracking
+    // Recognize text with separate progress tracking to avoid DataCloneError
     const result = await tesseractWorker.recognize(imageDataUrl, {
-      logger: inlineProgressCallback
+      logger: progressThrottler
     });
     
     if (progressCallback) progressCallback(90);

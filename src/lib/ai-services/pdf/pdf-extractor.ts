@@ -8,7 +8,11 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { ensurePDFWorkerFiles, configurePDFWorkerCORS } from './pdf-worker-service';
 
 // Maximum number of pages to process for performance
-const MAX_PAGES_TO_PROCESS = 5; // Reduced from 8 to improve performance
+const MAX_PAGES_TO_PROCESS = 3; // Reduced from 5 to improve performance and timeout issues
+
+// Timeout for PDF processing steps (in milliseconds)
+const PDF_LOAD_TIMEOUT = 12000; // 12 seconds for loading (reduced from 15)
+const PDF_TOTAL_TIMEOUT = 25000; // 25 seconds total (reduced from 30)
 
 // Initialize the PDF worker service and CORS configuration on module load
 Promise.all([
@@ -30,16 +34,26 @@ export const extractTextFromPDF = async (
 ): Promise<ExtractTextResult> => {
   let isRequestCancelled = false;
   let pdfDocument: pdfjsLib.PDFDocumentProxy | null = null;
+  let timeoutId: number | null = null;
   
   // Create a cancellable task
   const cancellableTask: CancellableTask = {
     cancel: () => {
       isRequestCancelled = true;
+      
+      // Clear any existing timeout
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      
+      // Clean up PDF document
       if (pdfDocument) {
         try {
           pdfDocument.destroy();
+          pdfDocument = null;
         } catch (e) {
-          logError("Error destroying PDF document", { error: e });
+          logError("Error destroying PDF document during cancellation", { error: e });
         }
       }
     }
@@ -56,26 +70,47 @@ export const extractTextFromPDF = async (
       fileType: file.type 
     });
     
-    // Validate file size before processing
-    if (file.size > 10 * 1024 * 1024) { // Reduced to 10MB limit (from 25MB)
-      throw new Error("PDF file is too large (max 10MB). Try using a smaller file or text input.");
+    // Validate file size before processing - reduced from 10MB to 8MB
+    if (file.size > 8 * 1024 * 1024) {
+      throw new Error("PDF file is too large (max 8MB). Try using a smaller file or text input.");
     }
     
-    // Validate file type more strictly
-    if (!file.type.toLowerCase().includes('pdf')) {
-      throw new Error("Invalid file type. Please upload a valid PDF document.");
-    }
+    // Set a global timeout for the entire process
+    timeoutId = window.setTimeout(() => {
+      if (!isRequestCancelled) {
+        isRequestCancelled = true;
+        logError("PDF processing timed out after global timeout", {});
+        if (pdfDocument) {
+          try {
+            pdfDocument.destroy();
+            pdfDocument = null;
+          } catch (e) {
+            logError("Error destroying PDF document during timeout", { error: e });
+          }
+        }
+      }
+    }, PDF_TOTAL_TIMEOUT);
     
-    // Add shorter timeout for initial loading (15 seconds instead of 30)
+    // Add shorter timeout for initial loading
     try {
-      pdfDocument = await loadPdfDocument(file, 15000);
+      pdfDocument = await loadPdfDocument(file, PDF_LOAD_TIMEOUT);
     } catch (loadError) {
       logError("PDF processing: Document loading failed", { error: loadError });
       
       // Try OCR as fallback immediately for loading errors
       if (progressCallback) progressCallback(60);
       logInfo("PDF processing: Document loading failed, attempting OCR fallback");
+      
+      if (isRequestCancelled) throw new Error('PDF processing was cancelled');
+      
       const ocrText = await attemptOCRFallback(file, progressCallback);
+      
+      // Clear the timeout since we finished with OCR
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      
       return ocrText;
     }
     
@@ -86,7 +121,7 @@ export const extractTextFromPDF = async (
     
     if (progressCallback) progressCallback(20);
     
-    // Limit the number of pages to process
+    // Limit the number of pages to process - reduced from 5 to 3
     const pagesToProcess = Math.min(pdfDocument.numPages, MAX_PAGES_TO_PROCESS);
     logInfo("PDF processing: Processing pages", { 
       totalPages: pdfDocument.numPages,
@@ -100,6 +135,11 @@ export const extractTextFromPDF = async (
       progressCallback
     );
     
+    // Check if processing was cancelled during extraction
+    if (isRequestCancelled) {
+      throw new Error('PDF processing was cancelled');
+    }
+    
     // Clean up PDF document resources
     if (pdfDocument) {
       try {
@@ -109,6 +149,12 @@ export const extractTextFromPDF = async (
       } catch (e) {
         logError("Error destroying PDF document", { error: e });
       }
+    }
+    
+    // Clear the timeout since we finished successfully
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+      timeoutId = null;
     }
     
     // Check if we extracted meaningful text
@@ -140,9 +186,16 @@ export const extractTextFromPDF = async (
     if (pdfDocument) {
       try {
         pdfDocument.destroy();
+        pdfDocument = null;
       } catch (e) {
         logError("Error destroying PDF document during error handling", { error: e });
       }
+    }
+    
+    // Clear any existing timeout
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+      timeoutId = null;
     }
     
     // Log the error

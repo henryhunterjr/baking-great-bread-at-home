@@ -12,6 +12,7 @@ export const processImageFile = async (
 ): Promise<ProcessingTask> => {
   const { onProgress, onComplete, onError } = callbacks;
   let isAborted = false;
+  let timeoutId: number | null = null;
   
   try {
     logInfo("Processing image file", { filename: file.name, fileSize: file.size });
@@ -19,24 +20,36 @@ export const processImageFile = async (
     // Set initial progress
     onProgress(10);
     
+    // Create a timeout to prevent infinite processing
+    timeoutId = window.setTimeout(() => {
+      if (!isAborted) {
+        isAborted = true;
+        logError('Image processing timed out after 40 seconds', {});
+        onError("Image processing timed out after 40 seconds. Try with a smaller or clearer image, or manually enter the recipe text.");
+      }
+    }, 40000); // 40 second timeout (reduced from 60)
+    
     try {
-      // Add timeout protection for the entire process
-      const extractionPromise = Promise.race([
-        // Extract text from the PDF with progress reporting
-        extractTextWithOCR(file, (progress) => {
-          if (isAborted) return;
-          logInfo("OCR processing progress:", { progress });
-          onProgress(progress);
-        }),
-        new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('OCR processing timed out')), 60000)
-        )
-      ]);
+      // Make sure the OCR processing has a progress callback that can't be cloned (fixes Worker error)
+      const ocrProgressCallback = (ocrProgress: number) => {
+        if (isAborted) return;
+        
+        // Map progress from 10-90%
+        const mappedProgress = Math.floor(10 + (ocrProgress * 80));
+        onProgress(mappedProgress);
+      };
       
-      const extractedText = await extractionPromise;
+      // Extract text from the image
+      const extractedText = await extractTextWithOCR(file, ocrProgressCallback);
       
       // Check if the operation was cancelled
       if (isAborted) return null;
+      
+      // Clear the timeout since we finished successfully
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+        timeoutId = null;
+      }
       
       logInfo("OCR complete", { textLength: extractedText.length });
       
@@ -65,6 +78,12 @@ export const processImageFile = async (
   return {
     cancel: () => {
       isAborted = true;
+      // Clear the timeout if it exists
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      logInfo("Image processing cancelled by user", {});
     }
   };
 };

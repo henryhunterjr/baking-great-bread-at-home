@@ -16,13 +16,14 @@ export const processPDFFile = async (
   // Create a cancel token
   let isCancelled = false;
   let processingTask: CancellableTask | null = null;
+  let timeoutId: number | null = null;
   
   try {
     logInfo("Processing PDF file:", { filename: file.name, filesize: file.size });
     
-    // Validate file size before processing
-    if (file.size > 15 * 1024 * 1024) { // 15MB limit
-      onError("PDF file is too large (max 15MB). Try using a smaller file or extract just the recipe text and use text input instead.");
+    // Validate file size before processing - reduce max size from 15MB to 8MB
+    if (file.size > 8 * 1024 * 1024) {
+      onError("PDF file is too large (max 8MB). Try using a smaller file or extract just the recipe text and use text input instead.");
       return null;
     }
     
@@ -32,25 +33,31 @@ export const processPDFFile = async (
       return null;
     }
     
-    // Create timeout for user feedback
-    const timeoutPromise = new Promise<never>((_resolve, reject) => {
-      setTimeout(() => {
-        reject(new Error('PDF processing timed out after 60 seconds. Try a smaller file or extract just the recipe text and use text input instead.'));
-      }, 60000); // 60-second timeout
+    // Create timeout for user feedback - reduced from 60 seconds to 30 seconds
+    timeoutId = window.setTimeout(() => {
+      if (!isCancelled) {
+        isCancelled = true;
+        onError('PDF processing timed out after 30 seconds. Try a smaller file or extract just the recipe text and use text input instead.');
+        
+        // Try to cancel the processing task if it exists
+        if (processingTask && processingTask.cancel) {
+          processingTask.cancel();
+        }
+      }
+    }, 30000); // 30-second timeout
+    
+    // Extract text from the PDF with progress reporting
+    const extractResult = await extractTextFromPDF(file, (progress) => {
+      if (isCancelled) return;
+      logInfo("PDF processing progress:", { progress });
+      onProgress(progress);
     });
     
-    // Add timeout protection for the entire process
-    const extractionPromise = Promise.race([
-      // Extract text from the PDF with progress reporting
-      extractTextFromPDF(file, (progress) => {
-        if (isCancelled) return;
-        logInfo("PDF processing progress:", { progress });
-        onProgress(progress);
-      }),
-      timeoutPromise
-    ]);
-    
-    const extractResult = await extractionPromise;
+    // Clear the timeout since we finished successfully
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+      timeoutId = null;
+    }
     
     // If processing was cancelled, don't proceed
     if (isCancelled) return null;
@@ -68,6 +75,11 @@ export const processPDFFile = async (
         cancel: () => {
           if (processingTask) processingTask.cancel();
           isCancelled = true;
+          // Clear the timeout if it exists
+          if (timeoutId !== null) {
+            window.clearTimeout(timeoutId);
+            timeoutId = null;
+          }
         }
       };
     }
@@ -96,6 +108,12 @@ export const processPDFFile = async (
   } catch (err) {
     logError('PDF processing error:', { error: err });
     
+    // Clear the timeout if it exists
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+    
     if (!isCancelled) {
       // Provide more specific error messages based on the error type
       if (err instanceof Error) {
@@ -117,6 +135,11 @@ export const processPDFFile = async (
   return {
     cancel: () => {
       isCancelled = true;
+      // Clear the timeout if it exists
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+        timeoutId = null;
+      }
       if (processingTask) processingTask.cancel();
       logInfo("PDF processing cancelled by user", {});
     }
