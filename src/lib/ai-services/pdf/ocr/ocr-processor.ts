@@ -51,12 +51,14 @@ export const processImageWithOCR = async (
     
     if (progressCallback) progressCallback(40);
     
-    // Create a simple progress reporter that doesn't get passed to the worker
-    // to avoid DataCloneError in postMessage (fixes Worker issue)
+    // Create a progress reporter that properly handles the Tesseract.js progress object
     const progressThrottler = createProgressReporter((progress) => {
-      if (progressCallback && progress.status === 'recognizing text') {
-        const mappedProgress = Math.round(40 + (progress.progress * 50)); // Map to 40-90%
-        progressCallback(mappedProgress);
+      if (progressCallback && typeof progress === 'object' && progress !== null) {
+        // Check if the progress object has the expected properties
+        if ('status' in progress && 'progress' in progress && progress.status === 'recognizing text') {
+          const mappedProgress = Math.round(40 + (Number(progress.progress) * 50)); // Map to 40-90%
+          progressCallback(mappedProgress);
+        }
       }
     });
     
