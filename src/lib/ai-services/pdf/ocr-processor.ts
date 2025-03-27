@@ -37,19 +37,20 @@ const initializeOCR = async (): Promise<boolean> => {
       }
     }
     
-    // Create a new worker with logger configuration
-    tesseractWorker = await createWorker({
-      logger: m => {
-        if (m.status === 'recognizing text') {
-          const progressPercent = Math.round(m.progress * 100);
-          logInfo(`OCR Progress: ${progressPercent}%`);
-        }
+    // Create a new worker with logging support
+    tesseractWorker = await createWorker();
+    
+    // Set up progress logging
+    tesseractWorker.setProgressHandler((progress) => {
+      if (progress.status === 'recognizing text') {
+        const progressPercent = Math.round(progress.progress * 100);
+        logInfo(`OCR Progress: ${progressPercent}%`);
       }
     });
     
     // Initialize the worker with English language
     await tesseractWorker.loadLanguage('eng');
-    await tesseractWorker.initialize('eng');
+    await tesseractWorker.recognize('');  // Initialize by recognizing an empty string
     
     // Log successful initialization
     logInfo('OCR service successfully initialized');
@@ -105,12 +106,25 @@ export const processImageWithOCR = async (
     
     if (progressCallback) progressCallback(30);
     
-    // Configure Tesseract for recipe text and recognize
+    // Set parameters for text recognition
     await tesseractWorker.setParameters({
       tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:\'"-()[]{}!?@#$%^&*+=/<>°℃℉½¼¾⅓⅔ ',
     });
     
     if (progressCallback) progressCallback(40);
+    
+    // Set up a custom progress handler for more granular updates
+    let lastProgress = 40;
+    tesseractWorker.setProgressHandler((progress) => {
+      if (progress.status === 'recognizing text' && progressCallback) {
+        // Map the tesseract progress (0-1) to our range (40-90)
+        const mappedProgress = Math.round(40 + (progress.progress * 50));
+        if (mappedProgress > lastProgress) {
+          lastProgress = mappedProgress;
+          progressCallback(mappedProgress);
+        }
+      }
+    });
     
     // Recognize text with progress tracking
     const result = await tesseractWorker.recognize(imageDataUrl);
