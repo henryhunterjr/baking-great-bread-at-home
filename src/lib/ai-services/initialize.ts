@@ -1,10 +1,10 @@
-
 import { logInfo, logError } from '@/utils/logger';
 import { 
-  verifyAPIKey, 
   isOpenAIConfigured, 
   updateOpenAIApiKey, 
-  checkAPIKeyStatus 
+  getOpenAIApiKey,
+  verifyAPIKey,
+  checkAPIKeyStatus
 } from './ai-config';
 import { initializeContentIndexer } from './content-indexing/content-indexer';
 import { initializeContextAwareAI } from './context-aware-ai';

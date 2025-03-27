@@ -54,7 +54,7 @@ export const processPDFFile = async (
       const elapsedMs = Date.now() - lastProgressUpdate;
       if (elapsedMs > 2000) { // Every 2 seconds
         // Simulate progress to keep user informed during long-running operations
-        onProgress(prev => Math.min(prev + 2, 95)); // Cap at 95% until we get actual completion
+        onProgress(Math.min(95, onProgress as unknown as number + 2)); // Cap at 95% until we get actual completion
         lastProgressUpdate = Date.now();
       }
     }, 2000);

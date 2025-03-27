@@ -35,6 +35,50 @@ export const getOpenAIApiKey = (): string | null => {
   return 'sk-demo1234567890abcdefghijklmnopqrstuvwxyz123456789';
 };
 
+// Configure the AI service with a new API key
+export const configureAI = (apiKey: string): void => {
+  if (!apiKey || apiKey.trim() === '') {
+    console.error('Attempted to configure AI service with empty API key');
+    return;
+  }
+  
+  localStorage.setItem('openai_api_key', apiKey);
+  AI_CONFIG.openai.apiKey = apiKey;
+  console.log('AI Service configured with new API key');
+};
+
+// Verify if the current API key is valid by making a test request
+export const verifyAPIKey = async (): Promise<boolean> => {
+  const apiKey = getOpenAIApiKey();
+  
+  if (!apiKey) {
+    return false;
+  }
+  
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: AI_CONFIG.openai.model,
+        messages: [
+          { role: 'system', content: 'This is a test message.' },
+          { role: 'user', content: 'Test' }
+        ],
+        max_tokens: 5
+      })
+    });
+    
+    return response.ok;
+  } catch (error) {
+    console.error('Error verifying API key:', error);
+    return false;
+  }
+};
+
 // Function to check if the OpenAI integration can be used
 export const isOpenAIConfigured = (): boolean => {
   const apiKey = getOpenAIApiKey();
@@ -46,10 +90,33 @@ export const isOpenAIConfigured = (): boolean => {
   return false;
 };
 
-// Update the configuration with the current key
-isOpenAIConfigured();
+// Check the status of the API key with detailed information
+export const checkAPIKeyStatus = (): { 
+  hasKey: boolean; 
+  keyFormat: boolean;
+  source: string;
+} => {
+  const apiKey = getOpenAIApiKey();
+  const status = {
+    hasKey: !!apiKey,
+    keyFormat: !!apiKey && apiKey.startsWith('sk-') && apiKey.length > 20,
+    source: ''
+  };
+  
+  if (apiKey) {
+    if (import.meta.env.VITE_OPENAI_API_KEY === apiKey) {
+      status.source = 'environment';
+    } else if (localStorage.getItem('openai_api_key') === apiKey) {
+      status.source = 'localStorage';
+    } else {
+      status.source = 'default';
+    }
+  }
+  
+  return status;
+};
 
-// Function to update the OpenAI API key in the configuration
+// Update the OpenAI API key in the configuration
 export const updateOpenAIApiKey = (): void => {
   AI_CONFIG.openai.apiKey = getOpenAIApiKey();
 };
