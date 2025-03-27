@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { useToast } from "@/hooks/use-toast";
+import { FormProvider, useForm } from 'react-hook-form';
 
 // Import our component files
 import TabsList from './uploader/TabsList';
@@ -27,6 +28,7 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
   const [activeTab, setActiveTab] = useState('text');
   const [recipeText, setRecipeText] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const form = useForm(); // Create a form instance for this component
   
   const handleTextSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,43 +76,45 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
   return (
     <Card className="shadow-md">
       <CardContent className="pt-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList />
-          
-          <ErrorAlert error={displayError} />
-          
-          <TabsContent value="text">
-            <TextInputTab 
-              recipeText={recipeText}
-              setRecipeText={setRecipeText}
-              onSubmit={handleTextSubmit}
-              isConverting={isConverting}
-            />
-          </TabsContent>
-          
-          <TabsContent value="upload">
-            <FileUploadTab 
-              onTextExtracted={handleTextExtracted} 
-              setError={setError}
-            />
-          </TabsContent>
-          
-          <TabsContent value="camera">
-            <CameraInputTab 
-              onTextExtracted={handleTextExtracted}
-              setError={setError}
-            />
-          </TabsContent>
-          
-          <TabsContent value="paste">
-            <ClipboardTab 
-              recipeText={recipeText}
-              handlePaste={handlePaste}
-              isConverting={isConverting}
-              onConvertRecipe={() => onConvertRecipe(recipeText)}
-            />
-          </TabsContent>
-        </Tabs>
+        <FormProvider {...form}>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList />
+            
+            <ErrorAlert error={displayError} />
+            
+            <TabsContent value="text">
+              <TextInputTab 
+                recipeText={recipeText}
+                setRecipeText={setRecipeText}
+                onSubmit={handleTextSubmit}
+                isConverting={isConverting}
+              />
+            </TabsContent>
+            
+            <TabsContent value="upload">
+              <FileUploadTab 
+                onTextExtracted={handleTextExtracted} 
+                setError={setError}
+              />
+            </TabsContent>
+            
+            <TabsContent value="camera">
+              <CameraInputTab 
+                onTextExtracted={handleTextExtracted}
+                setError={setError}
+              />
+            </TabsContent>
+            
+            <TabsContent value="paste">
+              <ClipboardTab 
+                recipeText={recipeText}
+                handlePaste={handlePaste}
+                isConverting={isConverting}
+                onConvertRecipe={() => onConvertRecipe(recipeText)}
+              />
+            </TabsContent>
+          </Tabs>
+        </FormProvider>
       </CardContent>
     </Card>
   );

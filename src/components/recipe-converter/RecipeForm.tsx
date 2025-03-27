@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { RecipeData } from '@/pages/RecipeConverter';
-import { useForm } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { RecipeFormValues, EquipmentItem } from '@/types/recipeTypes';
@@ -68,6 +68,11 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
     }) || []
   };
   
+  const formMethods = useForm<RecipeFormValues>({
+    resolver: zodResolver(recipeSchema),
+    defaultValues: preparedInitialRecipe as RecipeFormValues
+  });
+  
   const { 
     register, 
     control, 
@@ -75,10 +80,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
     watch,
     setValue,
     formState: { errors, isDirty }
-  } = useForm<RecipeFormValues>({
-    resolver: zodResolver(recipeSchema),
-    defaultValues: preparedInitialRecipe as RecipeFormValues
-  });
+  } = formMethods;
   
   const onSubmit = (data: RecipeFormValues) => {
     onSave(data as RecipeData);
@@ -87,69 +89,71 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
   return (
     <Card className="shadow-md">
       <CardContent className="pt-6">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-serif font-medium">Edit Recipe</h2>
-          </div>
-          
-          <Separator />
-          
-          {/* Basic Information */}
-          <BasicInfoSection 
-            register={register} 
-            errors={errors} 
-          />
-          
-          <Separator />
-          
-          {/* Ingredients */}
-          <IngredientsSection 
-            register={register}
-            control={control}
-            errors={errors}
-          />
-          
-          <Separator />
-          
-          {/* Instructions */}
-          <InstructionsSection 
-            register={register}
-            control={control}
-            errors={errors}
-          />
-          
-          <Separator />
-          
-          {/* Tips and Pro Tips */}
-          <TipsSection 
-            register={register}
-            control={control}
-          />
-          
-          <Separator />
-          
-          {/* Equipment */}
-          <EquipmentSection 
-            register={register}
-            control={control}
-            errors={errors}
-          />
-          
-          <Separator />
-          
-          {/* Tags */}
-          <TagsSection 
-            control={control}
-            watch={watch}
-            setValue={setValue}
-          />
-          
-          {/* Form Actions */}
-          <FormActions 
-            onCancel={onCancel} 
-            isDirty={isDirty} 
-          />
-        </form>
+        <FormProvider {...formMethods}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-serif font-medium">Edit Recipe</h2>
+            </div>
+            
+            <Separator />
+            
+            {/* Basic Information */}
+            <BasicInfoSection 
+              register={register} 
+              errors={errors} 
+            />
+            
+            <Separator />
+            
+            {/* Ingredients */}
+            <IngredientsSection 
+              register={register}
+              control={control}
+              errors={errors}
+            />
+            
+            <Separator />
+            
+            {/* Instructions */}
+            <InstructionsSection 
+              register={register}
+              control={control}
+              errors={errors}
+            />
+            
+            <Separator />
+            
+            {/* Tips and Pro Tips */}
+            <TipsSection 
+              register={register}
+              control={control}
+            />
+            
+            <Separator />
+            
+            {/* Equipment */}
+            <EquipmentSection 
+              register={register}
+              control={control}
+              errors={errors}
+            />
+            
+            <Separator />
+            
+            {/* Tags */}
+            <TagsSection 
+              control={control}
+              watch={watch}
+              setValue={setValue}
+            />
+            
+            {/* Form Actions */}
+            <FormActions 
+              onCancel={onCancel} 
+              isDirty={isDirty} 
+            />
+          </form>
+        </FormProvider>
       </CardContent>
     </Card>
   );

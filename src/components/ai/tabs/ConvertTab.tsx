@@ -1,4 +1,6 @@
+
 import React, { useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
 import ConvertTab from '@/components/recipe-converter/uploader/tabs/ConvertTab';
 import { useToast } from '@/hooks/use-toast';
 import { processRecipeText } from '@/lib/ai-services';
@@ -22,6 +24,7 @@ const AIConvertTab: React.FC<ConvertTabProps> = ({
 }) => {
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
+  const form = useForm(); // Create a form instance
   
   const handleConvertRecipe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,15 +95,17 @@ const AIConvertTab: React.FC<ConvertTabProps> = ({
   };
 
   return (
-    <div className="flex-1 p-4 space-y-6 overflow-y-auto">
-      <ConvertTab
-        recipeText={recipeText}
-        setRecipeText={setRecipeText}
-        onSubmit={handleConvertRecipe}
-        isConverting={isProcessing}
-        error={error}
-      />
-    </div>
+    <FormProvider {...form}>
+      <div className="flex-1 p-4 space-y-6 overflow-y-auto">
+        <ConvertTab
+          recipeText={recipeText}
+          setRecipeText={setRecipeText}
+          onSubmit={handleConvertRecipe}
+          isConverting={isProcessing}
+          error={error}
+        />
+      </div>
+    </FormProvider>
   );
 };
 

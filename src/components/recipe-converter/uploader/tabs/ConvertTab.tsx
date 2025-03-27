@@ -1,5 +1,6 @@
 
 import React, { useState, useCallback } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
 import FileUploadOptions from './convert-tab/FileUploadOptions';
 import RecipeTextEditor from './convert-tab/RecipeTextEditor';
 import AlertMessages from './convert-tab/components/AlertMessages';
@@ -25,6 +26,7 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
 }) => {
   const { showSuccess, showHelpTip } = useConvertTab({ recipeText });
   const [localError, setLocalError] = useState<string | null>(null);
+  const localForm = useForm(); // Create a local form instance for this component
   
   // Combine local and prop errors
   const displayError = localError || error;
@@ -50,18 +52,20 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
           isConverting={isConverting}
         />
         
-        <form onSubmit={onSubmit}>
-          <RecipeTextEditor 
-            recipeText={recipeText} 
-            setRecipeText={setRecipeText}
-            isConverting={isConverting}
-          />
-          
-          <ConvertButton 
-            isConverting={isConverting} 
-            isDisabled={!recipeText.trim()} 
-          />
-        </form>
+        <FormProvider {...localForm}>
+          <form onSubmit={onSubmit}>
+            <RecipeTextEditor 
+              recipeText={recipeText} 
+              setRecipeText={setRecipeText}
+              isConverting={isConverting}
+            />
+            
+            <ConvertButton 
+              isConverting={isConverting} 
+              isDisabled={!recipeText.trim()} 
+            />
+          </form>
+        </FormProvider>
         
         <RecipeHelp />
       </div>

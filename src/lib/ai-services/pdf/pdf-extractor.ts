@@ -8,7 +8,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { ensurePDFWorkerFiles, configurePDFWorkerCORS } from './pdf-worker-service';
 
 // Maximum number of pages to process for performance
-const MAX_PAGES_TO_PROCESS = 8;
+const MAX_PAGES_TO_PROCESS = 5; // Reduced from 8 to improve performance
 
 // Initialize the PDF worker service and CORS configuration on module load
 Promise.all([
@@ -57,8 +57,8 @@ export const extractTextFromPDF = async (
     });
     
     // Validate file size before processing
-    if (file.size > 25 * 1024 * 1024) { // 25MB limit
-      throw new Error("PDF file is too large (max 25MB). Try using a smaller file or text input.");
+    if (file.size > 10 * 1024 * 1024) { // Reduced to 10MB limit (from 25MB)
+      throw new Error("PDF file is too large (max 10MB). Try using a smaller file or text input.");
     }
     
     // Validate file type more strictly
@@ -66,9 +66,9 @@ export const extractTextFromPDF = async (
       throw new Error("Invalid file type. Please upload a valid PDF document.");
     }
     
-    // Use a longer timeout for initial loading (30 seconds)
+    // Add shorter timeout for initial loading (15 seconds instead of 30)
     try {
-      pdfDocument = await loadPdfDocument(file, 30000);
+      pdfDocument = await loadPdfDocument(file, 15000);
     } catch (loadError) {
       logError("PDF processing: Document loading failed", { error: loadError });
       
@@ -170,7 +170,7 @@ export const extractTextFromPDF = async (
       // Provide better error message based on the failure type
       if (error instanceof Error) {
         if (error.message.includes('timed out')) {
-          throw new Error('PDF processing timed out. The file may be too large or complex. Try a simpler PDF or use text input instead.');
+          throw new Error('PDF processing timed out. Please use a smaller or simpler PDF, or paste the recipe text directly.');
         } else if (error.message.includes('password')) {
           throw new Error('This PDF appears to be password protected. Please provide an unprotected PDF.');
         } else if (error.message.includes('worker') || error.message.includes('network')) {
@@ -178,7 +178,7 @@ export const extractTextFromPDF = async (
         }
       }
       
-      throw new Error('Failed to extract text from PDF: ' + (error instanceof Error ? error.message : 'Unknown error') + '. Try using a different file or method.');
+      throw new Error('Unable to process this PDF. Please try extracting and pasting the text manually.');
     }
   }
   
