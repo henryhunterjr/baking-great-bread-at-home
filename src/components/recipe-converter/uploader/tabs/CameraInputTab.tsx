@@ -21,20 +21,30 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
   const [error, setLocalError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [processingTooLong, setProcessingTooLong] = useState(false);
+  const [timeoutId, setTimeoutId] = useState<number | null>(null);
+  
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [timeoutId]);
   
   // Set up a timer to detect when processing is taking too long
   useEffect(() => {
-    let timeoutId: number | null = null;
+    let warningTimeoutId: number | null = null;
     
     if (isProcessing && progress > 0 && progress < 100) {
-      timeoutId = window.setTimeout(() => {
+      warningTimeoutId = window.setTimeout(() => {
         setProcessingTooLong(true);
       }, 20000); // Show warning after 20 seconds
     }
     
     return () => {
-      if (timeoutId !== null) {
-        window.clearTimeout(timeoutId);
+      if (warningTimeoutId !== null) {
+        window.clearTimeout(warningTimeoutId);
       }
     };
   }, [isProcessing, progress]);
@@ -54,26 +64,31 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
     setError(null);
     setProcessingTooLong(false);
     
+    // Set up timeout to automatically cancel long-running processing
+    const id = window.setTimeout(() => {
+      if (isProcessing) {
+        handleCancelProcessing();
+        setLocalError("OCR processing timed out. The image may be too complex or low quality. Try with a clearer image or manually type the recipe.");
+        setError("OCR processing timed out. The image may be too complex or low quality. Try with a clearer image or manually type the recipe.");
+      }
+    }, 180000); // 3 minute timeout (increased from 60 seconds)
+    
+    setTimeoutId(id);
+    
     try {
-      // Set up a timeout for OCR processing
-      const processingPromise = extractTextWithOCR(
+      // Extract text with OCR
+      const extractedText = await extractTextWithOCR(
         file, 
         (progressValue) => {
           setProgress(progressValue);
         }
       );
       
-      // Create a timeout promise
-      const timeoutPromise = new Promise<string>((_, reject) => {
-        const id = setTimeout(() => {
-          reject(new Error("OCR processing timed out. The image may be too complex."));
-        }, 60000); // 60 second timeout
-        
-        return () => clearTimeout(id);
-      });
-      
-      // Race between processing and timeout
-      const extractedText = await Promise.race([processingPromise, timeoutPromise]);
+      // Clear the timeout
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+        setTimeoutId(null);
+      }
       
       if (extractedText.trim().length > 0) {
         // Pass the extracted text to the parent
@@ -84,6 +99,11 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
           setIsProcessing(false);
           setProgress(100);
         }, 500);
+        
+        toast({
+          title: "Text Extracted Successfully",
+          description: "We've processed your image and extracted the recipe text.",
+        });
       } else {
         const noTextError = "No text could be found in this image. Try taking a clearer photo with good lighting.";
         setLocalError(noTextError);
@@ -91,6 +111,12 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
         setIsProcessing(false);
       }
     } catch (err) {
+      // Clear the timeout
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+        setTimeoutId(null);
+      }
+      
       console.error('OCR processing error:', err);
       const errorMessage = err instanceof Error 
         ? err.message 
@@ -102,12 +128,19 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
   };
   
   const resetCapture = () => {
+    // Clean up any timeout
+    if (timeoutId) {
+      window.clearTimeout(timeoutId);
+      setTimeoutId(null);
+    }
+    
     setPreviewUrl(null);
     setLocalError(null);
     setError(null);
     setIsProcessing(false);
     setProgress(0);
     setProcessingTooLong(false);
+    
     if (cameraInputRef.current) {
       cameraInputRef.current.value = '';
     }
@@ -115,8 +148,15 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
   
   // Handle when the user wants to cancel processing
   const handleCancelProcessing = () => {
+    // Clean up timeout
+    if (timeoutId) {
+      window.clearTimeout(timeoutId);
+      setTimeoutId(null);
+    }
+    
     setIsProcessing(false);
     setLocalError("OCR processing was cancelled. Please try again with a different image.");
+    
     toast({
       title: "Processing Cancelled",
       description: "Image processing has been cancelled.",
@@ -194,7 +234,7 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
             </div>
           )}
           
-          <FileUploadError error={error} />
+          <FileUploadError error={error} onRetry={resetCapture} />
         </div>
       )}
     </div>

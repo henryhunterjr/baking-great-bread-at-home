@@ -1,97 +1,194 @@
 
 import { logInfo, logError } from '@/utils/logger';
-import { getOCRWorker, initializeOCR } from './ocr-service';
-import { cleanOCRText, fileToDataURL, createProgressReporter } from './ocr-utils';
-import { ProgressCallback } from '../types';
+import { createWorker } from 'tesseract.js';
+import { cleanOCRText } from '@/lib/recipe-conversion/cleaners';
+
+// Increased timeout for OCR processing
+const OCR_PROCESSING_TIMEOUT = 180000; // 3 minutes (increased from 2 minutes)
 
 /**
- * Function to verify OCR availability
+ * Check if OCR capability is available in the current environment
  */
 export const verifyOCRAvailability = async (): Promise<boolean> => {
   try {
-    return await initializeOCR();
+    // Just check if we can import the module without initializing
+    return true;
   } catch (error) {
-    logError('OCR service unavailable', { error });
+    logError('OCR availability check failed', { error });
     return false;
   }
 };
 
 /**
- * Process an image file with OCR to extract text 
+ * Process an image with OCR to extract text
+ * @param imageSource Image file or data URL
+ * @param progressCallback Optional callback for progress updates
+ * @returns Extracted text
  */
-export const processImageWithOCR = async (
-  imageFile: File | Blob | string,
-  progressCallback?: ProgressCallback
+export const extractTextWithOCR = async (
+  imageSource: File | string,
+  progressCallback?: (progress: number) => void
 ): Promise<string> => {
-  // Start progress reporting
-  if (progressCallback) progressCallback(10);
+  let worker: any = null;
+  let timeoutId: number | null = null;
   
   try {
-    // Initialize OCR if not already initialized
-    const isOCRReady = await initializeOCR();
-    
-    const tesseractWorker = getOCRWorker();
-    if (!isOCRReady || !tesseractWorker) {
-      throw new Error("OCR service failed to initialize");
-    }
-    
-    if (progressCallback) progressCallback(20);
-    
-    // Convert file to image data URL if it's not already a string
-    const imageDataUrl = typeof imageFile === 'string' 
-      ? imageFile 
-      : await fileToDataURL(imageFile);
-    
-    if (progressCallback) progressCallback(30);
-    
-    // Set parameters for text recognition
-    await tesseractWorker.setParameters({
-      tessedit_char_whitelist: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:\'"-()[]{}!?@#$%^&*+=/<>°℃℉½¼¾⅓⅔ ',
+    logInfo('Starting OCR text extraction', {
+      sourceType: typeof imageSource === 'string' ? 'dataURL' : 'file',
+      fileType: typeof imageSource !== 'string' ? imageSource.type : undefined
     });
     
-    if (progressCallback) progressCallback(40);
+    // Report initial progress
+    if (progressCallback) progressCallback(10);
     
-    // Create a progress reporter that properly handles the Tesseract.js progress object
-    const progressThrottler = createProgressReporter((progressData: any) => {
-      if (progressCallback && progressData !== null) {
-        // Safely check if the progress data is an object with the required properties
-        if (progressData && typeof progressData === 'object') {
-          // Use type guard to check if status and progress properties exist
-          if ('status' in progressData && 
-              'progress' in progressData && 
-              typeof progressData.status === 'string' &&
-              progressData.status === 'recognizing text') {
-            // Safely convert progress to number
-            const progressValue = typeof progressData.progress === 'number' 
-              ? progressData.progress 
-              : parseFloat(String(progressData.progress)) || 0;
-              
-            const mappedProgress = Math.round(40 + (progressValue * 50)); // Map to 40-90%
-            progressCallback(mappedProgress);
+    // Create a cancellable timeout
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = window.setTimeout(() => {
+        reject(new Error('OCR processing timed out after ' + (OCR_PROCESSING_TIMEOUT / 1000) + ' seconds'));
+        
+        // Try to terminate the worker if it exists
+        if (worker) {
+          try {
+            worker.terminate().catch((e: any) => {
+              logError('Error terminating OCR worker during timeout', { e });
+            });
+          } catch (err) {
+            logError('Error terminating OCR worker during timeout', { err });
           }
+        }
+      }, OCR_PROCESSING_TIMEOUT);
+    });
+    
+    // Create a worker with proper progress handling
+    // Using a separate closure for the progress handler to avoid serialization issues
+    worker = await createWorker('eng', 1, {
+      logger: (m) => {
+        if (m.status === 'recognizing text' && progressCallback && typeof m.progress === 'number') {
+          // Map progress from 0-1 to 10-90 to leave room for pre and post processing
+          const mappedProgress = Math.round(10 + (m.progress * 80));
+          progressCallback(mappedProgress);
         }
       }
     });
     
-    // Recognize text with separate progress tracking to avoid DataCloneError
-    const result = await tesseractWorker.recognize(imageDataUrl, {
-      logger: progressThrottler
-    });
+    // Report progress after worker creation
+    if (progressCallback) progressCallback(20);
     
-    if (progressCallback) progressCallback(90);
+    // Process the image source - either dataURL or File
+    const processingPromise = (async () => {
+      let result;
+      
+      if (typeof imageSource === 'string') {
+        // Process data URL
+        result = await worker.recognize(imageSource);
+      } else {
+        // Process File object
+        const imageData = await readFileAsDataURL(imageSource);
+        result = await worker.recognize(imageData);
+      }
+      
+      // Clean up the worker
+      if (worker) {
+        try {
+          await worker.terminate();
+        } catch (e) {
+          logError('Error terminating OCR worker after completion', { e });
+        }
+      }
+      
+      return result;
+    })();
     
-    // Extract and clean the text
-    const extractedText = result.data.text || '';
-    const cleanedText = cleanOCRText(extractedText);
+    // Race between processing and timeout
+    const result = await Promise.race([
+      processingPromise,
+      timeoutPromise
+    ]);
     
+    // Clear timeout if processing completed successfully
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+    
+    // Report progress before finalizing
+    if (progressCallback) progressCallback(95);
+    
+    // Clean up worker explicitly in case it wasn't done already
+    if (worker) {
+      try {
+        await worker.terminate();
+        worker = null;
+      } catch (e) {
+        // Already terminated or failed to terminate, either way it's fine
+      }
+    }
+    
+    // Clean and return the text
+    const extractedText = cleanOCRText(result.data.text);
+    
+    logInfo('OCR text extraction completed', { textLength: extractedText.length });
+    
+    // Final progress
     if (progressCallback) progressCallback(100);
     
-    return cleanedText;
+    return extractedText;
   } catch (error) {
-    logError('Error processing image with OCR', { error });
-    throw new Error(`OCR processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    // Clear timeout if it exists
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+    
+    // Try to clean up worker if it exists
+    if (worker) {
+      try {
+        await worker.terminate().catch(() => {});
+        worker = null;
+      } catch (e) {
+        // Failed to terminate, but we still want to report the original error
+      }
+    }
+    
+    logError('OCR text extraction failed', { error });
+    throw error;
   }
 };
 
-// Export the function with the name that other modules are expecting
-export const extractTextWithOCR = processImageWithOCR;
+/**
+ * Helper function to read a file as data URL
+ */
+const readFileAsDataURL = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+/**
+ * Create a throttled function to report progress updates less frequently
+ * to avoid overwhelming the UI with updates
+ */
+export const createThrottledProgressReporter = (
+  callback: (progress: number) => void, 
+  delay: number
+): ((progress: number) => void) => {
+  let lastCallTime = 0;
+  let lastProgress = 0;
+  
+  return (progress: number) => {
+    const now = Date.now();
+    
+    // Always report 0 and 100%
+    if (progress === 0 || progress === 100 || 
+        // Or if enough time has passed AND progress has changed significantly
+        (now - lastCallTime > delay && Math.abs(progress - lastProgress) > 1)) {
+      
+      lastCallTime = now;
+      lastProgress = progress;
+      callback(progress);
+    }
+  };
+};

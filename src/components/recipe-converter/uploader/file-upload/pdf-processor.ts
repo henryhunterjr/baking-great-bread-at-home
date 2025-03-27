@@ -4,8 +4,8 @@ import { ProcessingCallbacks, ProcessingTask } from './types';
 import { cleanOCRText } from '@/lib/ai-services/text-cleaner';
 
 // Constants for timeouts and limits
-const MAX_PDF_SIZE_MB = 15; // Increased from 8MB to 15MB
-const PDF_TIMEOUT_MS = 90000; // Increased from 60s to 90s
+const MAX_PDF_SIZE_MB = 20; // Increased from 15MB to 20MB
+const PDF_TIMEOUT_MS = 180000; // Increased from 90s to 180s (3 minutes)
 
 /**
  * Process a PDF file and extract its text
@@ -31,12 +31,6 @@ export const processPDFFile = async (
       return null;
     }
     
-    // Validate file type more strictly
-    if (!file.type.toLowerCase().includes('pdf')) {
-      onError("Invalid file type. Please upload a valid PDF document.");
-      return null;
-    }
-    
     // Initial progress update
     onProgress(10);
     
@@ -49,8 +43,7 @@ export const processPDFFile = async (
       if (!isCancelled) {
         // Don't use onError here, just log a warning
         logInfo("PDF processing warning: taking longer than expected");
-        onProgress(Math.min(currentProgress + 1, 98)); // Increment progress slightly
-        // We're not cancelling, just warning
+        onProgress(Math.min(currentProgress + 5, 98)); // Increment progress slightly
       }
     }, 20000);
     
@@ -65,8 +58,7 @@ export const processPDFFile = async (
       const elapsedMs = Date.now() - lastProgressUpdate;
       if (elapsedMs > 2000) { // Every 2 seconds
         // Simulate progress to keep user informed during long-running operations
-        // Progress more slowly to give more time
-        currentProgress = Math.min(currentProgress + 1, 98); // Cap at 98% until we get actual completion
+        currentProgress = Math.min(currentProgress + 2, 98); // Cap at 98% until we get actual completion
         onProgress(currentProgress);
         lastProgressUpdate = Date.now();
       }
@@ -111,13 +103,14 @@ export const processPDFFile = async (
     
     // Handle different types of results
     if (extractResult === null) {
-      onError("Failed to extract text from the PDF. The file may be empty or corrupted. Try using text input instead.");
+      onError("Failed to extract text from the PDF. The file may be empty or corrupted. Try uploading an image version instead or use text input.");
       return null;
     }
     
     // Check if the result is a cancellable task object
     if (typeof extractResult === 'object' && extractResult !== null && 'cancel' in extractResult) {
       processingTask = extractResult as { cancel: () => void };
+      // Return immediately with the cancel task
       return {
         cancel: () => {
           if (processingTask) processingTask.cancel();
@@ -172,6 +165,8 @@ export const processPDFFile = async (
         onError(`This PDF appears to be password protected. Please provide an unprotected PDF document.`);
       } else if (errorMessage.includes('worker') || errorMessage.includes('network')) {
         onError(`A network error occurred while processing the PDF. Please check your connection and try again.`);
+      } else if (errorMessage.includes('postMessage') || errorMessage.includes('cloned')) {
+        onError(`There was a technical error processing your PDF. Please try using a different method like pasting the text directly.`);
       } else {
         onError(`Failed to process the PDF: ${errorMessage}. Please try again with a different file or format.`);
       }

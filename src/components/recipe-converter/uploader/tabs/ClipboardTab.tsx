@@ -54,13 +54,15 @@ const ClipboardTab: React.FC<ClipboardTabProps> = ({
       
       {recipeText && (
         <div className="mt-4 space-y-4">
-          <ConvertButton 
-            onClick={onConvertRecipe}
-            isConverting={isConverting}
-            fullWidth={true}
-          />
+          {!recipe?.isConverted && (
+            <ConvertButton 
+              onClick={onConvertRecipe}
+              isConverting={isConverting}
+              fullWidth={true}
+            />
+          )}
           
-          {recipe && recipe.isConverted && (
+          {recipe?.isConverted && onSaveRecipe && (
             <Button 
               onClick={onSaveRecipe}
               className="w-full flex items-center gap-2 bg-bread-800 hover:bg-bread-900"

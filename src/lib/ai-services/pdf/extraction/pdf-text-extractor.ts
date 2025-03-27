@@ -8,6 +8,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { safelyDestroyPdfDocument, clearTimeoutIfExists } from '../utils/cleanup-utils';
 import { validatePdfFile, calculatePagesToProcess, PDF_LOAD_TIMEOUT, PDF_TOTAL_TIMEOUT } from '../utils/pdf-validator';
 import { createCancellableTimeout } from '../utils/timeout-utils';
+import { cleanPDFText } from '@/lib/recipe-conversion/cleaners';
 
 /**
  * Extract text from a PDF file with enhanced reliability and error handling
@@ -75,12 +76,16 @@ export const extractTextFromPDF = async (
       
       if (isRequestCancelled) throw new Error('PDF processing was cancelled');
       
-      const ocrText = await attemptOCRFallback(file, progressCallback);
-      
-      // Clear the timeout since we finished with OCR
-      timeoutId = clearTimeoutIfExists(timeoutId);
-      
-      return ocrText;
+      try {
+        const ocrText = await attemptOCRFallback(file, progressCallback);
+        
+        // Clear the timeout since we finished with OCR
+        timeoutId = clearTimeoutIfExists(timeoutId);
+        
+        return ocrText;
+      } catch (ocrError) {
+        throw new Error(`Failed to process PDF: ${ocrError instanceof Error ? ocrError.message : String(ocrError)}`);
+      }
     }
     
     // Check if processing was cancelled during loading
@@ -109,83 +114,41 @@ export const extractTextFromPDF = async (
       throw new Error('PDF processing was cancelled');
     }
     
-    // Clean up PDF document resources
-    safelyDestroyPdfDocument(pdfDocument, "successful completion");
+    // Clean the text using our text cleaner
+    const cleanedText = cleanPDFText(fullText);
+    
+    // Final progress update
+    if (progressCallback) progressCallback(100);
+    
+    // Clean up PDF document
+    safelyDestroyPdfDocument(pdfDocument, "success");
     pdfDocument = null;
-    logInfo("PDF processing: Document resources released");
     
     // Clear the timeout since we finished successfully
     timeoutId = clearTimeoutIfExists(timeoutId);
     
-    // Check if we extracted meaningful text
-    if (fullText.trim().length < 50) {
-      // Not enough text was extracted, likely a scanned PDF
-      logInfo("PDF processing: Not enough text extracted, falling back to OCR", { length: fullText.length });
-      
-      // Fall back to OCR
-      if (progressCallback) progressCallback(70);
-      const ocrText = await attemptOCRFallback(file, progressCallback);
-      
-      if (ocrText.trim().length > 0) {
-        logInfo("PDF processing: OCR fallback successful");
-        return ocrText;
-      } else {
-        return "No text could be extracted from this PDF. The document may be empty, secured, or contain only images.";
-      }
-    }
-    
-    if (progressCallback) progressCallback(100);
-    logInfo("PDF processing: Extraction complete successfully", { 
-      extractedTextLength: fullText.length 
-    });
-    
-    // Return extracted text
-    return fullText.trim();
+    return cleanedText;
   } catch (error) {
-    // Clean up resources if they still exist
-    safelyDestroyPdfDocument(pdfDocument, "error handling");
+    // Clean up PDF document if it exists
+    safelyDestroyPdfDocument(pdfDocument, "error");
     pdfDocument = null;
     
-    // Clear any existing timeout
+    // Clear the timeout
     timeoutId = clearTimeoutIfExists(timeoutId);
     
-    // Log the error
-    logError('Error extracting text from PDF:', { error });
+    logError("Error extracting text from PDF:", { error });
     
-    // If cancelled, don't try OCR fallback
-    if (isRequestCancelled) {
-      throw new Error('PDF processing was cancelled');
-    }
+    // Cancel the task
+    cancellableTask.cancel();
     
-    // Try OCR as fallback for any error
-    try {
-      logInfo("PDF processing: Standard extraction failed, attempting OCR fallback");
-      if (progressCallback) progressCallback(60);
-      const ocrText = await attemptOCRFallback(file, progressCallback);
-      
-      if (!ocrText || ocrText.trim().length < 20) {
-        return "Limited text could be extracted from this PDF. The quality may be too low or it may contain mostly images.";
-      }
-      
-      return ocrText;
-    } catch (ocrError) {
-      logError('OCR fallback also failed:', { error: ocrError });
-      
-      // Provide better error message based on the failure type
-      if (error instanceof Error) {
-        if (error.message.includes('timed out')) {
-          throw new Error('PDF processing timed out. Please use a smaller or simpler PDF, or paste the recipe text directly.');
-        } else if (error.message.includes('password')) {
-          throw new Error('This PDF appears to be password protected. Please provide an unprotected PDF.');
-        } else if (error.message.includes('worker') || error.message.includes('network')) {
-          throw new Error('PDF processing failed due to network issues. Please check your connection and try again.');
-        }
-      }
-      
-      throw new Error('Unable to process this PDF. Please try extracting and pasting the text manually.');
+    // Throw a more user-friendly error
+    if (error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error('Failed to extract text from PDF due to an unknown error');
     }
   }
   
-  // Return the cancellable task if we reach this point (should not normally happen)
+  // Return the cancellable task
   return cancellableTask;
 };

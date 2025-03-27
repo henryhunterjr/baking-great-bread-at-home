@@ -1,38 +1,60 @@
 
-import { logInfo, logError } from '@/utils/logger';
+import { logError, logInfo } from '@/utils/logger';
 
-// Configuration constants
-export const MAX_PAGES_TO_PROCESS = 3; // Reduced from 5 to improve performance
-export const MAX_PDF_SIZE_MB = 8;
-export const PDF_LOAD_TIMEOUT = 12000; // 12 seconds for loading
-export const PDF_TOTAL_TIMEOUT = 25000; // 25 seconds total
+// Constants
+export const MAX_PDF_SIZE_MB = 20; // Increased from 15MB to 20MB
+export const MAX_PAGES_TO_PROCESS = 20; // Limit number of pages for performance
+export const PDF_LOAD_TIMEOUT = 60000; // 60 seconds for initial PDF loading
+export const PDF_TOTAL_TIMEOUT = 180000; // 3 minutes total processing time
 
 /**
- * Validate PDF file before processing
- * @param file The PDF file to validate
- * @returns True if validation passed, otherwise throws an error
+ * Validate PDF file size and type
+ * @param file PDF file to validate
+ * @throws Error if file is invalid
  */
-export const validatePdfFile = (file: File): boolean => {
-  // Validate file size
+export const validatePdfFile = (file: File): void => {
+  // Check file size
   const maxSize = MAX_PDF_SIZE_MB * 1024 * 1024;
   if (file.size > maxSize) {
-    throw new Error(`PDF file is too large (max ${MAX_PDF_SIZE_MB}MB). Try using a smaller file or text input.`);
+    logError('PDF file size exceeds limit', { 
+      fileSize: file.size, 
+      maxSize,
+      fileName: file.name 
+    });
+    throw new Error(`PDF file is too large (max ${MAX_PDF_SIZE_MB}MB). Please upload a smaller file.`);
   }
   
-  // Validate file type
-  if (!file.type.includes('application/pdf')) {
-    throw new Error("Invalid file type. Please upload a valid PDF document.");
+  // Check file type (more lenient)
+  const fileType = file.type.toLowerCase();
+  if (!fileType.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
+    logError('Invalid PDF file type', { 
+      fileType: file.type,
+      fileName: file.name
+    });
+    throw new Error('Invalid file type. Please upload a valid PDF document.');
   }
   
-  logInfo("PDF validation passed", { fileName: file.name, fileSize: file.size });
-  return true;
+  logInfo('PDF file validated successfully', { 
+    fileSize: file.size, 
+    fileType: file.type,
+    fileName: file.name
+  });
 };
 
 /**
- * Calculate the number of pages to process based on the total page count
+ * Calculate how many pages to process based on the total number
  * @param totalPages Total number of pages in the PDF
  * @returns Number of pages to process
  */
 export const calculatePagesToProcess = (totalPages: number): number => {
-  return Math.min(totalPages, MAX_PAGES_TO_PROCESS);
+  const pagesToProcess = Math.min(totalPages, MAX_PAGES_TO_PROCESS);
+  
+  if (totalPages > MAX_PAGES_TO_PROCESS) {
+    logInfo('Limiting PDF processing to first pages', { 
+      totalPages, 
+      pagesToProcess: MAX_PAGES_TO_PROCESS 
+    });
+  }
+  
+  return pagesToProcess;
 };
