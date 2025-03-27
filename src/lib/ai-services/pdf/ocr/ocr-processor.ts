@@ -52,12 +52,23 @@ export const processImageWithOCR = async (
     if (progressCallback) progressCallback(40);
     
     // Create a progress reporter that properly handles the Tesseract.js progress object
-    const progressThrottler = createProgressReporter((progress) => {
-      if (progressCallback && typeof progress === 'object' && progress !== null) {
-        // Check if the progress object has the expected properties
-        if ('status' in progress && 'progress' in progress && progress.status === 'recognizing text') {
-          const mappedProgress = Math.round(40 + (Number(progress.progress) * 50)); // Map to 40-90%
-          progressCallback(mappedProgress);
+    const progressThrottler = createProgressReporter((progressData) => {
+      if (progressCallback && progressData !== null) {
+        // Safely check if the progress data is an object with the required properties
+        if (typeof progressData === 'object' && progressData !== null) {
+          // Use type guard to check if status and progress properties exist
+          if ('status' in progressData && 
+              'progress' in progressData && 
+              typeof progressData.status === 'string' &&
+              progressData.status === 'recognizing text') {
+            // Safely convert progress to number
+            const progressValue = typeof progressData.progress === 'number' 
+              ? progressData.progress 
+              : parseFloat(String(progressData.progress)) || 0;
+              
+            const mappedProgress = Math.round(40 + (progressValue * 50)); // Map to 40-90%
+            progressCallback(mappedProgress);
+          }
         }
       }
     });
