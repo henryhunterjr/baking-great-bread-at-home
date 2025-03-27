@@ -5,19 +5,24 @@ import { isOpenAIConfigured } from '@/lib/ai-services/ai-config';
 import NoAPIKeyMessage from './NoAPIKeyMessage';
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from 'lucide-react';
+import { RecipeData } from '@/types/recipeTypes';
 
 interface ConversionServiceProps {
   onConvertRecipe: (text: string) => void;
   isConverting: boolean;
   conversionError?: string | null;
   onReset?: () => void;
+  recipe?: RecipeData;
+  onSaveRecipe?: () => void;
 }
 
 const ConversionService: React.FC<ConversionServiceProps> = ({
   onConvertRecipe,
   isConverting,
   conversionError,
-  onReset
+  onReset,
+  recipe,
+  onSaveRecipe
 }) => {
   const [hasApiKey, setHasApiKey] = useState<boolean>(false);
   
@@ -42,6 +47,8 @@ const ConversionService: React.FC<ConversionServiceProps> = ({
         onConvertRecipe={onConvertRecipe}
         isConverting={isConverting}
         conversionError={conversionError}
+        recipe={recipe}
+        onSaveRecipe={onSaveRecipe}
       />
 
       {conversionError && onReset && (

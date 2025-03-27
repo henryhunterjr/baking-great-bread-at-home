@@ -4,7 +4,7 @@ import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
 
 // Constants for timeouts
-const OCR_TIMEOUT_MS = 60000; // 60 seconds
+const OCR_TIMEOUT_MS = 120000; // 120 seconds - doubled from previous 60s
 
 /**
  * Process an image file using OCR
@@ -38,8 +38,31 @@ export const processImageFile = async (
       }
     }, OCR_TIMEOUT_MS);
     
+    // Create a warning timeout to notify user it's taking longer than expected
+    const warningTimeoutId = window.setTimeout(() => {
+      if (!isAborted) {
+        logInfo('Image processing warning: taking longer than expected');
+        onProgress(Math.min(60, lastProgressUpdate + 10)); // Bump progress a bit to show movement
+      }
+    }, 20000); // Show warning after 20 seconds
+    
     // Track last progress update for throttling
     let lastProgressUpdate = 10;
+    
+    // Set up a progress interval for better UX during long processing
+    const progressInterval = window.setInterval(() => {
+      if (isAborted) {
+        window.clearInterval(progressInterval);
+        return;
+      }
+      
+      // Increment progress slightly to show activity
+      if (lastProgressUpdate < 90) {
+        const newProgress = Math.min(lastProgressUpdate + 1, 90);
+        lastProgressUpdate = newProgress;
+        onProgress(newProgress);
+      }
+    }, 3000); // Update every 3 seconds
     
     // Create a safe progress handler that throttles updates
     const safeProgressHandler = (ocrProgress: number) => {
@@ -59,14 +82,16 @@ export const processImageFile = async (
     // Extract text from the image
     const extractedText = await extractTextWithOCR(file, safeProgressHandler);
     
-    // Check if the operation was cancelled
-    if (isAborted) return null;
-    
-    // Clear the timeout since we finished successfully
+    // Clean up all timers
     if (timeoutId !== null) {
       window.clearTimeout(timeoutId);
       timeoutId = null;
     }
+    window.clearTimeout(warningTimeoutId);
+    window.clearInterval(progressInterval);
+    
+    // Check if the operation was cancelled
+    if (isAborted) return null;
     
     logInfo("OCR complete", { textLength: extractedText?.length || 0 });
     

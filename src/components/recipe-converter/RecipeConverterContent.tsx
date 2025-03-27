@@ -49,6 +49,8 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
             isConverting={isConverting}
             conversionError={displayError}
             onReset={onResetRecipe}
+            recipe={recipe}
+            onSaveRecipe={() => onSaveRecipe(recipe)}
           />
         ) : isEditing ? (
           <RecipeForm 

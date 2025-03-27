@@ -12,17 +12,22 @@ import TextInputTab from './uploader/tabs/TextInputTab';
 import FileUploadTab from './uploader/tabs/FileUploadTab';
 import CameraInputTab from './uploader/tabs/CameraInputTab';
 import ClipboardTab from './uploader/tabs/ClipboardTab';
+import { RecipeData } from '@/types/recipeTypes';
 
 interface RecipeUploaderProps {
   onConvertRecipe: (text: string) => void;
   isConverting: boolean;
   conversionError?: string | null;
+  recipe?: RecipeData;
+  onSaveRecipe?: () => void;
 }
 
 const RecipeUploader: React.FC<RecipeUploaderProps> = ({ 
   onConvertRecipe, 
   isConverting,
-  conversionError = null
+  conversionError = null,
+  recipe,
+  onSaveRecipe
 }) => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('text');
@@ -111,6 +116,8 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
                 handlePaste={handlePaste}
                 isConverting={isConverting}
                 onConvertRecipe={() => onConvertRecipe(recipeText)}
+                recipe={recipe}
+                onSaveRecipe={onSaveRecipe}
               />
             </TabsContent>
           </Tabs>

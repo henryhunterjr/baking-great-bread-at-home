@@ -9,13 +9,17 @@ interface ClipboardTabProps {
   handlePaste: () => void;
   isConverting: boolean;
   onConvertRecipe: () => void;
+  recipe?: any;
+  onSaveRecipe?: () => void;
 }
 
 const ClipboardTab: React.FC<ClipboardTabProps> = ({ 
   recipeText, 
   handlePaste, 
   isConverting,
-  onConvertRecipe
+  onConvertRecipe,
+  recipe,
+  onSaveRecipe
 }) => {
   return (
     <div className="space-y-6">
@@ -49,12 +53,22 @@ const ClipboardTab: React.FC<ClipboardTabProps> = ({
       </div>
       
       {recipeText && (
-        <div className="mt-4">
+        <div className="mt-4 space-y-4">
           <ConvertButton 
             onClick={onConvertRecipe}
             isConverting={isConverting}
             fullWidth={true}
           />
+          
+          {recipe && recipe.isConverted && (
+            <Button 
+              onClick={onSaveRecipe}
+              className="w-full flex items-center gap-2 bg-bread-800 hover:bg-bread-900"
+            >
+              <Save className="h-4 w-4" />
+              Save Recipe To Collection
+            </Button>
+          )}
         </div>
       )}
     </div>

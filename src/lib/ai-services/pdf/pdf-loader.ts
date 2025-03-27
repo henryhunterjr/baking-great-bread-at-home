@@ -7,12 +7,12 @@ import { logInfo, logError } from '@/utils/logger';
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 // Default timeout for PDF loading in milliseconds
-const DEFAULT_TIMEOUT = 30000; // 30 seconds - increased from 15 seconds
+const DEFAULT_TIMEOUT = 120000; // 120 seconds - increased from 30 seconds
 
 /**
  * Load a PDF document from a file
  * @param file PDF file to load
- * @param timeout Optional timeout in milliseconds (default: 30000ms)
+ * @param timeout Optional timeout in milliseconds (default: 120000ms)
  * @returns A promise that resolves to a PDFDocumentProxy
  */
 export const loadPdfDocument = async (
