@@ -29,12 +29,14 @@ try {
   if (!fs.existsSync(workerSrc)) {
     console.error('ERROR: PDF.js worker file not found at source path.');
     console.log('Please ensure pdfjs-dist is installed correctly.');
+    process.exit(1);
   } else {
     fs.copyFileSync(workerSrc, workerDest);
     console.log('PDF.js worker file copied to public folder');
   }
 } catch (error) {
   console.error('Error copying PDF.js worker file:', error);
+  process.exit(1);
 }
 
 // Copy cmaps files

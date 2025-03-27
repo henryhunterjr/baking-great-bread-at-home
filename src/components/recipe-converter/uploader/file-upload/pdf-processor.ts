@@ -42,6 +42,7 @@ export const processPDFFile = async (
     
     // Create timeout with periodic progress updates to prevent UI freezing
     let lastProgressUpdate = Date.now();
+    let currentProgress = 10;
     
     // Periodic progress updates for large files
     const progressIntervalId = window.setInterval(() => {
@@ -54,7 +55,8 @@ export const processPDFFile = async (
       const elapsedMs = Date.now() - lastProgressUpdate;
       if (elapsedMs > 2000) { // Every 2 seconds
         // Simulate progress to keep user informed during long-running operations
-        onProgress(Math.min(95, onProgress as unknown as number + 2)); // Cap at 95% until we get actual completion
+        currentProgress = Math.min(currentProgress + 2, 95); // Cap at 95% until we get actual completion
+        onProgress(currentProgress);
         lastProgressUpdate = Date.now();
       }
     }, 2000);
@@ -79,7 +81,8 @@ export const processPDFFile = async (
       if (isCancelled) return;
       
       window.clearInterval(progressIntervalId); // Clear the simulated progress
-      onProgress(Math.min(Math.round(progress * 100), 98)); // Cap at 98% until complete
+      currentProgress = Math.min(Math.round(progress * 100), 98);
+      onProgress(currentProgress); // Cap at 98% until complete
       lastProgressUpdate = Date.now();
     });
     

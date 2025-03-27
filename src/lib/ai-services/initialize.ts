@@ -1,4 +1,5 @@
-import { logInfo, logError } from '@/utils/logger';
+
+import { logInfo, logError, logWarn } from '@/utils/logger';
 import { 
   isOpenAIConfigured, 
   updateOpenAIApiKey, 

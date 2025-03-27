@@ -14,15 +14,34 @@ export class WebSocketManager {
   private onConnectCallback: (() => void) | null = null;
   private onErrorCallback: ((error: any) => void) | null = null;
   private useFallback = false;
+  private shouldDisableWebSocket = false;
 
   constructor(url: string) {
     this.url = url;
+    
+    // Check if we should disable WebSocket in development or preview environments
+    this.shouldDisableWebSocket = 
+      window.location.hostname === 'localhost' || 
+      window.location.hostname.includes('id-preview') ||
+      !!import.meta.env.VITE_DISABLE_WEBSOCKET;
+    
+    if (this.shouldDisableWebSocket) {
+      this.useFallback = true;
+      logInfo('WebSocket disabled for development/preview environment');
+    }
   }
 
   /**
    * Connect to the WebSocket server
    */
   connect(): void {
+    // Skip connection if WebSocket is disabled
+    if (this.shouldDisableWebSocket) {
+      this.useFallback = true;
+      if (this.onConnectCallback) this.onConnectCallback();
+      return;
+    }
+    
     // If we've reached max reconnect attempts, use fallback
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       logWarn('WebSocket max reconnect attempts reached, using fallback mode');
