@@ -1,162 +1,153 @@
 
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Archive, Trophy, Calendar } from 'lucide-react';
+import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { challenges } from '@/data/challengesData';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { getChallengeImage } from '@/services/blog/imageUtils';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Clock, ArrowRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
-const Challenges = () => {
+const Challenges: React.FC = () => {
+  useScrollToTop();
   const navigate = useNavigate();
-  
-  // Scroll to top when component mounts
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
-  // Get current challenge
-  const currentChallenge = challenges.find(challenge => challenge.isCurrent);
-  
-  // Get challenge image
-  const challengeImage = currentChallenge ? getChallengeImage(currentChallenge.id) : '';
+  // Function to handle view past challenges click
+  const handleViewPastChallenges = () => {
+    navigate('/challenges/past');
+  };
+
+  // Current challenge data (sample)
+  const currentChallenge = {
+    title: "Focaccia Art Challenge",
+    description: "Create a beautiful, edible work of art using focaccia bread as your canvas! Decorate with vegetables, herbs, and other ingredients to create a visual masterpiece that tastes as good as it looks.",
+    deadline: "June 30, 2023",
+    difficulty: "Intermediate",
+    duration: "1 day",
+    participants: 87,
+    image: "https://images.unsplash.com/photo-1586765677067-f8030bd8e303?q=80&w=1470&auto=format&fit=crop"
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-grow pt-24 pb-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h1 className="font-serif text-4xl md:text-5xl font-medium mb-6">
-              Baking Challenges
-            </h1>
-            <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
-              Join our monthly bread baking challenges to improve your skills, try new techniques, and connect 
-              with fellow bakers from around the world.
+      <main className="flex-grow container max-w-6xl px-4 pt-24 pb-16 md:pt-28">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-serif font-bold mb-2">Baking Challenges</h1>
+            <p className="text-muted-foreground">
+              Join our community baking challenges and improve your skills.
             </p>
           </div>
           
-          {/* Current Challenge Showcase */}
-          <div className="max-w-6xl mx-auto mb-16">
-            <div className="flex items-center mb-8">
-              <Calendar className="mr-3 text-bread-800 h-6 w-6" />
-              <h2 className="font-serif text-2xl md:text-3xl font-medium">
-                This Month's Challenge
-              </h2>
-            </div>
-            
-            {currentChallenge ? (
-              <Card className="overflow-hidden border-none shadow-lg">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="relative overflow-hidden bg-bread-50">
-                    <AspectRatio ratio={16/9} className="bg-bread-50">
-                      <img 
-                        src={challengeImage}
-                        alt={currentChallenge.title} 
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = "https://images.unsplash.com/photo-1549931319-a545dcf3bc7c?q=85&w=1200&auto=format&fit=crop";
-                        }}
-                      />
-                      <div className="absolute top-0 left-0 bg-bread-800 text-white px-4 py-2 font-medium">
-                        {new Date(currentChallenge.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                      </div>
-                    </AspectRatio>
+          <Button 
+            onClick={handleViewPastChallenges}
+            variant="outline" 
+            className="mt-4 md:mt-0"
+          >
+            View Past Challenges
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <Card className="overflow-hidden h-full">
+              <div className="aspect-video lg:aspect-auto lg:h-60 overflow-hidden">
+                <img 
+                  src={currentChallenge.image}
+                  alt={currentChallenge.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              <CardHeader>
+                <div className="flex justify-between items-start flex-wrap gap-2">
+                  <CardTitle className="font-serif text-2xl">{currentChallenge.title}</CardTitle>
+                  <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Active Challenge</Badge>
+                </div>
+                <CardDescription className="text-base">{currentChallenge.description}</CardDescription>
+              </CardHeader>
+              
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium">Difficulty</div>
+                    <div className="flex items-center text-sm">
+                      <Badge variant="outline">{currentChallenge.difficulty}</Badge>
+                    </div>
                   </div>
                   
-                  <CardContent className="p-6 flex flex-col justify-between">
-                    <div>
-                      <h3 className="font-serif text-2xl font-medium mb-3">
-                        {currentChallenge.title}
-                      </h3>
-                      {currentChallenge.hashtag && (
-                        <div className="text-bread-700 font-medium text-base mb-4">
-                          #{currentChallenge.hashtag}
-                        </div>
-                      )}
-                      <p className="text-muted-foreground mb-6">
-                        {currentChallenge.description}
-                      </p>
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium">Time Required</div>
+                    <div className="flex items-center text-sm">
+                      <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                      {currentChallenge.duration}
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <Button 
-                        className="bg-bread-800 hover:bg-bread-900 text-white"
-                        asChild
-                      >
-                        <a href={currentChallenge.link} target="_blank" rel="noopener noreferrer">
-                          <Trophy className="mr-2 h-4 w-4" />
-                          Join This Challenge
-                        </a>
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => navigate('/challenges')}
-                        className="border-bread-200 text-bread-800 hover:bg-bread-50"
-                      >
-                        <Archive className="mr-2 h-4 w-4" />
-                        View Past Challenges
-                      </Button>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium">Submission Deadline</div>
+                    <div className="flex items-center text-sm">
+                      <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+                      {currentChallenge.deadline}
                     </div>
-                  </CardContent>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium">Current Participants</div>
+                    <div className="text-sm">{currentChallenge.participants} bakers</div>
+                  </div>
                 </div>
-              </Card>
-            ) : (
-              <Card className="p-8 text-center">
-                <p>No current challenge found. Check back soon!</p>
-              </Card>
-            )}
+              </CardContent>
+              
+              <CardFooter>
+                <Button className="w-full">Join This Challenge</Button>
+              </CardFooter>
+            </Card>
           </div>
           
-          {/* Benefits Section */}
-          <div className="max-w-5xl mx-auto">
-            <h2 className="font-serif text-2xl md:text-3xl font-medium text-center mb-8">
-              Why Join Our Challenges?
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="p-6 border-bread-100 hover:shadow-md transition-all">
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 bg-bread-100 rounded-full flex items-center justify-center mb-4">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 3.5C7.30558 3.5 3.5 7.30558 3.5 12C3.5 16.6944 7.30558 20.5 12 20.5C16.6944 20.5 20.5 16.6944 20.5 12C20.5 7.30558 16.6944 3.5 12 3.5Z" stroke="#8B5E3C" strokeWidth="1.5"/>
-                      <path d="M12 7.5V12L15 15" stroke="#8B5E3C" strokeWidth="1.5" strokeLinecap="round"/>
-                    </svg>
-                  </div>
-                  <h3 className="font-serif text-xl font-medium mb-2">Consistent Practice</h3>
-                  <p className="text-muted-foreground">Monthly challenges keep you baking regularly, building consistent skills and confidence.</p>
-                </div>
-              </Card>
+          <div>
+            <Card className="h-full">
+              <CardHeader>
+                <CardTitle className="font-serif">How Challenges Work</CardTitle>
+              </CardHeader>
               
-              <Card className="p-6 border-bread-100 hover:shadow-md transition-all">
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 bg-bread-100 rounded-full flex items-center justify-center mb-4">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M17 8.5C17 11.8137 14.3137 14.5 11 14.5C7.68629 14.5 5 11.8137 5 8.5C5 5.18629 7.68629 2.5 11 2.5C14.3137 2.5 17 5.18629 17 8.5Z" stroke="#8B5E3C" strokeWidth="1.5"/>
-                      <path d="M11 14.5C6.58172 14.5 3 18.0817 3 22.5H19C19 18.0817 15.4183 14.5 11 14.5Z" stroke="#8B5E3C" strokeWidth="1.5"/>
-                      <path d="M19 4.5L21 6.5L19 8.5" stroke="#8B5E3C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <h3 className="font-serif text-xl font-medium mb-2">Community Connection</h3>
-                  <p className="text-muted-foreground">Share your creations, get inspired by others, and become part of our supportive baking community.</p>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <h3 className="font-medium">1. Join the Challenge</h3>
+                  <p className="text-sm text-muted-foreground">Sign up for the current challenge to participate.</p>
                 </div>
-              </Card>
+                
+                <div className="space-y-2">
+                  <h3 className="font-medium">2. Bake Your Creation</h3>
+                  <p className="text-sm text-muted-foreground">Follow the challenge guidelines to create your bread masterpiece.</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="font-medium">3. Submit Your Results</h3>
+                  <p className="text-sm text-muted-foreground">Upload photos and details about your baking process and results.</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="font-medium">4. Community Voting</h3>
+                  <p className="text-sm text-muted-foreground">Members vote on submissions based on creativity, difficulty, and presentation.</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="font-medium">5. Earn Badges</h3>
+                  <p className="text-sm text-muted-foreground">Winners and participants earn badges for their profile.</p>
+                </div>
+              </CardContent>
               
-              <Card className="p-6 border-bread-100 hover:shadow-md transition-all">
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 bg-bread-100 rounded-full flex items-center justify-center mb-4">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 3.5L14.5 8.5L20 9.5L16 13.5L17 19L12 16.5L7 19L8 13.5L4 9.5L9.5 8.5L12 3.5Z" stroke="#8B5E3C" strokeWidth="1.5" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <h3 className="font-serif text-xl font-medium mb-2">Learn New Techniques</h3>
-                  <p className="text-muted-foreground">Each challenge introduces new skills, recipes, and techniques to expand your baking repertoire.</p>
-                </div>
-              </Card>
-            </div>
+              <CardFooter>
+                <Button variant="outline" className="w-full">
+                  <Link to="/faq/challenges">Read Challenge FAQ</Link>
+                </Button>
+              </CardFooter>
+            </Card>
           </div>
         </div>
       </main>

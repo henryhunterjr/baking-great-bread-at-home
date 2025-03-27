@@ -2,6 +2,7 @@
 import { extractTextFromPDF, ExtractTextResult, CancellableTask } from '@/lib/ai-services/pdf';
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
+import { cleanOCRText } from '@/lib/ai-services/text-cleaner';
 
 /**
  * Process a PDF file and extract its text
@@ -21,7 +22,7 @@ export const processPDFFile = async (
     
     // Validate file size before processing
     if (file.size > 15 * 1024 * 1024) { // 15MB limit
-      onError("PDF file is too large (max 15MB). Try using a smaller file or text input.");
+      onError("PDF file is too large (max 15MB). Try using a smaller file or extract just the recipe text and use text input instead.");
       return null;
     }
     
@@ -31,6 +32,13 @@ export const processPDFFile = async (
       return null;
     }
     
+    // Create timeout for user feedback
+    const timeoutPromise = new Promise<never>((_resolve, reject) => {
+      setTimeout(() => {
+        reject(new Error('PDF processing timed out after 60 seconds. Try a smaller file or extract just the recipe text and use text input instead.'));
+      }, 60000); // 60-second timeout
+    });
+    
     // Add timeout protection for the entire process
     const extractionPromise = Promise.race([
       // Extract text from the PDF with progress reporting
@@ -39,9 +47,7 @@ export const processPDFFile = async (
         logInfo("PDF processing progress:", { progress });
         onProgress(progress);
       }),
-      new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('PDF processing timed out after 90 seconds')), 90000) // Reduced from 120 seconds
-      )
+      timeoutPromise
     ]);
     
     const extractResult = await extractionPromise;
@@ -51,7 +57,7 @@ export const processPDFFile = async (
     
     // Handle different types of results
     if (extractResult === null) {
-      onError("Failed to extract text from the PDF. The file may be empty or corrupted.");
+      onError("Failed to extract text from the PDF. The file may be empty or corrupted. Try using text input instead.");
       return null;
     }
     
@@ -73,7 +79,7 @@ export const processPDFFile = async (
     
     // Improved empty text detection with better messaging
     if (extractedText.trim().length === 0) {
-      onError("No text was found in this PDF. It may contain only images or be scanned. Try uploading an image version instead.");
+      onError("No text was found in this PDF. It may contain only images or be scanned. Try uploading an image version instead, or copy the recipe text manually.");
       return null;
     }
     
@@ -83,10 +89,7 @@ export const processPDFFile = async (
     }
     
     // Clean the extracted text
-    const cleanedText = extractedText.replace(/\r\n/g, '\n')
-      .replace(/\n{3,}/g, '\n\n')
-      .replace(/[ \t]+/g, ' ')
-      .trim();
+    const cleanedText = cleanOCRText(extractedText);
     
     // Pass the cleaned text to the callback
     onComplete(cleanedText);
@@ -97,16 +100,16 @@ export const processPDFFile = async (
       // Provide more specific error messages based on the error type
       if (err instanceof Error) {
         if (err.message.includes('timed out')) {
-          onError(`The PDF processing timed out. Try a smaller or simpler PDF, or try pasting the recipe text directly.`);
+          onError(`The PDF processing timed out. Try a smaller or simpler PDF, extract just the recipe section, or try pasting the recipe text directly.`);
         } else if (err.message.includes('password')) {
           onError(`This PDF appears to be password protected. Please provide an unprotected PDF document.`);
         } else if (err.message.includes('worker') || err.message.includes('network')) {
           onError(`A network error occurred while processing the PDF. Please check your connection and try again.`);
         } else {
-          onError(`Failed to process the PDF: ${err.message}. Please try again with a different file.`);
+          onError(`Failed to process the PDF: ${err.message}. Please try again with a different file or format.`);
         }
       } else {
-        onError(`Failed to process the PDF. Please try again with a different file or format.`);
+        onError(`Failed to process the PDF. Please try again with a different file or format, or try pasting the recipe text directly.`);
       }
     }
   }

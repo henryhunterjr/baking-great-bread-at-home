@@ -1,239 +1,187 @@
 
-import React, { useState, FormEvent, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, Check, Key, ExternalLink } from 'lucide-react';
-import { configureAI, verifyAPIKey, isOpenAIConfigured } from '@/lib/ai-services/ai-config';
-import { verifyAIServiceStatus } from '@/lib/ai-services/initialize';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { InfoIcon, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { 
+  configureAI, 
+  verifyAPIKey, 
+  isOpenAIConfigured,
+  checkAPIKeyStatus 
+} from '@/lib/ai-services/ai-config';
 import { useToast } from '@/hooks/use-toast';
-import { logInfo } from '@/utils/logger';
 
 interface APIKeyFormProps {
-  onConfigured?: () => void;
+  onKeyConfigured?: () => void;
 }
 
-interface APIStatus {
-  isConfigured: boolean;
-  keySource: string | null;
-  model: string;
-}
-
-const APIKeyForm: React.FC<APIKeyFormProps> = ({ onConfigured }) => {
-  const [apiKey, setApiKey] = useState('');
-  const [isConfiguring, setIsConfiguring] = useState(false);
-  const [isKeySet, setIsKeySet] = useState(false);
-  const [status, setStatus] = useState<APIStatus>({ 
-    isConfigured: false, 
-    keySource: null, 
-    model: '' 
-  });
+const APIKeyForm: React.FC<APIKeyFormProps> = ({ onKeyConfigured }) => {
   const { toast } = useToast();
-
-  // Check the configuration status on mount
+  const [apiKey, setApiKey] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isConfigured, setIsConfigured] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Check if API key is already configured
   useEffect(() => {
-    const checkStatus = async () => {
-      try {
-        // Check if API key is configured
-        const isValid = isOpenAIConfigured();
-        
-        // If there's a key, verify it
-        if (isValid) {
-          const keyVerified = await verifyAPIKey();
-          setIsKeySet(keyVerified);
-          setStatus({
-            isConfigured: keyVerified,
-            keySource: keyVerified ? localStorage.getItem('openai_api_key') ? 'localStorage' : 'environment' : null,
-            model: 'gpt-4o-mini'
-          });
-          
-          if (keyVerified && onConfigured) {
-            onConfigured();
-          }
-          
-          logInfo('API key status checked', { isConfigured: keyVerified });
-        } else {
-          setIsKeySet(false);
-          setStatus({
-            isConfigured: false,
-            keySource: null,
-            model: ''
-          });
-        }
-      } catch (error) {
-        console.error('Error checking API status:', error);
-      }
-    };
+    const status = checkAPIKeyStatus();
+    setIsConfigured(status.hasKey && status.keyFormat);
     
-    checkStatus();
-  }, [onConfigured]);
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+    // If key exists, get it from localStorage for display (masked)
+    const storedKey = localStorage.getItem('openai_api_key');
+    if (storedKey) {
+      // Mask the key for display
+      const maskedKey = storedKey.substring(0, 3) + '••••••••••••••••' + storedKey.substring(storedKey.length - 4);
+      setApiKey(maskedKey);
+    }
+  }, []);
+  
+  const handleSaveKey = async () => {
+    setError(null);
     
-    if (!apiKey.trim()) {
+    // Check if the key was changed from the masked version
+    if (apiKey.includes('••••')) {
       toast({
-        title: 'API Key Required',
-        description: 'Please enter a valid API key',
-        variant: 'destructive'
+        title: "No Changes Made",
+        description: "The API key was not updated because it wasn't changed.",
       });
       return;
     }
     
-    setIsConfiguring(true);
+    // Basic validation
+    if (!apiKey.trim() || !apiKey.startsWith('sk-') || apiKey.length < 20) {
+      setError("Please enter a valid OpenAI API key. It should start with 'sk-' and be at least 20 characters long.");
+      return;
+    }
+    
+    setIsVerifying(true);
     
     try {
-      // Validate API key format (simple validation)
-      if (!apiKey.startsWith('sk-') || apiKey.length < 20) {
-        toast({
-          title: 'Invalid API Key Format',
-          description: 'The API key does not appear to be in the correct format. OpenAI API keys typically start with "sk-"',
-          variant: 'destructive'
-        });
-        setIsConfiguring(false);
-        return;
-      }
-      
-      // Configure the AI service with the key
+      // Configure the AI with the new key
       configureAI(apiKey);
       
-      // Verify the key after configuring
+      // Verify the key works
       const isValid = await verifyAPIKey();
       
       if (isValid) {
-        // Update status
-        setIsKeySet(true);
-        setStatus({
-          isConfigured: true,
-          keySource: 'localStorage',
-          model: 'gpt-4o-mini'
-        });
+        setIsConfigured(true);
         
-        toast({
-          title: 'API Key Configured',
-          description: 'Your API key has been successfully configured.',
-          variant: 'default'
-        });
-        
-        if (onConfigured) {
-          onConfigured();
+        // Call the callback if provided
+        if (onKeyConfigured) {
+          onKeyConfigured();
         }
         
-        logInfo('API key successfully configured');
-      } else {
         toast({
-          title: 'Invalid API Key',
-          description: 'The API key could not be verified. Please check and try again.',
-          variant: 'destructive'
+          title: "API Key Saved",
+          description: "Your OpenAI API key has been successfully saved and verified.",
+        });
+      } else {
+        setError("The API key appears to be invalid. Please check the key and try again.");
+        
+        toast({
+          variant: "destructive",
+          title: "Invalid API Key",
+          description: "The provided API key could not be verified with OpenAI.",
         });
       }
-    } catch (error) {
+    } catch (err) {
+      setError("An error occurred while verifying the API key. Please try again.");
+      
       toast({
-        title: 'Configuration Error',
-        description: 'There was an error configuring your API key.',
-        variant: 'destructive'
+        variant: "destructive",
+        title: "Verification Error",
+        description: "Failed to verify the API key with OpenAI.",
       });
     } finally {
-      setIsConfiguring(false);
+      setIsVerifying(false);
     }
   };
   
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          <Key className="mr-2 h-5 w-5" />
-          OpenAI API Configuration
-        </CardTitle>
-        <CardDescription>
-          Enter your OpenAI API key to enable AI-powered features like recipe conversion, blog search, and more.
-        </CardDescription>
-      </CardHeader>
-      
-      <CardContent>
-        {isKeySet ? (
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
-              <Check className="h-5 w-5" />
-              <p>API key configured successfully.</p>
-            </div>
-            
-            <div className="text-sm text-muted-foreground space-y-1">
-              <p><strong>Status:</strong> Active</p>
-              <p><strong>Key Source:</strong> {status.keySource || 'Unknown'}</p>
-              <p><strong>Model:</strong> {status.model}</p>
-            </div>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} id="api-key-form">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="apiKey">OpenAI API Key</Label>
-                <Input
-                  id="apiKey"
-                  type="password"
-                  placeholder="sk-..."
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="flex items-start space-x-2 text-amber-600 dark:text-amber-400">
-                <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                <p className="text-sm">
-                  Your API key is stored locally and never sent to our servers. It is used only for direct communication between your browser and OpenAI.
-                </p>
-              </div>
+  const handleClearKey = () => {
+    // Remove key from localStorage
+    localStorage.removeItem('openai_api_key');
+    
+    // Clear state
+    setApiKey('');
+    setIsConfigured(false);
+    setError(null);
+    
+    toast({
+      title: "API Key Cleared",
+      description: "Your OpenAI API key has been removed.",
+    });
+  };
 
-              <div className="pt-2">
-                <a 
-                  href="https://platform.openai.com/api-keys" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-sm flex items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  Get your OpenAI API key
-                </a>
-              </div>
-            </div>
-          </form>
-        )}
-      </CardContent>
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="openai-api-key">OpenAI API Key</Label>
+        <div className="text-sm text-muted-foreground mb-2">
+          Provide your OpenAI API key to enable AI features like recipe conversion and generation.
+        </div>
+        <Input
+          id="openai-api-key"
+          type="password"
+          placeholder="sk-..."
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
+          className="font-mono"
+        />
+      </div>
       
-      <CardFooter className="flex justify-between">
-        {!isKeySet && (
-          <Button
-            type="submit"
-            form="api-key-form"
-            disabled={isConfiguring || !apiKey.trim()}
-          >
-            {isConfiguring ? 'Configuring...' : 'Configure API Key'}
-          </Button>
-        )}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
+      {isConfigured && !error && (
+        <Alert>
+          <Check className="h-4 w-4 text-green-500" />
+          <AlertDescription>API key is configured and verified.</AlertDescription>
+        </Alert>
+      )}
+      
+      <div className="flex flex-col sm:flex-row gap-2">
+        <Button
+          onClick={handleSaveKey}
+          disabled={isVerifying || !apiKey.trim()}
+          className="flex-1"
+        >
+          {isVerifying ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Verifying...
+            </>
+          ) : (
+            <>Save API Key</>
+          )}
+        </Button>
         
-        {isKeySet && (
+        {isConfigured && (
           <Button
             variant="outline"
-            onClick={() => {
-              setIsKeySet(false);
-              setApiKey('');
-              localStorage.removeItem('openai_api_key');
-              toast({
-                title: 'API Key Removed',
-                description: 'Your API key has been removed.',
-                variant: 'default'
-              });
-              setStatus({ isConfigured: false, keySource: null, model: '' });
-            }}
+            onClick={handleClearKey}
+            disabled={isVerifying}
           >
-            Change API Key
+            Clear Key
           </Button>
         )}
-      </CardFooter>
-    </Card>
+      </div>
+      
+      <div className="pt-2">
+        <div className="text-sm text-muted-foreground flex items-start">
+          <InfoIcon className="h-4 w-4 mr-2 mt-0.5" />
+          <div>
+            <p>Need an OpenAI API key? <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Get one here</a>.</p>
+            <p className="mt-1">Your API key is stored only in your browser and never sent to our servers.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

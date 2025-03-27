@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { runBrowserCompatibilityCheck } from './utils/crossBrowserTesting';
@@ -24,10 +25,13 @@ const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
 const AIHome = lazy(() => import('./pages/AIHome'));
+const AIChat = lazy(() => import('./pages/AIChat')); // Import the AIChat page
 const ComingSoon = lazy(() => import('./pages/ComingSoon'));
 const Challenges = lazy(() => import('./pages/Challenges'));
+const PastChallenges = lazy(() => import('./pages/PastChallenges')); // Import the PastChallenges page
 const Tools = lazy(() => import('./pages/Tools'));
 const Books = lazy(() => import('./pages/Books'));
+const MyRecipes = lazy(() => import('./pages/MyRecipes')); // Import the MyRecipes page
 
 function App() {
   const [aiInitialized, setAiInitialized] = useState(false);
@@ -37,14 +41,21 @@ function App() {
     runBrowserCompatibilityCheck();
     
     try {
-      const initialized = initializeAIService();
-      if (initialized) {
-        logInfo('AI service initialized successfully');
-        setAiInitialized(true);
-      } else {
-        logInfo('AI service not initialized - no API key found');
-        setAiInitialized(false);
-      }
+      initializeAIService()
+        .then(() => {
+          logInfo('AI service initialized successfully');
+          setAiInitialized(true);
+        })
+        .catch(error => {
+          logError('Failed to initialize AI service:', error);
+          setAiInitialized(false);
+          
+          toast({
+            title: "AI Service Error",
+            description: "Failed to initialize AI services. Some features may be limited.",
+            variant: "destructive"
+          });
+        });
     } catch (error) {
       logError('Failed to initialize AI service:', error);
       setAiInitialized(false);
@@ -72,12 +83,15 @@ function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms-of-service" element={<TermsOfServicePage />} />
             <Route path="/ai" element={<AIHome aiInitialized={aiInitialized} />} />
+            <Route path="/ai/chat" element={<AIChat />} /> {/* Add route for AIChat */}
             <Route path="/community" element={<ComingSoon />} />
             <Route path="/challenges" element={<Challenges />} />
+            <Route path="/challenges/past" element={<PastChallenges />} /> {/* Add route for past challenges */}
             <Route path="/tools" element={<Tools />} />
             <Route path="/books" element={<Books />} />
             <Route path="/care-center" element={<CareCenter />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/my-recipes" element={<MyRecipes />} /> {/* Add route for my recipes */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

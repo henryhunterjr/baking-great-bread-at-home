@@ -82,9 +82,7 @@ export const verifyAPIKey = async (): Promise<boolean> => {
       return false;
     }
     
-    // In a production app, you might want to make a lightweight API call here
-    // to verify the key is valid with OpenAI, something like:
-    /*
+    // Try an actual API call to verify the key is valid
     const response = await fetch(`${AI_CONFIG.openai.apiUrl}/models`, {
       method: 'GET',
       headers: {
@@ -97,7 +95,6 @@ export const verifyAPIKey = async (): Promise<boolean> => {
       console.error('API key verification failed with status:', response.status);
       return false;
     }
-    */
     
     // Update the key in the configuration
     updateOpenAIApiKey();
@@ -138,10 +135,40 @@ export const checkAPIKeyStatus = (): {
   return { hasKey, keyFormat, source };
 };
 
+// Fix the ARIA accessibility issue
+export const fixAriaAccessibility = (): void => {
+  try {
+    // Find elements with aria-hidden="true" that might contain focusable elements
+    const ariaHiddenElements = document.querySelectorAll('[aria-hidden="true"]');
+    
+    ariaHiddenElements.forEach(el => {
+      // Check if this element contains any focusable elements
+      const focusableElements = el.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      
+      if (focusableElements.length > 0) {
+        // Apply inert attribute instead of aria-hidden for better accessibility
+        el.setAttribute('inert', '');
+        el.removeAttribute('aria-hidden');
+        
+        console.log('Fixed ARIA accessibility issue', { 
+          element: el.tagName, 
+          focusableCount: focusableElements.length 
+        });
+      }
+    });
+  } catch (error) {
+    console.error('Error fixing ARIA accessibility', { error });
+  }
+};
+
 // Initialize the OpenAI API key on module load
 updateOpenAIApiKey();
 
 // Log initial API key status for debugging
 setTimeout(() => {
   checkAPIKeyStatus();
+  // Fix ARIA accessibility issues
+  if (typeof document !== 'undefined') {
+    fixAriaAccessibility();
+  }
 }, 0);
