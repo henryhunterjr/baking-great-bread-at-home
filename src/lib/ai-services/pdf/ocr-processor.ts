@@ -37,11 +37,12 @@ const initializeOCR = async (): Promise<boolean> => {
       }
     }
     
-    // Create a new worker
+    // Create a new worker with progress logging
+    // We directly define the logger callback inline to avoid DataCloneError
     tesseractWorker = await createWorker({
-      logger: progress => {
-        if (progress.status === 'recognizing text') {
-          const progressPercent = Math.round(progress.progress * 100);
+      logger: m => {
+        if (m.status === 'recognizing text') {
+          const progressPercent = Math.round(m.progress * 100);
           logInfo(`OCR Progress: ${progressPercent}%`);
         }
       }
@@ -114,14 +115,15 @@ export const processImageWithOCR = async (
     
     // Track progress for the recognizing phase
     let lastProgress = 40;
-    // The progress handler is already set in the worker creation
     
     // Recognize text with progress tracking
+    // We need to use a configuration object with an inline logger function
+    // rather than setting a progress handler separately
     const result = await tesseractWorker.recognize(imageDataUrl, {
-      logger: progress => {
-        if (progress.status === 'recognizing text' && progressCallback) {
+      logger: m => {
+        if (m.status === 'recognizing text' && progressCallback) {
           // Map the tesseract progress (0-1) to our range (40-90)
-          const mappedProgress = Math.round(40 + (progress.progress * 50));
+          const mappedProgress = Math.round(40 + (m.progress * 50));
           if (mappedProgress > lastProgress) {
             lastProgress = mappedProgress;
             progressCallback(mappedProgress);
