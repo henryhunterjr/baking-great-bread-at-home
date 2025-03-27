@@ -125,9 +125,9 @@ export const checkAPIKeyStatus = (): {
   // Determine the source of the key
   let source = null;
   if (hasKey) {
-    if (import.meta.env.VITE_OPENAI_API_KEY) {
+    if (import.meta.env.VITE_OPENAI_API_KEY && import.meta.env.VITE_OPENAI_API_KEY.trim() !== '') {
       source = 'environment';
-    } else if (localStorage.getItem('openai_api_key')) {
+    } else if (localStorage.getItem('openai_api_key') && localStorage.getItem('openai_api_key')!.trim() !== '') {
       source = 'localStorage';
     }
   }

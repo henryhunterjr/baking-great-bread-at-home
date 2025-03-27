@@ -9,7 +9,11 @@ import {
 import { initializeContentIndexer } from './content-indexing/content-indexer';
 import { initializeContextAwareAI } from './context-aware-ai';
 import { ensurePDFWorkerFiles, configurePDFWorkerCORS } from './pdf/pdf-worker-service';
-import { verifyOCRAvailability } from './pdf/ocr-processor';
+import { verifyOCRAvailability } from './pdf/ocr/ocr-processor';
+import { createWebSocketManager } from '@/utils/websocket-manager';
+
+// WebSocket connection if needed
+let websocketManager: ReturnType<typeof createWebSocketManager> | null = null;
 
 /**
  * Initialize AI service and content indexing with enhanced reliability
@@ -78,6 +82,30 @@ export const initializeAIService = async (): Promise<void> => {
       logError('Error initializing context-aware AI', { error });
     }
     
+    // Initialize WebSocket connection if needed (with fallback support)
+    try {
+      if (window.location.hostname !== 'localhost' && !import.meta.env.VITE_DISABLE_WEBSOCKET) {
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${wsProtocol}//${window.location.host}`;
+        
+        websocketManager = createWebSocketManager(wsUrl)
+          .onConnect(() => {
+            logInfo(websocketManager?.isFallbackMode() 
+              ? '⚠️ WebSocket connection failed, using fallback mode' 
+              : '✅ WebSocket connected successfully');
+          })
+          .onError((error) => {
+            logError('WebSocket error', { error });
+          });
+          
+        websocketManager.connect();
+      } else {
+        logInfo('WebSocket initialization skipped (localhost or disabled)');
+      }
+    } catch (error) {
+      logError('Error initializing WebSocket', { error });
+    }
+    
   } catch (error) {
     logError('Failed to initialize AI service', { error });
   }
@@ -91,6 +119,7 @@ export const verifyAIServiceStatus = async (): Promise<{
   pdfWorkerAvailable: boolean;
   ocrAvailable: boolean;
   contentIndexingAvailable: boolean;
+  websocketConnected: boolean;
   overallStatus: boolean;
 }> => {
   try {
@@ -119,6 +148,9 @@ export const verifyAIServiceStatus = async (): Promise<{
       logError('Content indexing verification failed', { error });
     }
     
+    // Check WebSocket connection
+    const websocketConnected = !!websocketManager && !websocketManager.isFallbackMode();
+    
     // Determine overall status (API key not required for overall status)
     const overallStatus = pdfWorkerAvailable && (ocrAvailable || contentIndexingAvailable);
     
@@ -127,6 +159,7 @@ export const verifyAIServiceStatus = async (): Promise<{
       pdfWorkerAvailable,
       ocrAvailable, 
       contentIndexingAvailable,
+      websocketConnected,
       overallStatus
     };
     
@@ -139,7 +172,39 @@ export const verifyAIServiceStatus = async (): Promise<{
       pdfWorkerAvailable: false,
       ocrAvailable: false,
       contentIndexingAvailable: false,
+      websocketConnected: false,
       overallStatus: false
     };
   }
 };
+
+// Fix for ARIA accessibility issue with nav elements
+export const fixAriaAccessibility = (): void => {
+  try {
+    // Find elements with aria-hidden="true" that might contain focusable elements
+    const ariaHiddenElements = document.querySelectorAll('[aria-hidden="true"]');
+    
+    ariaHiddenElements.forEach(el => {
+      // Check if this element contains any focusable elements
+      const focusableElements = el.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      
+      if (focusableElements.length > 0) {
+        // Apply inert attribute instead of aria-hidden for better accessibility
+        el.setAttribute('inert', '');
+        el.removeAttribute('aria-hidden');
+        
+        logInfo('Fixed ARIA accessibility issue', { 
+          element: el.tagName, 
+          focusableCount: focusableElements.length 
+        });
+      }
+    });
+  } catch (error) {
+    logError('Error fixing ARIA accessibility', { error });
+  }
+};
+
+// Run accessibility fixes on DOM content loaded
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', fixAriaAccessibility);
+}

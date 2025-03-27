@@ -44,7 +44,7 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onConfigured }) => {
           setIsKeySet(keyVerified);
           setStatus({
             isConfigured: keyVerified,
-            keySource: keyVerified ? 'localStorage' : null,
+            keySource: keyVerified ? localStorage.getItem('openai_api_key') ? 'localStorage' : 'environment' : null,
             model: 'gpt-4o-mini'
           });
           
@@ -166,7 +166,7 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onConfigured }) => {
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} id="api-key-form">
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="apiKey">OpenAI API Key</Label>
@@ -207,7 +207,7 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onConfigured }) => {
         {!isKeySet && (
           <Button
             type="submit"
-            onClick={handleSubmit}
+            form="api-key-form"
             disabled={isConfiguring || !apiKey.trim()}
           >
             {isConfiguring ? 'Configuring...' : 'Configure API Key'}
