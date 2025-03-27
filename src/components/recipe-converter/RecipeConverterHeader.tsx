@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Image } from 'lucide-react';
 
 const RecipeConverterHeader: React.FC = () => {
   return (
@@ -24,7 +25,10 @@ const RecipeConverterHeader: React.FC = () => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
               <div className="p-6 text-white">
-                <h2 className="text-2xl font-serif font-semibold">Preserve Your Family Legacy</h2>
+                <h2 className="text-2xl font-serif font-semibold flex items-center">
+                  <Image className="mr-3 h-8 w-8" />
+                  Preserve Your Family Legacy
+                </h2>
                 <p className="text-sm opacity-90">Transform treasured handwritten recipes into digital format that will last for generations</p>
               </div>
             </div>
