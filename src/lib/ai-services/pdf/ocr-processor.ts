@@ -38,8 +38,9 @@ const initializeOCR = async (): Promise<boolean> => {
     }
     
     // Create a new worker with progress logging
-    // We directly define the logger callback inline to avoid DataCloneError
-    tesseractWorker = await createWorker({
+    // We need to use any type here because the TypeScript definitions for
+    // Tesseract.js v6.0.0 don't fully match the actual API
+    tesseractWorker = await createWorker('eng', {
       logger: m => {
         if (m.status === 'recognizing text') {
           const progressPercent = Math.round(m.progress * 100);
@@ -48,9 +49,8 @@ const initializeOCR = async (): Promise<boolean> => {
       }
     });
     
-    // Initialize the worker with English language
-    await tesseractWorker.loadLanguage('eng');
-    await tesseractWorker.initialize('eng');
+    // No need to separately load language and initialize as it's done 
+    // in createWorker when passing the language as first parameter
     
     // Log successful initialization
     logInfo('OCR service successfully initialized');
@@ -118,7 +118,6 @@ export const processImageWithOCR = async (
     
     // Recognize text with progress tracking
     // We need to use a configuration object with an inline logger function
-    // rather than setting a progress handler separately
     const result = await tesseractWorker.recognize(imageDataUrl, {
       logger: m => {
         if (m.status === 'recognizing text' && progressCallback) {
