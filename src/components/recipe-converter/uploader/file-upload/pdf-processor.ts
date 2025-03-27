@@ -1,8 +1,12 @@
 
-import { extractTextFromPDF, ExtractTextResult, CancellableTask } from '@/lib/ai-services/pdf';
+import { extractTextFromPDF } from '@/lib/ai-services/pdf';
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
 import { cleanOCRText } from '@/lib/ai-services/text-cleaner';
+
+// Constants for timeouts and limits
+const MAX_PDF_SIZE_MB = 8;
+const PDF_TIMEOUT_MS = 40000; // 40 seconds
 
 /**
  * Process a PDF file and extract its text
@@ -15,15 +19,16 @@ export const processPDFFile = async (
   
   // Create a cancel token
   let isCancelled = false;
-  let processingTask: CancellableTask | null = null;
+  let processingTask: { cancel: () => void } | null = null;
   let timeoutId: number | null = null;
   
   try {
-    logInfo("Processing PDF file:", { filename: file.name, filesize: file.size });
+    logInfo("Starting PDF processing", { filename: file.name, filesize: file.size });
     
-    // Validate file size before processing - reduce max size from 15MB to 8MB
-    if (file.size > 8 * 1024 * 1024) {
-      onError("PDF file is too large (max 8MB). Try using a smaller file or extract just the recipe text and use text input instead.");
+    // Validate file size before processing
+    const maxSize = MAX_PDF_SIZE_MB * 1024 * 1024;
+    if (file.size > maxSize) {
+      onError(`PDF file is too large (max ${MAX_PDF_SIZE_MB}MB). Try using a smaller file or extract just the recipe text and use text input instead.`);
       return null;
     }
     
@@ -33,24 +38,36 @@ export const processPDFFile = async (
       return null;
     }
     
-    // Create timeout for user feedback - reduced from 60 seconds to 30 seconds
+    // Initial progress
+    onProgress(10);
+    
+    // Create timeout for user feedback
     timeoutId = window.setTimeout(() => {
       if (!isCancelled) {
         isCancelled = true;
-        onError('PDF processing timed out after 30 seconds. Try a smaller file or extract just the recipe text and use text input instead.');
+        logError('PDF processing timed out', { timeout: PDF_TIMEOUT_MS });
+        onError(`PDF processing timed out after ${PDF_TIMEOUT_MS/1000} seconds. Try a smaller file or extract just the recipe text and use text input instead.`);
         
         // Try to cancel the processing task if it exists
         if (processingTask && processingTask.cancel) {
           processingTask.cancel();
         }
       }
-    }, 30000); // 30-second timeout
+    }, PDF_TIMEOUT_MS);
     
-    // Extract text from the PDF with progress reporting
+    // Track the last progress update to avoid UI flicker
+    let lastProgressUpdate = 10;
+    
+    // Extract text from the PDF with throttled progress reporting
     const extractResult = await extractTextFromPDF(file, (progress) => {
       if (isCancelled) return;
-      logInfo("PDF processing progress:", { progress });
-      onProgress(progress);
+      
+      // Only update if progress has increased by at least 5%
+      if (progress > lastProgressUpdate + 5) {
+        lastProgressUpdate = progress;
+        logInfo("PDF processing progress:", { progress });
+        onProgress(progress);
+      }
     });
     
     // Clear the timeout since we finished successfully
@@ -70,16 +87,16 @@ export const processPDFFile = async (
     
     // Check if the result is a cancellable task object
     if (typeof extractResult === 'object' && extractResult !== null && 'cancel' in extractResult) {
-      processingTask = extractResult as CancellableTask;
+      processingTask = extractResult as { cancel: () => void };
       return {
         cancel: () => {
           if (processingTask) processingTask.cancel();
           isCancelled = true;
-          // Clear the timeout if it exists
           if (timeoutId !== null) {
             window.clearTimeout(timeoutId);
             timeoutId = null;
           }
+          logInfo("PDF processing cancelled by user");
         }
       };
     }
@@ -87,17 +104,15 @@ export const processPDFFile = async (
     // At this point, we know extractResult is a string
     const extractedText = extractResult as string;
     
-    logInfo("PDF extraction complete, text length:", { length: extractedText.length });
+    // Final progress
+    onProgress(100);
+    
+    logInfo("PDF extraction complete", { textLength: extractedText.length });
     
     // Improved empty text detection with better messaging
-    if (extractedText.trim().length === 0) {
+    if (!extractedText || extractedText.trim().length === 0) {
       onError("No text was found in this PDF. It may contain only images or be scanned. Try uploading an image version instead, or copy the recipe text manually.");
       return null;
-    }
-    
-    // Check if text is potentially incomplete or low quality
-    if (extractedText.trim().length < 200) {
-      logInfo("PDF extraction returned limited text", { textLength: extractedText.length });
     }
     
     // Clean the extracted text
@@ -105,6 +120,7 @@ export const processPDFFile = async (
     
     // Pass the cleaned text to the callback
     onComplete(cleanedText);
+    return null;
   } catch (err) {
     logError('PDF processing error:', { error: err });
     
@@ -116,22 +132,23 @@ export const processPDFFile = async (
     
     if (!isCancelled) {
       // Provide more specific error messages based on the error type
-      if (err instanceof Error) {
-        if (err.message.includes('timed out')) {
-          onError(`The PDF processing timed out. Try a smaller or simpler PDF, extract just the recipe section, or try pasting the recipe text directly.`);
-        } else if (err.message.includes('password')) {
-          onError(`This PDF appears to be password protected. Please provide an unprotected PDF document.`);
-        } else if (err.message.includes('worker') || err.message.includes('network')) {
-          onError(`A network error occurred while processing the PDF. Please check your connection and try again.`);
-        } else {
-          onError(`Failed to process the PDF: ${err.message}. Please try again with a different file or format.`);
-        }
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      
+      if (errorMessage.includes('timed out') || errorMessage.includes('timeout')) {
+        onError(`The PDF processing timed out. Try a smaller or simpler PDF, extract just the recipe section, or try pasting the recipe text directly.`);
+      } else if (errorMessage.includes('password')) {
+        onError(`This PDF appears to be password protected. Please provide an unprotected PDF document.`);
+      } else if (errorMessage.includes('worker') || errorMessage.includes('network')) {
+        onError(`A network error occurred while processing the PDF. Please check your connection and try again.`);
       } else {
-        onError(`Failed to process the PDF. Please try again with a different file or format, or try pasting the recipe text directly.`);
+        onError(`Failed to process the PDF: ${errorMessage}. Please try again with a different file or format.`);
       }
     }
+    
+    return null;
   }
   
+  // Return a cancellation function
   return {
     cancel: () => {
       isCancelled = true;
@@ -140,8 +157,10 @@ export const processPDFFile = async (
         window.clearTimeout(timeoutId);
         timeoutId = null;
       }
-      if (processingTask) processingTask.cancel();
-      logInfo("PDF processing cancelled by user", {});
+      if (processingTask && processingTask.cancel) {
+        processingTask.cancel();
+      }
+      logInfo("PDF processing cancelled by user");
     }
   };
 };

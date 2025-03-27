@@ -1,5 +1,5 @@
 
-import { logInfo, logError } from '@/utils/logger';
+import { logInfo, logError, logWarn } from '@/utils/logger';
 
 /**
  * Initialize PDF.js worker with proper error handling and CORS configuration
@@ -42,13 +42,6 @@ export const initPDFWorker = async (): Promise<boolean> => {
     return false;
   }
 };
-
-/**
- * Log a warning message
- */
-function logWarn(message: string, context?: Record<string, any>): void {
-  console.warn(`[${new Date().toISOString()}] [WARN] ${message}`, context);
-}
 
 /**
  * Ensure PDF worker files are available and properly configured
