@@ -11,8 +11,8 @@ interface NoAPIKeyMessageProps {
 
 const NoAPIKeyMessage: React.FC<NoAPIKeyMessageProps> = ({ showSettings = true }) => {
   return (
-    <Alert variant="warning" className="mb-4">
-      <AlertTriangle className="h-5 w-5 mr-2" />
+    <Alert variant="destructive" className="mb-4 border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300">
+      <AlertTriangle className="h-5 w-5 mr-2 text-amber-600" />
       <AlertTitle className="text-amber-600">API Key Required</AlertTitle>
       <AlertDescription className="mt-2">
         <p className="mb-2">
