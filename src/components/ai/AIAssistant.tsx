@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageSquare, Wand2, Sparkles, Settings } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MessageSquare, Wand2, Sparkles, Settings, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessage } from './utils/types';
 import ChatTab from './tabs/ChatTab';
@@ -9,6 +9,8 @@ import ConvertTab from './tabs/ConvertTab';
 import GenerateTab from './tabs/GenerateTab';
 import SettingsTab from './tabs/SettingsTab';
 import { henryQuotes } from './utils/data';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const AIAssistant = () => {
   const [activeTab, setActiveTab] = useState('chat');
@@ -31,6 +33,15 @@ const AIAssistant = () => {
   
   return (
     <div className="h-full flex flex-col">
+      <div className="px-4 py-3 border-b flex justify-between items-center">
+        <div className="flex items-center">
+          <Link to="/" className="inline-flex items-center mr-4 text-sm font-medium text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back to Home
+          </Link>
+        </div>
+      </div>
+      
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
         <div className="px-4 py-2 border-b">
           <TabsList className="grid grid-cols-4">

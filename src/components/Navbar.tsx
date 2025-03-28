@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Sun, Moon } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, Sun, Moon, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
@@ -13,13 +14,16 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const isHomePage = location.pathname === '/';
+  const isAIPage = location.pathname.startsWith('/ai');
 
-  const shouldAutoHide = !isHomePage;
+  // Always show navbar on AI pages and home page
+  const shouldAutoHide = !isHomePage && !isAIPage;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -80,6 +84,11 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const handleGoHome = () => {
+    navigate('/');
+    closeMobileMenu();
+  };
+
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Books & Guides', path: '/books' },
@@ -96,8 +105,14 @@ const Navbar = () => {
     return location.pathname === path;
   };
 
+  const navbarClasses = cn(
+    "sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+    isVisible ? "opacity-100" : "opacity-0 pointer-events-none",
+    "transition-opacity duration-300"
+  );
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className={navbarClasses}>
       <div className="container flex h-14 items-center">
         <div className="flex-shrink-0 font-serif font-medium tracking-tight text-lg sm:text-xl md:text-2xl">
           <Link to="/" className="flex items-center gap-2" onClick={closeMobileMenu}>
@@ -110,6 +125,18 @@ const Navbar = () => {
             {/* Add any search components here */}
           </div>
           <nav className="flex items-center space-x-2">
+            {isAIPage && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleGoHome}
+                className="mr-2"
+              >
+                <Home className="h-4 w-4 mr-1" />
+                Home
+              </Button>
+            )}
+            
             <UserMenu />
             
             <Toggle 
@@ -150,7 +177,7 @@ const Navbar = () => {
               to={link.path}
               className={cn(
                 "nav-link text-sm py-1",
-                isActiveLink(link.path) && "active-nav-link"
+                isActiveLink(link.path) ? "active-nav-link font-medium text-primary" : "text-muted-foreground hover:text-foreground"
               )}
             >
               {link.name}

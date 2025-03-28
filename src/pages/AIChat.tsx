@@ -9,6 +9,7 @@ import { isOpenAIConfigured } from '@/lib/ai-services/ai-config';
 import APIKeyForm from '@/components/ai/settings/APIKeyForm';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { InfoIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const AIChat: React.FC = () => {
   useScrollToTop();
@@ -23,7 +24,12 @@ const AIChat: React.FC = () => {
       <Navbar />
       
       <main className="flex-grow container max-w-6xl px-4 pt-24 pb-16 md:pt-28">
-        <h1 className="text-3xl font-serif font-bold mb-6">AI Kitchen Assistant</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-serif font-bold">AI Kitchen Assistant</h1>
+          <Link to="/" className="text-sm font-medium text-accent hover:text-accent/80">
+            ← Back to Home
+          </Link>
+        </div>
         
         {!isConfigured ? (
           <div className="max-w-2xl mx-auto">
