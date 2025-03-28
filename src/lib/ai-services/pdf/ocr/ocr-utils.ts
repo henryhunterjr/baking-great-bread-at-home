@@ -78,3 +78,53 @@ export const calculateTimeout = (fileSize: number, isComplex = false): number =>
   // Cap at 5 minutes (300000ms) for browser processing
   return Math.min(timeout, 300000);
 };
+
+/**
+ * Estimates memory usage for OCR processing based on image dimensions
+ * 
+ * @param width Image width in pixels
+ * @param height Image height in pixels
+ * @returns Estimated memory usage in MB
+ */
+export const estimateMemoryUsage = (width: number, height: number): number => {
+  // Basic estimate: 4 bytes per pixel (RGBA) + overhead
+  const pixelCount = width * height;
+  const bytesPerPixel = 4;
+  const overhead = 1.5; // 50% overhead for processing
+  
+  // Calculate in MB
+  return (pixelCount * bytesPerPixel * overhead) / (1024 * 1024);
+};
+
+/**
+ * Checks if the current environment has sufficient memory for OCR processing
+ * 
+ * @param requiredMemoryMB Estimated memory required in MB
+ * @returns Boolean indicating if memory is sufficient
+ */
+export const hasEnoughMemory = (requiredMemoryMB: number): boolean => {
+  // Check if performance.memory is available (Chrome only)
+  if (window.performance && 'memory' in window.performance) {
+    const memory = (window.performance as any).memory;
+    
+    if (memory && memory.jsHeapSizeLimit) {
+      const availableMemoryMB = memory.jsHeapSizeLimit / (1024 * 1024);
+      const usedMemoryMB = memory.usedJSHeapSize / (1024 * 1024);
+      const remainingMemoryMB = availableMemoryMB - usedMemoryMB;
+      
+      logInfo('Memory check', {
+        availableMemoryMB: Math.round(availableMemoryMB),
+        usedMemoryMB: Math.round(usedMemoryMB),
+        remainingMemoryMB: Math.round(remainingMemoryMB),
+        requiredMemoryMB: Math.round(requiredMemoryMB)
+      });
+      
+      // Need at least the required memory + 50MB buffer
+      return remainingMemoryMB > (requiredMemoryMB + 50);
+    }
+  }
+  
+  // If we can't check memory, assume it's sufficient
+  // Most modern browsers have enough memory for reasonable-sized images
+  return true;
+};

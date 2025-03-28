@@ -1,70 +1,102 @@
 
-import { logInfo, logError } from '@/utils/logger';
 import { Tesseract } from './tesseract-service';
-import { ProgressCallback } from '../types';
+import { cleanupOCR } from './ocr-service';
+import { logInfo, logError, startPerformanceTimer, endPerformanceTimer } from '@/utils/logger';
+import { calculateTimeout } from './ocr-utils';
 
 /**
- * Verify if OCR is available in the current environment
- * @returns True if OCR is available
+ * Check if OCR is available in the current environment
  */
 export const verifyOCRAvailability = async (): Promise<boolean> => {
   try {
-    // Check if Tesseract.js is available
-    await Tesseract.checkAvailability();
-    return true;
+    return await Tesseract.checkAvailability();
   } catch (error) {
-    logError('OCR is not available in this environment', { error });
+    logError('OCR availability check failed', { error });
     return false;
   }
 };
 
 /**
  * Extract text from an image using OCR
- * @param imageFile Image file to process
+ * 
+ * @param imageFile The image file to process
  * @param progressCallback Optional callback for progress updates
- * @returns Extracted text as a string
+ * @param options Additional options including AbortSignal for cancellation
+ * @returns Extracted text
  */
 export const extractTextWithOCR = async (
   imageFile: File,
-  progressCallback?: ProgressCallback
+  progressCallback?: (progress: number) => void,
+  options: {
+    signal?: AbortSignal
+  } = {}
 ): Promise<string> => {
+  const perfMarkerId = `ocr-${Date.now()}`;
+  startPerformanceTimer(perfMarkerId);
+  
   try {
-    logInfo('Starting OCR processing of image', { filename: imageFile.name, fileSize: imageFile.size });
-    
-    // Validate image file
-    if (!imageFile.type.startsWith('image/')) {
-      throw new Error('File is not a valid image type');
+    // Validate input
+    if (!imageFile) {
+      throw new Error('No image file provided for OCR');
     }
     
-    // Convert the image file to a format Tesseract can process
-    const imageURL = URL.createObjectURL(imageFile);
+    // Log OCR start with file details
+    logInfo('Starting OCR text extraction', { 
+      fileName: imageFile.name,
+      fileSize: imageFile.size,
+      fileType: imageFile.type
+    });
     
-    try {
-      // Process the image with OCR
-      const result = await Tesseract.recognize(
-        imageURL,
-        {
-          logger: (data) => {
-            if (progressCallback && 'progress' in data) {
-              progressCallback(data.progress);
-            }
-          }
-        }
-      );
-      
-      const extractedText = result.data.text;
-      logInfo('OCR processing completed successfully', { 
-        filename: imageFile.name, 
-        textLength: extractedText.length 
-      });
-      
-      return extractedText;
-    } finally {
-      // Clean up the object URL to avoid memory leaks
-      URL.revokeObjectURL(imageURL);
+    // Create a throttled progress updater callback
+    const updateProgress = (status: any) => {
+      if (status && status.progress !== undefined && progressCallback) {
+        progressCallback(status.progress * 100);
+      }
+    };
+    
+    // Check if operation was cancelled before starting
+    if (options.signal?.aborted) {
+      throw new Error('OCR operation cancelled before starting');
     }
+    
+    // Process image with Tesseract
+    const result = await Tesseract.recognize(imageFile, {
+      logger: updateProgress,
+      signal: options.signal
+    });
+    
+    // Extract and clean text from result
+    let extractedText = result.data.text || '';
+    
+    // Clean the OCR text to improve quality
+    extractedText = cleanupOCR(extractedText);
+    
+    // Calculate processing time
+    const processingTime = endPerformanceTimer(
+      perfMarkerId,
+      'OCR text extraction',
+      { textLength: extractedText.length }
+    );
+    
+    logInfo('OCR extraction completed', {
+      processingTimeMs: processingTime,
+      textLength: extractedText.length
+    });
+    
+    return extractedText;
   } catch (error) {
-    logError('OCR processing failed', { error, filename: imageFile.name });
-    throw new Error(`OCR processing failed: ${error instanceof Error ? error.message : String(error)}`);
+    // Special handling for cancellation
+    if (options.signal?.aborted) {
+      logInfo('OCR extraction cancelled by user');
+      throw new Error('OCR operation was cancelled');
+    }
+    
+    // Log and rethrow all other errors
+    logError('OCR extraction failed', { error });
+    
+    // Calculate total time even for errors
+    endPerformanceTimer(perfMarkerId, 'OCR extraction (failed)');
+    
+    throw error;
   }
 };

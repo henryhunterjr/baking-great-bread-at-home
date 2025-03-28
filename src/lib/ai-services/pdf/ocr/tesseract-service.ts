@@ -16,6 +16,12 @@ const tesseractConfig = {
 
 // Maximum retry attempts for OCR operations
 const MAX_RETRIES = 3;
+// Limit concurrent workers to prevent memory exhaustion
+const MAX_CONCURRENT_WORKERS = 2;
+// Track active workers
+let activeWorkers = 0;
+// Queue for pending OCR tasks
+const taskQueue: Array<() => Promise<void>> = [];
 
 export const Tesseract = {
   /**
@@ -33,63 +39,163 @@ export const Tesseract = {
   },
   
   /**
-   * Recognize text in an image with retries
+   * Recognize text in an image with retries and worker management
    * @param imageSource URL or File object of the image
-   * @param options Options for recognition
+   * @param options Options for recognition including signal for cancellation
    * @returns Recognition result
    */
   async recognize(
     imageSource: string | File,
-    options: { logger?: (data: any) => void } = {}
+    options: { 
+      logger?: (data: any) => void,
+      signal?: AbortSignal
+    } = {}
+  ): Promise<RecognizeResult> {
+    // Implement task queueing for memory management
+    if (activeWorkers >= MAX_CONCURRENT_WORKERS) {
+      logInfo('OCR worker limit reached, queueing task', { 
+        activeWorkers, 
+        queueLength: taskQueue.length 
+      });
+      
+      // Create a queueable promise
+      return new Promise((resolve, reject) => {
+        taskQueue.push(async () => {
+          try {
+            // Check if operation was cancelled while in queue
+            if (options.signal?.aborted) {
+              reject(new Error('OCR operation cancelled while in queue'));
+              return;
+            }
+            
+            const result = await this.performRecognition(imageSource, options);
+            resolve(result);
+          } catch (error) {
+            reject(error);
+          }
+        });
+      });
+    }
+    
+    return this.performRecognition(imageSource, options);
+  },
+  
+  /**
+   * Perform the actual recognition with retries
+   * @private
+   */
+  private async performRecognition(
+    imageSource: string | File,
+    options: { 
+      logger?: (data: any) => void,
+      signal?: AbortSignal
+    } = {}
   ): Promise<RecognizeResult> {
     let attempts = 0;
     let lastError: Error | null = null;
     
-    while (attempts < MAX_RETRIES) {
-      try {
-        attempts++;
-        logInfo('OCR attempt', { attempt: attempts, maxRetries: MAX_RETRIES });
-        
-        // Create a new worker for each attempt to avoid state issues
-        const worker = await createWorker('eng', 1, {
-          ...tesseractConfig,
-          logger: options.logger || tesseractConfig.logger
-        });
-        
+    // Increment active worker count
+    activeWorkers++;
+    
+    try {
+      while (attempts < MAX_RETRIES) {
         try {
-          // Set parameters for better text recognition - explicitly as strings
-          await worker.setParameters({
-            tessedit_ocr_engine_mode: "3", // Legacy + LSTM mode (as string)
-            preserve_interword_spaces: "1"
+          attempts++;
+          logInfo('OCR attempt', { attempt: attempts, maxRetries: MAX_RETRIES });
+          
+          // Check if operation was cancelled
+          if (options.signal?.aborted) {
+            throw new Error('OCR operation cancelled');
+          }
+          
+          // Create a new worker for each attempt to avoid state issues
+          const worker = await createWorker('eng', 1, {
+            ...tesseractConfig,
+            logger: options.logger || tesseractConfig.logger
           });
           
-          // Perform the recognition
-          const result = await worker.recognize(imageSource);
+          // Set up cancellation listener if signal provided
+          const abortListener = options.signal ? 
+            () => {
+              logInfo('OCR operation aborted by signal');
+              worker.terminate();
+            } : 
+            null;
+            
+          if (abortListener && options.signal) {
+            options.signal.addEventListener('abort', abortListener);
+          }
           
-          // Clean up worker resources
-          await worker.terminate();
-          
-          // Return the result on success
-          return result;
+          try {
+            // Set parameters for better text recognition - explicitly as strings
+            await worker.setParameters({
+              tessedit_ocr_engine_mode: "3", // Legacy + LSTM mode (as string)
+              preserve_interword_spaces: "1"
+            });
+            
+            // Perform the recognition
+            const result = await worker.recognize(imageSource);
+            
+            // Clean up worker resources
+            await worker.terminate();
+            
+            // Remove abort listener if it was added
+            if (abortListener && options.signal) {
+              options.signal.removeEventListener('abort', abortListener);
+            }
+            
+            // Return the result on success
+            return result;
+          } catch (error) {
+            // Check if operation was cancelled during processing
+            if (options.signal?.aborted) {
+              throw new Error('OCR operation cancelled during processing');
+            }
+            
+            await worker.terminate(); // Ensure worker is terminated on error
+            
+            // Remove abort listener if it was added
+            if (abortListener && options.signal) {
+              options.signal.removeEventListener('abort', abortListener);
+            }
+            
+            throw error;
+          }
         } catch (error) {
-          await worker.terminate(); // Ensure worker is terminated on error
-          throw error;
+          // Check if operation was cancelled
+          if (options.signal?.aborted) {
+            throw new Error('OCR operation cancelled');
+          }
+          
+          lastError = error instanceof Error ? error : new Error(String(error));
+          logError('OCR attempt failed', { attempt: attempts, error: lastError.message });
+          
+          // If this is not the last attempt, wait before retrying
+          if (attempts < MAX_RETRIES) {
+            // Exponential backoff (1s, 2s, 4s, etc.)
+            const backoffMs = Math.pow(2, attempts) * 1000;
+            logInfo('Retrying OCR after backoff', { backoffMs });
+            await new Promise(resolve => setTimeout(resolve, backoffMs));
+          }
         }
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-        logError('OCR attempt failed', { attempt: attempts, error: lastError.message });
-        
-        // If this is not the last attempt, wait before retrying
-        if (attempts < MAX_RETRIES) {
-          // Exponential backoff (1s, 2s, 4s, etc.)
-          const backoffMs = Math.pow(2, attempts) * 1000;
-          logInfo('Retrying OCR after backoff', { backoffMs });
-          await new Promise(resolve => setTimeout(resolve, backoffMs));
+      }
+      
+      // If all attempts fail, throw the last error
+      throw new Error(`OCR failed after ${MAX_RETRIES} attempts: ${lastError?.message || 'Unknown error'}`);
+    } finally {
+      // Decrement active worker count and process next in queue
+      activeWorkers--;
+      
+      // Process next task in queue if any
+      if (taskQueue.length > 0) {
+        const nextTask = taskQueue.shift();
+        if (nextTask) {
+          logInfo('Processing next OCR task from queue', { remainingInQueue: taskQueue.length });
+          nextTask().catch(error => {
+            logError('Error in queued OCR task', { error });
+          });
         }
       }
     }
-    
-    // If all attempts fail, throw the last error
-    throw new Error(`OCR failed after ${MAX_RETRIES} attempts: ${lastError?.message || 'Unknown error'}`);
   }
 };

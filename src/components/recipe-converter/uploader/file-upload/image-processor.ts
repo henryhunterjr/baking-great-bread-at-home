@@ -7,9 +7,26 @@ import { createThrottledProgressReporter } from '@/lib/ai-services/pdf/ocr/ocr-u
 // Constants for timeouts
 const OCR_TIMEOUT_MS = 240000; // 4 minutes - doubled again from 2 minutes to handle very complex images
 const OCR_WARNING_TIME_MS = 30000; // 30 seconds - when to show a warning about processing time
+const MAX_IMAGE_SIZE_MB = 15; // 15MB maximum for images
+const SUPPORTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp', 'image/tiff'];
 
 /**
- * Process an image file using OCR with enhanced error handling and progress reporting
+ * Validates an image file before processing
+ */
+function validateImageFile(file: File): void {
+  // Check file size
+  if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+    throw new Error(`Image is too large (max ${MAX_IMAGE_SIZE_MB}MB). Please resize the image or use a different one.`);
+  }
+  
+  // Validate image type
+  if (!SUPPORTED_IMAGE_TYPES.includes(file.type)) {
+    throw new Error(`The file type "${file.type}" is not supported. Please upload an image file (JPEG, PNG, etc).`);
+  }
+}
+
+/**
+ * Process an image file using OCR with enhanced error handling, memory management and progress reporting
  */
 export const processImageFile = async (
   file: File, 
@@ -21,12 +38,19 @@ export const processImageFile = async (
   let warningTimeoutId: number | null = null;
   let progressInterval: number | null = null;
   
+  // Create an AbortController for cancellation
+  const abortController = new AbortController();
+  const { signal } = abortController;
+  
   // Create a cancellation handler
   const cancelProcessing = () => {
     if (isAborted) return;
     
     isAborted = true;
     logInfo("Image processing cancelled by user");
+    
+    // Abort any ongoing OCR operations
+    abortController.abort();
     
     // Clear all timers
     if (timeoutId !== null) {
@@ -48,15 +72,11 @@ export const processImageFile = async (
   try {
     logInfo("Processing image file", { filename: file.name, fileSize: file.size });
     
-    // Check file size - max 15MB (increased from 10MB)
-    if (file.size > 15 * 1024 * 1024) {
-      onError("Image is too large (max 15MB). Please resize the image or use a different one.");
-      return null;
-    }
-    
-    // Validate image type
-    if (!file.type.startsWith('image/')) {
-      onError("The file is not a valid image. Please upload an image file (JPEG, PNG, etc).");
+    // Validate file before processing
+    try {
+      validateImageFile(file);
+    } catch (validationError) {
+      onError(validationError instanceof Error ? validationError.message : String(validationError));
       return null;
     }
     
@@ -115,8 +135,12 @@ export const processImageFile = async (
       500 // Throttle to max 2 updates per second
     );
     
-    // Extract text from the image
-    const extractedText = await extractTextWithOCR(file, throttledProgressHandler);
+    // Extract text from the image with cancellation support
+    const extractedText = await extractTextWithOCR(
+      file, 
+      throttledProgressHandler,
+      { signal }
+    );
     
     // Clean up all timers
     if (timeoutId !== null) {
@@ -181,6 +205,8 @@ export const processImageFile = async (
         onError("Image is too complex to process. Try with a simpler, clearer image or enter the recipe text manually.");
       } else if (errorMessage.includes('network') || errorMessage.includes('fetch failed')) {
         onError("Network error during OCR processing. Please check your connection and try again.");
+      } else if (errorMessage.includes('cancelled') || errorMessage.includes('aborted')) {
+        onError("OCR processing was cancelled.");
       } else {
         onError(`Failed to process the image: ${errorMessage}. Please try again with a different image.`);
       }
