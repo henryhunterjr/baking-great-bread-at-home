@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
 import { useTheme } from '@/hooks/use-theme';
 import { useIsMobile } from '@/hooks/use-mobile';
+import UserMenu from './auth/UserMenu';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -96,23 +97,21 @@ const Navbar = () => {
   };
 
   return (
-    <header 
-      className={cn(
-        "top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out",
-        isHomePage ? "relative" : "fixed",
-        isScrolled ? "bg-background/80 backdrop-blur-md shadow-sm" : "bg-transparent",
-        !isVisible && !isHomePage ? "-translate-y-full" : "translate-y-0"
-      )}
-    >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 py-3">
-          <div className="flex-shrink-0 font-serif font-medium tracking-tight text-lg sm:text-xl md:text-2xl">
-            <Link to="/" className="flex items-center gap-2" onClick={closeMobileMenu}>
-              <span className="text-accent">Baking</span> Great Bread at Home
-            </Link>
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 items-center">
+        <div className="flex-shrink-0 font-serif font-medium tracking-tight text-lg sm:text-xl md:text-2xl">
+          <Link to="/" className="flex items-center gap-2" onClick={closeMobileMenu}>
+            <span className="text-accent">Baking</span> Great Bread at Home
+          </Link>
+        </div>
+        
+        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          <div className="w-full flex-1 md:w-auto md:flex-none">
+            {/* Add any search components here */}
           </div>
-          
-          <div className="flex items-center gap-4">
+          <nav className="flex items-center space-x-2">
+            <UserMenu />
+            
             <Toggle 
               pressed={theme === 'dark'} 
               onPressedChange={(pressed) => setTheme(pressed ? 'dark' : 'light')}
@@ -139,25 +138,25 @@ const Navbar = () => {
                 )}
               </Button>
             </div>
-          </div>
-        </div>
-        
-        <div className="hidden md:block border-t border-muted/30 py-2 mb-1">
-          <nav className="flex justify-center space-x-6 lg:space-x-8 items-center">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.name}
-                to={link.path}
-                className={cn(
-                  "nav-link text-sm py-1",
-                  isActiveLink(link.path) && "active-nav-link"
-                )}
-              >
-                {link.name}
-              </Link>
-            ))}
           </nav>
         </div>
+      </div>
+      
+      <div className="hidden md:block border-t border-muted/30 py-2 mb-1">
+        <nav className="flex justify-center space-x-6 lg:space-x-8 items-center">
+          {navLinks.map((link) => (
+            <Link 
+              key={link.name}
+              to={link.path}
+              className={cn(
+                "nav-link text-sm py-1",
+                isActiveLink(link.path) && "active-nav-link"
+              )}
+            >
+              {link.name}
+            </Link>
+          ))}
+        </nav>
       </div>
       
       {isMobileMenuOpen && (
