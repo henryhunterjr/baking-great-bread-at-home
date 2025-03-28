@@ -18,6 +18,9 @@ const tesseractConfig = {
 const MAX_RETRIES = 3;
 
 export const Tesseract = {
+  /**
+   * Check if Tesseract.js is available in the current environment
+   */
   async checkAvailability(): Promise<boolean> {
     try {
       const worker = await createWorker();
@@ -29,6 +32,12 @@ export const Tesseract = {
     }
   },
   
+  /**
+   * Recognize text in an image with retries
+   * @param imageSource URL or File object of the image
+   * @param options Options for recognition
+   * @returns Recognition result
+   */
   async recognize(
     imageSource: string | File,
     options: { logger?: (data: any) => void } = {}

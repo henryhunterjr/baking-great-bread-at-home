@@ -1,103 +1,80 @@
 
 import { ProgressCallback } from '../types';
+import { logInfo } from '@/utils/logger';
 
 /**
- * Create a throttled progress reporter to avoid excessive updates
- * @param callback The original progress callback
- * @param throttleMs Minimum time between callbacks (ms)
- * @returns A throttled callback function
+ * Creates a throttled progress reporter function to reduce update frequency
+ * 
+ * @param callback The original progress callback function
+ * @param throttleMs Milliseconds to throttle between updates (default: 200ms)
+ * @returns A throttled version of the progress callback
  */
 export const createThrottledProgressReporter = (
   callback: ProgressCallback,
-  throttleMs: number = 250
+  throttleMs = 200
 ): ProgressCallback => {
-  let lastCallTime = 0;
-  let lastProgress = 0;
+  let lastUpdateTime = 0;
+  let lastProgress = -1;
   
   return (progress: number) => {
     const now = Date.now();
     
-    // Always report 0% and 100% immediately
-    if (progress === 0 || progress === 1 || progress >= 0.99) {
-      lastCallTime = now;
-      lastProgress = progress;
-      callback(progress);
-      return;
-    }
-    
-    // Throttle other updates
+    // Update if:
+    // 1. Enough time has passed since the last update, OR
+    // 2. This is a significant progress change (more than 5%), OR
+    // 3. This is the first (0%) or last (100%) update
     if (
-      now - lastCallTime >= throttleMs || 
-      Math.abs(progress - lastProgress) >= 0.1  // Also update if progress jumps by 10% or more
+      now - lastUpdateTime > throttleMs ||
+      Math.abs(progress - lastProgress) > 5 ||
+      progress === 0 ||
+      progress === 100
     ) {
-      lastCallTime = now;
+      lastUpdateTime = now;
       lastProgress = progress;
       callback(progress);
+      
+      // Log progress updates but only for significant changes
+      if (progress % 10 === 0 || progress === 100) {
+        logInfo('OCR progress update', { progress: `${progress}%` });
+      }
     }
   };
 };
 
 /**
- * Create a progress mapper that transforms progress from one range to another
- * @param fromMin Minimum input value
- * @param fromMax Maximum input value
- * @param toMin Minimum output value 
- * @param toMax Maximum output value
- * @returns A function that maps progress values
+ * Estimates the time required for OCR processing based on file size
+ * 
+ * @param fileSize Size of the file in bytes
+ * @returns Estimated processing time in milliseconds
  */
-export const createProgressMapper = (
-  fromMin: number,
-  fromMax: number,
-  toMin: number,
-  toMax: number
-): ((progress: number) => number) => {
-  return (progress: number) => {
-    // Clamp input to range
-    const clampedProgress = Math.max(fromMin, Math.min(fromMax, progress));
-    
-    // Map from input range to output range
-    return toMin + (clampedProgress - fromMin) * (toMax - toMin) / (fromMax - fromMin);
-  };
+export const estimateOCRProcessingTime = (fileSize: number): number => {
+  // Base processing time (3 seconds) + additional time based on file size
+  // These values can be adjusted based on real-world performance data
+  const baseTime = 3000;
+  const sizeMultiplier = 0.002; // ms per byte
+  
+  return baseTime + (fileSize * sizeMultiplier);
 };
 
 /**
- * Create a progress reporter that combines multiple stages with different weights
- * @param callback The parent progress callback
- * @param stages Array of stage configurations with weights
- * @returns An object with methods to update progress for specific stages
+ * Calculates appropriate timeout based on file size and complexity
+ * 
+ * @param fileSize Size of the file in bytes
+ * @param isComplex Whether the file is expected to be complex
+ * @returns Timeout value in milliseconds
  */
-export const createMultiStageProgressReporter = (
-  callback: ProgressCallback,
-  stages: { id: string; weight: number }[]
-): {
-  updateStageProgress: (stageId: string, progress: number) => void;
-} => {
-  // Calculate total weight
-  const totalWeight = stages.reduce((sum, stage) => sum + stage.weight, 0);
+export const calculateTimeout = (fileSize: number, isComplex = false): number => {
+  // Base timeout of 30 seconds
+  let timeout = 30000;
   
-  // Initialize progress for each stage
-  const progressByStage: Record<string, number> = {};
-  stages.forEach(stage => { progressByStage[stage.id] = 0; });
+  // Add 10ms per KB of file size
+  timeout += Math.floor(fileSize / 1024) * 10;
   
-  // Function to update stage progress and recalculate overall progress
-  const updateStageProgress = (stageId: string, progress: number) => {
-    if (!(stageId in progressByStage)) {
-      console.warn(`Unknown stage ID: ${stageId}`);
-      return;
-    }
-    
-    // Update the stage progress
-    progressByStage[stageId] = Math.max(0, Math.min(1, progress));
-    
-    // Calculate weighted overall progress
-    let overallProgress = 0;
-    stages.forEach(stage => {
-      overallProgress += (progressByStage[stage.id] * stage.weight) / totalWeight;
-    });
-    
-    // Call the parent callback with the overall progress
-    callback(Math.max(0, Math.min(1, overallProgress)));
-  };
+  // For complex files (like images with lots of text or PDFs with many pages)
+  if (isComplex) {
+    timeout *= 2;
+  }
   
-  return { updateStageProgress };
+  // Cap at 5 minutes (300000ms) for browser processing
+  return Math.min(timeout, 300000);
 };
