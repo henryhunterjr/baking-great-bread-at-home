@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import FloatingAIButton from './components/ai/FloatingAIButton';
 import CareCenter from './pages/CareCenter';
 import Settings from './pages/Settings';
+import AccessibilityManager from './components/recipe-converter/accessibility/AccessibilityManager';
 import './App.css';
 
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
@@ -71,35 +72,37 @@ function App() {
   return (
     <ThemeProvider>
       <ErrorBoundary>
-        <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/blog" element={<BlogPage />} />
-            <Route path="/blog/:id" element={<BlogPost />} />
-            <Route path="/recipe-converter" element={<RecipeConverter />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/favorites" element={<FavoritesPage />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-            <Route path="/ai" element={<AIHome aiInitialized={aiInitialized} />} />
-            <Route path="/ai/chat" element={<AIChat />} />
-            <Route path="/community" element={<ComingSoon />} />
-            <Route path="/challenges" element={<Challenges />} />
-            <Route path="/challenges/past" element={<PastChallenges />} />
-            <Route path="/tools" element={<Tools />} />
-            <Route path="/books" element={<Books />} />
-            <Route path="/care-center" element={<CareCenter />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/my-recipes" element={<MyRecipes />} />
-            
-            {/* Redirect old paths to new ones if needed */}
-            <Route path="/recipes" element={<Navigate to="/my-recipes" replace />} />
-            
-            {/* This must be the last route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+        <AccessibilityManager>
+          <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/blog/:id" element={<BlogPost />} />
+              <Route path="/recipe-converter" element={<RecipeConverter />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/favorites" element={<FavoritesPage />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+              <Route path="/ai" element={<AIHome aiInitialized={aiInitialized} />} />
+              <Route path="/ai/chat" element={<AIChat />} />
+              <Route path="/community" element={<ComingSoon />} />
+              <Route path="/challenges" element={<Challenges />} />
+              <Route path="/challenges/past" element={<PastChallenges />} />
+              <Route path="/tools" element={<Tools />} />
+              <Route path="/books" element={<Books />} />
+              <Route path="/care-center" element={<CareCenter />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/my-recipes" element={<MyRecipes />} />
+              
+              {/* Redirect old paths to new ones if needed */}
+              <Route path="/recipes" element={<Navigate to="/my-recipes" replace />} />
+              
+              {/* This must be the last route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </AccessibilityManager>
       </ErrorBoundary>
       <DevToolsToggle />
       <FloatingAIButton />
