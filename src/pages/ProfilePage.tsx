@@ -1,8 +1,8 @@
-
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,7 +12,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useToast } from '@/hooks/use-toast';
 import { Loader2, AlertCircle, User, Save, LogOut } from 'lucide-react';
 import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import Navbar from '@/components/Navbar';
@@ -40,7 +39,6 @@ const ProfilePage = () => {
     },
   });
 
-  // Update form values when profile data is loaded
   React.useEffect(() => {
     if (profile) {
       form.reset({
@@ -49,44 +47,35 @@ const ProfilePage = () => {
     }
   }, [profile, form]);
 
-  // Redirect if not logged in
   React.useEffect(() => {
     if (!user && !loading) {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
 
-  const handleUpdateProfile = async (values: ProfileFormValues) => {
-    if (!user) return;
-    
+  const handleUpdateProfile = async () => {
     try {
-      setLoading(true);
-      setError(null);
-      
-      const { error } = await supabase
-        .from('profiles')
+      const { error } = await (supabase
+        .from('profiles' as any)
         .update({
-          name: values.name,
-          updated_at: new Date().toISOString(),
+          name: form.getValues('name'),
+          updated_at: new Date().toISOString()
         })
-        .eq('id', user.id);
+        .eq('id', user?.id) as any);
 
-      if (error) {
-        throw error;
-      }
-
-      // Refresh profile data after update
+      if (error) throw error;
+      
       await refreshProfile();
       
       toast({
         title: "Profile updated",
         description: "Your profile information has been updated successfully.",
       });
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error) {
+      setError(error.message);
       toast({
         title: "Update failed",
-        description: err.message || "There was a problem updating your profile.",
+        description: error.message || "There was a problem updating your profile.",
         variant: "destructive",
       });
     } finally {
