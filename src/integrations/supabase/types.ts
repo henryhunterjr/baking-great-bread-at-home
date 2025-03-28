@@ -21,7 +21,13 @@ export type Database = {
       [_ in never]: never
     }
     CompositeTypes: {
-      [_ in never]: never
+      user_profile: {
+        id: string | null
+        name: string | null
+        avatar_url: string | null
+        created_at: string | null
+        updated_at: string | null
+      }
     }
   }
 }

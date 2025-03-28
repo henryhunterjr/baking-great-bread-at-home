@@ -18,6 +18,7 @@ interface UserProfile {
   name?: string;
   avatar_url?: string;
   created_at?: string;
+  updated_at?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
