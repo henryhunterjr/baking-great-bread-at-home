@@ -28,8 +28,13 @@ export const attemptOCRFallback = async (
     
     if (progressCallback) progressCallback(85);
     
+    // Convert the data URL to a File object
+    const response = await fetch(imageDataUrl);
+    const blob = await response.blob();
+    const imageFile = new File([blob], "pdf-page.jpg", { type: "image/jpeg" });
+    
     // Perform OCR on the image with better progress tracking
-    const extractedText = await extractTextWithOCR(imageDataUrl, (ocrProgress) => {
+    const extractedText = await extractTextWithOCR(imageFile, (ocrProgress) => {
       // Map OCR progress from 85% to 100% with more granular updates
       if (progressCallback) {
         const mappedProgress = Math.floor(85 + (ocrProgress * 15));

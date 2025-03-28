@@ -59,8 +59,8 @@ export const Tesseract = {
         try {
           // Set parameters for better text recognition
           await worker.setParameters({
-            tessedit_ocr_engine_mode: 3, // Legacy + LSTM mode
-            preserve_interword_spaces: 1
+            tessedit_ocr_engine_mode: "3", // Legacy + LSTM mode (as string)
+            preserve_interword_spaces: "1"
           });
           
           // Perform the recognition
