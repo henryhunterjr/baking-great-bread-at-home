@@ -1,4 +1,3 @@
-
 import { logInfo, logError } from '@/utils/logger';
 import { extractTextWithOCR } from './ocr/ocr-processor';
 import { convertPDFPageToImage } from './pdf-image-converter';
