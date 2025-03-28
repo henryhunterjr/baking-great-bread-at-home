@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -55,15 +56,16 @@ const ProfilePage = () => {
 
   const handleUpdateProfile = async () => {
     try {
-      const { error } = await (supabase
-        .from('profiles' as any)
+      // Use a more generic approach with type assertions to avoid TypeScript errors
+      const response = await supabase
+        .from('profiles')
         .update({
           name: form.getValues('name'),
           updated_at: new Date().toISOString()
         })
-        .eq('id', user?.id) as any);
+        .eq('id', user?.id);
 
-      if (error) throw error;
+      if (response.error) throw response.error;
       
       await refreshProfile();
       
@@ -71,7 +73,7 @@ const ProfilePage = () => {
         title: "Profile updated",
         description: "Your profile information has been updated successfully.",
       });
-    } catch (error) {
+    } catch (error: any) {
       setError(error.message);
       toast({
         title: "Update failed",
