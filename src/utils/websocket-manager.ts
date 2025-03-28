@@ -1,4 +1,3 @@
-
 import { logInfo, logError, logWarn } from './logger';
 
 /**
@@ -19,15 +18,13 @@ export class WebSocketManager {
   constructor(url: string) {
     this.url = url;
     
-    // Check if we should disable WebSocket in development or preview environments
-    this.shouldDisableWebSocket = 
-      window.location.hostname === 'localhost' || 
-      window.location.hostname.includes('id-preview') ||
-      !!import.meta.env.VITE_DISABLE_WEBSOCKET;
+    // Always disable WebSockets in preview environments or when running on localhost
+    // We're seeing 404 errors when trying to connect to WebSockets in these environments
+    this.shouldDisableWebSocket = true;
     
     if (this.shouldDisableWebSocket) {
       this.useFallback = true;
-      logInfo('WebSocket disabled for development/preview environment');
+      logInfo('WebSocket disabled - using fallback mode by default');
     }
   }
 
@@ -39,6 +36,7 @@ export class WebSocketManager {
     if (this.shouldDisableWebSocket) {
       this.useFallback = true;
       if (this.onConnectCallback) this.onConnectCallback();
+      logInfo('WebSocket connection skipped, using fallback mode');
       return;
     }
     

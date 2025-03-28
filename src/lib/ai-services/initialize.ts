@@ -1,4 +1,3 @@
-
 import { logInfo, logError, logWarn } from '@/utils/logger';
 import { 
   isOpenAIConfigured, 
@@ -83,29 +82,8 @@ export const initializeAIService = async (): Promise<void> => {
       logError('Error initializing context-aware AI', { error });
     }
     
-    // Initialize WebSocket connection if needed (with fallback support)
-    try {
-      if (window.location.hostname !== 'localhost' && !import.meta.env.VITE_DISABLE_WEBSOCKET) {
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${wsProtocol}//${window.location.host}`;
-        
-        websocketManager = createWebSocketManager(wsUrl)
-          .onConnect(() => {
-            logInfo(websocketManager?.isFallbackMode() 
-              ? '⚠️ WebSocket connection failed, using fallback mode' 
-              : '✅ WebSocket connected successfully');
-          })
-          .onError((error) => {
-            logError('WebSocket error', { error });
-          });
-          
-        websocketManager.connect();
-      } else {
-        logInfo('WebSocket initialization skipped (localhost or disabled)');
-      }
-    } catch (error) {
-      logError('Error initializing WebSocket', { error });
-    }
+    // Disable WebSocket connections in preview environments to avoid 404 errors
+    logInfo('WebSocket initialization skipped - using fallback mode by default');
     
   } catch (error) {
     logError('Failed to initialize AI service', { error });
