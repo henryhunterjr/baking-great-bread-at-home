@@ -1,20 +1,77 @@
 
 import React from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle, HelpCircle, ExternalLink, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ErrorAlertProps {
   error: string | null;
   className?: string;
+  title?: string;
+  showRetry?: boolean;
+  onRetry?: () => void;
+  solution?: string;
+  learnMoreLink?: string;
 }
 
-const ErrorAlert: React.FC<ErrorAlertProps> = ({ error, className = '' }) => {
+const ErrorAlert: React.FC<ErrorAlertProps> = ({ 
+  error, 
+  className = '', 
+  title = 'Error',
+  showRetry = false,
+  onRetry,
+  solution,
+  learnMoreLink
+}) => {
   if (!error) return null;
+
+  // Determine if this is a worker-related error
+  const isWorkerError = error.includes('worker') || 
+                        error.includes('importScripts') ||
+                        error.includes('tesseract') ||
+                        error.includes('PDF');
 
   return (
     <Alert variant="destructive" className={className}>
       <AlertCircle className="h-4 w-4" />
-      <AlertDescription>{error}</AlertDescription>
+      <div className="w-full">
+        {title && <AlertTitle className="font-medium">{title}</AlertTitle>}
+        <AlertDescription className="mt-1">{error}</AlertDescription>
+        
+        {(solution || isWorkerError) && (
+          <div className="flex items-center gap-1 mt-2 text-xs">
+            <HelpCircle className="h-3 w-3" />
+            <span className="font-medium">Suggestion:</span> 
+            {solution || (isWorkerError ? 
+              "Please refresh the page or try with a different file format." : 
+              "Please try again or contact support if the issue persists.")}
+          </div>
+        )}
+        
+        {(learnMoreLink || isWorkerError) && (
+          <a 
+            href={learnMoreLink || "https://docs.lovable.dev/troubleshooting#file-processing-issues"}
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-xs flex items-center gap-1 mt-2 text-red-700 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
+          >
+            <ExternalLink className="h-3 w-3" />
+            Learn more about this issue
+          </a>
+        )}
+        
+        {(showRetry || onRetry) && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onRetry} 
+            className="mt-3 h-8 text-xs border-red-600 text-red-600 hover:bg-red-100"
+          >
+            <RefreshCw className="h-3 w-3 mr-1" />
+            Try Again
+          </Button>
+        )}
+      </div>
     </Alert>
   );
 };

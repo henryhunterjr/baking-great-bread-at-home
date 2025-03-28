@@ -1,33 +1,25 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { CardFooter } from '@/components/ui/card';
 
 const AuthFooter: React.FC = () => {
-  const navigate = useNavigate();
-
   return (
-    <CardFooter className="flex-col space-y-2 pt-0 pb-6 px-6 text-center">
-      <div className="text-sm text-muted-foreground">
-        By signing up, you agree to our
-        <Button 
-          variant="link" 
-          className="px-1 py-0 h-auto text-sm" 
-          onClick={() => navigate('/terms-of-service')}
-        >
+    <div className="p-4 pt-0 text-center text-xs text-muted-foreground">
+      <p className="mb-4">
+        By continuing, you agree to the Terms of Service and Privacy Policy of Baking Great Bread at Home with Henry.
+      </p>
+      <div className="flex justify-center space-x-4">
+        <Button variant="link" size="sm" className="h-auto p-0 text-xs">
           Terms of Service
         </Button>
-        and
-        <Button 
-          variant="link" 
-          className="px-1 py-0 h-auto text-sm" 
-          onClick={() => navigate('/privacy-policy')}
-        >
+        <Button variant="link" size="sm" className="h-auto p-0 text-xs">
           Privacy Policy
         </Button>
+        <Button variant="link" size="sm" className="h-auto p-0 text-xs">
+          Help Center
+        </Button>
       </div>
-    </CardFooter>
+    </div>
   );
 };
 

@@ -5,6 +5,7 @@ import { RefreshCw } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
+  onReset?: () => void; // Add optional onReset prop
 }
 
 interface State {
@@ -34,6 +35,11 @@ class ErrorBoundary extends Component<Props, State> {
 
   handleReset = () => {
     this.setState({ hasError: false, error: null });
+    
+    // Call the onReset prop if provided
+    if (this.props.onReset) {
+      this.props.onReset();
+    }
     
     // Try to reload the page if we're stuck with a critical error
     if (this.state.error?.message?.includes('worker') || 

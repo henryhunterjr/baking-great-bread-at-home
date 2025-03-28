@@ -50,7 +50,7 @@ const AuthPage = () => {
         <ResponsiveWrapper className="flex justify-center items-center">
           <Card className="w-full max-w-md shadow-lg border-2">
             <CardHeader className="text-center pb-2">
-              <CardTitle className="text-2xl font-bold">Welcome to Breadtopia</CardTitle>
+              <CardTitle className="text-2xl font-bold">Welcome to Baking Great Bread at Home with Henry</CardTitle>
               <CardDescription>Sign in to your account or create a new one</CardDescription>
             </CardHeader>
             
