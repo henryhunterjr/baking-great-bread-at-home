@@ -1,4 +1,3 @@
-
 /**
  * Calculate appropriate timeout for OCR operations based on image complexity
  * 
@@ -24,6 +23,44 @@ export const calculateTimeout = (fileSize: number, isScanned: boolean = false): 
   
   // Cap timeout at 120 seconds
   return Math.min(timeout, 120000);
+};
+
+/**
+ * Creates a throttled progress reporter function that only calls the original
+ * function at most once per the specified interval
+ * 
+ * @param callback The original progress callback function
+ * @param interval Minimum time in ms between callback invocations (default: 200ms)
+ * @returns A throttled version of the callback function
+ */
+export const createThrottledProgressReporter = (
+  callback: (progress: number) => void,
+  interval: number = 200
+): ((progress: number) => void) => {
+  let lastCallTime = 0;
+  let lastProgress = 0;
+  let timeoutId: number | null = null;
+  
+  return (progress: number) => {
+    const now = Date.now();
+    lastProgress = progress;
+    
+    // If we haven't called recently, call immediately
+    if (now - lastCallTime >= interval) {
+      lastCallTime = now;
+      callback(progress);
+      return;
+    }
+    
+    // Otherwise, schedule a call after the interval has passed
+    if (timeoutId === null) {
+      timeoutId = window.setTimeout(() => {
+        lastCallTime = Date.now();
+        callback(lastProgress);
+        timeoutId = null;
+      }, interval - (now - lastCallTime));
+    }
+  };
 };
 
 /**
