@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, LogOut } from 'lucide-react';
 import { useScrollToTop } from '@/hooks/use-scroll-to-top';
+import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ResponsiveWrapper from '@/components/recipe-converter/ResponsiveWrapper';
