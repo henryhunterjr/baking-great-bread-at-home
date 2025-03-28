@@ -1,96 +1,24 @@
 
-import { logInfo, logError } from '@/utils/logger';
-import { createWorker } from 'tesseract.js';
-
-// Tesseract.js worker instance
-let tesseractWorker: any = null;
-let isInitializing = false;
-let isInitialized = false;
+import { logInfo } from '@/utils/logger';
+import { cleanOCRText } from '@/lib/recipe-conversion/cleaners';
 
 /**
- * Initialize the OCR service with proper error handling
+ * Process OCR text to clean up common OCR artifacts and improve the result
+ * @param ocrText Raw OCR text output
+ * @returns Cleaned up text
  */
-export const initializeOCR = async (): Promise<boolean> => {
-  if (isInitialized && tesseractWorker) {
-    return true;
-  }
+export const cleanupOCR = (ocrText: string): string => {
+  if (!ocrText) return '';
   
-  if (isInitializing) {
-    // Wait for initialization to complete
-    while (isInitializing) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    return isInitialized;
-  }
+  logInfo('Cleaning up OCR text', { textLength: ocrText.length });
   
-  try {
-    isInitializing = true;
-    logInfo('Initializing OCR service (Tesseract.js)');
-    
-    // Clean up any existing worker
-    if (tesseractWorker) {
-      try {
-        await tesseractWorker.terminate();
-        tesseractWorker = null;
-      } catch (error) {
-        logError('Error terminating existing Tesseract worker', { error });
-        // Continue with initialization
-      }
-    }
-    
-    // Create a new worker with inline progress logger
-    // Use the correct API signature for Tesseract.js v6
-    tesseractWorker = await createWorker('eng', 1, {
-      logger: progress => {
-        if (progress.status === 'recognizing text') {
-          const progressPercent = Math.round(progress.progress * 100);
-          logInfo(`OCR Progress: ${progressPercent}%`);
-        }
-      }
-    });
-    
-    // Log successful initialization
-    logInfo('OCR service successfully initialized');
-    isInitialized = true;
-    return true;
-  } catch (error) {
-    logError('Error initializing OCR service', { error });
-    isInitialized = false;
-    tesseractWorker = null;
-    return false;
-  } finally {
-    isInitializing = false;
-  }
-};
-
-/**
- * Get the current OCR worker instance
- */
-export const getOCRWorker = (): any => {
-  return tesseractWorker;
-};
-
-/**
- * Clean up OCR service resources
- */
-export const cleanupOCR = async (): Promise<void> => {
-  if (tesseractWorker) {
-    try {
-      await tesseractWorker.terminate();
-      tesseractWorker = null;
-      isInitialized = false;
-      logInfo('OCR service cleaned up');
-    } catch (error) {
-      logError('Error cleaning up OCR service', { error });
-    }
-  }
-};
-
-// Auto-cleanup on module unload
-if (typeof window !== 'undefined') {
-  window.addEventListener('beforeunload', () => {
-    if (tesseractWorker) {
-      tesseractWorker.terminate().catch(console.error);
-    }
+  // Use the shared text cleaner
+  const cleanedText = cleanOCRText(ocrText);
+  
+  logInfo('OCR text cleanup completed', { 
+    originalLength: ocrText.length, 
+    cleanedLength: cleanedText.length 
   });
-}
+  
+  return cleanedText;
+};

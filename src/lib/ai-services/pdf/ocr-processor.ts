@@ -13,4 +13,3 @@ export {
 // Export this alias to maintain API compatibility with old code
 // This function doesn't exist in the new module structure
 export const processImageWithOCR = extractTextWithOCR;
-
