@@ -1,29 +1,18 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle, User, Save, LogOut } from 'lucide-react';
+import { Loader2, LogOut } from 'lucide-react';
 import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ResponsiveWrapper from '@/components/recipe-converter/ResponsiveWrapper';
-
-const profileSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
-});
-
-type ProfileFormValues = z.infer<typeof profileSchema>;
+import ProfileHeader from '@/components/auth/ProfileHeader';
+import ProfileForm from '@/components/auth/ProfileForm';
+import ProfileErrorAlert from '@/components/auth/ProfileErrorAlert';
 
 const ProfilePage = () => {
   useScrollToTop();
@@ -33,34 +22,22 @@ const ProfilePage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      name: profile?.name || '',
-    },
-  });
-
-  React.useEffect(() => {
-    if (profile) {
-      form.reset({
-        name: profile.name || '',
-      });
-    }
-  }, [profile, form]);
-
   React.useEffect(() => {
     if (!user && !loading) {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
 
-  const handleUpdateProfile = async () => {
+  const handleUpdateProfile = async (values: { name: string }) => {
     try {
+      setLoading(true);
+      setError(null);
+      
       // Use a more aggressive type assertion to bypass TypeScript's type checking
       const { error } = await (supabase as any)
         .from('profiles')
         .update({
-          name: form.getValues('name'),
+          name: values.name,
           updated_at: new Date().toISOString()
         })
         .eq('id', user?.id);
@@ -109,69 +86,19 @@ const ProfilePage = () => {
             </CardHeader>
             
             <CardContent className="space-y-6 pt-4">
-              <div className="flex flex-col items-center space-y-4">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={profile?.avatar_url} alt={profile?.name || 'User'} />
-                  <AvatarFallback className="text-2xl bg-primary/10">
-                    {profile?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="text-center">
-                  <h3 className="font-medium text-lg">{profile?.name || 'New User'}</h3>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                </div>
-              </div>
+              <ProfileHeader 
+                name={profile?.name} 
+                email={user.email}
+                avatarUrl={profile?.avatar_url}
+              />
 
-              {error && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+              <ProfileErrorAlert error={error} />
 
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleUpdateProfile)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                            <Input 
-                              placeholder="Enter your name" 
-                              className="pl-10" 
-                              {...field} 
-                              disabled={loading}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full mt-4" 
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Updating...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Save Changes
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </Form>
+              <ProfileForm 
+                initialName={profile?.name || ''} 
+                onSubmit={handleUpdateProfile}
+                loading={loading}
+              />
             </CardContent>
             
             <CardFooter className="flex justify-center pb-6">
