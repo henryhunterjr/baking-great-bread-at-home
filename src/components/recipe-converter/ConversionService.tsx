@@ -1,68 +1,43 @@
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import RecipeUploader from './RecipeUploader';
-import { isOpenAIConfigured } from '@/lib/ai-services/ai-config';
-import NoAPIKeyMessage from './NoAPIKeyMessage';
-import { Button } from "@/components/ui/button";
-import { RotateCcw } from 'lucide-react';
+import ConversionSettings from './ConversionSettings';
 import { RecipeData } from '@/types/recipeTypes';
+import StartOverButton from './StartOverButton';
 
 interface ConversionServiceProps {
   onConvertRecipe: (text: string) => void;
   isConverting: boolean;
   conversionError?: string | null;
-  onReset?: () => void;
+  onReset: () => void;
   recipe?: RecipeData;
   onSaveRecipe?: () => void;
 }
 
-const ConversionService: React.FC<ConversionServiceProps> = ({
-  onConvertRecipe,
+const ConversionService: React.FC<ConversionServiceProps> = ({ 
+  onConvertRecipe, 
   isConverting,
   conversionError,
   onReset,
   recipe,
   onSaveRecipe
 }) => {
-  const [hasApiKey, setHasApiKey] = useState<boolean>(false);
-  
-  // Check if the API key is configured
-  useEffect(() => {
-    setHasApiKey(isOpenAIConfigured());
-    
-    // Recheck when the component is focused
-    const handleFocus = () => {
-      setHasApiKey(isOpenAIConfigured());
-    };
-    
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, []);
-  
   return (
     <div className="space-y-6">
-      {!hasApiKey && <NoAPIKeyMessage />}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">Convert a Recipe</h2>
+        {/* Add Start Over button if there's a previous conversion */}
+        {recipe && <StartOverButton onClick={onReset} />}
+      </div>
       
       <RecipeUploader 
-        onConvertRecipe={onConvertRecipe}
+        onConvertRecipe={onConvertRecipe} 
         isConverting={isConverting}
         conversionError={conversionError}
         recipe={recipe}
         onSaveRecipe={onSaveRecipe}
       />
-
-      {conversionError && onReset && (
-        <div className="flex justify-center mt-6">
-          <Button 
-            onClick={onReset} 
-            variant="outline" 
-            className="flex items-center gap-2"
-          >
-            <RotateCcw className="h-4 w-4" />
-            Try Another Recipe
-          </Button>
-        </div>
-      )}
+      
+      <ConversionSettings />
     </div>
   );
 };

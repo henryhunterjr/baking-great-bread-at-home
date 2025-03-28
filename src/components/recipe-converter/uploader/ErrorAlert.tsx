@@ -1,19 +1,13 @@
 
 import React from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import ErrorAlert from '@/components/common/ErrorAlert';
 
-interface ErrorAlertProps {
+interface RecipeErrorAlertProps {
   error: string | null;
 }
 
-const ErrorAlert: React.FC<ErrorAlertProps> = ({ error }) => {
-  if (!error) return null;
-  
-  return (
-    <Alert variant="destructive" className="mb-4">
-      <AlertDescription>{error}</AlertDescription>
-    </Alert>
-  );
+const RecipeErrorAlert: React.FC<RecipeErrorAlertProps> = ({ error }) => {
+  return <ErrorAlert error={error} className="mb-4" />;
 };
 
-export default ErrorAlert;
+export default RecipeErrorAlert;

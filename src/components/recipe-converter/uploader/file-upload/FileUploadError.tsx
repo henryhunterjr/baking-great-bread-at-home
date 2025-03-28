@@ -17,48 +17,36 @@ const FileUploadError: React.FC<FileUploadErrorProps> = ({ error, onRetry }) => 
   let solution = '';
   let learnMoreLink = '';
   
+  // Check for worker script loading errors (which appear to be the main issue)
+  if (error.includes('importScripts') || error.includes('worker.min.js') || error.includes('tesseract/worker.min.js')) {
+    displayError = "Couldn't load text recognition tools for processing your file.";
+    helpText = "This is usually due to missing worker files or network issues.";
+    solution = "Try refreshing the page or uploading a simpler file format like a plain text file.";
+  }
   // Check for PDF worker errors
-  if (error.includes('pdf.worker.min.js') || error.includes('Failed to fetch') || error.includes('network')) {
+  else if (error.includes('pdf.worker.min.js') || error.includes('Failed to fetch') || error.includes('network')) {
     displayError = "Failed to load PDF processor. This might be due to network issues.";
     helpText = "If this problem persists, try using text input instead of PDF uploads.";
     solution = "Try refreshing the page or check your internet connection.";
     learnMoreLink = "https://mozilla.github.io/pdf.js/getting_started/";
   }
-  
   // Check for timeout errors
   else if (error.includes('timeout') || error.includes('timed out')) {
     displayError = "Operation timed out.";
     helpText = "This could be due to a complex PDF, large file size, or slower device.";
     solution = "Try with a simpler PDF, extract just the recipe text, or use the text input option.";
   }
-  
   // Check for OCR errors
   else if (error.includes('OCR processing failed') || error.includes('OCR processing timed out') || error.includes('recognize')) {
     displayError = "Could not extract text from this image.";
     helpText = "Simple images with clear text work best. Make sure the text is not skewed or blurry.";
     solution = "Try with a clearer image or manually enter the recipe text.";
-    learnMoreLink = "https://tesseract.projectnaptha.com/";
   }
-  
   // Check for worker errors
   else if (error.includes('postMessage') || error.includes('could not be cloned') || error.includes('worker')) {
     displayError = "Technical error processing your file.";
     helpText = "This is usually caused by a complex file format. Text input is the most reliable method.";
     solution = "Try a different file or copy and paste the text manually.";
-  }
-  
-  // Check for clipboard errors
-  else if (error.includes('clipboard')) {
-    displayError = "Could not access your clipboard.";
-    helpText = "This might be due to browser permissions or security settings.";
-    solution = "Try manually typing or uploading your recipe text instead.";
-  }
-  
-  // Check for file size errors
-  else if (error.includes('size') || error.includes('large')) {
-    displayError = "File is too large to process.";
-    helpText = "Files over 10MB may cause issues with browser processing.";
-    solution = "Try breaking the file into smaller parts or extract just the recipe text.";
   }
   
   return (

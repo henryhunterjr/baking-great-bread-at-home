@@ -1,78 +1,70 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
-  fallback?: ReactNode;
-  onReset?: () => void;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
-  errorInfo: ErrorInfo | null;
 }
 
 class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    error: null,
-    errorInfo: null
-  };
-
-  public static getDerivedStateFromError(error: Error): Partial<State> {
-    // Update state so the next render will show the fallback UI
-    return { hasError: true, error };
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null
+    };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
-    this.setState({ errorInfo });
-    
-    // You could also log to an error reporting service here
-    // logErrorToService(error, errorInfo);
+  static getDerivedStateFromError(error: Error): State {
+    return {
+      hasError: true,
+      error
+    };
   }
-  
-  private handleReset = () => {
-    this.setState({ hasError: false, error: null, errorInfo: null });
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    console.error('Error caught by ErrorBoundary:', error, errorInfo);
+  }
+
+  handleReset = () => {
+    this.setState({ hasError: false, error: null });
     
-    // Call the onReset prop if provided
-    if (this.props.onReset) {
-      this.props.onReset();
+    // Try to reload the page if we're stuck with a critical error
+    if (this.state.error?.message?.includes('worker') || 
+        this.state.error?.message?.includes('importScripts')) {
+      window.location.reload();
     }
   };
 
-  public render() {
+  render(): ReactNode {
     if (this.state.hasError) {
-      // You can render any custom fallback UI
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
-      
+      const isWorkerError = this.state.error?.message?.includes('worker') || 
+                          this.state.error?.message?.includes('importScripts');
+
       return (
-        <div className="p-4 flex flex-col items-center justify-center min-h-[200px]">
-          <Alert variant="destructive" className="mb-4 max-w-md">
-            <AlertTitle>Something went wrong</AlertTitle>
-            <AlertDescription>
-              {this.state.error?.message || "An unexpected error occurred."}
-            </AlertDescription>
-          </Alert>
-          <div className="mt-4 flex gap-4">
+        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-lg mx-auto text-center">
+            <h2 className="text-xl font-semibold text-red-700 dark:text-red-300 mb-4">Something went wrong</h2>
+            
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
+              {isWorkerError 
+                ? "There was a problem loading the required processing tools. This could be due to network issues or missing resources."
+                : "We're sorry, but something unexpected happened."}
+            </p>
+            
             <Button 
               onClick={this.handleReset}
-              variant="default"
+              variant="outline"
+              className="border-red-500 text-red-600 hover:bg-red-50"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
-              Try Again
-            </Button>
-            <Button 
-              onClick={() => window.location.reload()}
-              variant="outline"
-            >
-              Reload Page
+              {isWorkerError ? "Reload page" : "Try again"}
             </Button>
           </div>
         </div>
