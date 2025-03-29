@@ -1,4 +1,3 @@
-
 import { extractTextFromPDF } from '@/lib/ai-services/pdf';
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
@@ -109,35 +108,31 @@ export const processPDFFile = async (
     }
     
     // Check if the result is a cancellable task object with a type guard
-    if (typeof extractResult === 'object' && extractResult !== null) {
-      // First check if it's a cancellable task object with the cancel property
-      if ('cancel' in extractResult && typeof extractResult.cancel === 'function') {
-        // Create a type-safe cancellable task object
-        processingTask = {
-          cancel: extractResult.cancel
-        };
-        
-        return {
-          cancel: () => {
-            if (processingTask && processingTask.cancel) {
-              processingTask.cancel();
-            }
-            isCancelled = true;
-            if (timeoutId !== null) {
-              window.clearTimeout(timeoutId);
-              timeoutId = null;
-            }
-            window.clearInterval(progressIntervalId);
-            window.clearTimeout(warningTimeoutId);
-            logInfo("PDF processing cancelled by user");
+    // First perform a more robust check if extractResult is an object with a cancel property
+    if (typeof extractResult === 'object' && extractResult !== null && 'cancel' in extractResult) {
+      // Create a type-safe cancellable task object
+      processingTask = {
+        cancel: extractResult.cancel
+      };
+      
+      return {
+        cancel: () => {
+          if (processingTask && processingTask.cancel) {
+            processingTask.cancel();
           }
-        };
-      }
+          isCancelled = true;
+          if (timeoutId !== null) {
+            window.clearTimeout(timeoutId);
+            timeoutId = null;
+          }
+          window.clearInterval(progressIntervalId);
+          window.clearTimeout(warningTimeoutId);
+          logInfo("PDF processing cancelled by user");
+        }
+      };
     }
     
-    // At this point, we know extractResult is not null/undefined (checked above)
-    // and not a cancellable task object, so it must be a string
-    // TypeScript needs an explicit assertion since it doesn't track our runtime checks fully
+    // At this point, we know extractResult is a string since we've ruled out null, undefined, and object with cancel
     const extractedText = extractResult as string;
     
     // Final progress
