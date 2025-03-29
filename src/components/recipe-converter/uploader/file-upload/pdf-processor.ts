@@ -1,4 +1,3 @@
-
 import { extractTextFromPDF } from '@/lib/ai-services/pdf';
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
@@ -102,18 +101,17 @@ export const processPDFFile = async (
     // If processing was cancelled, don't proceed
     if (isCancelled) return null;
     
-    // Handle different types of results
-    if (!extractResult) {
-      onError("Failed to extract text from the PDF. The file may be empty or corrupted. Try uploading an image version instead or use text input.");
+    // Enhanced null and type checking
+    if (extractResult === null || extractResult === undefined) {
+      onError("Failed to extract text from the PDF. The file may be empty or corrupted.");
       return null;
     }
     
-    // Check if the result is a cancellable task object with a type guard
-    // First perform a more robust check if extractResult is an object with a cancel property
+    // Check if the result is a cancellable task with a type guard
     if (extractResult !== null && typeof extractResult === 'object' && 'cancel' in extractResult) {
       // Create a type-safe cancellable task object
       processingTask = {
-        cancel: extractResult.cancel
+        cancel: (extractResult as { cancel: () => void }).cancel
       };
       
       return {
@@ -133,7 +131,7 @@ export const processPDFFile = async (
       };
     }
     
-    // At this point, we know extractResult is a string since we've ruled out null, undefined, and object with cancel
+    // At this point, we know extractResult is a string
     const extractedText = extractResult as string;
     
     // Final progress
