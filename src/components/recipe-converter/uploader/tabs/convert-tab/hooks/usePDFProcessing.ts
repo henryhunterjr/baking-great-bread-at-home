@@ -32,7 +32,7 @@ export const processPDF = async (
     // Progress callback with throttling
     const progressCallback = onProgress ? 
       createThrottledProgressReporter(onProgress, 300) : 
-      () => {}; // No-op if no progress callback provided
+      undefined; // undefined if no progress callback provided
     
     // Extract text from PDF
     const extractResult = await extractTextFromPDF(file, progressCallback);
@@ -48,8 +48,8 @@ export const processPDF = async (
       return null;
     }
     
-    // Check if the result is null
-    if (extractResult === null) {
+    // Handle different result types
+    if (extractResult === null || extractResult === undefined) {
       logInfo("PDF extraction returned null");
       onError("Failed to extract text from the PDF. The file may be empty or corrupted.");
       return null;

@@ -1,5 +1,4 @@
 
-import { useToast } from '@/hooks/use-toast';
 import { logInfo, logError } from '@/utils/logger';
 
 interface ClipboardOptions {
@@ -8,31 +7,43 @@ interface ClipboardOptions {
 }
 
 export const useClipboard = () => {
-  const { toast } = useToast();
-  
   const handlePasteFromClipboard = async (options: ClipboardOptions): Promise<void> => {
     try {
-      logInfo('Attempting to paste from clipboard');
-      
-      const clipboardText = await navigator.clipboard.readText();
-      
-      if (!clipboardText.trim()) {
-        const errorMsg = 'No text found in clipboard';
-        logInfo(errorMsg);
-        options.onError(errorMsg);
+      if (!navigator.clipboard) {
+        options.onError('Clipboard access is not available in your browser or requires secure context (HTTPS)');
         return;
       }
       
-      options.onSuccess(clipboardText);
+      logInfo('Reading text from clipboard');
       
-      toast({
-        title: "Text Pasted",
-        description: "Content pasted from clipboard successfully.",
+      const clipboardText = await navigator.clipboard.readText();
+      
+      if (!clipboardText || clipboardText.trim().length === 0) {
+        options.onError('No text found in clipboard');
+        return;
+      }
+      
+      logInfo('Successfully read text from clipboard', { 
+        textLength: clipboardText.length
       });
+      
+      options.onSuccess(clipboardText);
     } catch (error) {
-      const errorMsg = 'Unable to read clipboard. Please paste the text manually.';
-      logError(errorMsg, { error });
-      options.onError(errorMsg);
+      logError('Error accessing clipboard:', { error });
+      
+      let errorMessage = 'Failed to access clipboard';
+      
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          errorMessage = 'Clipboard permission denied. Please allow clipboard access.';
+        } else if (error.name === 'SecurityError') {
+          errorMessage = 'Clipboard access requires secure context (HTTPS) or localhost.';
+        } else {
+          errorMessage = `Clipboard error: ${error.message}`;
+        }
+      }
+      
+      options.onError(errorMessage);
     }
   };
   

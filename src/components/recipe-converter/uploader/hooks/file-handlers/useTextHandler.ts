@@ -1,63 +1,56 @@
 
-import { useToast } from '@/hooks/use-toast';
 import { logInfo, logError } from '@/utils/logger';
-import { ProcessingOptions } from './useFileProcessor';
+import { useFileProcessor, ProcessingOptions } from './useFileProcessor';
 
 export const useTextHandler = () => {
-  const { toast } = useToast();
-  
-  const readFileAsText = async (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => resolve(event.target?.result as string || "");
-      reader.onerror = (error) => reject(error);
-      reader.readAsText(file);
-    });
-  };
+  const { isProcessing, setIsProcessing } = useFileProcessor();
   
   const handleTextFile = async (
     file: File, 
     options: ProcessingOptions
   ): Promise<void> => {
+    setIsProcessing(true);
+    
     try {
       logInfo(`Processing text file: ${file.name} (${file.type})`);
       
-      // Simple text files don't need complex processing
-      if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-        const text = await readFileAsText(file);
-        if (text) {
-          options.onSuccess(text);
-          toast({
-            title: "File Loaded",
-            description: "Text has been successfully loaded from the file.",
-          });
-        } else {
-          options.onError("The file appears to be empty. Please try another file.");
-        }
-      } else {
-        // For other file types that might need processing
-        const { processTextFile } = await import('../../tabs/convert-tab/hooks/useTextProcessing');
+      // Simple text file reader
+      const text = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
         
-        await processTextFile(
-          file,
-          (text) => options.onSuccess(text),
-          (error) => {
-            toast({
-              variant: "destructive",
-              title: "File Error",
-              description: error,
-            });
-            options.onError(error);
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            resolve(event.target.result as string);
+          } else {
+            reject(new Error('Failed to read file contents'));
           }
-        );
+        };
+        
+        reader.onerror = (error) => {
+          reject(error);
+        };
+        
+        reader.readAsText(file);
+      });
+      
+      if (!text || text.trim().length === 0) {
+        options.onError('The file appears to be empty');
+        return;
       }
+      
+      options.onSuccess(text);
     } catch (error) {
-      logError('Error reading file', { error });
-      options.onError("Failed to read file. Please try another format.");
+      logError('Error processing text file:', { error });
+      options.onError(error instanceof Error 
+        ? error.message 
+        : 'Failed to read text file');
+    } finally {
+      setIsProcessing(false);
     }
   };
   
   return {
+    isProcessing,
     handleTextFile
   };
 };

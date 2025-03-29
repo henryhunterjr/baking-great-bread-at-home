@@ -1,24 +1,28 @@
 
-import { logInfo } from '@/utils/logger';
-import { cleanOCRText } from '@/lib/recipe-conversion/cleaners';
-
 /**
- * Process OCR text to clean up common OCR artifacts and improve the result
- * @param ocrText Raw OCR text output
- * @returns Cleaned up text
+ * Clean up OCR extracted text to improve quality
+ * @param text Raw OCR text
+ * @returns Cleaned text
  */
-export const cleanupOCR = (ocrText: string): string => {
-  if (!ocrText) return '';
+export const cleanupOCR = (text: string): string => {
+  if (!text) return '';
   
-  logInfo('Cleaning up OCR text', { textLength: ocrText.length });
+  // Replace multiple newlines with a single one
+  let cleaned = text.replace(/\n{3,}/g, '\n\n');
   
-  // Use the shared text cleaner
-  const cleanedText = cleanOCRText(ocrText);
+  // Replace multiple spaces with a single one
+  cleaned = cleaned.replace(/[ \t]{2,}/g, ' ');
   
-  logInfo('OCR text cleanup completed', { 
-    originalLength: ocrText.length, 
-    cleanedLength: cleanedText.length 
-  });
+  // Fix common OCR errors
+  cleaned = cleaned
+    // Fix broken fractions
+    .replace(/(\d)\/(\d)/g, '$1/$2')
+    // Fix broken measurements
+    .replace(/(\d) ([cmt]?[lbgks])/gi, '$1$2')
+    // Fix degree symbols
+    .replace(/(\d)[ ]?[oO°][ ]?([CF])/g, '$1°$2')
+    // Fix broken time units
+    .replace(/(\d) (min|hour|sec|minute)/gi, '$1 $2');
   
-  return cleanedText;
+  return cleaned;
 };

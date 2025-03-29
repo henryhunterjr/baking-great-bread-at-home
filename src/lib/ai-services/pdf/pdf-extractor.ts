@@ -1,26 +1,97 @@
 
-import { logInfo, logError } from '@/utils/logger';
-import { ensurePDFWorkerFiles, configurePDFWorkerCORS } from './pdf-worker-service';
-import { extractTextFromPDF } from './extraction/pdf-text-extractor';
-import { CancellableTask, ExtractTextResult, ProgressCallback } from './types';
-
-// Initialize the PDF worker service and CORS configuration on module load
-Promise.all([
-  ensurePDFWorkerFiles(),
-  configurePDFWorkerCORS()
-]).catch(error => 
-  logError('Failed to initialize PDF worker service', { error })
-);
+import { logError, logInfo } from '@/utils/logger';
+import { ProgressCallback } from './types';
+import { attemptOCRFallback } from './ocr-fallback';
 
 /**
- * Extract text from a PDF file with enhanced reliability and error handling
- * This function is the main entry point for PDF text extraction
- * 
- * @param file PDF file to process
- * @param progressCallback Optional callback for progress updates
- * @returns The extracted text from the PDF or a cancellable task
+ * Extract text from a PDF file
+ * @param file - The PDF file to extract text from
+ * @param onProgress - Callback to report progress (0-1)
+ * @returns Promise with the extracted text
  */
-export { extractTextFromPDF };
-
-// Re-export the relevant types
-export type { ExtractTextResult, CancellableTask, ProgressCallback } from './types';
+export const extractTextFromPDF = async (
+  file: File,
+  onProgress?: ProgressCallback
+): Promise<string | { cancel: () => void }> => {
+  try {
+    logInfo('PDF extraction started', { filename: file.name, size: file.size });
+    
+    // Report initial progress
+    if (onProgress) onProgress(0.1);
+    
+    // Dynamically import PDF.js to avoid issues with SSR
+    const pdfJS = await import('pdfjs-dist');
+    
+    // Use the globally configured worker source from our worker setup utility
+    const workerSrc = (window as any).pdfjsWorkerSrc || 
+      'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.0.375/build/pdf.worker.min.js';
+    
+    pdfJS.GlobalWorkerOptions.workerSrc = workerSrc;
+    
+    // Report progress after library loaded
+    if (onProgress) onProgress(0.2);
+    
+    // Load the PDF file
+    const fileArrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfJS.getDocument({ data: fileArrayBuffer }).promise;
+    
+    // Report progress after PDF loaded
+    if (onProgress) onProgress(0.3);
+    
+    // Get the number of pages
+    const numPages = pdf.numPages;
+    logInfo('PDF loaded successfully', { numPages });
+    
+    // Extract text from each page
+    let extractedText = '';
+    for (let i = 1; i <= numPages; i++) {
+      // Calculate progress for this page
+      const pageProgress = 0.3 + (0.6 * (i - 1) / numPages);
+      if (onProgress) onProgress(pageProgress);
+      
+      // Get the page
+      const page = await pdf.getPage(i);
+      
+      // Extract the text content
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items
+        .map((item: any) => item.str)
+        .join(' ');
+      
+      extractedText += pageText + '\n\n';
+      
+      // Report progress after page processed
+      const pageCompleteProgress = 0.3 + (0.6 * i / numPages);
+      if (onProgress) onProgress(pageCompleteProgress);
+    }
+    
+    // Final progress
+    if (onProgress) onProgress(1.0);
+    
+    logInfo('PDF extraction completed', { 
+      extractedTextLength: extractedText.length 
+    });
+    
+    // Check if the extracted text is very short or empty
+    if (extractedText.trim().length < 20) {
+      logInfo('PDF extraction yielded limited text, trying OCR fallback', {
+        textLength: extractedText.length
+      });
+      
+      // Try OCR fallback for image-based PDFs
+      try {
+        const ocrText = await attemptOCRFallback(file, onProgress);
+        return ocrText;
+      } catch (ocrError) {
+        logError('OCR fallback failed, returning original extracted text', { error: ocrError });
+        // If OCR fails, return what little text we have from normal extraction
+        return extractedText;
+      }
+    }
+    
+    return extractedText;
+  } catch (error) {
+    logError('PDF extraction error', { error });
+    throw new Error(`Failed to extract text from PDF: ${error instanceof Error ? error.message : String(error)}`);
+  }
+};
