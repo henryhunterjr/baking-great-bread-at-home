@@ -135,7 +135,7 @@ export const processPDFFile = async (
       }
     }
     
-    // At this point, we're guaranteed extractResult is not null/undefined (checked above)
+    // At this point, we know extractResult is not null/undefined (checked above)
     // and not a cancellable task object, so it must be a string
     // TypeScript needs an explicit assertion since it doesn't track our runtime checks fully
     const extractedText = extractResult as string;
