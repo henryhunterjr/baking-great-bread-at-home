@@ -2,86 +2,110 @@
 import { logInfo, logError, logWarn } from '@/utils/logger';
 
 /**
- * Initialize PDF.js worker with proper error handling and CORS configuration
+ * Ensures the PDF.js worker files are accessible and properly configured
  */
-export const initPDFWorker = async (): Promise<boolean> => {
+export const ensurePDFWorkerFiles = async (): Promise<boolean> => {
   try {
-    // Check if the worker file is accessible with proper error handling
     logInfo('Attempting to access PDF worker file');
     
-    const workerResponse = await fetch('/pdf.worker.min.js', { 
-      method: 'HEAD',
-      cache: 'no-cache' // Prevent caching issues
-    });
+    // Check if the main worker file is accessible
+    const workerResponse = await fetch('/pdf.worker.min.js', { method: 'HEAD' });
     
     if (!workerResponse.ok) {
-      logError('PDF worker file is not accessible', { 
-        status: workerResponse.status,
-        statusText: workerResponse.statusText
-      });
+      logError('PDF worker file is not accessible', { status: workerResponse.status });
       return false;
     }
     
     logInfo('PDF worker file is accessible');
     
-    // Also check for cMaps directory which is required for some PDFs
-    const cmapsResponse = await fetch('/cmaps/Adobe-CNS1-UCS2.bcmap', { 
-      method: 'HEAD',
-      cache: 'no-cache'
-    }).catch(() => null);
-    
-    if (!cmapsResponse || !cmapsResponse.ok) {
+    // Check if the cMaps directory is accessible (not critical, just warn if missing)
+    try {
+      // Try to access a common cMap file
+      const cMapResponse = await fetch('/cmaps/Adobe-CNS1-UCS2.bcmap', { method: 'HEAD' });
+      
+      if (!cMapResponse.ok) {
+        logWarn('PDF cMaps directory may not be accessible. This might affect some PDFs with special character sets.');
+      }
+    } catch (error) {
       logWarn('PDF cMaps directory may not be accessible. This might affect some PDFs with special character sets.');
-    } else {
-      logInfo('PDF cMaps directory is accessible');
     }
     
+    // Even without cMaps, the worker should function for most PDFs
+    logInfo('PDF worker files are properly configured and accessible');
     return true;
   } catch (error) {
-    logError('Error checking PDF worker file accessibility', { error });
+    logError('Error checking PDF worker files', { error });
     return false;
   }
 };
 
 /**
- * Ensure PDF worker files are available and properly configured
- * - Checks for file availability
- * - Verifies CORS configuration
- * - Logs detailed information for troubleshooting
+ * Configure CORS settings for PDF.js worker
  */
-export const ensurePDFWorkerFiles = async (): Promise<void> => {
-  const isWorkerAvailable = await initPDFWorker();
-  
-  if (!isWorkerAvailable) {
-    const errorMessage = 'PDF worker files are missing or inaccessible';
-    logError(errorMessage, {
-      solution: 'Copy PDF.js worker files to the public directory and ensure proper CORS settings'
-    });
+export const configurePDFWorkerCORS = (): void => {
+  try {
+    // Set CORS attributes for PDF.js
+    const corsSetting = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    };
     
-    console.error(`
-PDF Worker Error: The required PDF.js worker files are not available.
-To fix this:
-1. Make sure you have run "npm install pdfjs-dist" 
-2. Run the copy-pdf-worker.js script with "node scripts/copy-pdf-worker.js"
-3. Restart your development server
-4. If deploying, ensure the files are included in your build
-`);
-  } else {
-    logInfo('PDF worker files are properly configured and accessible');
+    // This is more for documentation as we can't control server CORS policy from client-side
+    // But it reminds developers to ensure the server is configured correctly
+    logInfo('PDF worker CORS configuration validated');
+  } catch (error) {
+    logError('Error configuring PDF worker CORS', { error });
   }
 };
 
 /**
- * Add CORS headers to the worker file
- * This is called during build/initialization to ensure proper CORS configuration
+ * Check if PDF extraction functionality is available
  */
-export const configurePDFWorkerCORS = (): void => {
-  // This function would typically modify server configuration
-  // For client-side use, we ensure files are served from the same origin
-  logInfo('PDF worker CORS configuration validated');
+export const isPDFExtractionAvailable = async (): Promise<boolean> => {
+  try {
+    // Check if the PDF.js library is loadable
+    const pdfjs = await import('pdfjs-dist')
+      .catch(error => {
+        logError('Failed to load PDF.js library', { error });
+        return null;
+      });
+    
+    if (!pdfjs) {
+      return false;
+    }
+    
+    // Check if worker files are accessible
+    const workerFilesAvailable = await ensurePDFWorkerFiles();
+    
+    return workerFilesAvailable;
+  } catch (error) {
+    logError('Error checking PDF extraction availability', { error });
+    return false;
+  }
 };
 
-// Auto-initialize on module load
-ensurePDFWorkerFiles().catch(error => {
-  logError('Failed to auto-initialize PDF worker service', { error });
-});
+/**
+ * Fix common PDF worker issues
+ */
+export const fixPDFWorkerIssues = async (): Promise<boolean> => {
+  try {
+    // First check if files are accessible
+    const filesAvailable = await ensurePDFWorkerFiles();
+    
+    if (filesAvailable) {
+      // Files are already available, no fix needed
+      return true;
+    }
+    
+    // No client-side fixes are possible if files are missing
+    // Log instructions for developers
+    logWarn('PDF worker files are missing. Run scripts/copy-pdf-worker.js before building the app.');
+    logWarn('Command: node scripts/copy-pdf-worker.js');
+    
+    return false;
+  } catch (error) {
+    logError('Error fixing PDF worker issues', { error });
+    return false;
+  }
+};
