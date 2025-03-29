@@ -1,77 +1,108 @@
 
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
+import { cleanOCRText } from '@/lib/ai-services/text-cleaner';
 
 /**
- * Process a text file
+ * Process a text file to extract and clean its contents
  */
 export const processTextFile = async (
   file: File,
   callbacks: ProcessingCallbacks
 ): Promise<ProcessingTask> => {
   const { onProgress, onComplete, onError } = callbacks;
-  let isCancelled = false;
   
   try {
-    logInfo('Processing text file', { filename: file.name, fileSize: file.size });
+    logInfo('Processing text file', { filename: file.name, filesize: file.size });
     
-    // Start progress
+    // Check if file too large (> 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      onError('Text file is too large (max 10MB). Please try a smaller file or extract just the recipe section.');
+      return null;
+    }
+    
+    // Show initial progress
     onProgress(20);
     
+    // Determine how to process the file based on its type
+    const fileType = file.type.toLowerCase();
+    
+    // Handle specific file types
+    // Word documents can have different mime types
+    const isWordDocument = 
+      fileType.includes('word') || 
+      fileType.includes('document') || 
+      fileType.includes('msword') || 
+      fileType.includes('openxml') ||
+      file.name.endsWith('.doc') || 
+      file.name.endsWith('.docx');
+    
+    if (isWordDocument) {
+      logInfo('Detected Word document, using specialized processing', { fileType });
+      
+      // For Word docs, we need to explicitly inform the user these can't be processed directly
+      onError('Word documents (.doc/.docx) cannot be processed directly. Please copy the recipe text from the document and paste it in the text input area.');
+      onProgress(100);
+      return null;
+    }
+    
+    // For plain text files, read the content directly
     const reader = new FileReader();
     
-    const readPromise = new Promise<string>((resolve, reject) => {
+    // Create a promise to handle FileReader async operation
+    const readFilePromise = new Promise<string>((resolve, reject) => {
       reader.onload = () => {
-        if (isCancelled) return;
-        if (reader.result) {
-          resolve(reader.result as string);
-        } else {
-          reject(new Error("Failed to read file content"));
-        }
-      };
-      reader.onerror = () => {
-        reject(new Error("Error reading file"));
-      };
-      reader.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const progress = Math.round((event.loaded / event.total) * 80) + 20;
-          onProgress(progress);
-        }
+        // FileReader result could be string, ArrayBuffer, etc. - ensure we have a string
+        const content = typeof reader.result === 'string' 
+          ? reader.result 
+          : new TextDecoder().decode(reader.result as ArrayBuffer);
+        
+        resolve(content);
       };
       
-      reader.readAsText(file);
+      reader.onerror = () => {
+        reject(new Error('Failed to read the file. Please try again.'));
+      };
     });
     
-    // Add timeout protection
-    const textContent = await Promise.race([
-      readPromise,
-      new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('File reading timed out')), 30000)
-      )
-    ]);
+    // Read file content
+    onProgress(30);
+    reader.readAsText(file);
     
-    if (isCancelled) return null;
+    // Await file reading completion
+    const content = await readFilePromise;
+    onProgress(70);
     
-    // Complete progress
+    // Check if content is empty or too short
+    if (!content || content.trim().length === 0) {
+      onError('The file appears to be empty. Please try another file.');
+      return null;
+    }
+    
+    // If content looks like binary/non-text data (contains lots of unusual characters)
+    const nonTextPattern = /[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\xFF]/g;
+    const nonTextMatches = (content.substring(0, 1000).match(nonTextPattern) || []).length;
+    const nonTextRatio = nonTextMatches / Math.min(content.length, 1000);
+    
+    if (nonTextRatio > 0.3) { // If more than 30% of characters look like binary data
+      logError('File appears to contain binary or non-text data', { 
+        ratio: nonTextRatio, 
+        fileType: file.type 
+      });
+      onError('This file appears to contain binary or non-text data. Please use a plain text file or paste the recipe text directly.');
+      return null;
+    }
+    
+    // Clean up the text to remove unwanted characters and improve formatting
+    const cleanedText = cleanOCRText(content);
     onProgress(100);
     
-    logInfo('Text file processed successfully', { contentLength: textContent.length });
-    
-    // Call the completion callback
-    onComplete(textContent);
-    
-    return {
-      cancel: () => {
-        isCancelled = true;
-        reader.abort();
-        logInfo('Text processing cancelled', { filename: file.name });
-      }
-    };
-  } catch (error) {
-    if (!isCancelled) {
-      logError('Text file processing error', { error });
-      onError(`Failed to read text file: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    // Deliver the extracted content
+    onComplete(cleanedText);
+    return null;
+  } catch (err) {
+    logError('Text file processing error:', { error: err });
+    onError(err instanceof Error ? err.message : 'Failed to process text file.');
     return null;
   }
 };

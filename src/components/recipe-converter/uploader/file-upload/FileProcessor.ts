@@ -28,6 +28,7 @@ export const processFile = async (
   callbacks: ProcessingCallbacks
 ): Promise<ProcessingTask> => {
   const fileType = file.type.toLowerCase();
+  const fileName = file.name.toLowerCase();
   logInfo(`Processing file: ${file.name} (${fileType})`);
   
   // Handle image files
@@ -36,22 +37,33 @@ export const processFile = async (
   }
   
   // Handle PDF files
-  if (fileType === 'application/pdf') {
+  if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
     return processPDFFile(file, callbacks);
+  }
+  
+  // Handle Word documents - provide clear error message
+  if (fileType.includes('word') || 
+      fileType.includes('msword') || 
+      fileType.includes('openxmlformats-officedocument.wordprocessingml') ||
+      fileName.endsWith('.doc') || 
+      fileName.endsWith('.docx')) {
+    callbacks.onError(
+      "Word documents (.doc/.docx) cannot be processed directly. " +
+      "Please copy the text from your Word document and paste it into the text input tab."
+    );
+    return null;
   }
   
   // Handle text files
   if (fileType === 'text/plain' || 
       fileType === 'text/html' || 
       fileType === 'text/markdown' ||
-      fileType === 'application/msword' ||
-      fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-      file.name.endsWith('.txt') || 
-      file.name.endsWith('.md')) {
+      fileName.endsWith('.txt') || 
+      fileName.endsWith('.md')) {
     return processTextFile(file, callbacks);
   }
   
   // For unsupported file types
-  callbacks.onError(`Unsupported file type: ${fileType}. Please try a different file format.`);
+  callbacks.onError(`Unsupported file type: ${fileType}. Please try a different file format like .txt, .pdf, or image files.`);
   return null;
 };

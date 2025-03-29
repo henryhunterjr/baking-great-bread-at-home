@@ -13,11 +13,15 @@ const FileProcessingError: React.FC<FileProcessingErrorProps> = ({
   error,
   onSwitchToTextInput
 }) => {
+  // Check if this is a Word document error
+  const isWordDocError = error?.toLowerCase().includes('word document') || 
+                        error?.toLowerCase().includes('.doc');
+
   // Check if this is a worker-related error
-  const isWorkerError = error.toLowerCase().includes('worker') || 
-                        error.toLowerCase().includes('pdf') ||
-                        error.toLowerCase().includes('ocr') ||
-                        error.toLowerCase().includes('tesseract');
+  const isWorkerError = error?.toLowerCase().includes('worker') || 
+                        error?.toLowerCase().includes('pdf') ||
+                        error?.toLowerCase().includes('ocr') ||
+                        error?.toLowerCase().includes('tesseract');
 
   return (
     <Alert variant="destructive" className="mb-4">
@@ -26,7 +30,33 @@ const FileProcessingError: React.FC<FileProcessingErrorProps> = ({
       <AlertDescription className="mt-1">
         {error}
         
-        {isWorkerError && (
+        {isWordDocError && (
+          <div className="mt-3 text-sm">
+            <p className="mb-2">
+              Word documents (.doc/.docx) cannot be processed directly. You can:
+            </p>
+            <ul className="list-disc pl-5 mb-3 space-y-1">
+              <li>Copy the text from your Word document</li>
+              <li>Switch to the Text tab and paste the content there</li>
+              <li>Save your Word document as a PDF and upload the PDF instead</li>
+            </ul>
+            
+            {onSwitchToTextInput && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onSwitchToTextInput}
+                className="mt-1"
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                Switch to text input
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        )}
+        
+        {isWorkerError && !isWordDocError && (
           <div className="mt-3 text-sm">
             <p className="mb-2">
               It looks like we're having trouble with the file processing. You can:
