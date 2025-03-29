@@ -109,7 +109,7 @@ export const processPDFFile = async (
     }
     
     // Check if the result is a cancellable task object with a type guard
-    if (extractResult !== null && typeof extractResult === 'object') {
+    if (typeof extractResult === 'object' && extractResult !== null) {
       // First check if it's a cancellable task object with the cancel property
       if ('cancel' in extractResult && typeof extractResult.cancel === 'function') {
         // Create a type-safe cancellable task object
