@@ -35,7 +35,9 @@ const ProfilePage = () => {
   useEffect(() => {
     const checkProfilesTable = async () => {
       try {
-        await supabase.from('profiles').select('*').limit(1);
+        // Cast supabase to any to bypass TypeScript restrictions
+        // This is necessary because the Supabase client typing doesn't know about our tables yet
+        await (supabase as any).from('profiles').select('*').limit(1);
         setTableExists(true);
       } catch (error: any) {
         // If the error has a code of 42P01, it means the table doesn't exist
@@ -64,7 +66,9 @@ const ProfilePage = () => {
       setLoading(true);
       setError(null);
       
-      const { error } = await supabase
+      // Cast supabase to any to bypass TypeScript restrictions
+      // This is necessary because the Supabase client typing doesn't know about our tables yet
+      const { error } = await (supabase as any)
         .from('profiles')
         .update({
           name: values.name,

@@ -18,9 +18,10 @@ interface ProfileFormProps {
   initialName: string;
   onSubmit: (values: ProfileFormValues) => Promise<void>;
   loading: boolean;
+  disabled?: boolean;
 }
 
-const ProfileForm: React.FC<ProfileFormProps> = ({ initialName, onSubmit, loading }) => {
+const ProfileForm: React.FC<ProfileFormProps> = ({ initialName, onSubmit, loading, disabled = false }) => {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -52,7 +53,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialName, onSubmit, loadin
                     placeholder="Enter your name" 
                     className="pl-10" 
                     {...field} 
-                    disabled={loading}
+                    disabled={loading || disabled}
                   />
                 </div>
               </FormControl>
@@ -64,7 +65,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialName, onSubmit, loadin
         <Button 
           type="submit" 
           className="w-full mt-4" 
-          disabled={loading}
+          disabled={loading || disabled}
         >
           {loading ? (
             <>
