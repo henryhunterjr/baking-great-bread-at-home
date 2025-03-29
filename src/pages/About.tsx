@@ -67,7 +67,7 @@ const About = () => {
                 <img 
                   src="/lovable-uploads/8f0a3cc3-7574-4a47-854c-9690df491ed5.png" 
                   alt="Henry M. Hunter Jr. signature" 
-                  className="h-24 w-auto" 
+                  className="h-24 w-auto opacity-70 filter brightness-150 contrast-125" 
                   loading="lazy"
                   width="240"
                   height="96"
