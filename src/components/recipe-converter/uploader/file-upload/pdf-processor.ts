@@ -136,6 +136,7 @@ export const processPDFFile = async (
     }
     
     // At this point, we know extractResult is a string
+    // TypeScript needs an explicit assertion since it doesn't track our runtime checks fully
     const extractedText = extractResult as string;
     
     // Final progress
