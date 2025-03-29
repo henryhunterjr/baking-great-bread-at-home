@@ -1,28 +1,43 @@
 
+import { logInfo, logError } from '@/utils/logger';
+import { cleanOCRText } from '@/lib/ai-services/text-cleaner';
+
 /**
- * Clean up OCR extracted text to improve quality
+ * Clean up OCR extracted text to improve quality and readability
+ * 
  * @param text Raw OCR text
  * @returns Cleaned text
  */
 export const cleanupOCR = (text: string): string => {
   if (!text) return '';
   
-  // Replace multiple newlines with a single one
-  let cleaned = text.replace(/\n{3,}/g, '\n\n');
+  // Use our text cleaner utility
+  const cleaned = cleanOCRText(text);
   
-  // Replace multiple spaces with a single one
-  cleaned = cleaned.replace(/[ \t]{2,}/g, ' ');
-  
-  // Fix common OCR errors
-  cleaned = cleaned
-    // Fix broken fractions
-    .replace(/(\d)\/(\d)/g, '$1/$2')
-    // Fix broken measurements
-    .replace(/(\d) ([cmt]?[lbgks])/gi, '$1$2')
-    // Fix degree symbols
-    .replace(/(\d)[ ]?[oO°][ ]?([CF])/g, '$1°$2')
-    // Fix broken time units
-    .replace(/(\d) (min|hour|sec|minute)/gi, '$1 $2');
+  logInfo('OCR text cleaned', { 
+    originalLength: text.length, 
+    cleanedLength: cleaned.length 
+  });
   
   return cleaned;
+};
+
+/**
+ * Extract and prepare data from OCR results
+ * 
+ * @param ocrText Raw OCR text
+ * @returns Processed text
+ */
+export const processOCRResult = (ocrText: string | null | undefined): string => {
+  // Handle null or undefined results
+  if (!ocrText) {
+    logError('OCR returned null or undefined text');
+    return '';
+  }
+  
+  // Clean up the text
+  const cleanedText = cleanupOCR(ocrText);
+  
+  // Return the cleaned text
+  return cleanedText;
 };

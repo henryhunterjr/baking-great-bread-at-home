@@ -1,63 +1,77 @@
 
-/**
- * Worker Setup Utility
- * 
- * This utility handles setting up and configuring workers for PDF and OCR processing
- * without requiring direct package.json modifications.
- */
+import { logInfo, logError } from './logger';
 
 /**
- * Configure the PDF.js worker
- * This configures PDF.js to use a worker from a CDN if the local one isn't available
- */
-export const configurePdfWorker = (): void => {
-  try {
-    // Try to use the local worker if available
-    const pdfWorkerUrl = new URL('/pdf.worker.min.js', window.location.origin).href;
-    
-    // Check if worker exists by making a HEAD request
-    fetch(pdfWorkerUrl, { method: 'HEAD' })
-      .then(response => {
-        if (response.ok) {
-          // Set the worker location to the local file
-          (window as any).pdfjsWorkerSrc = pdfWorkerUrl;
-          console.log('[Worker Setup] Using local PDF.js worker');
-        } else {
-          // Fallback to CDN
-          (window as any).pdfjsWorkerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.0.375/build/pdf.worker.min.js';
-          console.log('[Worker Setup] Using CDN PDF.js worker');
-        }
-      })
-      .catch(() => {
-        // Network error, fall back to CDN
-        (window as any).pdfjsWorkerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.0.375/build/pdf.worker.min.js';
-        console.log('[Worker Setup] Fallback to CDN PDF.js worker after fetch error');
-      });
-  } catch (error) {
-    console.error('[Worker Setup] Error configuring PDF worker:', error);
-    // Final fallback
-    (window as any).pdfjsWorkerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.0.375/build/pdf.worker.min.js';
-  }
-};
-
-/**
- * Configure Tesseract OCR worker
- */
-export const configureTesseractWorker = (): void => {
-  try {
-    // Since Tesseract.js manages its own worker loading, we just need to
-    // set up any configuration options here if needed
-    console.log('[Worker Setup] Tesseract worker configuration ready');
-  } catch (error) {
-    console.error('[Worker Setup] Error configuring Tesseract worker:', error);
-  }
-};
-
-/**
- * Initialize all workers
+ * Initialize workers for PDF.js and Tesseract.js
+ * This should be called early in the application lifecycle
  */
 export const initializeWorkers = (): void => {
-  console.log('[Worker Setup] Initializing workers...');
-  configurePdfWorker();
-  configureTesseractWorker();
+  try {
+    // Set up PDF.js worker
+    setupPDFWorker();
+    
+    // Set up Tesseract worker (if needed)
+    setupTesseractWorker();
+    
+    logInfo('Workers initialized successfully');
+  } catch (error) {
+    logError('Error initializing workers', { error });
+  }
+};
+
+/**
+ * Set up the PDF.js worker
+ */
+const setupPDFWorker = (): void => {
+  try {
+    // Add fallback for PDF.js worker
+    // This makes the worker available globally so PDF.js can find it
+    if (typeof window !== 'undefined') {
+      // Try to use local worker first
+      (window as any).pdfjsWorkerSrc = '/pdf.worker.min.js';
+      
+      // Add a fallback to CDN in case local worker fails
+      window.addEventListener('error', (event) => {
+        // Check if error is related to PDF.js worker
+        if (event.filename?.includes('pdf.worker.min.js')) {
+          logInfo('PDF worker load failed, using CDN fallback');
+          (window as any).pdfjsWorkerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+      }, { once: true });
+    }
+  } catch (error) {
+    logError('Error setting up PDF worker', { error });
+  }
+};
+
+/**
+ * Set up the Tesseract worker
+ */
+const setupTesseractWorker = (): void => {
+  try {
+    // Add fallback for Tesseract worker
+    if (typeof window !== 'undefined') {
+      // Provide a CDN fallback for tesseract worker
+      // This is only needed if we don't include the worker in our build
+      (window as any).tesseractWorkerSrc = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/worker.min.js';
+      (window as any).tesseractCorePath = 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.0.0/tesseract-core.wasm.js';
+    }
+  } catch (error) {
+    logError('Error setting up Tesseract worker', { error });
+  }
+};
+
+/**
+ * Check if a worker is available by trying to fetch it
+ * @param url Worker URL to check
+ * @returns Promise resolving to boolean indicating if worker is available
+ */
+export const checkWorkerAvailability = async (url: string): Promise<boolean> => {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    return response.ok;
+  } catch (error) {
+    logError(`Worker not available at ${url}`, { error });
+    return false;
+  }
 };

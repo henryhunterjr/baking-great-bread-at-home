@@ -3,6 +3,7 @@ import { Tesseract } from './tesseract-service';
 import { cleanupOCR } from './ocr-service';
 import { logInfo, logError, startPerformanceTimer, endPerformanceTimer } from '@/utils/logger';
 import { calculateTimeout } from './ocr-utils';
+import { CancellableTask } from '../types';
 
 /**
  * Check if OCR is available in the current environment
@@ -22,15 +23,16 @@ export const verifyOCRAvailability = async (): Promise<boolean> => {
  * @param imageFile The image file to process
  * @param progressCallback Optional callback for progress updates
  * @param options Additional options including AbortSignal for cancellation
- * @returns Extracted text
+ * @returns Extracted text or cancellable task
  */
 export const extractTextWithOCR = async (
   imageFile: File,
   progressCallback?: (progress: number) => void,
   options: {
-    signal?: AbortSignal
+    signal?: AbortSignal;
+    timeout?: number;
   } = {}
-): Promise<string> => {
+): Promise<string | CancellableTask> => {
   const perfMarkerId = `ocr-${Date.now()}`;
   startPerformanceTimer(perfMarkerId);
   
@@ -40,11 +42,15 @@ export const extractTextWithOCR = async (
       throw new Error('No image file provided for OCR');
     }
     
+    // Calculate timeout based on file size if not provided
+    const timeout = options.timeout || calculateTimeout(imageFile.size);
+    
     // Log OCR start with file details
     logInfo('Starting OCR text extraction', { 
       fileName: imageFile.name,
       fileSize: imageFile.size,
-      fileType: imageFile.type
+      fileType: imageFile.type,
+      timeout
     });
     
     // Create a throttled progress updater callback

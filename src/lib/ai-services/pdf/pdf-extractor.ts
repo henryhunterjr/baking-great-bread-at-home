@@ -1,97 +1,138 @@
 
-import { logError, logInfo } from '@/utils/logger';
-import { ProgressCallback } from './types';
-import { attemptOCRFallback } from './ocr-fallback';
+import { logError, logInfo, startPerformanceTimer, endPerformanceTimer } from '@/utils/logger';
+import { cleanPDFText } from '@/lib/ai-services/text-cleaner';
+import { ProcessingErrorType, ProcessingError, ProgressCallback } from './types';
 
 /**
  * Extract text from a PDF file
- * @param file - The PDF file to extract text from
- * @param onProgress - Callback to report progress (0-1)
- * @returns Promise with the extracted text
+ * 
+ * @param file The PDF file to process
+ * @param progressCallback Optional callback for progress updates
+ * @returns The extracted text
  */
 export const extractTextFromPDF = async (
-  file: File,
-  onProgress?: ProgressCallback
-): Promise<string | { cancel: () => void }> => {
+  file: File, 
+  progressCallback?: ProgressCallback
+): Promise<string> => {
+  const perfMarkerId = `pdf-extract-${Date.now()}`;
+  startPerformanceTimer(perfMarkerId);
+  
   try {
-    logInfo('PDF extraction started', { filename: file.name, size: file.size });
+    logInfo('Starting PDF text extraction', { 
+      fileName: file.name,
+      fileSize: file.size
+    });
     
     // Report initial progress
-    if (onProgress) onProgress(0.1);
+    if (progressCallback) {
+      progressCallback(0.1);
+    }
     
-    // Dynamically import PDF.js to avoid issues with SSR
+    // Dynamically import PDF.js to reduce initial load time
     const pdfJS = await import('pdfjs-dist');
     
-    // Use the globally configured worker source from our worker setup utility
-    const workerSrc = (window as any).pdfjsWorkerSrc || 
-      'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.0.375/build/pdf.worker.min.js';
+    // Set up the PDF.js worker
+    // First try to use the local worker, and if that fails, use a CDN version
+    try {
+      const workerSrc = '/pdf.worker.min.js';
+      pdfJS.GlobalWorkerOptions.workerSrc = workerSrc;
+    } catch (e) {
+      logError('Failed to load local PDF worker, using CDN worker', { error: e });
+      // Fallback to CDN version
+      const workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfJS.GlobalWorkerOptions.workerSrc = workerSrc;
+    }
     
-    pdfJS.GlobalWorkerOptions.workerSrc = workerSrc;
+    // Report progress after setting up worker
+    if (progressCallback) {
+      progressCallback(0.2);
+    }
     
-    // Report progress after library loaded
-    if (onProgress) onProgress(0.2);
+    // Load the PDF from the file
+    const arrayBuffer = await file.arrayBuffer();
     
-    // Load the PDF file
-    const fileArrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfJS.getDocument({ data: fileArrayBuffer }).promise;
+    if (progressCallback) {
+      progressCallback(0.3);
+    }
     
-    // Report progress after PDF loaded
-    if (onProgress) onProgress(0.3);
-    
-    // Get the number of pages
+    // Load document
+    const pdf = await pdfJS.getDocument({ data: arrayBuffer }).promise;
     const numPages = pdf.numPages;
+    
     logInfo('PDF loaded successfully', { numPages });
     
+    if (progressCallback) {
+      progressCallback(0.4);
+    }
+    
     // Extract text from each page
-    let extractedText = '';
+    let allText = '';
     for (let i = 1; i <= numPages; i++) {
-      // Calculate progress for this page
-      const pageProgress = 0.3 + (0.6 * (i - 1) / numPages);
-      if (onProgress) onProgress(pageProgress);
-      
-      // Get the page
       const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
       
-      // Extract the text content
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items
+      // Combine text items into a single string
+      const pageText = content.items
         .map((item: any) => item.str)
         .join(' ');
       
-      extractedText += pageText + '\n\n';
+      allText += pageText + '\n\n';
       
-      // Report progress after page processed
-      const pageCompleteProgress = 0.3 + (0.6 * i / numPages);
-      if (onProgress) onProgress(pageCompleteProgress);
-    }
-    
-    // Final progress
-    if (onProgress) onProgress(1.0);
-    
-    logInfo('PDF extraction completed', { 
-      extractedTextLength: extractedText.length 
-    });
-    
-    // Check if the extracted text is very short or empty
-    if (extractedText.trim().length < 20) {
-      logInfo('PDF extraction yielded limited text, trying OCR fallback', {
-        textLength: extractedText.length
-      });
-      
-      // Try OCR fallback for image-based PDFs
-      try {
-        const ocrText = await attemptOCRFallback(file, onProgress);
-        return ocrText;
-      } catch (ocrError) {
-        logError('OCR fallback failed, returning original extracted text', { error: ocrError });
-        // If OCR fails, return what little text we have from normal extraction
-        return extractedText;
+      // Report progress based on page completion
+      if (progressCallback) {
+        const progress = 0.4 + (0.5 * (i / numPages));
+        progressCallback(progress);
       }
     }
     
-    return extractedText;
+    // Clean up the text
+    allText = cleanPDFText(allText);
+    
+    // Report extraction is complete
+    if (progressCallback) {
+      progressCallback(1.0);
+    }
+    
+    // Record performance metrics
+    const totalTime = endPerformanceTimer(
+      perfMarkerId, 
+      'PDF text extraction',
+      { numPages, textLength: allText.length }
+    );
+    
+    logInfo('PDF text extraction completed', {
+      processingTimeMs: totalTime,
+      numPages,
+      textLength: allText.length
+    });
+    
+    return allText;
   } catch (error) {
-    logError('PDF extraction error', { error });
-    throw new Error(`Failed to extract text from PDF: ${error instanceof Error ? error.message : String(error)}`);
+    // End performance timer with error
+    endPerformanceTimer(perfMarkerId, 'PDF text extraction failed');
+    
+    // Determine error type
+    let errorType = ProcessingErrorType.EXTRACTION_FAILED;
+    let errorMessage = 'Failed to extract text from PDF';
+    
+    if (error instanceof Error) {
+      if (error.message.includes('worker')) {
+        errorType = ProcessingErrorType.NETWORK;
+        errorMessage = 'Failed to load PDF processing worker. Please check your network connection.';
+      } else if (error.message.includes('load')) {
+        errorType = ProcessingErrorType.FILE_LOAD;
+        errorMessage = 'Failed to load PDF file. The file may be corrupted or password protected.';
+      }
+      
+      errorMessage += ': ' + error.message;
+    }
+    
+    logError('PDF extraction error', { 
+      error, 
+      type: errorType,
+      fileName: file.name
+    });
+    
+    throw new ProcessingError(errorMessage, errorType);
   }
 };

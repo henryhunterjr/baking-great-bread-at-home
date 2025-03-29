@@ -3,24 +3,23 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-import './index.css';
-import { ThemeProvider } from '@/hooks/use-theme';
-import { Toaster } from '@/components/ui/toaster';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import { initializeWorkers } from '@/utils/worker-setup';
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { Toaster } from './components/ui/toaster';
+import { initializeWorkers } from './utils/worker-setup';
 
-// Initialize workers for PDF and OCR processing
+// Initialize PDF.js and Tesseract workers
 initializeWorkers();
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <ErrorBoundary>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
         <ThemeProvider>
           <App />
           <Toaster />
         </ThemeProvider>
-      </BrowserRouter>
-    </ErrorBoundary>
-  </React.StrictMode>
+      </AuthProvider>
+    </BrowserRouter>
+  </React.StrictMode>,
 );
