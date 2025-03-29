@@ -1,3 +1,4 @@
+
 import { extractTextFromPDF } from '@/lib/ai-services/pdf';
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
@@ -108,8 +109,8 @@ export const processPDFFile = async (
     }
     
     // Check if the result is a cancellable task object with a type guard
-    if (typeof extractResult === 'object' && extractResult !== null) {
-      // First check if it's a cancellable task object
+    if (extractResult !== null && typeof extractResult === 'object') {
+      // First check if it's a cancellable task object with the cancel property
       if ('cancel' in extractResult && typeof extractResult.cancel === 'function') {
         // Create a type-safe cancellable task object
         processingTask = {

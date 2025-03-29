@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Facebook, Github, Mail } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const AuthFooter = () => {
   return (
@@ -31,13 +32,13 @@ const AuthFooter = () => {
       <div className="text-center pt-2">
         <p className="text-xs text-bread-500 dark:text-bread-400">
           By continuing, you agree to our{' '}
-          <a href="/terms-of-service" className="text-bread-700 dark:text-bread-300 underline hover:text-bread-800">
+          <Link to="/terms-of-service" className="text-bread-700 dark:text-bread-300 underline hover:text-bread-800">
             Terms of Service
-          </a>{' '}
+          </Link>{' '}
           and{' '}
-          <a href="/privacy-policy" className="text-bread-700 dark:text-bread-300 underline hover:text-bread-800">
+          <Link to="/privacy-policy" className="text-bread-700 dark:text-bread-300 underline hover:text-bread-800">
             Privacy Policy
-          </a>
+          </Link>
         </p>
       </div>
     </div>

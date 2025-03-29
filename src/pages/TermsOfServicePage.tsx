@@ -28,7 +28,10 @@ const TermsOfServicePage = () => {
         
         <h2>4. Contact Us</h2>
         <p>
-          If you have any questions about these Terms, please contact us at terms@recipeapp.com.
+          If you have any questions about these Terms, please contact us at:{' '}
+          <a href="mailto:BGBAH2023@Gmail.com" className="text-bread-600 hover:underline">
+            BGBAH2023@Gmail.com
+          </a>
         </p>
       </div>
     </div>
