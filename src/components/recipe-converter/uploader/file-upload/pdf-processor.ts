@@ -103,7 +103,7 @@ export const processPDFFile = async (
     if (isCancelled) return null;
     
     // Handle different types of results
-    if (extractResult === null || extractResult === undefined) {
+    if (!extractResult) {
       onError("Failed to extract text from the PDF. The file may be empty or corrupted. Try uploading an image version instead or use text input.");
       return null;
     }
