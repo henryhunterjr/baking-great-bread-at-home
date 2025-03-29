@@ -77,7 +77,7 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
     
     try {
       // Extract text with OCR
-      const extractedText = await extractTextWithOCR(
+      const extractedResult = await extractTextWithOCR(
         file, 
         (progressValue) => {
           setProgress(progressValue);
@@ -89,6 +89,16 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
         window.clearTimeout(timeoutId);
         setTimeoutId(null);
       }
+      
+      // Check if the result is a cancellable task
+      if (typeof extractedResult === 'object' && extractedResult !== null && 'cancel' in extractedResult) {
+        // Handle cancellable task case - we usually don't get here in camera mode
+        // But if we do, we should set up a way to cancel it later
+        return;
+      }
+      
+      // At this point, we know extractedResult is a string
+      const extractedText = extractedResult as string;
       
       if (extractedText.trim().length > 0) {
         // Pass the extracted text to the parent

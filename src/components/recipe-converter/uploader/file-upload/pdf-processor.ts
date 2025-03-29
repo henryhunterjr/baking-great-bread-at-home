@@ -114,7 +114,9 @@ export const processPDFFile = async (
       // Return immediately with the cancel task
       return {
         cancel: () => {
-          if (processingTask) processingTask.cancel();
+          if (processingTask && processingTask.cancel) {
+            processingTask.cancel();
+          }
           isCancelled = true;
           if (timeoutId !== null) {
             window.clearTimeout(timeoutId);

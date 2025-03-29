@@ -136,7 +136,7 @@ export const processImageFile = async (
     );
     
     // Extract text from the image with cancellation support
-    const extractedText = await extractTextWithOCR(
+    const extractedResult = await extractTextWithOCR(
       file, 
       throttledProgressHandler,
       { signal }
@@ -161,7 +161,15 @@ export const processImageFile = async (
     // Check if the operation was cancelled
     if (isAborted) return null;
     
-    logInfo("OCR complete", { textLength: extractedText?.length || 0 });
+    // Check if extracted result is a cancellable task
+    if (typeof extractedResult === 'object' && extractedResult !== null && 'cancel' in extractedResult) {
+      return extractedResult; // Return the cancellable task
+    }
+    
+    // At this point, extractedResult must be a string
+    const extractedText = extractedResult as string;
+    
+    logInfo("OCR complete", { textLength: extractedText.length || 0 });
     
     // Make sure we report 100% when done
     onProgress(100);
