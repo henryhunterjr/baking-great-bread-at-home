@@ -12,5 +12,22 @@
     "env": {
       "NPM_FLAGS": "--prefer-offline --no-audit --no-fund --no-optional"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/auth/callback",
+      "destination": "/auth",
+      "permanent": false
+    },
+    {
+      "source": "/verify",
+      "destination": "/auth",
+      "permanent": false
+    },
+    {
+      "source": "/callback",
+      "destination": "/auth",
+      "permanent": false
+    }
+  ]
 }
