@@ -1,7 +1,7 @@
-
 import { useToast } from '@/hooks/use-toast';
 import { logInfo, logError } from '@/utils/logger';
 import { useFileProcessor, ProcessingOptions } from './useFileProcessor';
+import { processPDF } from '../../tabs/convert-tab/hooks/usePDFProcessing';
 
 export const usePDFHandler = () => {
   const { toast } = useToast();
@@ -23,8 +23,6 @@ export const usePDFHandler = () => {
     
     try {
       logInfo(`Processing PDF file: ${file.name} (${file.type})`);
-      
-      const { processPDF } = await import('../../tabs/convert-tab/hooks/usePDFProcessing');
       
       const task = await processPDF(
         file,

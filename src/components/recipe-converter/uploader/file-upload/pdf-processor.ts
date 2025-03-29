@@ -1,4 +1,3 @@
-
 import { extractTextFromPDF } from '@/lib/ai-services/pdf';
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
@@ -102,14 +101,8 @@ export const processPDFFile = async (
     // If processing was cancelled, don't proceed
     if (isCancelled) return null;
     
-    // Handle different types of results
-    if (extractResult === null || extractResult === undefined) {
-      onError("Failed to extract text from the PDF. The file may be empty or corrupted. Try uploading an image version instead or use text input.");
-      return null;
-    }
-    
     // Check if the result is a cancellable task object
-    if (typeof extractResult === 'object' && extractResult !== null && 'cancel' in extractResult) {
+    if (extractResult !== null && typeof extractResult === 'object' && 'cancel' in extractResult) {
       processingTask = extractResult as { cancel: () => void };
       // Return immediately with the cancel task
       return {

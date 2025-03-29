@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { extractTextFromPDF } from '@/lib/ai-services/pdf';
 import { logError, logInfo } from '@/utils/logger';
@@ -129,4 +130,73 @@ export const usePDFProcessing = (
     ...processingState,
     processPDF,
   };
+};
+
+// Export a standalone version of processPDF for use in other files
+export const processPDF = async (
+  file: File,
+  onComplete: (text: string) => void,
+  onError: (error: string) => void
+) => {
+  try {
+    logInfo("Processing PDF directly", { filename: file.name, filesize: file.size });
+    
+    let cancelled = false;
+    let timeoutId: NodeJS.Timeout | null = null;
+    
+    // Set a timeout to prevent indefinite processing
+    timeoutId = setTimeout(() => {
+      cancelled = true;
+      onError("PDF processing timed out.");
+    }, 120000); // 2 minutes
+    
+    const progressCallback = (progress: number) => {
+      if (cancelled) return;
+      // We don't have a state to update here, just tracking progress
+    };
+    
+    const extractResult = await extractTextFromPDF(file, progressCallback);
+    
+    // Clear the timeout since we're done
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    
+    // Check if processing was cancelled
+    if (cancelled) return null;
+    
+    // Handle different types of results
+    if (extractResult === null || extractResult === undefined) {
+      onError("Failed to extract text from the PDF. The file may be empty or corrupted.");
+      return null;
+    }
+    
+    // Check if the result is a cancellable task
+    if (typeof extractResult === 'object' && extractResult !== null && 'cancel' in extractResult) {
+      // Return the cancellable task
+      return extractResult;
+    }
+    
+    // At this point, we know extractResult is a string
+    const extractedText = extractResult as string;
+    
+    if (!extractedText || extractedText.trim().length === 0) {
+      onError("No text was found in this PDF. It may contain only images or be scanned.");
+      return null;
+    }
+    
+    const cleanedText = cleanOCRText(extractedText);
+    onComplete(cleanedText);
+    
+    return {
+      cancel: () => {
+        // This is just a placeholder since the process is already complete
+        logInfo("PDF extraction already complete, nothing to cancel");
+      }
+    };
+    
+  } catch (error: any) {
+    onError(error.message || "An unexpected error occurred during PDF processing.");
+    return null;
+  }
 };
