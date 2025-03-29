@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { AtSign, KeyRound, User } from 'lucide-react';
+import { AtSign, KeyRound, User, UserPlus } from 'lucide-react';
 
 // Form validation schema
 const signupSchema = z.object({
@@ -75,13 +75,13 @@ const SignupForm: React.FC<SignupFormProps> = ({ setAuthError }) => {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full Name</FormLabel>
+              <FormLabel className="text-bread-700 dark:text-bread-300">Full Name</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <User className="absolute left-3 top-3 h-4 w-4 text-bread-500 dark:text-bread-400" />
                   <Input 
                     placeholder="Enter your name" 
-                    className="pl-10" 
+                    className="pl-10 border-bread-300 dark:border-bread-600 focus:border-bread-500 dark:focus:border-bread-400" 
                     {...field} 
                     disabled={loading}
                   />
@@ -97,13 +97,13 @@ const SignupForm: React.FC<SignupFormProps> = ({ setAuthError }) => {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-bread-700 dark:text-bread-300">Email</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <AtSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <AtSign className="absolute left-3 top-3 h-4 w-4 text-bread-500 dark:text-bread-400" />
                   <Input 
                     placeholder="Enter your email" 
-                    className="pl-10" 
+                    className="pl-10 border-bread-300 dark:border-bread-600 focus:border-bread-500 dark:focus:border-bread-400" 
                     {...field} 
                     disabled={loading}
                   />
@@ -119,14 +119,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ setAuthError }) => {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="text-bread-700 dark:text-bread-300">Password</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <KeyRound className="absolute left-3 top-3 h-4 w-4 text-bread-500 dark:text-bread-400" />
                   <Input 
                     type="password" 
                     placeholder="Create a password" 
-                    className="pl-10" 
+                    className="pl-10 border-bread-300 dark:border-bread-600 focus:border-bread-500 dark:focus:border-bread-400" 
                     {...field} 
                     disabled={loading}
                   />
@@ -137,8 +137,17 @@ const SignupForm: React.FC<SignupFormProps> = ({ setAuthError }) => {
           )}
         />
         
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? 'Creating account...' : 'Create Account'}
+        <Button 
+          type="submit" 
+          className="w-full bg-bread-700 hover:bg-bread-800 text-white flex items-center justify-center"
+          disabled={loading}
+        >
+          {loading ? 'Creating account...' : (
+            <>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Create Account
+            </>
+          )}
         </Button>
       </form>
     </Form>

@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { AtSign, KeyRound } from 'lucide-react';
+import { AtSign, KeyRound, LogIn } from 'lucide-react';
 
 // Form validation schema
 const loginSchema = z.object({
@@ -51,7 +51,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ setAuthError }) => {
 
       toast({
         title: "Login successful",
-        description: "Welcome back to Breadtopia!",
+        description: "Welcome back to Baking Great Bread at Home!",
       });
     } catch (error: any) {
       setAuthError(error.message);
@@ -68,13 +68,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ setAuthError }) => {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-bread-700 dark:text-bread-300">Email</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <AtSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <AtSign className="absolute left-3 top-3 h-4 w-4 text-bread-500 dark:text-bread-400" />
                   <Input 
                     placeholder="Enter your email" 
-                    className="pl-10" 
+                    className="pl-10 border-bread-300 dark:border-bread-600 focus:border-bread-500 dark:focus:border-bread-400" 
                     {...field} 
                     disabled={loading}
                   />
@@ -90,14 +90,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ setAuthError }) => {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="text-bread-700 dark:text-bread-300">Password</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <KeyRound className="absolute left-3 top-3 h-4 w-4 text-bread-500 dark:text-bread-400" />
                   <Input 
                     type="password" 
                     placeholder="Enter your password" 
-                    className="pl-10" 
+                    className="pl-10 border-bread-300 dark:border-bread-600 focus:border-bread-500 dark:focus:border-bread-400" 
                     {...field} 
                     disabled={loading}
                   />
@@ -108,8 +108,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ setAuthError }) => {
           )}
         />
         
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
+        <Button 
+          type="submit" 
+          className="w-full bg-bread-700 hover:bg-bread-800 text-white flex items-center justify-center"
+          disabled={loading}
+        >
+          {loading ? 'Logging in...' : (
+            <>
+              <LogIn className="h-4 w-4 mr-2" />
+              Login
+            </>
+          )}
         </Button>
       </form>
     </Form>

@@ -1,23 +1,44 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Facebook, Github, Mail } from 'lucide-react';
 
-const AuthFooter: React.FC = () => {
+const AuthFooter = () => {
   return (
-    <div className="p-4 pt-0 text-center text-xs text-muted-foreground">
-      <p className="mb-4">
-        By continuing, you agree to the Terms of Service and Privacy Policy of Baking Great Bread at Home with Henry.
-      </p>
-      <div className="flex justify-center space-x-4">
-        <Button variant="link" size="sm" className="h-auto p-0 text-xs">
-          Terms of Service
+    <div className="w-full space-y-4">
+      <div className="flex items-center gap-2">
+        <Separator className="flex-grow bg-bread-200 dark:bg-bread-700" />
+        <span className="text-xs text-bread-500 dark:text-bread-400 font-medium">OR CONTINUE WITH</span>
+        <Separator className="flex-grow bg-bread-200 dark:bg-bread-700" />
+      </div>
+      
+      <div className="grid grid-cols-3 gap-2">
+        <Button variant="outline" size="sm" className="border-bread-300 dark:border-bread-700">
+          <Mail className="h-4 w-4 mr-2 text-bread-600 dark:text-bread-400" />
+          <span className="text-xs">Email</span>
         </Button>
-        <Button variant="link" size="sm" className="h-auto p-0 text-xs">
-          Privacy Policy
+        <Button variant="outline" size="sm" className="border-bread-300 dark:border-bread-700">
+          <Github className="h-4 w-4 mr-2 text-bread-600 dark:text-bread-400" />
+          <span className="text-xs">GitHub</span>
         </Button>
-        <Button variant="link" size="sm" className="h-auto p-0 text-xs">
-          Help Center
+        <Button variant="outline" size="sm" className="border-bread-300 dark:border-bread-700">
+          <Facebook className="h-4 w-4 mr-2 text-bread-600 dark:text-bread-400" />
+          <span className="text-xs">Facebook</span>
         </Button>
+      </div>
+      
+      <div className="text-center pt-2">
+        <p className="text-xs text-bread-500 dark:text-bread-400">
+          By continuing, you agree to our{' '}
+          <a href="/terms-of-service" className="text-bread-700 dark:text-bread-300 underline hover:text-bread-800">
+            Terms of Service
+          </a>{' '}
+          and{' '}
+          <a href="/privacy-policy" className="text-bread-700 dark:text-bread-300 underline hover:text-bread-800">
+            Privacy Policy
+          </a>
+        </p>
       </div>
     </div>
   );
