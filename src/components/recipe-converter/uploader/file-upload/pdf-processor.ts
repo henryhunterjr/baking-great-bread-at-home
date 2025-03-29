@@ -109,7 +109,7 @@ export const processPDFFile = async (
     }
     
     // Check if the result is a cancellable task object
-    if (typeof extractResult === 'object' && 'cancel' in extractResult) {
+    if (typeof extractResult === 'object' && extractResult !== null && 'cancel' in extractResult) {
       processingTask = extractResult as { cancel: () => void };
       // Return immediately with the cancel task
       return {
