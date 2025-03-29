@@ -1,4 +1,3 @@
-
 import { extractTextFromPDF } from '@/lib/ai-services/pdf';
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
