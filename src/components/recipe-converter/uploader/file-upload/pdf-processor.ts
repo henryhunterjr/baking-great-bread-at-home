@@ -1,4 +1,3 @@
-
 import { extractTextFromPDF } from '@/lib/ai-services/pdf';
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
@@ -109,32 +108,30 @@ export const processPDFFile = async (
     }
     
     // Check if the result is a cancellable task object with a type guard
-    // Fix TypeScript errors by ensuring extractResult is not null before this check
-    if (extractResult !== null && 
-        typeof extractResult === 'object' && 
-        'cancel' in extractResult && 
-        typeof extractResult.cancel === 'function') {
-      
-      // Create a type-safe cancellable task object
-      const cancellableTask = extractResult as { cancel: () => void };
-      // Safely assign processingTask
-      processingTask = cancellableTask;
-      
-      return {
-        cancel: () => {
-          if (processingTask && processingTask.cancel) {
-            processingTask.cancel();
+    if (typeof extractResult === 'object' && extractResult !== null) {
+      // First check if it's a cancellable task object
+      if ('cancel' in extractResult && typeof extractResult.cancel === 'function') {
+        // Create a type-safe cancellable task object
+        processingTask = {
+          cancel: extractResult.cancel
+        };
+        
+        return {
+          cancel: () => {
+            if (processingTask && processingTask.cancel) {
+              processingTask.cancel();
+            }
+            isCancelled = true;
+            if (timeoutId !== null) {
+              window.clearTimeout(timeoutId);
+              timeoutId = null;
+            }
+            window.clearInterval(progressIntervalId);
+            window.clearTimeout(warningTimeoutId);
+            logInfo("PDF processing cancelled by user");
           }
-          isCancelled = true;
-          if (timeoutId !== null) {
-            window.clearTimeout(timeoutId);
-            timeoutId = null;
-          }
-          window.clearInterval(progressIntervalId);
-          window.clearTimeout(warningTimeoutId);
-          logInfo("PDF processing cancelled by user");
-        }
-      };
+        };
+      }
     }
     
     // At this point, we know extractResult is a string
