@@ -9,15 +9,12 @@ import {
   ProgressCallback, 
   TextExtractionOptions 
 } from '../types';
-import { 
-  MAX_PDF_SIZE_MB, 
-  MAX_PAGES_TO_PROCESS, 
-  PDF_LOAD_TIMEOUT, 
-  PDF_TOTAL_TIMEOUT 
-} from '../utils/pdf-validator';
-import { createCancellableTimeout } from '../utils/timeout-utils';
-import { safelyDestroyPdfDocument, clearTimeoutIfExists } from '../utils/cleanup-utils';
-import { cleanPDFText } from '@/lib/ai-services/text-cleaner';
+
+// Constants
+const MAX_PDF_SIZE_MB = 15;
+const MAX_PAGES_TO_PROCESS = 15;
+const PDF_LOAD_TIMEOUT = 30000; // 30 seconds
+const PDF_TOTAL_TIMEOUT = 120000; // 2 minutes
 
 // Try to configure PDF.js workers
 try {
@@ -25,6 +22,42 @@ try {
 } catch (error) {
   logError('Error configuring PDF.js worker', { error });
 }
+
+// Helper function to clear a timeout if it exists
+const clearTimeoutIfExists = (timeoutId: number | null): null => {
+  if (timeoutId !== null) {
+    window.clearTimeout(timeoutId);
+  }
+  return null;
+};
+
+// Helper function to safely destroy a PDF document
+const safelyDestroyPdfDocument = (
+  pdfDocument: pdfjsLib.PDFDocumentProxy | null, 
+  reason: 'success' | 'error' | 'timeout' | 'cancellation'
+): void => {
+  if (pdfDocument) {
+    try {
+      pdfDocument.destroy().catch(e => {
+        logError('Error destroying PDF document', { error: e, reason });
+      });
+    } catch (e) {
+      logError('Error calling destroy on PDF document', { error: e, reason });
+    }
+  }
+};
+
+// Helper function to create a cancellable timeout
+const createCancellableTimeout = (
+  callback: () => void, 
+  timeout: number
+): { timeoutId: number, cancel: () => void } => {
+  const timeoutId = window.setTimeout(callback, timeout);
+  return {
+    timeoutId,
+    cancel: () => window.clearTimeout(timeoutId)
+  };
+};
 
 /**
  * Extract text from a PDF file with enhanced reliability and error handling
@@ -40,10 +73,10 @@ export const extractTextFromPDF = async (
   options: TextExtractionOptions = {}
 ): Promise<ExtractTextResult> => {
   // Set default options
-  const useOCR = options.useOCR ?? false;
-  const timeoutMs = options.timeoutMs ?? PDF_TOTAL_TIMEOUT;
+  const useOCRFallback = false; // Default to not using OCR fallback
+  const timeoutMs = options.timeout ?? PDF_TOTAL_TIMEOUT;
   
-  // Validate file size (moved here from the validator to consolidate logic)
+  // Validate file size
   const maxSize = MAX_PDF_SIZE_MB * 1024 * 1024;
   if (file.size > maxSize) {
     throw new ProcessingError(
@@ -238,7 +271,7 @@ export const extractTextFromPDF = async (
     cancelTotalTimeout();
     
     // Clean the text before returning
-    const cleanedText = cleanPDFText(combinedText);
+    const cleanedText = cleanText(combinedText);
     
     logInfo('PDF text extraction complete', { 
       extractedLength: combinedText.length,
@@ -299,4 +332,26 @@ const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => {
     
     reader.readAsArrayBuffer(file);
   });
+};
+
+/**
+ * Clean up extracted text
+ */
+const cleanText = (text: string): string => {
+  if (!text) return '';
+  
+  // Replace multiple newlines with a single one
+  let cleaned = text.replace(/\n{3,}/g, '\n\n');
+  
+  // Replace multiple spaces with a single one
+  cleaned = cleaned.replace(/[ \t]{2,}/g, ' ');
+  
+  // Fix broken fractions, measurements, and other common OCR issues
+  cleaned = cleaned
+    .replace(/(\d)\/(\d)/g, '$1/$2')
+    .replace(/(\d) ([cmt]?[lbgks])/gi, '$1$2')
+    .replace(/(\d)[ ]?[oO°][ ]?([CF])/g, '$1°$2')
+    .replace(/(\d) (min|hour|sec|minute)/gi, '$1 $2');
+  
+  return cleaned;
 };

@@ -1,3 +1,4 @@
+
 import { extractTextFromPDF } from '@/lib/ai-services/pdf';
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
@@ -102,7 +103,7 @@ export const processPDFFile = async (
     if (isCancelled) return null;
     
     // Handle different types of results
-    if (extractResult === null) {
+    if (extractResult === null || extractResult === undefined) {
       onError("Failed to extract text from the PDF. The file may be empty or corrupted. Try uploading an image version instead or use text input.");
       return null;
     }

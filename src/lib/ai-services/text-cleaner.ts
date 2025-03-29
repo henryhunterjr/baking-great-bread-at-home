@@ -1,111 +1,66 @@
 
-import { logInfo } from '@/utils/logger';
-
 /**
- * Clean up text from OCR processing to improve conversion accuracy
+ * Clean up OCR extracted text to improve quality
+ * @param text Raw OCR text
+ * @returns Cleaned text
  */
 export const cleanOCRText = (text: string): string => {
-  logInfo("Cleaning OCR text", { textLength: text.length });
-  
   if (!text) return '';
   
-  // Remove excessive whitespace and normalize line breaks
-  let cleaned = text.replace(/\r\n/g, '\n');
+  // Replace multiple newlines with a single one
+  let cleaned = text.replace(/\n{3,}/g, '\n\n');
   
-  // Remove multiple consecutive spaces
-  cleaned = cleaned.replace(/[ \t]+/g, ' ');
+  // Replace multiple spaces with a single one
+  cleaned = cleaned.replace(/[ \t]{2,}/g, ' ');
   
-  // Remove multiple empty lines
-  cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
-  
-  // Fix common OCR errors - improved with more patterns
+  // Fix common OCR errors
   cleaned = cleaned
-    // Fix fractions
-    .replace(/l\/2/g, '1/2')
-    .replace(/l\/4/g, '1/4')
-    .replace(/l\/3/g, '1/3')
-    .replace(/(\d)l(\s|$)/g, '$1l$2')
-    .replace(/(\d),(\d)/g, '$1.$2')
-    .replace(/(\d+)\/(\d+)/g, '$1/$2')
-    
-    // Fix standard measurements
-    .replace(/(\d+)g(\s|$)/g, '$1g$2')
-    .replace(/(\d+)ml(\s|$)/g, '$1ml$2')
-    .replace(/(\d+)oz(\s|$)/g, '$1oz$2')
-    .replace(/(\d+)lb(\s|$)/g, '$1lb$2')
-    .replace(/(\d+)kg(\s|$)/g, '$1kg$2')
-    
-    // Fix common recipe section headers
-    .replace(/lngredients/gi, 'Ingredients')
-    .replace(/D1rections/gi, 'Directions')
-    .replace(/[Ii]nstructions?:/g, 'Instructions:')
-    .replace(/[Pp]rep(aration)?:/g, 'Preparation:')
-    .replace(/[Mm]ethod:/g, 'Method:')
-    .replace(/[Ss]tep (\d+)[:\.]?/g, 'Step $1:')
-    
-    // Fix common cooking terms
-    .replace(/[Pp]reheat/g, 'Preheat')
-    .replace(/[Oo]ven/g, 'oven')
-    .replace(/[Bb]aking/g, 'baking')
-    .replace(/[Mm]ixing/g, 'mixing')
-    .replace(/[Bb]owl/g, 'bowl')
-    .replace(/[Ss]tir/g, 'stir')
-    .replace(/[Ww]hisk/g, 'whisk');
+    // Fix broken fractions
+    .replace(/(\d)\/(\d)/g, '$1/$2')
+    // Fix broken measurements
+    .replace(/(\d) ([cmt]?[lbgks])/gi, '$1$2')
+    // Fix degree symbols
+    .replace(/(\d)[ ]?[oO°][ ]?([CF])/g, '$1°$2')
+    // Fix broken time units
+    .replace(/(\d) (min|hour|sec|minute)/gi, '$1 $2');
   
-  logInfo("OCR text cleaned", { 
-    originalLength: text.length, 
-    cleanedLength: cleaned.length 
-  });
-  
-  return cleaned.trim();
+  return cleaned;
 };
 
 /**
- * Clean up text specifically from PDF extraction
+ * Clean up PDF extracted text to improve quality
+ * @param text Raw PDF text
+ * @returns Cleaned text
  */
 export const cleanPDFText = (text: string): string => {
   if (!text) return '';
   
-  logInfo("Cleaning PDF text", { textLength: text.length });
+  // Replace multiple newlines with a single one
+  let cleaned = text.replace(/\n{3,}/g, '\n\n');
   
-  // Remove PDF artifacts
-  let cleaned = text
-    .replace(/Page \d+ of \d+/g, '')
-    .replace(/[^\x20-\x7E\x0A\x0D]/g, '') // Remove non-ASCII characters except newlines
-    .replace(/(\w)-\s*\n\s*(\w)/g, '$1$2') // Fix hyphenated words across lines
-    .replace(/([^\n])\n([a-z])/g, '$1 $2'); // Join broken sentences
+  // Replace multiple spaces with a single one
+  cleaned = cleaned.replace(/[ \t]{2,}/g, ' ');
   
-  // Apply general OCR cleaning
-  return cleanOCRText(cleaned);
-};
-
-/**
- * Extract the main recipe content from surrounding text
- */
-export const extractRecipeContent = (text: string): string => {
-  logInfo("Extracting recipe content from text", { textLength: text.length });
+  // Remove strange characters often found in PDFs
+  cleaned = cleaned.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
   
-  // Look for common recipe section markers
-  const ingredientSectionRegex = /(?:INGREDIENTS|Ingredients|ingredients)(?::|.{0,3})\s*/;
-  const instructionSectionRegex = /(?:INSTRUCTIONS|Instructions|instructions|DIRECTIONS|Directions|directions|METHOD|Method|method)(?::|.{0,3})\s*/;
+  // Fix broken words that may have been split across lines
+  cleaned = cleaned.replace(/(\w+)-\n(\w+)/g, '$1$2');
   
-  // Try to find the recipe title
-  const titleRegex = /^(?:\s*)([\w\s'"-]+?)(?:\n|$)/;
-  const titleMatch = text.match(titleRegex);
-  let recipeContent = text;
+  // Fix common formatting issues
+  cleaned = cleaned
+    // Fix broken fractions
+    .replace(/(\d)\/(\d)/g, '$1/$2')
+    // Fix broken measurements
+    .replace(/(\d) ([cmt]?[lbgks])/gi, '$1$2')
+    // Fix degree symbols
+    .replace(/(\d)[ ]?[oO°][ ]?([CF])/g, '$1°$2')
+    // Fix broken time units
+    .replace(/(\d) (min|hour|sec|minute)/gi, '$1 $2')
+    // Fix common cooking terms
+    .replace(/cup s/gi, 'cups')
+    .replace(/table spoon/gi, 'tablespoon')
+    .replace(/tea spoon/gi, 'teaspoon');
   
-  // Try to find the ingredients section
-  const ingredientMatch = text.match(ingredientSectionRegex);
-  if (ingredientMatch && ingredientMatch.index !== undefined) {
-    // If we find ingredients, extract from there to the end
-    recipeContent = text.substring(ingredientMatch.index);
-  }
-  
-  logInfo("Recipe content extracted", { 
-    originalLength: text.length, 
-    extractedLength: recipeContent.length,
-    hasTitle: !!titleMatch
-  });
-  
-  return recipeContent;
+  return cleaned;
 };
