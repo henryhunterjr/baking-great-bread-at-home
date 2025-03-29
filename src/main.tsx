@@ -3,23 +3,24 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-import { ThemeProvider } from './hooks/use-theme';
-import { Toaster } from '@/components/ui/toaster';
 import './index.css';
-import { initDevErrorHandler, isDevelopmentEnvironment } from './utils/devErrorHandler';
+import { ThemeProvider } from '@/hooks/use-theme';
+import { Toaster } from '@/components/ui/toaster';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { initializeWorkers } from '@/utils/worker-setup';
 
-// Initialize the development error handler in development environments
-if (isDevelopmentEnvironment()) {
-  initDevErrorHandler(true);
-}
+// Initialize workers for PDF and OCR processing
+initializeWorkers();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <ThemeProvider>
-        <App />
-        <Toaster />
-      </ThemeProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <ThemeProvider>
+          <App />
+          <Toaster />
+        </ThemeProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   </React.StrictMode>
 );
