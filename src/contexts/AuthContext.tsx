@@ -33,16 +33,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Fetch user profile data
   const fetchProfile = async (userId: string) => {
     try {
-      // Use a more aggressive type assertion to bypass TypeScript's type checking
-      const { data, error } = await (supabase as any)
+      // Use maybeSingle instead of single to handle the case when the profile doesn't exist
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
         
       if (error) {
         console.error('Error fetching profile:', error);
         return null;
+      }
+
+      // If no profile exists, create one
+      if (!data) {
+        console.log('No profile found, creating one');
+        // Create a basic profile if one doesn't exist
+        const newProfile: UserProfile = {
+          id: userId,
+          name: user?.user_metadata?.name || '',
+          avatar_url: user?.user_metadata?.avatar_url || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert([newProfile]);
+          
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+          return null;
+        }
+        
+        return newProfile;
       }
 
       return data as UserProfile;
@@ -68,7 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
+      async (event, currentSession) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
@@ -88,15 +112,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+    supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
       if (currentSession?.user) {
-        fetchProfile(currentSession.user.id).then(profileData => {
-          setProfile(profileData);
-          setIsLoading(false);
-        });
+        const profileData = await fetchProfile(currentSession.user.id);
+        setProfile(profileData);
+        setIsLoading(false);
       } else {
         setIsLoading(false);
       }
