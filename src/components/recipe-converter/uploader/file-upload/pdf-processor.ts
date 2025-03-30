@@ -1,3 +1,4 @@
+
 import { extractTextFromPDF } from '@/lib/ai-services/pdf';
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
@@ -179,18 +180,22 @@ function handleExtractionResult(
   processingTask: { cancel: () => void } | null,
   onComplete: (text: string) => void,
   onError: (message: string) => void
-): ProcessingTask {
+): ProcessingTask | null {
   // Enhanced null and type checking
   if (extractResult === null || extractResult === undefined) {
     onError("Failed to extract text from the PDF. The file may be empty or corrupted.");
     return null;
   }
   
-  // Check if the result is a cancellable task with a type guard
+  // Check if the result is a cancellable task with a safer type guard
   if (typeof extractResult === 'object' && extractResult !== null && 'cancel' in extractResult) {
     // Create a type-safe cancellable task object
     processingTask = {
-      cancel: (extractResult as { cancel: () => void }).cancel
+      cancel: () => {
+        if (extractResult && 'cancel' in extractResult && typeof extractResult.cancel === 'function') {
+          extractResult.cancel();
+        }
+      }
     };
     
     return {
@@ -228,7 +233,7 @@ function handleProcessingError(
   timeoutId: number | null,
   isCancelled: boolean,
   onError: (message: string) => void
-): ProcessingTask {
+): ProcessingTask | null {
   logError('PDF processing error:', { error: err });
   
   // Clear the timeout if it exists
