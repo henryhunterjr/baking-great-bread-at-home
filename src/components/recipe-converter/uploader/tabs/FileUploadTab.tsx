@@ -42,6 +42,13 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({
     }
   };
   
+  // Determine if the file is a Word document
+  const isWordDocument = selectedFileName && (
+    selectedFileName.endsWith('.doc') || 
+    selectedFileName.endsWith('.docx') || 
+    selectedFileName.includes('word')
+  );
+  
   return (
     <div className="space-y-6">
       {!selectedFileName ? (
@@ -67,9 +74,6 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({
           
           <div className="mt-4">
             <SupportedFormats />
-            <p className="mt-2 text-xs text-muted-foreground">
-              Word documents (.doc/.docx) must be saved as PDF first
-            </p>
           </div>
         </div>
       ) : (
@@ -94,7 +98,8 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({
           <UploadProgress
             isProcessing={isProcessing}
             progress={progress}
-            processingType={processingType}
+            processingType={isWordDocument ? 'word' : processingType}
+            error={isWordDocument ? "Word documents are not supported. Please save as PDF first." : error}
           />
           
           <div className="flex justify-center space-x-2 mt-4">
@@ -119,7 +124,7 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({
                   Try Another File
                 </Button>
                 
-                {!error && (
+                {!error && !isWordDocument && (
                   <Button
                     type="button"
                     variant="outline"
