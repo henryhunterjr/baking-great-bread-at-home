@@ -10,7 +10,7 @@
 }
 
 /* Fix for mobile menu text legibility in dark mode */
-.dark .fixed.bg-background\/95 {
+.dark .fixed[class*="bg-background"] {
   background-color: hsla(var(--background), 0.95);
 }
 
