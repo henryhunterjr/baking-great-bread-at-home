@@ -28,12 +28,12 @@ interface RecipeFormProps {
 const recipeSchema = z.object({
   title: z.string().min(1, "Title is required"),
   introduction: z.string().optional(),
-  ingredients: z.array(z.string().min(1, "Ingredient text is required")),
+  ingredients: z.array(z.string().min(1, "Ingredient text is required")).min(1, "At least one ingredient is required"),
   prepTime: z.string().optional(),
   restTime: z.string().optional(),
   bakeTime: z.string().optional(),
   totalTime: z.string().optional(),
-  instructions: z.array(z.string().min(1, "Instruction text is required")),
+  instructions: z.array(z.string().min(1, "Instruction text is required")).min(1, "At least one instruction is required"),
   tips: z.array(z.string().optional()),
   proTips: z.array(z.string().optional()),
   equipmentNeeded: z.array(
@@ -70,7 +70,8 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
   
   const formMethods = useForm<RecipeFormValues>({
     resolver: zodResolver(recipeSchema),
-    defaultValues: preparedInitialRecipe as RecipeFormValues
+    defaultValues: preparedInitialRecipe as RecipeFormValues,
+    mode: 'onChange' // Validate on change for more responsive feedback
   });
   
   const { 
@@ -79,7 +80,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
     handleSubmit, 
     watch,
     setValue,
-    formState: { errors, isDirty }
+    formState: { errors, isDirty, isValid }
   } = formMethods;
   
   const onSubmit = (data: RecipeFormValues) => {
@@ -151,6 +152,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
             <FormActions 
               onCancel={onCancel} 
               isDirty={isDirty} 
+              isValid={isValid}
             />
           </form>
         </FormProvider>

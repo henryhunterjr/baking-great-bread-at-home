@@ -84,8 +84,12 @@ export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) =
       ...recipe,
       // Ensure these fields exist with fallback values if they're missing
       title: recipe.title || 'Untitled Recipe',
-      ingredients: recipe.ingredients || [],
-      instructions: recipe.instructions || [],
+      ingredients: recipe.ingredients && recipe.ingredients.length > 0 
+        ? recipe.ingredients 
+        : ['Add ingredients here'],
+      instructions: recipe.instructions && recipe.instructions.length > 0 
+        ? recipe.instructions 
+        : ['Add instructions here'],
       // Make sure isConverted flag is set - this is crucial for enabling the save button
       isConverted: true
     };
@@ -97,14 +101,24 @@ export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) =
       hadInstructions: Array.isArray(recipe.instructions) && recipe.instructions.length > 0
     });
 
-    // If ingredients is empty, add a placeholder
-    if (!enrichedRecipe.ingredients.length) {
-      enrichedRecipe.ingredients = ['Ingredients to be added'];
+    // If we have empty arrays, replace with default placeholders
+    if (!enrichedRecipe.ingredients || enrichedRecipe.ingredients.length === 0) {
+      enrichedRecipe.ingredients = ['Add ingredients here'];
     }
 
-    // If instructions is empty, add a placeholder
-    if (!enrichedRecipe.instructions.length) {
-      enrichedRecipe.instructions = ['Instructions to be added'];
+    if (!enrichedRecipe.instructions || enrichedRecipe.instructions.length === 0) {
+      enrichedRecipe.instructions = ['Add instructions here'];
+    }
+
+    // Ensure equipment items have IDs
+    if (enrichedRecipe.equipmentNeeded) {
+      enrichedRecipe.equipmentNeeded = enrichedRecipe.equipmentNeeded.map(item => ({
+        id: item.id || crypto.randomUUID(),
+        name: item.name || 'Equipment',
+        affiliateLink: item.affiliateLink
+      }));
+    } else {
+      enrichedRecipe.equipmentNeeded = [];
     }
 
     return enrichedRecipe;

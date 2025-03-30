@@ -42,13 +42,25 @@ export const useRecipeConverter = () => {
   }, [recipe.isConverted, isEditing]);
   
   const handleConversionComplete = (convertedRecipe: RecipeData) => {
+    // Ensure we have all required fields with fallback values
     const processedRecipe = {
       ...convertedRecipe,
+      // Ensure recipe has a title
+      title: convertedRecipe.title || 'Untitled Recipe',
+      // Ensure recipe has ingredients
+      ingredients: convertedRecipe.ingredients?.length ? 
+        convertedRecipe.ingredients : ['Add your ingredients here'],
+      // Ensure recipe has instructions
+      instructions: convertedRecipe.instructions?.length ? 
+        convertedRecipe.instructions : ['Add your instructions here'],
+      // Ensure each equipment item has an ID
       equipmentNeeded: convertedRecipe.equipmentNeeded?.map(item => ({
         id: item.id || uuidv4(),
-        name: item.name,
+        name: item.name || 'Equipment',
         affiliateLink: item.affiliateLink
-      })) || []
+      })) || [],
+      // Ensure isConverted flag is set
+      isConverted: true
     };
     
     setRecipe(processedRecipe);
