@@ -73,15 +73,8 @@ export const extractTextWithOCR = async (
     const imageUrl = URL.createObjectURL(imageFile);
     
     // Setup progress tracking - compatible with Tesseract.js v6
-    if (progressCallback) {
-      worker.setLogger((data) => {
-        if (data.status === 'recognizing text' && 'progress' in data) {
-          // Map progress to range 20% - 90%
-          const mappedProgress = 0.2 + (data.progress * 0.7);
-          progressCallback(mappedProgress);
-        }
-      });
-    }
+    // In v6, progress updates come through the standard recognize method
+    let lastProgress = 0;
     
     // Check for cancellation again
     if (options?.signal?.aborted) {
@@ -90,7 +83,18 @@ export const extractTextWithOCR = async (
       throw new ProcessingError("OCR processing was cancelled", ProcessingErrorType.USER_CANCELLED);
     }
     
-    const { data } = await worker.recognize(imageUrl);
+    // Recognize text in the image
+    // In Tesseract.js v6, progress is reported through the logger option in recognize
+    const { data } = await worker.recognize(imageUrl, {
+      logger: progressCallback ? (data: any) => {
+        if (data.status === 'recognizing text' && 'progress' in data) {
+          // Map progress to range 20% - 90%
+          const mappedProgress = 0.2 + (data.progress * 0.7);
+          progressCallback(mappedProgress);
+        }
+      } : undefined
+    });
+    
     await worker.terminate();
     
     // Cleanup URL
