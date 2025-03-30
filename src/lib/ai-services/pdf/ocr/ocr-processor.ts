@@ -84,15 +84,15 @@ export const extractTextWithOCR = async (
     }
     
     // Recognize text in the image
-    // In Tesseract.js v6, progress is handled through the onProgress callback
+    // In Tesseract.js v6, progress is handled through a logger config
     const { data } = await worker.recognize(imageUrl, {
-      onProgress: progressCallback ? (p: any) => {
-        if (p.status === 'recognizing text' && 'progress' in p) {
+      logger: progress => {
+        if (progressCallback && progress.status === 'recognizing text' && 'progress' in progress) {
           // Map progress to range 20% - 90%
-          const mappedProgress = 0.2 + (p.progress * 0.7);
+          const mappedProgress = 0.2 + (progress.progress * 0.7);
           progressCallback(mappedProgress);
         }
-      } : undefined
+      }
     });
     
     await worker.terminate();
