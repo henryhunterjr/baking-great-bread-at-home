@@ -42,6 +42,9 @@ const RecipesHeader = ({
                 loading="lazy"
                 width="600"
                 height="200"
+                onError={(e) => {
+                  e.currentTarget.src = "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop";
+                }}
               />
             </AspectRatio>
           </div>

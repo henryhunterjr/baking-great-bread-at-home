@@ -1,3 +1,4 @@
+
 import { challengeImages, DEFAULT_CHALLENGE_IMAGE } from '@/data/challengeImages';
 
 /**

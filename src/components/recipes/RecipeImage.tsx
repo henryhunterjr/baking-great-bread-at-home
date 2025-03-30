@@ -19,7 +19,7 @@ const RecipeImage: React.FC<RecipeImageProps> = ({ id, imageUrl, title, isHovere
     setCurrentSrc(imageUrl);
   }, [id, imageUrl]);
 
-  // Stable fallback images that are known to work well
+  // Enhanced array of reliable fallback images that are known to work well
   const fallbackImages = [
     "https://images.unsplash.com/photo-1586444248879-bc604cbd555a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
     "https://images.unsplash.com/photo-1549931319-a545dcf3bc7c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80",
