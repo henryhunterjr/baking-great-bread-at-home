@@ -1,3 +1,4 @@
+
 /**
  * Clean and normalize OCR text
  * @param text The raw OCR text to clean

@@ -5,19 +5,19 @@ import { AI_CONFIG } from './config';
 
 export interface BlogSearchResponse {
   success: boolean;
-  results?: {
+  results?: Array<{
     title: string;
     excerpt: string;
     link: string;
     imageUrl?: string;
-  }[];
+  }>;
   error?: string;
 }
 
 /**
- * Search blog content using AI
+ * Search blog content using AI for semantic understanding
  * @param query The search query
- * @returns A response containing search results or an error
+ * @returns A response object containing search results or an error
  */
 export const searchBlogWithAI = async (query: string): Promise<BlogSearchResponse> => {
   const apiKey = getOpenAIApiKey();
@@ -30,6 +30,7 @@ export const searchBlogWithAI = async (query: string): Promise<BlogSearchRespons
   }
   
   try {
+    // Clean the query to focus on key terms
     const cleanQuery = query.toLowerCase()
       .replace(/do you have a/i, '')
       .replace(/can you find/i, '')
@@ -42,6 +43,7 @@ export const searchBlogWithAI = async (query: string): Promise<BlogSearchRespons
     logInfo('Searching blog for:', { query: cleanQuery });
     
     try {
+      // Make request to OpenAI API
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -60,7 +62,7 @@ export const searchBlogWithAI = async (query: string): Promise<BlogSearchRespons
               content: `Find bread recipes related to: ${cleanQuery}`
             }
           ],
-          temperature: 0.5,
+          temperature: 0.5
         })
       });
       
@@ -73,7 +75,8 @@ export const searchBlogWithAI = async (query: string): Promise<BlogSearchRespons
       const content = data.choices?.[0]?.message?.content;
       
       try {
-        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        // Extract and parse JSON from response
+        const jsonMatch = content.match(/\[[^\]]*\]/);
         const jsonString = jsonMatch ? jsonMatch[0] : '[]';
         const results = JSON.parse(jsonString);
         
@@ -89,6 +92,7 @@ export const searchBlogWithAI = async (query: string): Promise<BlogSearchRespons
       } catch (parseError) {
         console.error('Failed to parse OpenAI response:', parseError);
         
+        // Fallback to predefined results if parsing fails
         const fallbackResults = getFallbackResults(cleanQuery);
         if (fallbackResults.length > 0) {
           return {
@@ -97,6 +101,7 @@ export const searchBlogWithAI = async (query: string): Promise<BlogSearchRespons
           };
         }
         
+        // Last resort fallback
         return {
           success: true,
           results: [{
@@ -110,6 +115,7 @@ export const searchBlogWithAI = async (query: string): Promise<BlogSearchRespons
     } catch (error) {
       logError('Error searching blog with AI:', { error });
       
+      // Try fallback results
       const fallbackResults = getFallbackResults(query);
       if (fallbackResults.length > 0) {
         return {
@@ -126,6 +132,7 @@ export const searchBlogWithAI = async (query: string): Promise<BlogSearchRespons
   } catch (error) {
     logError('Error searching blog with AI:', { error });
     
+    // Try fallback results
     const fallbackResults = getFallbackResults(query);
     if (fallbackResults.length > 0) {
       return {
@@ -142,66 +149,68 @@ export const searchBlogWithAI = async (query: string): Promise<BlogSearchRespons
 };
 
 /**
- * Get fallback recipe results if AI search fails
+ * Get fallback recipe results for common search terms
  * @param query The search query
- * @returns An array of fallback recipe results
+ * @returns An array of recipe results
  */
-function getFallbackResults(query: string): any[] {
+function getFallbackResults(query: string): Array<{ title: string; excerpt: string; link: string; imageUrl: string }> {
   const cleanQuery = query.toLowerCase().trim();
   
-  const fallbackRecipes: Record<string, any[]> = {
-    'banana bread': [
+  const fallbackRecipes: Record<string, Array<{ title: string; excerpt: string; link: string; imageUrl: string }>> = {
+    "banana bread": [
       {
-        title: 'Henry\'s Classic Banana Bread',
-        excerpt: 'A moist and flavorful banana bread that\'s perfect for using up overripe bananas. This family recipe has been perfected over generations.',
-        link: '/recipes/classic-banana-bread',
-        imageUrl: 'https://images.unsplash.com/photo-1594086385051-a72d28c7b99a?q=80&w=1000&auto=format&fit=crop'
+        title: "Henry's Classic Banana Bread",
+        excerpt: "A moist and flavorful banana bread that's perfect for using up overripe bananas. This family recipe has been perfected over generations.",
+        link: "/recipes/classic-banana-bread",
+        imageUrl: "https://images.unsplash.com/photo-1594086385051-a72d28c7b99a?q=80&w=1000&auto=format&fit=crop"
       },
       {
-        title: 'Whole Wheat Banana Bread',
-        excerpt: 'A healthier take on the classic, using whole wheat flour and less sugar while maintaining that delicious banana flavor.',
-        link: '/recipes/whole-wheat-banana-bread',
-        imageUrl: 'https://images.unsplash.com/photo-1585023657880-8d726c65ba4e?q=80&w=1000&auto=format&fit=crop'
+        title: "Whole Wheat Banana Bread",
+        excerpt: "A healthier take on the classic, using whole wheat flour and less sugar while maintaining that delicious banana flavor.",
+        link: "/recipes/whole-wheat-banana-bread",
+        imageUrl: "https://images.unsplash.com/photo-1585023657880-8d726c65ba4e?q=80&w=1000&auto=format&fit=crop"
       }
     ],
-    'sourdough': [
+    "sourdough": [
       {
-        title: 'Basic Sourdough Bread',
-        excerpt: 'A simple and reliable sourdough recipe for beginners.',
-        link: '/recipes/sourdough-basic',
-        imageUrl: 'https://images.unsplash.com/photo-1585478259715-94acd1a91687?q=80&w=1000&auto=format&fit=crop'
+        title: "Basic Sourdough Bread",
+        excerpt: "A simple and reliable sourdough recipe for beginners.",
+        link: "/recipes/sourdough-basic",
+        imageUrl: "https://images.unsplash.com/photo-1585478259715-94acd1a91687?q=80&w=1000&auto=format&fit=crop"
       },
       {
-        title: 'Rustic Sourdough Boule',
-        excerpt: 'A rustic round loaf with a crisp crust and open crumb.',
-        link: '/recipes/sourdough-boule',
-        imageUrl: 'https://images.unsplash.com/photo-1559548331-f9cb98280344?q=80&w=1000&auto=format&fit=crop'
+        title: "Rustic Sourdough Boule",
+        excerpt: "A rustic round loaf with a crisp crust and open crumb.",
+        link: "/recipes/sourdough-boule",
+        imageUrl: "https://images.unsplash.com/photo-1559548331-f9cb98280344?q=80&w=1000&auto=format&fit=crop"
       }
     ],
-    'challah': [
+    "challah": [
       {
-        title: 'Traditional Challah Bread',
-        excerpt: 'A beautiful braided Jewish bread that\'s slightly sweet and perfect for special occasions.',
-        link: '/recipes/traditional-challah',
-        imageUrl: 'https://images.unsplash.com/photo-1603818652201-1c5a3fb9aa7c?q=80&w=1000&auto=format&fit=crop'
+        title: "Traditional Challah Bread",
+        excerpt: "A beautiful braided Jewish bread that's slightly sweet and perfect for special occasions.",
+        link: "/recipes/traditional-challah",
+        imageUrl: "https://images.unsplash.com/photo-1603818652201-1c5a3fb9aa7c?q=80&w=1000&auto=format&fit=crop"
       }
     ],
-    'cinnamon roll': [
+    "cinnamon roll": [
       {
-        title: 'Cardamom-Infused Cinnamon Rolls',
-        excerpt: 'Indulgent cinnamon rolls with a unique cardamom twist.',
-        link: '/recipes/cardamom-cinnamon-rolls',
-        imageUrl: '/lovable-uploads/379f3564-8f61-454c-9abe-3c7394d3794d.png'
+        title: "Cardamom-Infused Cinnamon Rolls",
+        excerpt: "Indulgent cinnamon rolls with a unique cardamom twist.",
+        link: "/recipes/cardamom-cinnamon-rolls",
+        imageUrl: "/lovable-uploads/379f3564-8f61-454c-9abe-3c7394d3794d.png"
       }
     ]
   };
   
+  // Check if any key matches or includes the query
   for (const [key, recipes] of Object.entries(fallbackRecipes)) {
     if (cleanQuery.includes(key) || key.includes(cleanQuery)) {
       return recipes;
     }
   }
   
+  // Check for partial matches
   if (cleanQuery.includes('banana')) {
     return fallbackRecipes['banana bread'];
   }
