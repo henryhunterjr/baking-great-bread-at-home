@@ -5,6 +5,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import APIKeyForm from '../settings/APIKeyForm';
 import { useTheme } from '@/contexts/ThemeContext';
+import { toast } from 'sonner';
 
 interface SettingsTabProps {
   useAI: boolean;
@@ -24,6 +25,12 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
   setEnhanceRecipes
 }) => {
   const { theme, setTheme } = useTheme();
+
+  const handleThemeChange = (checked: boolean) => {
+    const newTheme = checked ? 'dark' : 'light';
+    setTheme(newTheme);
+    toast.success(`${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} mode activated`);
+  };
 
   return (
     <div className="flex flex-col h-full p-4">
@@ -80,7 +87,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
             <Switch
               id="theme-toggle"
               checked={theme === 'dark'}
-              onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+              onCheckedChange={handleThemeChange}
             />
           </div>
         </TabsContent>

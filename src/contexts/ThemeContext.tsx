@@ -18,33 +18,29 @@ export const useTheme = () => useContext(ThemeContext);
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(() => {
     const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme) {
-      return savedTheme;
-    } else {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
+    return savedTheme || 'system';
   });
 
+  // Function to get the actual theme based on system preference
+  const getActualTheme = () => {
+    if (theme === 'system') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return theme;
+  };
+
+  // Apply theme to document
   useEffect(() => {
     const root = document.documentElement;
+    const actualTheme = getActualTheme();
     
-    if (theme === 'dark') {
-      root.classList.add('dark');
-      root.classList.remove('light');
-    } else if (theme === 'light') {
-      root.classList.remove('dark');
-      root.classList.add('light');
-    } else {
-      // System preference
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        root.classList.add('dark');
-        root.classList.remove('light');
-      } else {
-        root.classList.remove('dark');
-        root.classList.add('light');
-      }
-    }
-
+    // Remove both classes first
+    root.classList.remove('dark', 'light');
+    
+    // Add the appropriate class
+    root.classList.add(actualTheme);
+    
+    // Save to localStorage
     localStorage.setItem('theme', theme);
   }, [theme]);
 
@@ -53,15 +49,12 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     if (theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       
-      const handleChange = (e: MediaQueryListEvent) => {
+      const handleChange = () => {
         const root = document.documentElement;
-        if (e.matches) {
-          root.classList.add('dark');
-          root.classList.remove('light');
-        } else {
-          root.classList.remove('dark');
-          root.classList.add('light');
-        }
+        const newTheme = mediaQuery.matches ? 'dark' : 'light';
+        
+        root.classList.remove('dark', 'light');
+        root.classList.add(newTheme);
       };
       
       mediaQuery.addEventListener('change', handleChange);

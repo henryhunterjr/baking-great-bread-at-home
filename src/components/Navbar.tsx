@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Sun, Moon, Home } from 'lucide-react';
@@ -8,6 +7,7 @@ import { Toggle } from '@/components/ui/toggle';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import UserMenu from './auth/UserMenu';
+import { toast } from 'sonner';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -22,7 +22,6 @@ const Navbar = () => {
   const isHomePage = location.pathname === '/';
   const isAIPage = location.pathname.startsWith('/ai');
 
-  // Always show navbar on AI pages and home page
   const shouldAutoHide = !isHomePage && !isAIPage;
 
   useEffect(() => {
@@ -112,7 +111,9 @@ const Navbar = () => {
   );
 
   const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    toast.success(`${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} mode activated`);
   };
 
   return (

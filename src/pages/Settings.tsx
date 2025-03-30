@@ -10,16 +10,23 @@ import { SettingsIcon, SunIcon, MoonIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useTheme } from '@/contexts/ThemeContext';
+import { toast } from 'sonner';
 
 const Settings = () => {
   useScrollToTop();
   const { theme, setTheme } = useTheme();
 
+  const handleThemeChange = (checked: boolean) => {
+    const newTheme = checked ? 'dark' : 'light';
+    setTheme(newTheme);
+    toast.success(`${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} mode activated`);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-grow py-16">
+      <main className="flex-grow py-16" id="main-content">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center mb-8">
@@ -83,7 +90,7 @@ const Settings = () => {
                         <Switch 
                           id="theme-toggle"
                           checked={theme === 'dark'}
-                          onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                          onCheckedChange={handleThemeChange}
                         />
                         <MoonIcon className="h-4 w-4" />
                       </div>
