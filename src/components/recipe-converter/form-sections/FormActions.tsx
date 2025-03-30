@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Save, X } from 'lucide-react';
+import { Save, X, AlertCircle } from 'lucide-react';
 
 interface FormActionsProps {
   onCancel: () => void;
@@ -17,7 +17,7 @@ const FormActions: React.FC<FormActionsProps> = ({
   const isSaveEnabled = isDirty && isValid;
   
   return (
-    <div className="flex justify-end space-x-2 pt-4">
+    <div className="flex justify-end space-x-2 pt-4 relative">
       <Button 
         type="button" 
         variant="outline" 
@@ -35,7 +35,8 @@ const FormActions: React.FC<FormActionsProps> = ({
         Save Recipe
       </Button>
       {!isValid && isDirty && (
-        <div className="text-destructive text-sm absolute -mt-8">
+        <div className="text-destructive text-sm absolute -top-6 right-0 flex items-center">
+          <AlertCircle className="h-4 w-4 mr-1" />
           Please fill in all required fields
         </div>
       )}
