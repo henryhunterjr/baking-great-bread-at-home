@@ -24,4 +24,5 @@ export interface Recipe {
   isPublic?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  date?: string; // Added date property that's being used in several data files
 }

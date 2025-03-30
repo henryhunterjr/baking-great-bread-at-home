@@ -58,11 +58,13 @@
   @apply text-gray-200;
 }
 
+/* Fix the circular dependency by using direct background color instead of @apply bg-background */
 .dark .bg-bread-50 .max-w-3xl .bg-background {
-  @apply bg-bread-800 border-bread-700 text-white;
+  background-color: hsl(var(--bread-800));
+  @apply border-bread-700 text-white;
 }
 
 /* Fix for mobile menu text legibility in dark mode */
 .dark .fixed.bg-background\/95 {
-  @apply bg-background;
+  background-color: hsl(var(--background));
 }
