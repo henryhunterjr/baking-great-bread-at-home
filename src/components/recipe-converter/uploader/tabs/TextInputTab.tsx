@@ -1,19 +1,21 @@
 
 import React from 'react';
-import ConvertTab from './convert-tab/ConvertTab';
+import ConvertTab from './ConvertTab';
 
 interface TextInputTabProps {
   recipeText: string;
   setRecipeText: (text: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   isConverting: boolean;
+  error?: string | null;
 }
 
 const TextInputTab: React.FC<TextInputTabProps> = ({
   recipeText,
   setRecipeText,
   onSubmit,
-  isConverting
+  isConverting,
+  error
 }) => {
   return (
     <ConvertTab
@@ -21,6 +23,7 @@ const TextInputTab: React.FC<TextInputTabProps> = ({
       setRecipeText={setRecipeText}
       onSubmit={onSubmit}
       isConverting={isConverting}
+      error={error}
     />
   );
 };

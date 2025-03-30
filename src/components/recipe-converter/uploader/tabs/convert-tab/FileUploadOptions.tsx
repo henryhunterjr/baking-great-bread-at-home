@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import FileUploadButton from './upload-options/FileUploadButton';
 import CameraButton from './upload-options/CameraButton';
 import ClipboardButton from './upload-options/ClipboardButton';
 import ClearTextButton from './upload-options/ClearTextButton';
-import { extractTextFromImage } from '@/lib/ai-services/pdf/ocr-processor';
+import { extractTextWithOCR } from '@/lib/ai-services/pdf/ocr/ocr-processor';
 
 interface FileUploadOptionsProps {
   recipeText: string;
@@ -18,6 +18,7 @@ const FileUploadOptions: React.FC<FileUploadOptionsProps> = ({
   setRecipeText,
   isProcessing
 }) => {
+  const { toast } = useToast();
   const [isFileProcessing, setIsFileProcessing] = useState(false);
   
   // Handler for processing image files
@@ -27,9 +28,9 @@ const FileUploadOptions: React.FC<FileUploadOptionsProps> = ({
     setIsFileProcessing(true);
     try {
       // Process the file using OCR or other text extraction methods
-      const extractedText = await extractTextFromImage(file);
+      const extractedText = await extractTextWithOCR(file);
       
-      if (extractedText && extractedText.trim()) {
+      if (extractedText && typeof extractedText === 'string' && extractedText.trim()) {
         setRecipeText(extractedText);
         toast({
           title: "Text Extracted",

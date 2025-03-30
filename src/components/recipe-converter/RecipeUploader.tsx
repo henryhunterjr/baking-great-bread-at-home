@@ -93,6 +93,7 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
                 setRecipeText={setRecipeText}
                 onSubmit={handleTextSubmit}
                 isConverting={isConverting}
+                error={displayError}
               />
             </TabsContent>
             
