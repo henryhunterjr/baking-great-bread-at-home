@@ -1,43 +1,46 @@
 
 // Re-export all AI services functionality
 export { 
-  configureAI, 
+  configureAIKey as configureAI, 
   isAIConfigured,
-  searchBlogWithAI, 
-  processRecipeText, 
-  generateRecipeWithOpenAI,
-  processOCRWithAI,
+  getOpenAIApiKey,
   verifyAPIKey,
   checkAPIKeyStatus,
-  updateOpenAIApiKey,
-  getOpenAIApiKey,
-  type RecipeGenerationResponse,
-  type AIResponse,
-  type BlogSearchResponse
-} from './ai-service';
+  updateOpenAIApiKey
+} from './key-management';
 
-import aiServiceInstance from './ai-service';
-
-// Export context-aware AI functionality
-export { 
-  contextAwareAI,
-  initializeContextAwareAI,
-  type ContextAwareResponse
-} from './context-aware-ai';
-
-// Export content indexing functionality
 export {
-  contentIndexer,
-  initializeContentIndexer
-} from './content-indexing/content-indexer';
+  generateRecipeWithOpenAI,
+  processRecipeText,
+  type RecipeGenerationResponse
+} from './recipe-operations';
+
+export {
+  searchBlogWithAI,
+  type BlogSearchResponse
+} from './blog-operations';
+
+export {
+  processOCRWithAI,
+  cleanOCRText
+} from './ocr-processing';
+
+// Basic response interface
+export interface AIResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
 
 // Initialize the service immediately
 const initializeAIService = () => {
+  const { updateOpenAIApiKey } = require('./key-management');
   updateOpenAIApiKey();
-  return aiServiceInstance.isReady();
+  return isAIConfigured();
 };
 
 const verifyAIServiceStatus = async () => {
+  const { verifyAPIKey } = require('./key-management');
   return await verifyAPIKey();
 };
 
@@ -46,9 +49,6 @@ export {
   initializeAIService,
   verifyAIServiceStatus
 };
-
-// Export the entire service as default
-export { default } from './ai-service';
 
 // Initialize service
 initializeAIService();

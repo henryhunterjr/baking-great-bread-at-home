@@ -3,7 +3,7 @@ import { RecipeData } from '@/types/recipeTypes';
 import { processRecipeText } from '@/lib/ai-services';
 import { cleanOCRText } from './cleaners';
 import { logError, logInfo } from '@/utils/logger';
-import { getOpenAIApiKey, isOpenAIConfigured, updateOpenAIApiKey, checkAPIKeyStatus } from '@/lib/ai-services/ai-config';
+import { getOpenAIApiKey, isAIConfigured, updateOpenAIApiKey, checkAPIKeyStatus } from '@/lib/ai-services';
 
 export const convertRecipeText = async (
   text: string, 
@@ -26,14 +26,14 @@ export const convertRecipeText = async (
     logInfo('API Key Status during recipe conversion', keyStatus);
     
     // Check if OpenAI API is configured before proceeding
-    if (!isOpenAIConfigured()) {
+    if (!isAIConfigured()) {
       throw new Error("AI service is not configured with an API key. Please add your OpenAI API key in Settings.");
     }
     
     const response = await processRecipeText(cleanedText);
     
     if (!response.success) {
-      throw new Error(response.message || "Failed to process recipe. Please try again.");
+      throw new Error(response.error || "Failed to process recipe. Please try again.");
     }
     
     if (!response.recipe) {
