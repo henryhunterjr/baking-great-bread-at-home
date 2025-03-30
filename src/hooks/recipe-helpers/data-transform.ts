@@ -8,7 +8,7 @@ import { breadRecipes } from '@/data/breadRecipes';
  */
 export const convertBlogPostsToRecipes = (blogPosts: BlogPost[]): Recipe[] => {
   return blogPosts.map(post => ({
-    id: post.id,
+    id: typeof post.id === 'number' ? post.id.toString() : post.id,
     title: post.title,
     description: post.excerpt,
     imageUrl: post.imageUrl,

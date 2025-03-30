@@ -1,3 +1,4 @@
+
 /* Fix mobile menu overlay and text legibility in dark mode */
 .dark .fixed.inset-0 {
   background-color: hsl(var(--background));
@@ -6,6 +7,11 @@
 .dark .fixed.inset-0 nav a {
   background-color: hsla(var(--background), 0.95);
   @apply mb-1 rounded-md backdrop-blur-sm;
+}
+
+/* Fix for mobile menu text legibility in dark mode */
+.dark .fixed.bg-background\/95 {
+  background-color: hsla(var(--background), 0.95);
 }
 
 /* Dark mode optimizations */
@@ -71,9 +77,4 @@
 .dark .bg-bread-50 .max-w-3xl .bg-background {
   background-color: hsl(var(--bread-800));
   @apply border-bread-700 text-white;
-}
-
-/* Fix for mobile menu text legibility in dark mode */
-.dark .fixed.bg-background\/95 {
-  background-color: hsl(var(--background));
 }
