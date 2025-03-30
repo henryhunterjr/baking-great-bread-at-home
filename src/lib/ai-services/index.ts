@@ -34,13 +34,19 @@ export interface AIResponse {
 
 // Initialize the service immediately
 const initializeAIService = () => {
-  const { updateOpenAIApiKey } = require('./key-management');
-  updateOpenAIApiKey();
-  return isAIConfigured();
+  // Use import instead of require
+  import('./key-management').then(({ updateOpenAIApiKey, isAIConfigured }) => {
+    updateOpenAIApiKey();
+    return isAIConfigured();
+  }).catch(error => {
+    console.error('Error initializing AI service:', error);
+    return false;
+  });
 };
 
 const verifyAIServiceStatus = async () => {
-  const { verifyAPIKey } = require('./key-management');
+  // Use import instead of require
+  const { verifyAPIKey } = await import('./key-management');
   return await verifyAPIKey();
 };
 
