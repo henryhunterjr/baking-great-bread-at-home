@@ -5,16 +5,18 @@ export {
   isAIConfigured,
   searchBlogWithAI, 
   processRecipeText, 
-  generateRecipe,
   generateRecipeWithOpenAI,
   processOCRWithAI,
+  verifyAPIKey,
+  checkAPIKeyStatus,
+  updateOpenAIApiKey,
+  getOpenAIApiKey,
   type RecipeGenerationResponse,
   type AIResponse,
   type BlogSearchResponse
 } from './ai-service';
 
-import { initializeAIService, verifyAIServiceStatus } from './initialize';
-import { getOpenAIApiKey, isOpenAIConfigured } from './ai-config';
+import aiServiceInstance from './ai-service';
 
 // Export context-aware AI functionality
 export { 
@@ -29,16 +31,24 @@ export {
   initializeContentIndexer
 } from './content-indexing/content-indexer';
 
+// Initialize the service immediately
+const initializeAIService = () => {
+  updateOpenAIApiKey();
+  return aiServiceInstance.isReady();
+};
+
+const verifyAIServiceStatus = async () => {
+  return await verifyAPIKey();
+};
+
 // Re-export initialization functions
 export { 
   initializeAIService,
-  verifyAIServiceStatus,
-  getOpenAIApiKey,
-  isOpenAIConfigured
+  verifyAIServiceStatus
 };
-
-// Initialize the service immediately
-initializeAIService();
 
 // Export the entire service as default
 export { default } from './ai-service';
+
+// Initialize service
+initializeAIService();
