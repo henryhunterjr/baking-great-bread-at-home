@@ -1,66 +1,59 @@
 
 /**
- * Clean up OCR extracted text to improve quality
- * @param text Raw OCR text
- * @returns Cleaned text
+ * Utilities for cleaning and normalizing text from various sources
+ */
+
+/**
+ * Clean and normalize OCR text
+ * @param text The raw OCR text to clean
+ * @returns The cleaned text
  */
 export const cleanOCRText = (text: string): string => {
   if (!text) return '';
   
-  // Replace multiple newlines with a single one
-  let cleaned = text.replace(/\n{3,}/g, '\n\n');
+  // Basic cleaning operations
+  return text
+    .replace(/(\r\n|\n){3,}/g, '\n\n') // Replace multiple newlines with double newlines
+    .replace(/\s{2,}/g, ' ')           // Replace multiple spaces with single space
+    .trim();                           // Trim whitespace from ends
+};
+
+/**
+ * Clean and normalize PDF text
+ * @param text The raw PDF text to clean
+ * @returns The cleaned text
+ */
+export const cleanPDFText = (text: string): string => {
+  if (!text) return '';
   
-  // Replace multiple spaces with a single one
-  cleaned = cleaned.replace(/[ \t]{2,}/g, ' ');
+  // PDF-specific cleaning
+  let cleaned = text
+    .replace(/(\r\n|\n){3,}/g, '\n\n')   // Replace multiple newlines with double newlines
+    .replace(/\s{2,}/g, ' ')             // Replace multiple spaces with single space
+    .replace(/([a-z])(\n)([a-z])/gi, '$1 $3') // Join words split across lines
+    .trim();
   
-  // Fix common OCR errors
-  cleaned = cleaned
-    // Fix broken fractions
-    .replace(/(\d)\/(\d)/g, '$1/$2')
-    // Fix broken measurements
-    .replace(/(\d) ([cmt]?[lbgks])/gi, '$1$2')
-    // Fix degree symbols
-    .replace(/(\d)[ ]?[oO°][ ]?([CF])/g, '$1°$2')
-    // Fix broken time units
-    .replace(/(\d) (min|hour|sec|minute)/gi, '$1 $2');
+  // Additional PDF-specific cleaning could be added here
   
   return cleaned;
 };
 
 /**
- * Clean up PDF extracted text to improve quality
- * @param text Raw PDF text
- * @returns Cleaned text
+ * Clean and normalize image OCR text with special handling for common OCR errors
+ * @param text The raw OCR text from image processing
+ * @returns The cleaned text
  */
-export const cleanPDFText = (text: string): string => {
+export const cleanImageOCRText = (text: string): string => {
   if (!text) return '';
   
-  // Replace multiple newlines with a single one
-  let cleaned = text.replace(/\n{3,}/g, '\n\n');
-  
-  // Replace multiple spaces with a single one
-  cleaned = cleaned.replace(/[ \t]{2,}/g, ' ');
-  
-  // Remove strange characters often found in PDFs
-  cleaned = cleaned.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
-  
-  // Fix broken words that may have been split across lines
-  cleaned = cleaned.replace(/(\w+)-\n(\w+)/g, '$1$2');
-  
-  // Fix common formatting issues
-  cleaned = cleaned
-    // Fix broken fractions
-    .replace(/(\d)\/(\d)/g, '$1/$2')
-    // Fix broken measurements
-    .replace(/(\d) ([cmt]?[lbgks])/gi, '$1$2')
-    // Fix degree symbols
-    .replace(/(\d)[ ]?[oO°][ ]?([CF])/g, '$1°$2')
-    // Fix broken time units
-    .replace(/(\d) (min|hour|sec|minute)/gi, '$1 $2')
-    // Fix common cooking terms
-    .replace(/cup s/gi, 'cups')
-    .replace(/table spoon/gi, 'tablespoon')
-    .replace(/tea spoon/gi, 'teaspoon');
+  // Image OCR specific cleaning
+  let cleaned = text
+    .replace(/(\r\n|\n){3,}/g, '\n\n')   // Replace multiple newlines
+    .replace(/\s{2,}/g, ' ')             // Replace multiple spaces
+    // Fix common OCR errors
+    .replace(/l(\d)/g, '1$1')            // Replace 'l' followed by digit with '1'
+    .replace(/O/g, '0')                  // Replace 'O' with '0' in appropriate contexts
+    .trim();
   
   return cleaned;
 };

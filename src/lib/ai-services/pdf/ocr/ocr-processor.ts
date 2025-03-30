@@ -1,108 +1,97 @@
 
-import { Tesseract } from './tesseract-service';
-import { cleanupOCR } from './ocr-service';
-import { logInfo, logError, startPerformanceTimer, endPerformanceTimer } from '@/utils/logger';
-import { calculateTimeout } from './ocr-utils';
-import { CancellableTask } from '../types';
+import { logError, logInfo } from '@/utils/logger';
+import { cleanImageOCRText } from '@/lib/ai-services/text-cleaner';
+import { ProcessingErrorType, ProcessingError } from '../types';
 
 /**
- * Check if OCR is available in the current environment
+ * Verify that OCR functionality is available
+ * @returns Promise resolving to true if OCR is available, false otherwise
  */
 export const verifyOCRAvailability = async (): Promise<boolean> => {
   try {
-    return await Tesseract.checkAvailability();
+    // Dynamic import of Tesseract.js
+    const { createWorker } = await import('tesseract.js');
+    return true;
   } catch (error) {
-    logError('OCR availability check failed', { error });
+    logError('OCR functionality not available', { error });
     return false;
   }
 };
 
 /**
  * Extract text from an image using OCR
- * 
  * @param imageFile The image file to process
  * @param progressCallback Optional callback for progress updates
- * @param options Additional options including AbortSignal for cancellation
- * @returns Extracted text or cancellable task
+ * @returns The extracted text
  */
 export const extractTextWithOCR = async (
-  imageFile: File,
-  progressCallback?: (progress: number) => void,
-  options: {
-    signal?: AbortSignal;
-    timeout?: number;
-  } = {}
-): Promise<string | CancellableTask> => {
-  const perfMarkerId = `ocr-${Date.now()}`;
-  startPerformanceTimer(perfMarkerId);
-  
+  imageFile: File | Blob,
+  progressCallback?: (progress: number) => void
+): Promise<string> => {
   try {
-    // Validate input
-    if (!imageFile) {
-      throw new Error('No image file provided for OCR');
-    }
-    
-    // Calculate timeout based on file size if not provided
-    const timeout = options.timeout || calculateTimeout(imageFile.size);
-    
-    // Log OCR start with file details
     logInfo('Starting OCR text extraction', { 
-      fileName: imageFile.name,
-      fileSize: imageFile.size,
-      fileType: imageFile.type,
-      timeout
+      fileType: imageFile instanceof File ? imageFile.type : 'Blob',
+      fileSize: imageFile.size
     });
     
-    // Create a throttled progress updater callback
-    const updateProgress = (status: any) => {
-      if (status && status.progress !== undefined && progressCallback) {
-        progressCallback(status.progress * 100);
-      }
-    };
-    
-    // Check if operation was cancelled before starting
-    if (options.signal?.aborted) {
-      throw new Error('OCR operation cancelled before starting');
+    // Report initial progress
+    if (progressCallback) {
+      progressCallback(0.1);
     }
     
-    // Process image with Tesseract
-    const result = await Tesseract.recognize(imageFile, {
-      logger: updateProgress,
-      signal: options.signal
+    // Dynamic import of Tesseract.js
+    const { createWorker } = await import('tesseract.js');
+    
+    if (progressCallback) {
+      progressCallback(0.2);
+    }
+    
+    // Create a worker with progress tracking
+    const worker = await createWorker({
+      logger: (m) => {
+        if (progressCallback && m.status === 'recognizing text') {
+          // Scale progress to 20-90% range
+          const scaledProgress = 0.2 + (m.progress * 0.7);
+          progressCallback(scaledProgress);
+        }
+      },
     });
     
-    // Extract and clean text from result
-    let extractedText = result.data.text || '';
+    // Load image and recognize text
+    await worker.loadLanguage('eng');
+    await worker.initialize('eng');
     
-    // Clean the OCR text to improve quality
-    extractedText = cleanupOCR(extractedText);
+    // Convert File/Blob to URL
+    const imageUrl = URL.createObjectURL(imageFile);
     
-    // Calculate processing time
-    const processingTime = endPerformanceTimer(
-      perfMarkerId,
-      'OCR text extraction',
-      { textLength: extractedText.length }
-    );
+    const { data } = await worker.recognize(imageUrl);
+    await worker.terminate();
     
-    logInfo('OCR extraction completed', {
-      processingTimeMs: processingTime,
-      textLength: extractedText.length
+    // Cleanup URL
+    URL.revokeObjectURL(imageUrl);
+    
+    // Report completion
+    if (progressCallback) {
+      progressCallback(1.0);
+    }
+    
+    // Clean up the extracted text
+    const cleanedText = cleanImageOCRText(data.text);
+    
+    logInfo('OCR text extraction completed', {
+      rawTextLength: data.text.length,
+      cleanedTextLength: cleanedText.length
     });
     
-    return extractedText;
+    return cleanedText;
   } catch (error) {
-    // Special handling for cancellation
-    if (options.signal?.aborted) {
-      logInfo('OCR extraction cancelled by user');
-      throw new Error('OCR operation was cancelled');
-    }
+    logError('OCR text extraction failed', { 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    });
     
-    // Log and rethrow all other errors
-    logError('OCR extraction failed', { error });
-    
-    // Calculate total time even for errors
-    endPerformanceTimer(perfMarkerId, 'OCR extraction (failed)');
-    
-    throw error;
+    throw new ProcessingError(
+      "OCR text extraction failed: " + (error instanceof Error ? error.message : 'Unknown error'),
+      ProcessingErrorType.EXTRACTION_FAILED
+    );
   }
 };

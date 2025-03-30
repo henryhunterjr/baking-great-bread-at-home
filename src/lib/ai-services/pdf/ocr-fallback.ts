@@ -1,60 +1,58 @@
 
+import { logError, logInfo } from '@/utils/logger';
 import { extractTextWithOCR } from './ocr/ocr-processor';
-import { logInfo, logError } from '@/utils/logger';
-import { ProgressCallback } from './types';
+import { ProcessingErrorType, ProcessingError } from './types';
 
 /**
- * Attempt to extract text using OCR when PDF text extraction fails
+ * Attempt to use OCR as a fallback for PDFs that fail text extraction
+ * This is useful for scanned PDFs that contain images rather than text
  * 
  * @param file The PDF file to process
+ * @param pageNumber The page number to extract (1-based, default: 1)
  * @param progressCallback Optional callback for progress updates
- * @returns The extracted text from OCR processing
+ * @returns The extracted text from OCR
  */
 export const attemptOCRFallback = async (
   file: File,
-  progressCallback?: ProgressCallback
+  pageNumber: number = 1,
+  progressCallback?: (progress: number) => void
 ): Promise<string> => {
   try {
-    logInfo('PDF text extraction failed, attempting OCR fallback');
-    
-    // Report initial progress for fallback process
-    if (progressCallback) {
-      progressCallback(0.5); // Start at 50% since we're halfway through the process
-    }
-    
-    // Convert first page of PDF to image and then use OCR
-    // This is a simplified version - in production, we'd use a library 
-    // to render PDF pages to images and then process with OCR
-    
-    // For now, we'll just use OCR directly on the PDF file
-    // This isn't ideal but provides a fallback mechanism
-    const ocrText = await extractTextWithOCR(
-      file,
-      progress => {
-        if (progressCallback) {
-          // Map OCR progress to overall progress (50%-100%)
-          progressCallback(0.5 + (progress * 0.5));
-        }
-      }
-    );
-    
-    if (!ocrText || typeof ocrText !== 'string') {
-      throw new Error('OCR processing failed to return valid text');
-    }
-    
-    // Complete progress
-    if (progressCallback) {
-      progressCallback(1.0);
-    }
-    
-    logInfo('OCR fallback extraction complete', { 
-      textLength: ocrText.length 
+    logInfo('Attempting OCR fallback for PDF', { 
+      filename: file.name, 
+      pageNumber 
     });
     
-    return ocrText;
+    if (progressCallback) {
+      progressCallback(0.1);
+    }
+    
+    // This would normally convert the PDF page to an image and then perform OCR
+    // For now, we'll just throw an error to indicate this isn't implemented yet
+    throw new ProcessingError(
+      "OCR fallback for PDFs is not fully implemented yet. Please try using a PDF with embedded text.",
+      ProcessingErrorType.UNSUPPORTED_FORMAT
+    );
+    
+    // In a complete implementation, we would:
+    // 1. Render the PDF page to a canvas
+    // 2. Convert the canvas to an image
+    // 3. Use Tesseract.js to perform OCR on the image
+    // 4. Return the extracted text
+    
   } catch (error) {
-    logError('OCR fallback failed', { error });
-    throw new Error('Failed to extract text using OCR fallback: ' + 
-      (error instanceof Error ? error.message : String(error)));
+    logError('OCR fallback for PDF failed', { 
+      error: error instanceof Error ? error.message : 'Unknown error',
+      filename: file.name
+    });
+    
+    if (error instanceof ProcessingError) {
+      throw error;
+    }
+    
+    throw new ProcessingError(
+      "OCR fallback for PDF failed: " + (error instanceof Error ? error.message : 'Unknown error'),
+      ProcessingErrorType.EXTRACTION_FAILED
+    );
   }
 };

@@ -1,47 +1,31 @@
 
 /**
- * Type for progress callback functions
+ * Type definitions for PDF processing operations
  */
+
+// Callback for progress updates
 export type ProgressCallback = (progress: number) => void;
 
-/**
- * Interface for cancellable tasks
- */
+// Cancellable task interface
 export interface CancellableTask {
   cancel: () => void;
 }
 
-/**
- * Options for text extraction
- */
-export interface TextExtractionOptions {
-  signal?: AbortSignal;
-  timeout?: number;
-}
-
-/**
- * Result of text extraction - either a string or a cancellable task
- */
-export type ExtractTextResult = string | CancellableTask;
-
-/**
- * Enum for processing error types
- */
+// Error types enum for better error handling
 export enum ProcessingErrorType {
-  FILE_LOAD = 'file_load',
-  TIMEOUT = 'timeout',
-  NETWORK = 'network',
+  NETWORK = 'network_error',
+  FILE_LOAD = 'file_load_error',
   EXTRACTION_FAILED = 'extraction_failed',
-  CANCELLED = 'cancelled',
-  UNKNOWN = 'unknown'
+  TIMEOUT = 'timeout_error',
+  USER_CANCELLED = 'user_cancelled',
+  UNSUPPORTED_FORMAT = 'unsupported_format',
+  UNKNOWN = 'unknown_error'
 }
 
-/**
- * Custom error class for processing errors
- */
+// Custom error class for PDF processing
 export class ProcessingError extends Error {
   type: ProcessingErrorType;
-
+  
   constructor(message: string, type: ProcessingErrorType = ProcessingErrorType.UNKNOWN) {
     super(message);
     this.name = 'ProcessingError';

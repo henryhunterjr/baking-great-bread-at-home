@@ -1,73 +1,43 @@
+
 import { logInfo } from '@/utils/logger';
 
 /**
- * Calculate a reasonable timeout for OCR processing based on file size
- * 
+ * Calculate an appropriate timeout duration based on image size
  * @param fileSize Size of the file in bytes
  * @returns Timeout in milliseconds
  */
 export const calculateTimeout = (fileSize: number): number => {
-  // Base timeout of 60 seconds (60000ms)
-  const baseTimeout = 60000;
+  // Base timeout of 30 seconds
+  const baseTimeoutMs = 30000;
   
-  // For larger files, add additional time
-  // For each MB above 1MB, add 15 seconds up to a maximum
-  const fileSizeMB = fileSize / (1024 * 1024);
-  const additionalTimePerMB = 15000; // 15 seconds per MB
-  const additionalTime = Math.min(fileSizeMB - 1, 9) * additionalTimePerMB;
+  // Additional time based on file size (10 seconds per MB)
+  const additionalTimeMs = Math.floor((fileSize / (1024 * 1024)) * 10000);
   
-  // Return total timeout, with a minimum of 60 seconds and maximum of 3 minutes
-  return Math.max(baseTimeout, Math.min(baseTimeout + additionalTime, 180000));
-};
-
-/**
- * Create a throttled progress reporter to avoid too many progress updates
- * 
- * @param callback The progress callback function
- * @param throttleMs Throttle time in milliseconds (default: 250ms)
- * @returns A throttled callback function
- */
-export const createThrottledProgressReporter = (
-  callback: (progress: number) => void,
-  throttleMs: number = 250
-): ((progress: number) => void) => {
-  let lastCallTime = 0;
-  let lastProgress = 0;
+  // Cap at a reasonable maximum (3 minutes)
+  const maxTimeoutMs = 180000;
   
-  return (progress: number) => {
-    const now = Date.now();
-    
-    // Always call for 0% and 100% progress
-    if (progress === 0 || progress === 100 || 
-        // Otherwise throttle based on time and minimum progress change
-        (now - lastCallTime > throttleMs && Math.abs(progress - lastProgress) >= 1)) {
-      lastCallTime = now;
-      lastProgress = progress;
-      callback(progress);
-    }
-  };
-};
-
-/**
- * Convert a File object to an HTMLImageElement for processing
- * This is useful for camera captures and OCR processing
- */
-export const fileToImage = (file: File): Promise<HTMLImageElement> => {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error('Failed to load image file'));
-    img.src = URL.createObjectURL(file);
-    
-    // Clean up the object URL after the image loads or errors
-    const cleanup = () => URL.revokeObjectURL(img.src);
-    img.onload = () => {
-      cleanup();
-      resolve(img);
-    };
-    img.onerror = () => {
-      cleanup();
-      reject(new Error('Failed to load image file'));
-    };
+  const timeout = Math.min(baseTimeoutMs + additionalTimeMs, maxTimeoutMs);
+  
+  logInfo('Calculated OCR timeout', { 
+    fileSize, 
+    timeoutMs: timeout 
   });
+  
+  return timeout;
+};
+
+/**
+ * Check if an image is suitable for OCR processing
+ * @param imageFile The image file to check
+ * @returns True if the image is suitable, false otherwise
+ */
+export const isImageSuitableForOCR = async (imageFile: File): Promise<boolean> => {
+  // Check file type
+  const isImageType = imageFile.type.startsWith('image/');
+  
+  // Check file size (avoid processing very large images)
+  const isAcceptableSize = imageFile.size < 10 * 1024 * 1024; // 10MB limit
+  
+  // Return combined result
+  return isImageType && isAcceptableSize;
 };
