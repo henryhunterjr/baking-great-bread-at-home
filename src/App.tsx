@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Outlet } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import RecipeConverter from './pages/RecipeConverter';
 import ComingSoon from './pages/ComingSoon';
@@ -29,6 +29,10 @@ import SkipToContent from './components/recipe-converter/accessibility/SkipToCon
 import { Toaster } from './components/ui/toaster';
 
 function App() {
+  // State for AI initialization - we'll default to true for now
+  // In a real app, you might check if an API key is present
+  const [aiInitialized, setAiInitialized] = useState(true);
+
   return (
     <>
       <SkipToContent />
@@ -43,7 +47,7 @@ function App() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/ai" element={<AIHome />} />
+        <Route path="/ai" element={<AIHome aiInitialized={aiInitialized} />} />
         <Route path="/ai/chat" element={<AIChat />} />
         <Route path="/shop/:category" element={<AffiliateCollection />} />
         <Route path="/care-center" element={<CareCenter />} />
@@ -52,10 +56,10 @@ function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/terms-of-service" element={<TermsOfServicePage />} />
         
-        <Route element={<ProtectedRoute />}>
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/my-recipes" element={<MyRecipes />} />
-          <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="/" element={<ProtectedRoute><Outlet /></ProtectedRoute>}>
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="my-recipes" element={<MyRecipes />} />
+          <Route path="favorites" element={<FavoritesPage />} />
         </Route>
         
         <Route path="/community" element={<ComingSoon title="Community" />} />
