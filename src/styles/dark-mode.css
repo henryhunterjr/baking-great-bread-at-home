@@ -1,3 +1,12 @@
+/* Fix mobile menu overlay and text legibility in dark mode */
+.dark .fixed.inset-0 {
+  background-color: hsl(var(--background));
+}
+
+.dark .fixed.inset-0 nav a {
+  background-color: hsla(var(--background), 0.95);
+  @apply mb-1 rounded-md backdrop-blur-sm;
+}
 
 /* Dark mode optimizations */
 .dark .card-hover {
