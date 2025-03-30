@@ -84,9 +84,9 @@ export const extractTextWithOCR = async (
     }
     
     // Recognize text in the image
-    // In Tesseract.js v6, progress is reported through the progress callback in recognize options
+    // In Tesseract.js v6, progress is reported through the progress callback parameter
     const { data } = await worker.recognize(imageUrl, {
-      progress: progressCallback ? (p: any) => {
+      logger: progressCallback ? (p: any) => {
         if (p.status === 'recognizing text' && 'progress' in p) {
           // Map progress to range 20% - 90%
           const mappedProgress = 0.2 + (p.progress * 0.7);
