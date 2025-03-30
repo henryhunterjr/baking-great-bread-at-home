@@ -2,8 +2,6 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Textarea } from "@/components/ui/textarea";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 import ConvertButton from './components/ConvertButton';
 import FileUploadOptions from './FileUploadOptions';
 import RecipeHelp from './components/RecipeHelp';
