@@ -1,5 +1,5 @@
-
 import { logInfo } from '@/utils/logger';
+import { ThrottledProgressReporter } from '../types';
 
 /**
  * Calculate an appropriate timeout duration based on image size
@@ -40,4 +40,29 @@ export const isImageSuitableForOCR = async (imageFile: File): Promise<boolean> =
   
   // Return combined result
   return isImageType && isAcceptableSize;
+};
+
+/**
+ * Creates a throttled progress reporter that limits the frequency of progress updates
+ * @param callback The progress callback function
+ * @param throttleMs Minimum time in ms between progress updates
+ * @returns A throttled progress function
+ */
+export const createThrottledProgressReporter = (
+  callback: (progress: number) => void,
+  throttleMs: number = 200
+): ThrottledProgressReporter => {
+  let lastUpdate = 0;
+  let lastProgress = -1;
+  
+  return (progress: number) => {
+    const now = Date.now();
+    
+    // Only report if progress has changed and enough time has passed
+    if ((progress !== lastProgress) && (now - lastUpdate > throttleMs)) {
+      callback(progress);
+      lastUpdate = now;
+      lastProgress = progress;
+    }
+  };
 };

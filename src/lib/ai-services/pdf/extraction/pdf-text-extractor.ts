@@ -1,13 +1,12 @@
-
 import * as pdfjsLib from 'pdfjs-dist';
 import { logInfo, logError } from '@/utils/logger';
 import { 
   CancellableTask, 
-  ExtractTextResult, 
   ProcessingError, 
   ProcessingErrorType, 
-  ProgressCallback, 
-  TextExtractionOptions 
+  ProgressCallback,
+  ExtractTextResult,
+  TextExtractionOptions
 } from '../types';
 
 // Constants

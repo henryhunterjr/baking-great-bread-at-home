@@ -32,3 +32,16 @@ export class ProcessingError extends Error {
     this.type = type;
   }
 }
+
+// Add the missing types for PDF text extraction
+export type ExtractTextResult = string | CancellableTask | null;
+
+// Options for text extraction
+export interface TextExtractionOptions {
+  timeout?: number;
+  signal?: AbortSignal;
+  maxPages?: number;
+}
+
+// Add throttled progress reporter function type
+export type ThrottledProgressReporter = (progress: number) => void;

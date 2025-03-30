@@ -1,7 +1,7 @@
 
 import { logError, logInfo } from '@/utils/logger';
 import { cleanImageOCRText } from '@/lib/ai-services/text-cleaner';
-import { ProcessingErrorType, ProcessingError } from '../types';
+import { ProcessingErrorType, ProcessingError, CancellableTask } from '../types';
 
 /**
  * Verify that OCR functionality is available
@@ -22,12 +22,14 @@ export const verifyOCRAvailability = async (): Promise<boolean> => {
  * Extract text from an image using OCR
  * @param imageFile The image file to process
  * @param progressCallback Optional callback for progress updates
- * @returns The extracted text
+ * @param options Additional options (like AbortSignal)
+ * @returns The extracted text or a cancellable task
  */
 export const extractTextWithOCR = async (
   imageFile: File | Blob,
-  progressCallback?: (progress: number) => void
-): Promise<string> => {
+  progressCallback?: (progress: number) => void,
+  options?: { signal?: AbortSignal }
+): Promise<string | CancellableTask> => {
   try {
     logInfo('Starting OCR text extraction', { 
       fileType: imageFile instanceof File ? imageFile.type : 'Blob',
@@ -46,23 +48,52 @@ export const extractTextWithOCR = async (
       progressCallback(0.2);
     }
     
-    // Create a worker with progress tracking
-    const worker = await createWorker({
-      logger: (m) => {
-        if (progressCallback && m.status === 'recognizing text') {
-          // Scale progress to 20-90% range
-          const scaledProgress = 0.2 + (m.progress * 0.7);
-          progressCallback(scaledProgress);
+    // Create a worker - fixed to match Tesseract.js v6 API
+    const worker = await createWorker();
+    
+    // Check if processing was cancelled
+    if (options?.signal?.aborted) {
+      await worker.terminate();
+      throw new ProcessingError("OCR processing was cancelled", ProcessingErrorType.USER_CANCELLED);
+    }
+    
+    // Set up cancellation task
+    const cancellableTask: CancellableTask = {
+      cancel: async () => {
+        try {
+          await worker.terminate();
+          logInfo('OCR processing cancelled by user');
+        } catch (e) {
+          logError('Error terminating OCR worker during cancellation', { error: e });
         }
-      },
-    });
+      }
+    };
     
     // Load image and recognize text
+    // Using proper await chain for Tesseract.js v6 API
     await worker.loadLanguage('eng');
     await worker.initialize('eng');
     
     // Convert File/Blob to URL
     const imageUrl = URL.createObjectURL(imageFile);
+    
+    // Setup progress tracking
+    if (progressCallback) {
+      worker.setProgressHandler((progress) => {
+        // Map progress to range 20% - 90%
+        if (progress.status === 'recognizing text') {
+          const mappedProgress = 0.2 + (progress.progress * 0.7);
+          progressCallback(mappedProgress);
+        }
+      });
+    }
+    
+    // Check for cancellation again
+    if (options?.signal?.aborted) {
+      await worker.terminate();
+      URL.revokeObjectURL(imageUrl);
+      throw new ProcessingError("OCR processing was cancelled", ProcessingErrorType.USER_CANCELLED);
+    }
     
     const { data } = await worker.recognize(imageUrl);
     await worker.terminate();

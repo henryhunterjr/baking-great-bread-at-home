@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -23,7 +22,6 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
   const [processingTooLong, setProcessingTooLong] = useState(false);
   const [timeoutId, setTimeoutId] = useState<number | null>(null);
   
-  // Clean up on unmount
   useEffect(() => {
     return () => {
       if (timeoutId) {
@@ -32,14 +30,13 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
     };
   }, [timeoutId]);
   
-  // Set up a timer to detect when processing is taking too long
   useEffect(() => {
     let warningTimeoutId: number | null = null;
     
     if (isProcessing && progress > 0 && progress < 100) {
       warningTimeoutId = window.setTimeout(() => {
         setProcessingTooLong(true);
-      }, 20000); // Show warning after 20 seconds
+      }, 20000);
     }
     
     return () => {
@@ -53,30 +50,26 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
     const file = e.target.files?.[0];
     if (!file) return;
     
-    // Create preview
     const imageUrl = URL.createObjectURL(file);
     setPreviewUrl(imageUrl);
     
-    // Start OCR processing
     setIsProcessing(true);
     setProgress(0);
     setLocalError(null);
     setError(null);
     setProcessingTooLong(false);
     
-    // Set up timeout to automatically cancel long-running processing
     const id = window.setTimeout(() => {
       if (isProcessing) {
         handleCancelProcessing();
         setLocalError("OCR processing timed out. The image may be too complex or low quality. Try with a clearer image or manually type the recipe.");
         setError("OCR processing timed out. The image may be too complex or low quality. Try with a clearer image or manually type the recipe.");
       }
-    }, 180000); // 3 minute timeout (increased from 60 seconds)
+    }, 180000);
     
     setTimeoutId(id);
     
     try {
-      // Extract text with OCR
       const extractedResult = await extractTextWithOCR(
         file, 
         (progressValue) => {
@@ -84,27 +77,20 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
         }
       );
       
-      // Clear the timeout
       if (timeoutId) {
         window.clearTimeout(timeoutId);
         setTimeoutId(null);
       }
       
-      // Check if the result is a cancellable task
-      if (typeof extractedResult === 'object' && extractedResult !== null && 'cancel' in extractedResult) {
-        // Handle cancellable task case - we usually don't get here in camera mode
-        // But if we do, we should set up a way to cancel it later
+      if (extractedResult && typeof extractedResult === 'object' && 'cancel' in extractedResult) {
         return;
       }
       
-      // At this point, we know extractedResult is a string
       const extractedText = extractedResult as string;
       
-      if (extractedText.trim().length > 0) {
-        // Pass the extracted text to the parent
+      if (extractedText && extractedText.trim().length > 0) {
         onTextExtracted(extractedText);
         
-        // Reset processing state
         setTimeout(() => {
           setIsProcessing(false);
           setProgress(100);
@@ -121,7 +107,6 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
         setIsProcessing(false);
       }
     } catch (err) {
-      // Clear the timeout
       if (timeoutId) {
         window.clearTimeout(timeoutId);
         setTimeoutId(null);
@@ -138,7 +123,6 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
   };
   
   const resetCapture = () => {
-    // Clean up any timeout
     if (timeoutId) {
       window.clearTimeout(timeoutId);
       setTimeoutId(null);
@@ -156,9 +140,7 @@ const CameraInputTab: React.FC<CameraInputTabProps> = ({ onTextExtracted, setErr
     }
   };
   
-  // Handle when the user wants to cancel processing
   const handleCancelProcessing = () => {
-    // Clean up timeout
     if (timeoutId) {
       window.clearTimeout(timeoutId);
       setTimeoutId(null);

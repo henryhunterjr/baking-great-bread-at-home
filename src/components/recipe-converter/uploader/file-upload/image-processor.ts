@@ -136,6 +136,7 @@ export const processImageFile = async (
     );
     
     // Extract text from the image with cancellation support
+    // Updated to match the new API signature (only 2 parameters)
     const extractedResult = await extractTextWithOCR(
       file, 
       throttledProgressHandler,
@@ -162,7 +163,7 @@ export const processImageFile = async (
     if (isAborted) return null;
     
     // Check if extracted result is a cancellable task
-    if (typeof extractedResult === 'object' && extractedResult !== null && 'cancel' in extractedResult) {
+    if (extractedResult && typeof extractedResult === 'object' && 'cancel' in extractedResult) {
       return extractedResult; // Return the cancellable task
     }
     
