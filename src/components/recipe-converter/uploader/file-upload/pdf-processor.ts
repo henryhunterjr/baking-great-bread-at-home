@@ -6,7 +6,7 @@ import { cleanOCRText } from '@/lib/ai-services/text-cleaner';
 
 // Constants for timeouts and limits
 const MAX_PDF_SIZE_MB = 20; // Increased from 15MB to 20MB
-const PDF_TIMEOUT_MS = 180000; // Increased from 90s to 180s (3 minutes)
+const PDF_TIMEOUT_MS = 180000; // 3 minutes (180 seconds)
 
 /**
  * Process a PDF file and extract its text
@@ -24,6 +24,16 @@ export const processPDFFile = async (
   
   try {
     logInfo("Starting PDF processing", { filename: file.name, filesize: file.size });
+    
+    // Check for potential Word documents mislabeled as PDFs
+    // Word-exported PDFs often have specific strings in their names
+    const lowerFileName = file.name.toLowerCase();
+    if (lowerFileName.includes('word') || 
+        lowerFileName.includes('doc') || 
+        lowerFileName.includes('docx') ||
+        lowerFileName.includes('office')) {
+      logInfo("Detected possible Word-exported PDF", { filename: file.name });
+    }
     
     // Validate file size before processing
     if (!validatePDFSize(file, MAX_PDF_SIZE_MB, onError)) {
@@ -48,7 +58,11 @@ export const processPDFFile = async (
           window.clearInterval(progressIntervalId);
           window.clearTimeout(warningTimeoutId);
           logError('PDF processing timed out', { timeout: PDF_TIMEOUT_MS });
-          onError(`PDF processing timed out after ${PDF_TIMEOUT_MS/1000} seconds. The file may be too large or complex. Try a smaller file or extract just the recipe portion.`);
+          onError(
+            `PDF processing timed out after ${PDF_TIMEOUT_MS/1000} seconds. ` + 
+            `This can happen with complex PDFs or Word-exported documents. ` +
+            `Try extracting just the recipe text and use the text input tab instead.`
+          );
           
           // Try to cancel the processing task if it exists
           if (processingTask && processingTask.cancel) {
@@ -246,13 +260,13 @@ function handleProcessingError(
     const errorMessage = err instanceof Error ? err.message : String(err);
     
     if (errorMessage.includes('timed out') || errorMessage.includes('timeout')) {
-      onError(`The PDF processing timed out. Try a smaller or simpler PDF, extract just the recipe section, or try pasting the recipe text directly.`);
+      onError(`The PDF processing timed out. This PDF might be a converted Word document or has complex formatting. Try using a simpler PDF, or paste the recipe text directly in the Text tab.`);
     } else if (errorMessage.includes('password')) {
       onError(`This PDF appears to be password protected. Please provide an unprotected PDF document.`);
     } else if (errorMessage.includes('worker') || errorMessage.includes('network')) {
       onError(`A network error occurred while processing the PDF. Please check your connection and try again.`);
     } else if (errorMessage.includes('postMessage') || errorMessage.includes('cloned')) {
-      onError(`There was a technical error processing your PDF. Please try using a different method like pasting the text directly.`);
+      onError(`There was a technical error processing your PDF. Please try using a different method like pasting the text directly in the Text tab.`);
     } else {
       onError(`Failed to process the PDF: ${errorMessage}. Please try again with a different file or format.`);
     }

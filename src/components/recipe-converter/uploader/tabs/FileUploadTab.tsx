@@ -1,19 +1,23 @@
 
 import React from 'react';
-import ProgressBar from '../file-upload/ProgressBar';
-import SelectedFile from '../file-upload/SelectedFile';
-import FileUploadError from '../file-upload/FileUploadError';
-import FileInput from '../file-upload/FileInput';
-import UploadInstructions from '../file-upload/UploadInstructions';
-import SupportedFormats from '../file-upload/SupportedFormats';
+import { Button } from '@/components/ui/button';
 import { useFileUpload } from '../hooks/useFileUpload';
+import UploadProgress from '../file-upload/UploadProgress';
+import { RefreshCw, ArrowRight, FileText } from 'lucide-react';
+import FileUploadError from '../FileProcessingError';
+import SupportedFormats from '../file-upload/SupportedFormats';
+import UploadInstructions from '../file-upload/UploadInstructions';
 
 interface FileUploadTabProps {
   onTextExtracted: (text: string) => void;
   setError: (error: string | null) => void;
 }
 
-const FileUploadTab: React.FC<FileUploadTabProps> = ({ onTextExtracted, setError }) => {
+const FileUploadTab: React.FC<FileUploadTabProps> = ({
+  onTextExtracted,
+  setError
+}) => {
+  // Use our hook for file upload state management
   const {
     isProcessing,
     progress,
@@ -24,38 +28,114 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({ onTextExtracted, setError
     handleCancel,
     handleReset,
     fileInputRef
-  } = useFileUpload({ 
+  } = useFileUpload({
     onTextExtracted,
     onError: setError
   });
-
+  
+  // Function to switch to text input tab
+  const handleSwitchToTextInput = () => {
+    // Find the text tab button and click it
+    const textTabButton = document.querySelector('[data-state="inactive"][value="text"]');
+    if (textTabButton) {
+      (textTabButton as HTMLButtonElement).click();
+    }
+  };
+  
   return (
     <div className="space-y-6">
-      <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-        <UploadInstructions />
-        
-        <FileInput
-          onFileSelect={() => fileInputRef.current?.click()}
-          onReset={handleReset}
-          isProcessing={isProcessing}
-          fileInputRef={fileInputRef}
-          hasFile={!!selectedFileName}
-          hasError={!!error}
-          onChange={handleFileChange}
-        />
-        
-        <SelectedFile fileName={selectedFileName} />
-        
-        <ProgressBar 
-          progress={progress} 
-          processingType={processingType} 
-          onCancel={isProcessing ? handleCancel : undefined}
-        />
-        
-        <FileUploadError error={error} />
-      </div>
-      
-      <SupportedFormats />
+      {!selectedFileName ? (
+        // Step 1: Initial file selection UI
+        <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+          <UploadInstructions />
+          
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,.pdf,.txt"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            Choose File
+          </Button>
+          
+          <div className="mt-4">
+            <SupportedFormats />
+            <p className="mt-2 text-xs text-muted-foreground">
+              Word documents (.doc/.docx) must be saved as PDF first
+            </p>
+          </div>
+        </div>
+      ) : (
+        // Step 2: File processing UI
+        <div className="border-2 border-border rounded-lg p-6">
+          {error ? (
+            <FileUploadError 
+              error={error} 
+              onSwitchToTextInput={handleSwitchToTextInput} 
+            />
+          ) : null}
+          
+          <div className="mb-4 text-center">
+            <h3 className="text-lg font-medium">Processing: {selectedFileName}</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              {isProcessing
+                ? `Extracting text from ${processingType || 'file'}...`
+                : 'Processing complete!'}
+            </p>
+          </div>
+          
+          <UploadProgress
+            isProcessing={isProcessing}
+            progress={progress}
+            processingType={processingType}
+          />
+          
+          <div className="flex justify-center space-x-2 mt-4">
+            {isProcessing ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="flex items-center"
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+            ) : (
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex items-center"
+                  onClick={handleReset}
+                >
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Try Another File
+                </Button>
+                
+                {!error && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex items-center"
+                    onClick={handleSwitchToTextInput}
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    Edit Text
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

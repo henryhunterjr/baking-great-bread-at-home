@@ -7,6 +7,7 @@ import RecipeCard from './RecipeCard';
 import ConversionSuccessAlert from './ConversionSuccessAlert';
 import { useRecipeConversion } from '@/hooks/use-recipe-conversion';
 import { FormProvider, useForm } from 'react-hook-form';
+import { logInfo } from '@/utils/logger';
 
 interface RecipeConverterContentProps {
   recipe: RecipeData;
@@ -37,6 +38,21 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
   
   // Combine conversion errors from both sources
   const displayError = pageConversionError || conversionError;
+
+  // Log the recipe state for debugging
+  React.useEffect(() => {
+    if (recipe) {
+      // Log info about the recipe to debug why save might be disabled
+      logInfo("Recipe state in RecipeConverterContent", {
+        hasId: !!recipe.id,
+        hasTitle: !!recipe.title,
+        ingredientsCount: Array.isArray(recipe.ingredients) ? recipe.ingredients.length : 0,
+        instructionsCount: Array.isArray(recipe.instructions) ? recipe.instructions.length : 0,
+        isConverted: !!recipe.isConverted,
+        isEditing
+      });
+    }
+  }, [recipe, isEditing]);
   
   return (
     <div className="space-y-4">

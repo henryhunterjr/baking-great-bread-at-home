@@ -41,15 +41,15 @@ export const processFile = async (
     return processPDFFile(file, callbacks);
   }
   
-  // Handle Word documents - provide clear error message
+  // Handle Word documents with a clear error message
   if (fileType.includes('word') || 
       fileType.includes('msword') || 
       fileType.includes('openxmlformats-officedocument.wordprocessingml') ||
       fileName.endsWith('.doc') || 
       fileName.endsWith('.docx')) {
     callbacks.onError(
-      "Word documents (.doc/.docx) cannot be processed directly. " +
-      "Please copy the text from your Word document and paste it into the text input tab."
+      "Word documents (.doc/.docx) are not supported for direct processing. " +
+      "Please save as PDF first or copy the text from your Word document and paste it into the text input tab."
     );
     return null;
   }
@@ -64,6 +64,6 @@ export const processFile = async (
   }
   
   // For unsupported file types
-  callbacks.onError(`Unsupported file type: ${fileType}. Please try a different file format like .txt, .pdf, or image files.`);
+  callbacks.onError(`Unsupported file type: ${fileType}. We currently support PDF, images (.jpg, .png), and plain text files only.`);
   return null;
 };

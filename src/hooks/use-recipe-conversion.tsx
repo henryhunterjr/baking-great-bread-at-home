@@ -33,7 +33,11 @@ export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) =
       await convertRecipeText(
         text,
         (convertedRecipe) => {
-          onConversionComplete(convertedRecipe);
+          // Ensure that a recipe has at least the minimum required fields filled
+          const enrichedRecipe = ensureRequiredFields(convertedRecipe);
+          
+          // Pass the enriched recipe to the callback
+          onConversionComplete(enrichedRecipe);
           
           toast({
             title: "Recipe Converted!",
@@ -71,6 +75,39 @@ export const useRecipeConversion = (onConversionComplete: (recipe: RecipeData) =
     } finally {
       setIsConverting(false);
     }
+  };
+
+  // Helper function to ensure all required fields are present
+  const ensureRequiredFields = (recipe: RecipeData): RecipeData => {
+    // Create a new object to avoid modifying the original
+    const enrichedRecipe: RecipeData = {
+      ...recipe,
+      // Ensure these fields exist with fallback values if they're missing
+      title: recipe.title || 'Untitled Recipe',
+      ingredients: recipe.ingredients || [],
+      instructions: recipe.instructions || [],
+      // Make sure isConverted flag is set - this is crucial for enabling the save button
+      isConverted: true
+    };
+
+    // Log what we're doing for debugging
+    logInfo('Enriching recipe data to ensure required fields', {
+      hadTitle: !!recipe.title,
+      hadIngredients: Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0,
+      hadInstructions: Array.isArray(recipe.instructions) && recipe.instructions.length > 0
+    });
+
+    // If ingredients is empty, add a placeholder
+    if (!enrichedRecipe.ingredients.length) {
+      enrichedRecipe.ingredients = ['Ingredients to be added'];
+    }
+
+    // If instructions is empty, add a placeholder
+    if (!enrichedRecipe.instructions.length) {
+      enrichedRecipe.instructions = ['Instructions to be added'];
+    }
+
+    return enrichedRecipe;
   };
 
   return {

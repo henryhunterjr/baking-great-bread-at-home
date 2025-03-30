@@ -8,7 +8,10 @@ const UploadInstructions: React.FC = () => {
       <Upload className="h-8 w-8 mx-auto mb-4 text-muted-foreground" />
       <h3 className="text-lg font-medium mb-2">Upload Recipe File</h3>
       <p className="text-muted-foreground mb-4">
-        Upload an image, PDF, or document of your recipe
+        Upload an image or PDF of your recipe
+      </p>
+      <p className="text-xs text-muted-foreground">
+        Word documents must be saved as PDF first
       </p>
     </>
   );
