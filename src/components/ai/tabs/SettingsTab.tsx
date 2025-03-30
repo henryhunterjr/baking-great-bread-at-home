@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import APIKeyForm from '../settings/APIKeyForm';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface SettingsTabProps {
   useAI: boolean;
@@ -22,6 +23,8 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
   enhanceRecipes,
   setEnhanceRecipes
 }) => {
+  const { theme, setTheme } = useTheme();
+
   return (
     <div className="flex flex-col h-full p-4">
       <h2 className="text-xl font-semibold mb-4">Settings</h2>
@@ -66,6 +69,18 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
               id="enhance-recipes"
               checked={enhanceRecipes}
               onCheckedChange={setEnhanceRecipes}
+            />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="theme-toggle" className="font-medium">Dark Mode</Label>
+              <p className="text-sm text-muted-foreground">Toggle between light and dark theme</p>
+            </div>
+            <Switch
+              id="theme-toggle"
+              checked={theme === 'dark'}
+              onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
             />
           </div>
         </TabsContent>

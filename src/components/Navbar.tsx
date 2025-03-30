@@ -5,7 +5,7 @@ import { Menu, X, Sun, Moon, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
-import { useTheme } from '@/hooks/use-theme';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import UserMenu from './auth/UserMenu';
 
@@ -111,6 +111,10 @@ const Navbar = () => {
     "transition-opacity duration-300"
   );
 
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
   return (
     <header className={navbarClasses}>
       <div className="container flex h-14 items-center">
@@ -141,7 +145,7 @@ const Navbar = () => {
             
             <Toggle 
               pressed={theme === 'dark'} 
-              onPressedChange={(pressed) => setTheme(pressed ? 'dark' : 'light')}
+              onPressedChange={toggleTheme}
               aria-label="Toggle dark mode"
             >
               {theme === 'dark' ? (

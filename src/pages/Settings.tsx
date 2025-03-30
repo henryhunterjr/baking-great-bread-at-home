@@ -6,10 +6,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import APIKeyForm from '@/components/ai/settings/APIKeyForm';
-import { SettingsIcon } from 'lucide-react';
+import { SettingsIcon, SunIcon, MoonIcon } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const Settings = () => {
   useScrollToTop();
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -66,8 +70,24 @@ const Settings = () => {
                       Customize the appearance of the application
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">Appearance settings will be available in a future update.</p>
+                  <CardContent className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="theme-toggle">Theme</Label>
+                        <div className="text-sm text-muted-foreground">
+                          Switch between light and dark mode
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <SunIcon className="h-4 w-4" />
+                        <Switch 
+                          id="theme-toggle"
+                          checked={theme === 'dark'}
+                          onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                        />
+                        <MoonIcon className="h-4 w-4" />
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </TabsContent>

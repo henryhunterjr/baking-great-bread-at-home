@@ -1,6 +1,6 @@
 
 import React from 'react';
-import ConvertTab from './ConvertTab';
+import ConvertTab from './convert-tab/ConvertTab';
 
 interface TextInputTabProps {
   recipeText: string;

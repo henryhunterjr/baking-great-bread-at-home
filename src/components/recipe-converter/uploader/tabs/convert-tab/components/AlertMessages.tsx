@@ -10,7 +10,12 @@ interface AlertMessagesProps {
   isConverting?: boolean;
 }
 
-const AlertMessages: React.FC<AlertMessagesProps> = ({ showSuccess, error, showHelpTip, isConverting }) => {
+const AlertMessages: React.FC<AlertMessagesProps> = ({ 
+  showSuccess, 
+  error, 
+  showHelpTip = true, 
+  isConverting = false 
+}) => {
   if (error) {
     return (
       <Alert variant="destructive" className="mb-4 animate-in fade-in-50">
