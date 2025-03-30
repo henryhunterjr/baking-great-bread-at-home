@@ -1,0 +1,62 @@
+
+@layer components {
+  .hero-image-container {
+    @apply relative overflow-hidden rounded-xl;
+  }
+  
+  .hero-image-container::after {
+    content: '';
+    @apply absolute inset-0 bg-bread-500/10 pointer-events-none;
+  }
+  
+  .hero-image {
+    @apply w-full h-full object-cover transition-transform duration-700 hover:scale-105;
+  }
+  
+  .nav-link {
+    @apply relative font-medium text-foreground/80 hover:text-foreground transition-colors duration-200 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent after:transition-all after:duration-300 hover:after:w-full;
+  }
+  
+  .active-nav-link {
+    @apply text-foreground after:w-full;
+  }
+  
+  .section-title {
+    @apply font-serif text-3xl md:text-4xl lg:text-5xl font-medium leading-tight mb-6;
+  }
+  
+  .section-subtitle {
+    @apply font-sans text-base md:text-lg text-muted-foreground mb-12 max-w-2xl mx-auto;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+  
+  .glass-card {
+    @apply bg-background/70 backdrop-blur-sm border border-border/50 rounded-xl shadow-sm;
+  }
+  
+  /* Mobile section dividers */
+  .section-divider {
+    @apply h-4 bg-gradient-to-r from-bread-200 via-bread-300 to-bread-200 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800;
+  }
+  
+  /* Mobile section padding optimization */
+  .mobile-section {
+    @apply py-8 md:py-16;
+  }
+  
+  /* Section color alternation */
+  .section-alt-1 {
+    @apply bg-bread-50 dark:bg-bread-900/30;
+  }
+  
+  .section-alt-2 {
+    @apply bg-bread-100/50 dark:bg-bread-800/40;
+  }
+  
+  .section-alt-3 {
+    @apply bg-background dark:bg-bread-950/50;
+  }
+}

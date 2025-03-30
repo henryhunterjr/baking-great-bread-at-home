@@ -1,25 +1,11 @@
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { Toaster } from './components/ui/toaster';
-import { initializeWorkers } from './utils/worker-setup';
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.tsx'
+import './index.css'  // This now points to our refactored CSS structure
 
-// Initialize PDF.js and Tesseract workers
-initializeWorkers();
-
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <ThemeProvider>
-          <App />
-          <Toaster />
-        </ThemeProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <App />
   </React.StrictMode>,
-);
+)

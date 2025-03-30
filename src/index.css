@@ -1,3 +1,6 @@
+@import './styles/index.css';
+/* The styles from this file have been reorganized and moved to the src/styles directory */
+/* This file is kept for compatibility, but all the styles are now imported from the modular structure */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -228,6 +231,89 @@
   .fixed.inset-0 nav a {
     @apply bg-background/95 mb-1 rounded-md backdrop-blur-sm;
   }
+  
+  /* Improve touch areas for mobile */
+  button, 
+  a.button,
+  .nav-link,
+  [role="button"] {
+    @apply px-3 py-2 touch-manipulation;
+  }
+  
+  /* Ensure touch targets are accessible */
+  .nav-link, button, a {
+    @apply min-h-[36px] min-w-[36px];
+  }
+}
+
+/* Ensure better text readability on smaller screens */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  p {
+    font-size: 0.95rem;
+  }
+  
+  /* Extra space for toggle and menu buttons */
+  .flex.items-center.gap-4 {
+    @apply gap-3;
+  }
+}
+
+/* Dark mode optimizations */
+.dark .card-hover {
+  @apply border-bread-800 bg-bread-950/30;
+}
+
+.dark img {
+  filter: brightness(0.9);
+}
+
+/* Improved dark mode text for better contrast */
+.dark .section-title {
+  @apply text-white;
+}
+
+.dark .section-subtitle {
+  @apply text-gray-300;
+}
+
+.dark h1, 
+.dark h2, 
+.dark h3, 
+.dark h4, 
+.dark h5, 
+.dark h6 {
+  @apply text-white;
+}
+
+.dark .text-muted-foreground {
+  @apply text-gray-300;
+}
+
+/* Fix for buttons in dark mode */
+.dark button, 
+.dark .button {
+  @apply text-white border-bread-700;
+}
+
+/* Specific fix for Meet Henry section */
+.dark .bg-bread-50 {
+  @apply bg-bread-900;
+}
+
+.dark .bg-bread-50 p {
+  @apply text-gray-300;
+}
+
+.dark .bg-bread-50 .text-bread-800 {
+  @apply text-gray-300;
 }
 
 /* Fix for Footer subscription section in dark mode */
@@ -307,4 +393,9 @@ a:hover .social-icon {
 @keyframes slideIn {
   0% { opacity: 0; transform: translateX(-20px); }
   100% { opacity: 1; transform: translateX(0); }
+}
+
+/* Fix for the blog section to ensure visibility */
+section.opacity-0 {
+  opacity: 1 !important;
 }

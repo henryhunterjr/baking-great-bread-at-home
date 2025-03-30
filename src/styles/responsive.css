@@ -1,0 +1,97 @@
+
+/* Responsive optimizations */
+@media (max-width: 768px) {
+  #root {
+    padding: 0.5rem;
+  }
+  
+  .card {
+    padding: 1em;
+  }
+  
+  .container {
+    @apply px-3;
+  }
+  
+  section {
+    @apply py-6;
+  }
+  
+  /* Add space between sections */
+  section + section {
+    @apply relative mt-4;
+  }
+  
+  /* Visible section dividers on mobile */
+  section + section::before {
+    content: "";
+    @apply absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-bread-200 via-bread-400 to-bread-200 dark:from-bread-800 dark:via-bread-600 dark:to-bread-800;
+  }
+  
+  /* Prevent header from bumping into content */
+  header {
+    @apply mb-0;
+  }
+  
+  /* Fix mobile menu overlay */
+  .fixed.inset-0 {
+    @apply bg-background;
+  }
+  
+  /* Improve mobile nav menu legibility */
+  .fixed.inset-0 nav a {
+    @apply bg-background/95 mb-1 rounded-md backdrop-blur-sm;
+  }
+  
+  /* Improve touch areas for mobile */
+  button, 
+  a.button,
+  .nav-link,
+  [role="button"] {
+    @apply px-3 py-2 touch-manipulation;
+  }
+  
+  /* Ensure touch targets are accessible */
+  .nav-link, button, a {
+    @apply min-h-[36px] min-w-[36px];
+  }
+}
+
+/* Ensure better text readability on smaller screens */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  p {
+    font-size: 0.95rem;
+  }
+  
+  .font-serif.text-lg {
+    @apply text-base;
+  }
+  
+  h1.font-serif {
+    @apply text-2xl leading-snug;
+  }
+  
+  /* Ensure mobile elements don't run into each other */
+  .flex.items-center.gap-2 {
+    @apply gap-3;
+  }
+  
+  /* Extra space for toggle and menu buttons */
+  .flex.items-center.gap-4 {
+    @apply gap-3;
+  }
+}
+
+/* Mobile touch optimization classes */
+.mobile-touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}

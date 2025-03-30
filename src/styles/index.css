@@ -1,0 +1,27 @@
+
+@import './core.css';
+@import './components.css';
+@import './animations.css';
+@import './layout.css';
+@import './dark-mode.css';
+@import './responsive.css';
+
+/* Additional badges */
+.badge-tool {
+  @apply bg-accent text-white font-bold;
+}
+
+/* Specific styling for social media icons */
+.social-icon {
+  @apply transition-transform hover:scale-110;
+}
+
+/* Additional hover effects */
+a:hover .social-icon {
+  @apply text-accent;
+}
+
+/* Fix for the blog section to ensure visibility */
+section.opacity-0 {
+  opacity: 1 !important;
+}
