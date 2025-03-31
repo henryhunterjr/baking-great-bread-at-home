@@ -81,12 +81,13 @@ export const useRecipeConverter = () => {
     });
     
     setRecipe(processedRecipe);
-    setIsEditing(false); // Don't go directly to editing mode
+    // Now go directly to editing mode
+    setIsEditing(true);
     setConversionError(null);
     
     toast({
       title: "Recipe Converted!",
-      description: "Your recipe has been successfully converted. You can now save it to your collection.",
+      description: "Your recipe has been converted. You can now edit and save it to your collection.",
     });
     
     // Auto-switch to the favorites tab to guide the user

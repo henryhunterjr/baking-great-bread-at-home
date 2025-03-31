@@ -34,7 +34,14 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
   const methods = useForm();
   
   // Use the recipe conversion hook
-  const { isConverting, conversionError, handleConversion } = useRecipeConversion(onConversionComplete);
+  const { isConverting, conversionError, handleConversion } = useRecipeConversion(
+    (convertedRecipe) => {
+      // Immediately set edit mode to true for new conversions
+      onConversionComplete(convertedRecipe);
+      // Set to editing mode right after conversion
+      onSetIsEditing(true);
+    }
+  );
   
   // Combine conversion errors from both sources
   const displayError = pageConversionError || conversionError;

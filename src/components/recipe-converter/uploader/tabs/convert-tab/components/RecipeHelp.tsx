@@ -10,6 +10,7 @@ const RecipeHelp: React.FC = () => {
         <div className="text-sm">
           <p className="mb-2 font-medium">Recipe Text Format Tips:</p>
           <ul className="list-disc pl-5 space-y-1 text-xs">
+            <li>Type or paste your recipe text below</li>
             <li>Include the recipe title, ingredients list, and instructions</li>
             <li>Separate ingredients from instructions clearly</li>
             <li>List ingredients with amounts when possible</li>

@@ -36,7 +36,7 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({
   // Function to switch to text input tab
   const handleSwitchToTextInput = () => {
     // Find the text tab button and click it
-    const textTabButton = document.querySelector('[data-state="inactive"][value="text"]');
+    const textTabButton = document.querySelector('button[value="text"]');
     if (textTabButton) {
       (textTabButton as HTMLButtonElement).click();
     }

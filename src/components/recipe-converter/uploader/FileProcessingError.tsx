@@ -23,6 +23,18 @@ const FileProcessingError: React.FC<FileProcessingErrorProps> = ({
                         error?.toLowerCase().includes('ocr') ||
                         error?.toLowerCase().includes('tesseract');
 
+  const handleSwitchToTextInput = () => {
+    if (onSwitchToTextInput) {
+      onSwitchToTextInput();
+    } else {
+      // Fallback method - directly click the text tab
+      const textTabButton = document.querySelector('[data-state="inactive"][value="text"]');
+      if (textTabButton) {
+        (textTabButton as HTMLButtonElement).click();
+      }
+    }
+  };
+
   return (
     <Alert variant="destructive" className="mb-4">
       <AlertCircle className="h-4 w-4" />
@@ -41,18 +53,16 @@ const FileProcessingError: React.FC<FileProcessingErrorProps> = ({
               <li>Save your Word document as a PDF and upload the PDF instead</li>
             </ul>
             
-            {onSwitchToTextInput && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={onSwitchToTextInput}
-                className="mt-1"
-              >
-                <FileText className="mr-2 h-4 w-4" />
-                Switch to text input
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            )}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSwitchToTextInput}
+              className="mt-1"
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              Switch to text input
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         )}
         
@@ -69,18 +79,16 @@ const FileProcessingError: React.FC<FileProcessingErrorProps> = ({
               </li>
             </ul>
             
-            {onSwitchToTextInput && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={onSwitchToTextInput}
-                className="mt-1"
-              >
-                <FileText className="mr-2 h-4 w-4" />
-                Switch to text input
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            )}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSwitchToTextInput}
+              className="mt-1"
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              Switch to text input
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         )}
       </AlertDescription>
