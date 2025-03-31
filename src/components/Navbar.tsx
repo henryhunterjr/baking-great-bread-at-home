@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Sun, Moon, Home } from 'lucide-react';
@@ -7,7 +8,7 @@ import { Toggle } from '@/components/ui/toggle';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import UserMenu from './auth/UserMenu';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/use-toast';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -95,7 +96,7 @@ const Navbar = () => {
     { name: 'Recipe Converter', path: '/recipe-converter' },
     { name: 'Challenges', path: '/challenges' },
     { name: 'Blog', path: '/blog' },
-    { name: 'AI', path: '/ai' },
+    { name: 'AI', path: '/ai-assistant' },
     { name: 'Community', path: '/community' },
     { name: 'Contact', path: '/contact' },
   ];
@@ -113,7 +114,9 @@ const Navbar = () => {
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-    toast.success(`${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} mode activated`);
+    toast({
+      title: `${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} mode activated`,
+    });
   };
 
   return (
