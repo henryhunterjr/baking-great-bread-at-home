@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useToast } from "@/hooks/use-toast";
 import { RecipeData } from '@/types/recipeTypes';
 import { logInfo, logError } from '@/utils/logger';
+import { saveRecipeToStorage } from '@/utils/storage-helpers';
 
 export const useRecipeStorage = (
   recipe: RecipeData,
@@ -13,52 +14,69 @@ export const useRecipeStorage = (
 
   const handleSaveRecipe = (updatedRecipe: RecipeData = recipe) => {
     try {
-      // If no recipe ID exists, create one (for new recipes)
+      // Log the recipe being saved for debugging
+      logInfo("Attempting to save recipe", {
+        id: updatedRecipe.id || "new",
+        title: updatedRecipe.title,
+        ingredientsCount: Array.isArray(updatedRecipe.ingredients) ? updatedRecipe.ingredients.length : 0,
+        instructionsCount: Array.isArray(updatedRecipe.instructions) ? updatedRecipe.instructions.length : 0,
+        isConverted: !!updatedRecipe.isConverted
+      });
+      
+      // Check if the recipe is valid before saving
+      if (!updatedRecipe.title || 
+          !Array.isArray(updatedRecipe.ingredients) || 
+          updatedRecipe.ingredients.length === 0 ||
+          !Array.isArray(updatedRecipe.instructions) || 
+          updatedRecipe.instructions.length === 0) {
+        
+        logError("Cannot save recipe: invalid data", {
+          hasTitle: !!updatedRecipe.title,
+          hasIngredients: Array.isArray(updatedRecipe.ingredients) && updatedRecipe.ingredients.length > 0,
+          hasInstructions: Array.isArray(updatedRecipe.instructions) && updatedRecipe.instructions.length > 0
+        });
+        
+        toast({
+          variant: "destructive",
+          title: "Cannot Save Recipe",
+          description: "Recipe must have a title, ingredients, and instructions.",
+        });
+        
+        return false;
+      }
+
+      // Prepare the recipe for saving with required fields
       const recipeToSave = {
         ...updatedRecipe,
         id: updatedRecipe.id || uuidv4(),
         createdAt: updatedRecipe.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        // Ensure isConverted flag is set
         isConverted: true
       };
       
-      logInfo("Saving recipe", {
-        id: recipeToSave.id,
-        title: recipeToSave.title,
-        ingredientsCount: Array.isArray(recipeToSave.ingredients) ? recipeToSave.ingredients.length : 0,
-        instructionsCount: Array.isArray(recipeToSave.instructions) ? recipeToSave.instructions.length : 0
-      });
+      // Use the utility function to save to localStorage
+      const saveSuccess = saveRecipeToStorage(recipeToSave);
       
-      setRecipe(recipeToSave);
-      setIsEditing(false);
-      
-      // Get existing recipes from localStorage
-      const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
-      
-      // Check if this recipe already exists in saved recipes
-      const existingRecipeIndex = savedRecipes.findIndex((r: RecipeData) => r.id === recipeToSave.id);
-      
-      if (existingRecipeIndex >= 0) {
-        // Update existing recipe
-        savedRecipes[existingRecipeIndex] = recipeToSave;
-        toast({
-          title: "Recipe Updated!",
-          description: "Your recipe has been updated in your collection.",
-        });
-      } else {
-        // Add new recipe
-        savedRecipes.push(recipeToSave);
+      if (saveSuccess) {
+        // Update the recipe state with the saved version
+        setRecipe(recipeToSave);
+        setIsEditing(false);
+        
         toast({
           title: "Recipe Saved!",
-          description: "Your recipe has been added to your collection.",
+          description: recipeToSave.id === updatedRecipe.id ? 
+            "Your recipe has been updated." : 
+            "Your recipe has been added to your collection.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Save Failed",
+          description: "There was an error saving your recipe. Please try again.",
         });
       }
       
-      // Save back to localStorage
-      localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
-      
-      return true;
+      return saveSuccess;
     } catch (error) {
       logError("Error saving recipe", { error });
       toast({
@@ -72,14 +90,22 @@ export const useRecipeStorage = (
 
   const handleSelectSavedRecipe = (savedRecipe: RecipeData) => {
     try {
+      logInfo("Selecting saved recipe", {
+        id: savedRecipe.id,
+        title: savedRecipe.title
+      });
+      
+      // Ensure the recipe has all required fields
       const processedRecipe = {
         ...savedRecipe,
-        equipmentNeeded: savedRecipe.equipmentNeeded?.map(item => ({
-          id: item.id || uuidv4(),
-          name: item.name,
-          affiliateLink: item.affiliateLink
-        })) || [],
-        // Ensure isConverted flag is set
+        ingredients: Array.isArray(savedRecipe.ingredients) ? savedRecipe.ingredients : ['Add ingredients'],
+        instructions: Array.isArray(savedRecipe.instructions) ? savedRecipe.instructions : ['Add instructions'],
+        equipmentNeeded: Array.isArray(savedRecipe.equipmentNeeded) ? 
+          savedRecipe.equipmentNeeded.map(item => ({
+            id: item.id || uuidv4(),
+            name: item.name,
+            affiliateLink: item.affiliateLink
+          })) : [],
         isConverted: true
       };
       

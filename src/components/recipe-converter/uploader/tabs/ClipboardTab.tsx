@@ -27,8 +27,7 @@ const ClipboardTab: React.FC<ClipboardTabProps> = ({
   const canSaveRecipe = React.useMemo(() => {
     if (!recipe) return false;
     
-    const isValid = recipe.isConverted && 
-      recipe.title && 
+    const isValid = !!recipe.title && 
       Array.isArray(recipe.ingredients) && 
       recipe.ingredients.length > 0 && 
       Array.isArray(recipe.instructions) && 

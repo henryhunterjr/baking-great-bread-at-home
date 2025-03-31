@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { RecipeData } from '@/types/recipeTypes';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,7 @@ import { Edit, FileText, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import StartOverButton from './StartOverButton';
 import { useToast } from '@/hooks/use-toast';
+import { logInfo } from '@/utils/logger';
 
 interface RecipeCardProps {
   recipe: RecipeData;
@@ -30,6 +31,18 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   const hasValidInstructions = Array.isArray(recipe.instructions) && recipe.instructions.length > 0;
   
   const hasRequiredFields = recipe.title && hasValidIngredients && hasValidInstructions;
+  
+  // Debug the recipe state in this component
+  useEffect(() => {
+    logInfo("Recipe state in RecipeCard", {
+      hasId: !!recipe.id,
+      hasTitle: !!recipe.title,
+      ingredientsCount: Array.isArray(recipe.ingredients) ? recipe.ingredients.length : 0,
+      instructionsCount: Array.isArray(recipe.instructions) ? recipe.instructions.length : 0,
+      isConverted: !!recipe.isConverted,
+      canSave: hasRequiredFields
+    });
+  }, [recipe, hasRequiredFields]);
   
   const ingredientsList = hasValidIngredients ? recipe.ingredients.map((ingredient, index) => (
     <li key={index} className="list-disc ml-4">{ingredient}</li>

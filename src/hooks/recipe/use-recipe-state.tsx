@@ -31,24 +31,43 @@ export const useRecipeState = () => {
 
   // Process incoming recipe to ensure it has all required fields
   const processRecipe = (incomingRecipe: RecipeData): RecipeData => {
+    // Debug the incoming recipe
+    logInfo("Processing incoming recipe", {
+      hasId: !!incomingRecipe.id,
+      hasTitle: !!incomingRecipe.title,
+      ingredientsCount: Array.isArray(incomingRecipe.ingredients) ? incomingRecipe.ingredients.length : 0,
+      instructionsCount: Array.isArray(incomingRecipe.instructions) ? incomingRecipe.instructions.length : 0,
+      isConverted: !!incomingRecipe.isConverted
+    });
+    
+    // Create a properly structured recipe with defaults where needed
     return {
-      ...incomingRecipe,
-      // Ensure recipe has a title
+      id: incomingRecipe.id || undefined, // Keep existing ID if available
       title: incomingRecipe.title || 'Untitled Recipe',
-      // Ensure recipe has ingredients
-      ingredients: incomingRecipe.ingredients?.length ? 
+      introduction: incomingRecipe.introduction || '',
+      // Ensure ingredients is always an array
+      ingredients: Array.isArray(incomingRecipe.ingredients) && incomingRecipe.ingredients.length > 0 ? 
         incomingRecipe.ingredients : ['Add your ingredients here'],
-      // Ensure recipe has instructions
-      instructions: incomingRecipe.instructions?.length ? 
+      // Ensure instructions is always an array  
+      instructions: Array.isArray(incomingRecipe.instructions) && incomingRecipe.instructions.length > 0 ? 
         incomingRecipe.instructions : ['Add your instructions here'],
-      // Ensure each equipment item has an ID
-      equipmentNeeded: incomingRecipe.equipmentNeeded?.map(item => ({
-        id: item.id || uuidv4(),
-        name: item.name || 'Equipment',
-        affiliateLink: item.affiliateLink
-      })) || [],
-      // Ensure isConverted flag is set
-      isConverted: true
+      prepTime: incomingRecipe.prepTime || '',
+      restTime: incomingRecipe.restTime || '',
+      bakeTime: incomingRecipe.bakeTime || '',
+      totalTime: incomingRecipe.totalTime || '',
+      // Handle equipment items
+      equipmentNeeded: Array.isArray(incomingRecipe.equipmentNeeded) ? 
+        incomingRecipe.equipmentNeeded.map(item => ({
+          id: item.id || uuidv4(),
+          name: item.name || 'Equipment',
+          affiliateLink: item.affiliateLink
+        })) : [],
+      tips: Array.isArray(incomingRecipe.tips) ? incomingRecipe.tips : [],
+      proTips: Array.isArray(incomingRecipe.proTips) ? incomingRecipe.proTips : [],
+      imageUrl: incomingRecipe.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
+      tags: Array.isArray(incomingRecipe.tags) ? incomingRecipe.tags : [],
+      isPublic: !!incomingRecipe.isPublic,
+      isConverted: true // Always set to true when processed
     };
   };
   

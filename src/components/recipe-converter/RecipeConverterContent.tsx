@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { RecipeData } from '@/types/recipeTypes';
 import ConversionService from './ConversionService';
 import RecipeForm from './RecipeForm';
@@ -7,7 +7,7 @@ import RecipeCard from './RecipeCard';
 import ConversionSuccessAlert from './ConversionSuccessAlert';
 import { useRecipeConversion } from '@/hooks/use-recipe-conversion';
 import { FormProvider, useForm } from 'react-hook-form';
-import { logInfo } from '@/utils/logger';
+import { logInfo, logError } from '@/utils/logger';
 
 interface RecipeConverterContentProps {
   recipe: RecipeData;
@@ -47,24 +47,20 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
   const displayError = pageConversionError || conversionError;
 
   // Log the recipe state for debugging
-  React.useEffect(() => {
-    if (recipe) {
-      // Log info about the recipe to debug why save might be disabled
-      logInfo("Recipe state in RecipeConverterContent", {
-        hasId: !!recipe.id,
-        hasTitle: !!recipe.title,
-        ingredientsCount: Array.isArray(recipe.ingredients) ? recipe.ingredients.length : 0,
-        instructionsCount: Array.isArray(recipe.instructions) ? recipe.instructions.length : 0,
-        isConverted: !!recipe.isConverted,
-        isEditing
-      });
-    }
+  useEffect(() => {
+    logInfo("Recipe state in RecipeConverterContent", {
+      hasId: !!recipe.id,
+      hasTitle: !!recipe.title,
+      ingredientsCount: Array.isArray(recipe.ingredients) ? recipe.ingredients.length : 0,
+      instructionsCount: Array.isArray(recipe.instructions) ? recipe.instructions.length : 0,
+      isConverted: !!recipe.isConverted,
+      isEditing
+    });
   }, [recipe, isEditing]);
   
   // Determine if the recipe can be saved
   const canSaveRecipe = React.useMemo(() => {
-    const hasRequiredFields = recipe.isConverted && 
-      recipe.title && 
+    const hasRequiredFields = !!recipe.title && 
       Array.isArray(recipe.ingredients) && 
       recipe.ingredients.length > 0 && 
       Array.isArray(recipe.instructions) && 
@@ -81,6 +77,22 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
     return hasRequiredFields;
   }, [recipe]);
   
+  const handleSaveRecipe = () => {
+    logInfo("Attempting to save recipe from RecipeConverterContent", {
+      hasRequiredFields: canSaveRecipe
+    });
+    
+    if (canSaveRecipe) {
+      onSaveRecipe(recipe);
+    } else {
+      logError("Save button clicked but recipe can't be saved", {
+        hasTitle: !!recipe.title,
+        hasIngredients: Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0,
+        hasInstructions: Array.isArray(recipe.instructions) && recipe.instructions.length > 0
+      });
+    }
+  };
+  
   return (
     <div className="space-y-4">
       <ConversionSuccessAlert show={showConversionSuccess && recipe.isConverted && !isEditing} />
@@ -93,7 +105,7 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
             conversionError={displayError}
             onReset={onResetRecipe}
             recipe={recipe}
-            onSaveRecipe={canSaveRecipe ? () => onSaveRecipe(recipe) : undefined}
+            onSaveRecipe={canSaveRecipe ? handleSaveRecipe : undefined}
           />
         ) : isEditing ? (
           <RecipeForm 
@@ -107,7 +119,7 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
             onEdit={() => onSetIsEditing(true)} 
             onPrint={() => window.print()} 
             onReset={onResetRecipe}
-            onSave={canSaveRecipe ? () => onSaveRecipe(recipe) : undefined}
+            onSave={canSaveRecipe ? handleSaveRecipe : undefined}
           />
         )}
       </FormProvider>
