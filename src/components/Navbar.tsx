@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Sun, Moon, Home } from 'lucide-react';
@@ -8,7 +7,7 @@ import { Toggle } from '@/components/ui/toggle';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import UserMenu from './auth/UserMenu';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -19,7 +18,8 @@ const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+  const { toast } = useToast();
+
   const isHomePage = location.pathname === '/';
   const isAIPage = location.pathname.startsWith('/ai');
 
@@ -114,8 +114,9 @@ const Navbar = () => {
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-    // Fix: Use the correct signature for toast
-    toast(`${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} mode activated`);
+    toast({
+      title: `${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} mode activated`
+    });
   };
 
   return (
