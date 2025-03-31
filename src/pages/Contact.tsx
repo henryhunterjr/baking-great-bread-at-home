@@ -47,7 +47,6 @@ const Contact = () => {
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-              {/* Contact Info */}
               <div className="bg-bread-800/60 p-6 rounded-lg">
                 <h2 className="font-serif text-2xl mb-6 text-center">Contact Information</h2>
                 
@@ -90,6 +89,12 @@ const Contact = () => {
                             <span className="mr-2">Facebook</span>
                           </a>
                         </Button>
+                        
+                        <Button asChild variant="outline" size="sm" className="justify-start">
+                          <a href="https://www.facebook.com/groups/1082865755403754" target="_blank" rel="noopener noreferrer">
+                            <span className="mr-2">Baking Great Bread at Home</span>
+                          </a>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -117,7 +122,6 @@ const Contact = () => {
                 </div>
               </div>
               
-              {/* Contact Form */}
               <div className="bg-bread-800/60 p-6 rounded-lg">
                 <h2 className="font-serif text-2xl mb-6 text-center">Send a Message</h2>
                 <form className="space-y-4" onSubmit={handleSubmit}>
