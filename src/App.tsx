@@ -5,6 +5,7 @@ import './App.css';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { initializeWorkers } from './utils/worker-setup';
 import { logInfo } from './utils/logger';
+import { useScrollToTop } from './hooks/use-scroll-to-top';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -29,6 +30,9 @@ import { AuthProvider } from './contexts/AuthContext';
 import AccessibilityManager from './components/recipe-converter/accessibility/AccessibilityManager';
 
 function App() {
+  // Add scroll to top hook for better navigation UX
+  useScrollToTop();
+
   // Initialize workers for PDF and OCR processing
   useEffect(() => {
     initializeWorkers();
@@ -62,7 +66,6 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <AccessibilityManager>
-          {/* Removed the BrowserRouter here since it's already in main.tsx */}
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/recipes" element={<Recipes />} />

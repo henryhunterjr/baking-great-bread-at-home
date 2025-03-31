@@ -10,8 +10,8 @@ const RecipeConverterNav = () => {
       <div className="flex items-center space-x-2">
         <Button variant="outline" size="sm" asChild>
           <Link to="/" className="flex items-center">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
+            <Home className="mr-2 h-4 w-4" />
+            Home
           </Link>
         </Button>
       </div>
