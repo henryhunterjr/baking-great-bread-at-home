@@ -8,6 +8,9 @@ import ConversionSuccessAlert from './ConversionSuccessAlert';
 import { useRecipeConversion } from '@/hooks/use-recipe-conversion';
 import { FormProvider, useForm } from 'react-hook-form';
 import { logInfo, logError } from '@/utils/logger';
+import { isAIConfigured } from '@/lib/ai-services';
+import NoAPIKeyMessage from './NoAPIKeyMessage';
+import ErrorAlert from '@/components/common/ErrorAlert';
 
 interface RecipeConverterContentProps {
   recipe: RecipeData;
@@ -42,9 +45,15 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
       onSetIsEditing(true);
     }
   );
+
+  // Check if API is configured
+  const isApiConfigured = isAIConfigured();
   
   // Combine conversion errors from both sources
   const displayError = pageConversionError || conversionError;
+  
+  // Check if error is related to API key
+  const isApiKeyError = displayError?.includes('API key') || displayError?.includes('OpenAI');
 
   // Log the recipe state for debugging
   useEffect(() => {
@@ -105,6 +114,14 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
   
   return (
     <div className="space-y-4">
+      {!isApiConfigured && <NoAPIKeyMessage />}
+      
+      {isApiKeyError ? (
+        <NoAPIKeyMessage />
+      ) : displayError ? (
+        <ErrorAlert error={displayError} />
+      ) : null}
+      
       <ConversionSuccessAlert show={showConversionSuccess && recipe.isConverted && !isEditing} />
       
       <FormProvider {...methods}>
@@ -112,7 +129,7 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
           <ConversionService 
             onConvertRecipe={handleConversion}
             isConverting={isConverting}
-            conversionError={displayError}
+            conversionError={displayError && !isApiKeyError ? displayError : null}
             onReset={onResetRecipe}
             recipe={recipe}
             onSaveRecipe={canSaveRecipe ? handleSaveRecipe : undefined}

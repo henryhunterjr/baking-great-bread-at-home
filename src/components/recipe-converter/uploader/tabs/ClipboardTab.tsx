@@ -5,6 +5,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Clipboard, Save } from 'lucide-react';
 import { RecipeData } from '@/types/recipeTypes';
 import { logInfo } from '@/utils/logger';
+import { isAIConfigured } from '@/lib/ai-services';
+import NoAPIKeyMessage from '@/components/recipe-converter/NoAPIKeyMessage';
 
 interface ClipboardTabProps {
   recipeText: string;
@@ -23,6 +25,9 @@ const ClipboardTab: React.FC<ClipboardTabProps> = ({
   recipe,
   onSaveRecipe
 }) => {
+  // Check if OpenAI API is configured
+  const isApiConfigured = isAIConfigured();
+  
   // Determine if recipe can be saved with improved validation
   const canSaveRecipe = useMemo(() => {
     if (!recipe) return false;
@@ -49,6 +54,8 @@ const ClipboardTab: React.FC<ClipboardTabProps> = ({
   
   return (
     <div className="space-y-4">
+      {!isApiConfigured && <NoAPIKeyMessage />}
+      
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-medium">Paste from Clipboard</h3>
@@ -75,7 +82,7 @@ const ClipboardTab: React.FC<ClipboardTabProps> = ({
           <Button
             type="button"
             onClick={onConvertRecipe}
-            disabled={!recipeText.trim() || isConverting}
+            disabled={!recipeText.trim() || isConverting || !isApiConfigured}
             className="w-full"
           >
             {isConverting ? 'Converting...' : 'Convert Recipe'}

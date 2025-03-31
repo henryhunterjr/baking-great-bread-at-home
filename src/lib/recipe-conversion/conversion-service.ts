@@ -4,6 +4,7 @@ import { processRecipeText } from '@/lib/ai-services';
 import { cleanOCRText } from './cleaners';
 import { logError, logInfo } from '@/utils/logger';
 import { getOpenAIApiKey, isAIConfigured, updateOpenAIApiKey, checkAPIKeyStatus } from '@/lib/ai-services';
+import { toast } from 'sonner';
 
 export const convertRecipeText = async (
   text: string, 
@@ -26,13 +27,17 @@ export const convertRecipeText = async (
     // Make sure we have the latest OpenAI API key
     updateOpenAIApiKey();
     
-    // Check and log detailed API key status
+    // Check API key status
     const keyStatus = checkAPIKeyStatus();
     logInfo('API Key Status during recipe conversion', keyStatus);
     
     // Check if OpenAI API is configured before proceeding
     if (!isAIConfigured()) {
-      throw new Error("AI service is not configured with an API key. Please add your OpenAI API key in Settings.");
+      const error = new Error("AI service is not configured with an API key. Please add your OpenAI API key in Settings.");
+      // Log this as an important error
+      logError('OpenAI API key missing during recipe conversion', { error });
+      onError(error);
+      return;
     }
     
     // Add error handling for browser compatibility
@@ -87,7 +92,7 @@ export const convertRecipeText = async (
       onComplete(convertedRecipe);
     } catch (processingError) {
       logError('Error during recipe processing:', { error: processingError });
-      throw processingError;
+      onError(processingError instanceof Error ? processingError : new Error(String(processingError)));
     }
   } catch (error) {
     logError('Recipe conversion error:', { error });
