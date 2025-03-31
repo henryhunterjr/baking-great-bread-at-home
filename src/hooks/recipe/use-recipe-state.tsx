@@ -29,6 +29,23 @@ export const useRecipeState = () => {
   const [showConversionSuccess, setShowConversionSuccess] = useState(false);
   const [conversionError, setConversionError] = useState<string | null>(null);
 
+  // Add a helper function to check if a recipe is valid for saving
+  const isRecipeValid = (recipeData: RecipeData): boolean => {
+    const hasTitle = !!recipeData.title && recipeData.title.trim() !== '';
+    const hasIngredients = Array.isArray(recipeData.ingredients) && recipeData.ingredients.length > 0;
+    const hasInstructions = Array.isArray(recipeData.instructions) && recipeData.instructions.length > 0;
+    
+    logInfo("Recipe validation check", {
+      hasTitle,
+      hasIngredients: hasIngredients,
+      ingredientsCount: Array.isArray(recipeData.ingredients) ? recipeData.ingredients.length : 0,
+      hasInstructions: hasInstructions,
+      instructionsCount: Array.isArray(recipeData.instructions) ? recipeData.instructions.length : 0
+    });
+    
+    return hasTitle && hasIngredients && hasInstructions;
+  };
+
   // Process incoming recipe to ensure it has all required fields
   const processRecipe = (incomingRecipe: RecipeData): RecipeData => {
     // Debug the incoming recipe
@@ -87,6 +104,7 @@ export const useRecipeState = () => {
     conversionError,
     setConversionError,
     processRecipe,
-    resetRecipe
+    resetRecipe,
+    isRecipeValid
   };
 };

@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { RecipeData } from '@/types/recipeTypes';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -26,11 +26,28 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
 }) => {
   const { toast } = useToast();
   
-  // Check if recipe has valid ingredients and instructions
-  const hasValidIngredients = Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0;
-  const hasValidInstructions = Array.isArray(recipe.instructions) && recipe.instructions.length > 0;
-  
-  const hasRequiredFields = recipe.title && hasValidIngredients && hasValidInstructions;
+  // Improved validation check for required fields
+  const hasRequiredFields = useMemo(() => {
+    const hasTitle = !!recipe.title && recipe.title.trim() !== '';
+    const hasIngredients = Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0;
+    const hasInstructions = Array.isArray(recipe.instructions) && recipe.instructions.length > 0;
+    const isConverted = !!recipe.isConverted;
+    
+    const isValid = hasTitle && hasIngredients && hasInstructions && isConverted;
+    
+    logInfo("Recipe validation in RecipeCard", {
+      canSave: isValid,
+      hasTitle,
+      titleText: recipe.title,
+      hasIngredients,
+      ingredientsCount: Array.isArray(recipe.ingredients) ? recipe.ingredients.length : 0,
+      hasInstructions,
+      instructionsCount: Array.isArray(recipe.instructions) ? recipe.instructions.length : 0,
+      isConverted
+    });
+    
+    return isValid;
+  }, [recipe]);
   
   // Debug the recipe state in this component
   useEffect(() => {
@@ -44,13 +61,17 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     });
   }, [recipe, hasRequiredFields]);
   
-  const ingredientsList = hasValidIngredients ? recipe.ingredients.map((ingredient, index) => (
-    <li key={index} className="list-disc ml-4">{ingredient}</li>
-  )) : <li className="list-disc ml-4">No ingredients available</li>;
+  const ingredientsList = Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0 
+    ? recipe.ingredients.map((ingredient, index) => (
+        <li key={index} className="list-disc ml-4">{ingredient}</li>
+      )) 
+    : <li className="list-disc ml-4">No ingredients available</li>;
   
-  const instructionsList = hasValidInstructions ? recipe.instructions.map((instruction, index) => (
-    <li key={index} className="mb-2">{instruction}</li>
-  )) : <li className="mb-2">No instructions available</li>;
+  const instructionsList = Array.isArray(recipe.instructions) && recipe.instructions.length > 0 
+    ? recipe.instructions.map((instruction, index) => (
+        <li key={index} className="mb-2">{instruction}</li>
+      )) 
+    : <li className="mb-2">No instructions available</li>;
   
   const handleSave = () => {
     if (!hasRequiredFields) {

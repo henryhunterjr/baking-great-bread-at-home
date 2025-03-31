@@ -58,23 +58,32 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
     });
   }, [recipe, isEditing]);
   
-  // Determine if the recipe can be saved
+  // Determine if the recipe can be saved - improved validation logic
   const canSaveRecipe = React.useMemo(() => {
-    const hasRequiredFields = !!recipe.title && 
-      Array.isArray(recipe.ingredients) && 
-      recipe.ingredients.length > 0 && 
-      Array.isArray(recipe.instructions) && 
-      recipe.instructions.length > 0;
+    // A recipe can be saved if it has:
+    // 1. A title
+    // 2. At least one ingredient
+    // 3. At least one instruction
+    // 4. Is marked as converted
+    const hasTitle = !!recipe.title && recipe.title.trim() !== '';
+    const hasIngredients = Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0;
+    const hasInstructions = Array.isArray(recipe.instructions) && recipe.instructions.length > 0;
+    const isConverted = !!recipe.isConverted;
     
-    logInfo("Save button state calculation", {
-      canSave: hasRequiredFields,
-      title: recipe.title,
-      isConverted: recipe.isConverted,
-      ingredientsLength: Array.isArray(recipe.ingredients) ? recipe.ingredients.length : 0,
-      instructionsLength: Array.isArray(recipe.instructions) ? recipe.instructions.length : 0
+    const isValid = hasTitle && hasIngredients && hasInstructions && isConverted;
+    
+    logInfo("Save button validation in RecipeConverterContent", {
+      canSave: isValid,
+      hasTitle,
+      titleLength: recipe.title ? recipe.title.length : 0,
+      hasIngredients,
+      ingredientsCount: Array.isArray(recipe.ingredients) ? recipe.ingredients.length : 0,
+      hasInstructions,
+      instructionsCount: Array.isArray(recipe.instructions) ? recipe.instructions.length : 0,
+      isConverted
     });
     
-    return hasRequiredFields;
+    return isValid;
   }, [recipe]);
   
   const handleSaveRecipe = () => {
@@ -88,7 +97,8 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
       logError("Save button clicked but recipe can't be saved", {
         hasTitle: !!recipe.title,
         hasIngredients: Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0,
-        hasInstructions: Array.isArray(recipe.instructions) && recipe.instructions.length > 0
+        hasInstructions: Array.isArray(recipe.instructions) && recipe.instructions.length > 0,
+        isConverted: !!recipe.isConverted
       });
     }
   };

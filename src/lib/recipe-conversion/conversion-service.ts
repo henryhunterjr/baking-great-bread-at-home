@@ -54,13 +54,17 @@ export const convertRecipeText = async (
       const convertedRecipe: RecipeData = {
         ...response.recipe,
         id: recipeId,
-        isConverted: true,
+        isConverted: true, // Ensure this is set to true
         createdAt: response.recipe.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         // Ensure these properties exist to prevent null/undefined errors
         title: response.recipe.title || 'Untitled Recipe',
-        ingredients: Array.isArray(response.recipe.ingredients) ? response.recipe.ingredients : [],
-        instructions: Array.isArray(response.recipe.instructions) ? response.recipe.instructions : [],
+        ingredients: Array.isArray(response.recipe.ingredients) && response.recipe.ingredients.length > 0 
+          ? response.recipe.ingredients 
+          : ['Default ingredient, please edit'],
+        instructions: Array.isArray(response.recipe.instructions) && response.recipe.instructions.length > 0
+          ? response.recipe.instructions
+          : ['Default instruction, please edit'],
         // Ensure equipment items have IDs
         equipmentNeeded: Array.isArray(response.recipe.equipmentNeeded) 
           ? response.recipe.equipmentNeeded.map(item => ({
@@ -76,7 +80,8 @@ export const convertRecipeText = async (
         id: convertedRecipe.id,
         hasTitle: !!convertedRecipe.title,
         ingredientsCount: convertedRecipe.ingredients.length,
-        instructionsCount: convertedRecipe.instructions.length
+        instructionsCount: convertedRecipe.instructions.length,
+        isConverted: convertedRecipe.isConverted
       });
       
       onComplete(convertedRecipe);

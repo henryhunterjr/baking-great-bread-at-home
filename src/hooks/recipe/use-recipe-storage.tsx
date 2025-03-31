@@ -12,6 +12,21 @@ export const useRecipeStorage = (
 ) => {
   const { toast } = useToast();
 
+  // Helper function to check if a recipe is valid
+  const isRecipeValid = (recipeData: RecipeData): boolean => {
+    const hasTitle = !!recipeData.title && recipeData.title.trim() !== '';
+    const hasIngredients = Array.isArray(recipeData.ingredients) && recipeData.ingredients.length > 0;
+    const hasInstructions = Array.isArray(recipeData.instructions) && recipeData.instructions.length > 0;
+    
+    logInfo("Recipe validation in storage hook", {
+      hasTitle,
+      hasIngredients,
+      hasInstructions
+    });
+    
+    return hasTitle && hasIngredients && hasInstructions;
+  };
+
   const handleSaveRecipe = (updatedRecipe: RecipeData = recipe) => {
     try {
       // Log the recipe being saved for debugging
@@ -24,12 +39,7 @@ export const useRecipeStorage = (
       });
       
       // Check if the recipe is valid before saving
-      if (!updatedRecipe.title || 
-          !Array.isArray(updatedRecipe.ingredients) || 
-          updatedRecipe.ingredients.length === 0 ||
-          !Array.isArray(updatedRecipe.instructions) || 
-          updatedRecipe.instructions.length === 0) {
-        
+      if (!isRecipeValid(updatedRecipe)) {
         logError("Cannot save recipe: invalid data", {
           hasTitle: !!updatedRecipe.title,
           hasIngredients: Array.isArray(updatedRecipe.ingredients) && updatedRecipe.ingredients.length > 0,
@@ -123,6 +133,7 @@ export const useRecipeStorage = (
 
   return {
     handleSaveRecipe,
-    handleSelectSavedRecipe
+    handleSelectSavedRecipe,
+    isRecipeValid
   };
 };

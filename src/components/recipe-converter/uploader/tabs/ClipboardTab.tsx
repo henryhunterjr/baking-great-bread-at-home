@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Clipboard, Save } from 'lucide-react';
@@ -23,31 +23,29 @@ const ClipboardTab: React.FC<ClipboardTabProps> = ({
   recipe,
   onSaveRecipe
 }) => {
-  // Determine if recipe can be saved
-  const canSaveRecipe = React.useMemo(() => {
+  // Determine if recipe can be saved with improved validation
+  const canSaveRecipe = useMemo(() => {
     if (!recipe) return false;
     
-    const isValid = !!recipe.title && 
-      Array.isArray(recipe.ingredients) && 
-      recipe.ingredients.length > 0 && 
-      Array.isArray(recipe.instructions) && 
-      recipe.instructions.length > 0;
+    const hasTitle = !!recipe.title && recipe.title.trim() !== '';
+    const hasIngredients = Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0;
+    const hasInstructions = Array.isArray(recipe.instructions) && recipe.instructions.length > 0;
+    const isConverted = !!recipe.isConverted;
+    
+    const isValid = hasTitle && hasIngredients && hasInstructions && isConverted;
+    
+    logInfo("Save button validation in ClipboardTab", {
+      canSave: isValid,
+      hasTitle,
+      hasIngredients,
+      ingredientsCount: Array.isArray(recipe.ingredients) ? recipe.ingredients.length : 0,
+      hasInstructions,
+      instructionsCount: Array.isArray(recipe.instructions) ? recipe.instructions.length : 0,
+      isConverted
+    });
     
     return isValid;
   }, [recipe]);
-  
-  // Log save button state for debugging
-  useEffect(() => {
-    if (recipe) {
-      logInfo("Save button state in ClipboardTab", {
-        canSave: canSaveRecipe,
-        isConverted: recipe.isConverted,
-        hasTitle: !!recipe.title,
-        hasIngredients: Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0,
-        hasInstructions: Array.isArray(recipe.instructions) && recipe.instructions.length > 0
-      });
-    }
-  }, [recipe, canSaveRecipe]);
   
   return (
     <div className="space-y-4">
