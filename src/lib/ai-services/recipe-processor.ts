@@ -9,12 +9,18 @@ import { StandardRecipe } from '@/types/standardRecipeFormat';
  */
 export const processRecipeText = async (recipeText: string): Promise<Recipe> => {
   try {
+    // Store the original text to preserve it exactly
+    const originalText = recipeText;
+    
     // Check if the input is a JSON recipe format
     try {
       const jsonRecipe = JSON.parse(recipeText);
       if (jsonRecipe.title && jsonRecipe.ingredients && jsonRecipe.steps) {
         // It's already in our standard JSON format, convert it to Recipe type
-        return convertStandardRecipeToRecipe(jsonRecipe as StandardRecipe);
+        const recipe = convertStandardRecipeToRecipe(jsonRecipe as StandardRecipe);
+        // Preserve the original text as the description
+        recipe.description = originalText;
+        return recipe;
       }
     } catch (e) {
       // Not valid JSON, continue with regular processing
@@ -26,49 +32,19 @@ export const processRecipeText = async (recipeText: string): Promise<Recipe> => 
     // Simulating API call delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // This would be replaced with actual API call:
-    /*
-    const response = await fetch(`${AI_CONFIG.apiUrl}/process-recipe`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AI_CONFIG.apiKey}`
-      },
-      body: JSON.stringify({
-        model: AI_CONFIG.models.recipeProcessor,
-        text: recipeText,
-        outputFormat: 'standard-json',
-        options: {
-          extractNutrition: true,
-          identifyAllergies: true
-        }
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-    
-    const standardRecipe = await response.json();
-    return convertStandardRecipeToRecipe(standardRecipe);
-    */
-    
     // Detect recipe type from text for better simulation
     const isChocolateRecipe = recipeText.toLowerCase().includes('chocolate');
     const isPastaRecipe = recipeText.toLowerCase().includes('pasta');
     const isSoupRecipe = recipeText.toLowerCase().includes('soup');
     const isSourdoughRecipe = recipeText.toLowerCase().includes('sourdough');
     
-    // Simulated response
+    // Simulated response - preserving original text as description
     return {
       title: isSourdoughRecipe ? 'Artisan Sourdough Bread' :
              isChocolateRecipe ? 'Chocolate Chip Cookies' : 
              isPastaRecipe ? 'Creamy Garlic Pasta' : 
              isSoupRecipe ? 'Hearty Vegetable Soup' : 'Recipe Title',
-      description: `A delicious ${isSourdoughRecipe ? 'sourdough bread' :
-                   isChocolateRecipe ? 'chocolate chip cookies' : 
-                   isPastaRecipe ? 'creamy garlic pasta' : 
-                   isSoupRecipe ? 'hearty vegetable soup' : 'recipe'} recipe.`,
+      description: originalText, // Use the original text as description
       servings: 4,
       prepTime: 30,
       cookTime: 45,

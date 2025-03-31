@@ -17,6 +17,9 @@ export const convertRecipeText = async (
       throw new Error("Invalid text input provided");
     }
     
+    // Store original text before cleaning
+    const originalText = text;
+    
     // Clean and preprocess the text
     const cleanedText = cleanOCRText(text);
     
@@ -62,6 +65,8 @@ export const convertRecipeText = async (
         isConverted: true, // Ensure this is set to true
         createdAt: response.recipe.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        // Ensure introduction is preserved exactly from the original text
+        introduction: originalText,
         // Ensure these properties exist to prevent null/undefined errors
         title: response.recipe.title || 'Untitled Recipe',
         ingredients: Array.isArray(response.recipe.ingredients) && response.recipe.ingredients.length > 0 
