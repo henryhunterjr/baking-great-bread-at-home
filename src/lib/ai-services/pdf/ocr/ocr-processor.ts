@@ -72,10 +72,6 @@ export const extractTextWithOCR = async (
     // Convert File/Blob to URL
     const imageUrl = URL.createObjectURL(imageFile);
     
-    // Setup progress tracking - compatible with Tesseract.js v6
-    // In v6, progress updates come through progress callback
-    let lastProgress = 0;
-    
     // Check for cancellation again
     if (options?.signal?.aborted) {
       await worker.terminate();
@@ -83,7 +79,7 @@ export const extractTextWithOCR = async (
       throw new ProcessingError("OCR processing was cancelled", ProcessingErrorType.USER_CANCELLED);
     }
     
-    // Define a progress handler function
+    // Define a progress handler function - must be defined but not used directly in options
     const handleProgress = (progress: any) => {
       if (progressCallback && progress.status === 'recognizing text' && 'progress' in progress) {
         // Map progress to range 20% - 90%
@@ -92,8 +88,8 @@ export const extractTextWithOCR = async (
       }
     };
     
-    // Recognize text in the image
-    // In Tesseract.js v6, the progress callback is passed as the third argument
+    // In Tesseract.js v6, we need to call recognize with just the options object
+    // The progress callback can't be passed directly to recognize
     const result = await worker.recognize(imageUrl, {});
     
     // Access the recognized text

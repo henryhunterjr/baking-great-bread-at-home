@@ -54,6 +54,13 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
     }
   }, [recipe, isEditing]);
   
+  const canSaveRecipe = recipe.isConverted && 
+    recipe.title && 
+    Array.isArray(recipe.ingredients) && 
+    recipe.ingredients.length > 0 && 
+    Array.isArray(recipe.instructions) && 
+    recipe.instructions.length > 0;
+  
   return (
     <div className="space-y-4">
       <ConversionSuccessAlert show={showConversionSuccess && recipe.isConverted && !isEditing} />
@@ -66,7 +73,7 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
             conversionError={displayError}
             onReset={onResetRecipe}
             recipe={recipe}
-            onSaveRecipe={() => onSaveRecipe(recipe)}
+            onSaveRecipe={canSaveRecipe ? () => onSaveRecipe(recipe) : undefined}
           />
         ) : isEditing ? (
           <RecipeForm 
@@ -80,7 +87,7 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
             onEdit={() => onSetIsEditing(true)} 
             onPrint={() => window.print()} 
             onReset={onResetRecipe}
-            onSave={() => onSaveRecipe(recipe)}
+            onSave={canSaveRecipe ? () => onSaveRecipe(recipe) : undefined}
           />
         )}
       </FormProvider>

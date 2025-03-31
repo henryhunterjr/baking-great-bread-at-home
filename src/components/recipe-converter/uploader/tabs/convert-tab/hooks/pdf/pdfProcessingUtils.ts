@@ -9,7 +9,7 @@ import { cleanOCRText } from '@/lib/ai-services/text-cleaner';
 export const processPDFWithTimeout = async (
   file: File,
   onProgress?: (progress: number) => void,
-  timeoutDuration: number = 120000 // 2 minutes default
+  timeoutDuration: number = 180000 // 3 minutes default - increased from 2 minutes
 ): Promise<string | { cancel: () => void } | null> => {
   let timeoutId: NodeJS.Timeout | null = null;
   let cancelled = false;

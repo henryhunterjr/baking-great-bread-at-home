@@ -45,28 +45,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return null;
       }
 
-      // If no profile exists, create one
+      // If no profile exists, try to create one but don't error if it fails
+      // This is to handle cases where RLS might prevent profile creation
       if (!data) {
-        console.log('No profile found, creating one');
-        // Create a basic profile if one doesn't exist
-        const newProfile: UserProfile = {
-          id: userId,
-          name: user?.user_metadata?.name || '',
-          avatar_url: user?.user_metadata?.avatar_url || '',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
+        console.log('No profile found, trying to fetch from auth.users');
         
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert([newProfile]);
-          
-        if (insertError) {
-          console.error('Error creating profile:', insertError);
-          return null;
+        try {
+          // Try to get user data from session metadata instead of creating a profile
+          if (user) {
+            const userMetadata = user.user_metadata;
+            
+            const defaultProfile: UserProfile = {
+              id: userId,
+              name: userMetadata?.name || user.email?.split('@')[0] || 'User',
+              avatar_url: userMetadata?.avatar_url || '',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            };
+            
+            return defaultProfile;
+          }
+        } catch (metadataError) {
+          console.error('Error creating default profile from metadata:', metadataError);
         }
-        
-        return newProfile;
       }
 
       return data as UserProfile;

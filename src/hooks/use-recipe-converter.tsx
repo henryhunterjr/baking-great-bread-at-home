@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from 'uuid';
 import { RecipeData } from '@/types/recipeTypes';
+import { logInfo } from '@/utils/logger';
 
 const defaultRecipe: RecipeData = {
   title: '',
@@ -63,52 +64,61 @@ export const useRecipeConverter = () => {
       isConverted: true
     };
     
+    logInfo("Recipe conversion complete", {
+      hasTitle: !!processedRecipe.title,
+      ingredientsCount: processedRecipe.ingredients.length,
+      instructionsCount: processedRecipe.instructions.length,
+      isConverted: processedRecipe.isConverted
+    });
+    
     setRecipe(processedRecipe);
-    setIsEditing(true);
+    setIsEditing(false); // Don't go directly to editing mode
     setConversionError(null);
     
     toast({
       title: "Recipe Converted!",
-      description: "Your recipe has been successfully converted. You can now edit and save it.",
+      description: "Your recipe has been successfully converted. You can now save it to your collection.",
     });
     
     // Auto-switch to the favorites tab to guide the user
     setActiveTab("favorites");
   };
   
-  const handleSaveRecipe = (updatedRecipe: RecipeData) => {
+  const handleSaveRecipe = (updatedRecipe: RecipeData = recipe) => {
     // If no recipe ID exists, create one (for new recipes)
-    if (!updatedRecipe.id) {
-      updatedRecipe.id = uuidv4();
-    }
+    const recipeToSave = {
+      ...updatedRecipe,
+      id: updatedRecipe.id || uuidv4(),
+      createdAt: updatedRecipe.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
     
-    // Add timestamp if not present
-    if (!updatedRecipe.createdAt) {
-      updatedRecipe.createdAt = new Date().toISOString();
-    }
+    logInfo("Saving recipe", {
+      id: recipeToSave.id,
+      title: recipeToSave.title,
+      ingredientsCount: recipeToSave.ingredients.length,
+      instructionsCount: recipeToSave.instructions.length
+    });
     
-    // Always update the updatedAt timestamp
-    updatedRecipe.updatedAt = new Date().toISOString();
-    
-    setRecipe(updatedRecipe);
+    setRecipe(recipeToSave);
     setIsEditing(false);
     
     // Get existing recipes from localStorage
     const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
     
     // Check if this recipe already exists in saved recipes
-    const existingRecipeIndex = savedRecipes.findIndex((r: RecipeData) => r.id === updatedRecipe.id);
+    const existingRecipeIndex = savedRecipes.findIndex((r: RecipeData) => r.id === recipeToSave.id);
     
     if (existingRecipeIndex >= 0) {
       // Update existing recipe
-      savedRecipes[existingRecipeIndex] = updatedRecipe;
+      savedRecipes[existingRecipeIndex] = recipeToSave;
       toast({
         title: "Recipe Updated!",
         description: "Your recipe has been updated in your collection.",
       });
     } else {
       // Add new recipe
-      savedRecipes.push(updatedRecipe);
+      savedRecipes.push(recipeToSave);
       toast({
         title: "Recipe Saved!",
         description: "Your recipe has been added to your collection.",
