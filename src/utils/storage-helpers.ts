@@ -19,20 +19,43 @@ export const saveRecipeToStorage = (recipe: RecipeData): boolean => {
     // Get existing recipes
     const savedRecipes = getSavedRecipes();
     
-    // Check if this recipe already exists
-    const existingIndex = savedRecipes.findIndex(r => r.id === recipe.id);
+    // Create a unique identifier for this recipe if it doesn't have one
+    const recipeToSave = {
+      ...recipe,
+      id: recipe.id || crypto.randomUUID(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    // Check if this recipe already exists by ID
+    const existingIndex = savedRecipes.findIndex(r => r.id === recipeToSave.id);
+    
+    // Create new array of recipes
+    let updatedRecipes;
     
     if (existingIndex >= 0) {
       // Update existing recipe
-      savedRecipes[existingIndex] = recipe;
+      updatedRecipes = [...savedRecipes];
+      updatedRecipes[existingIndex] = recipeToSave;
+      logInfo('Updating existing recipe', { id: recipeToSave.id, title: recipeToSave.title });
     } else {
+      // Check for duplicate titles to avoid confusion
+      const duplicateTitleIndex = savedRecipes.findIndex(
+        r => r.title.toLowerCase() === recipeToSave.title.toLowerCase() && r.id !== recipeToSave.id
+      );
+      
+      if (duplicateTitleIndex >= 0) {
+        // Append a number to make the title unique
+        recipeToSave.title = `${recipeToSave.title} (${new Date().toLocaleTimeString()})`;
+      }
+      
       // Add new recipe
-      savedRecipes.push(recipe);
+      updatedRecipes = [...savedRecipes, recipeToSave];
+      logInfo('Adding new recipe', { id: recipeToSave.id, title: recipeToSave.title });
     }
     
     // Save back to localStorage with error handling
     try {
-      localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+      localStorage.setItem('savedRecipes', JSON.stringify(updatedRecipes));
       
       // Verify the save worked by reading it back
       const savedData = localStorage.getItem('savedRecipes');
@@ -41,9 +64,9 @@ export const saveRecipeToStorage = (recipe: RecipeData): boolean => {
       }
       
       logInfo('Recipe saved successfully', { 
-        id: recipe.id,
-        title: recipe.title,
-        recipeCount: savedRecipes.length
+        id: recipeToSave.id,
+        title: recipeToSave.title,
+        recipeCount: updatedRecipes.length
       });
       
       return true;
@@ -52,18 +75,18 @@ export const saveRecipeToStorage = (recipe: RecipeData): boolean => {
       logError('localStorage error', { error: storageError });
       
       // If storage is full, try to remove old recipes
-      if (savedRecipes.length > 10) {
+      if (updatedRecipes.length > 10) {
         try {
           // Keep only the 5 most recent recipes
-          const recentRecipes = savedRecipes.slice(-5);
+          const recentRecipes = updatedRecipes.slice(-5);
           localStorage.setItem('savedRecipes', JSON.stringify(recentRecipes));
           logInfo('Cleaned up storage by removing old recipes', { 
-            removed: savedRecipes.length - recentRecipes.length,
+            removed: updatedRecipes.length - recentRecipes.length,
             remaining: recentRecipes.length
           });
           
           // Try to save the current recipe again
-          recentRecipes.push(recipe);
+          recentRecipes.push(recipeToSave);
           localStorage.setItem('savedRecipes', JSON.stringify(recentRecipes));
           return true;
         } catch (retryError) {
@@ -96,14 +119,32 @@ export const getSavedRecipes = (): RecipeData[] => {
       return [];
     }
     
-    // Filter out invalid recipes
-    const validRecipes = savedRecipes.filter(recipe => 
-      recipe && 
-      typeof recipe === 'object' && 
-      recipe.title && 
-      (Array.isArray(recipe.ingredients) || typeof recipe.ingredients === 'string') &&
-      (Array.isArray(recipe.instructions) || typeof recipe.instructions === 'string')
-    );
+    // Filter out invalid recipes and ensure they have unique IDs
+    const seenIds = new Set();
+    const validRecipes = savedRecipes
+      .filter(recipe => 
+        recipe && 
+        typeof recipe === 'object' && 
+        recipe.title && 
+        recipe.id &&
+        (Array.isArray(recipe.ingredients) || typeof recipe.ingredients === 'string') &&
+        (Array.isArray(recipe.instructions) || typeof recipe.instructions === 'string')
+      )
+      .filter(recipe => {
+        // Ensure we don't have duplicate IDs
+        if (seenIds.has(recipe.id)) {
+          return false;
+        }
+        seenIds.add(recipe.id);
+        return true;
+      });
+    
+    // Sort by updatedAt if available, newest first
+    validRecipes.sort((a, b) => {
+      const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+      const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+      return dateB - dateA;
+    });
     
     logInfo('Retrieved saved recipes', { count: validRecipes.length });
     return validRecipes;

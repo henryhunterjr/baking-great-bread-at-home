@@ -11,6 +11,11 @@ export const convertRecipeText = async (
   onError: (error: Error) => void
 ): Promise<void> => {
   try {
+    // Validate input
+    if (!text || typeof text !== 'string') {
+      throw new Error("Invalid text input provided");
+    }
+    
     // Clean and preprocess the text
     const cleanedText = cleanOCRText(text);
     
@@ -42,19 +47,33 @@ export const convertRecipeText = async (
         throw new Error("No recipe data was returned. The text might not be recognized as a recipe.");
       }
       
+      // Generate a unique ID for the recipe if it doesn't have one
+      const recipeId = response.recipe.id || crypto.randomUUID();
+      
       // Add converted flag and handle missing properties
       const convertedRecipe: RecipeData = {
         ...response.recipe,
+        id: recipeId,
         isConverted: true,
+        createdAt: response.recipe.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         // Ensure these properties exist to prevent null/undefined errors
         title: response.recipe.title || 'Untitled Recipe',
         ingredients: Array.isArray(response.recipe.ingredients) ? response.recipe.ingredients : [],
-        instructions: Array.isArray(response.recipe.instructions) ? response.recipe.instructions : []
+        instructions: Array.isArray(response.recipe.instructions) ? response.recipe.instructions : [],
+        // Ensure equipment items have IDs
+        equipmentNeeded: Array.isArray(response.recipe.equipmentNeeded) 
+          ? response.recipe.equipmentNeeded.map(item => ({
+              id: item.id || crypto.randomUUID(),
+              name: item.name,
+              affiliateLink: item.affiliateLink
+            }))
+          : []
       };
       
       // Log successful conversion
       logInfo('Recipe conversion completed successfully', {
+        id: convertedRecipe.id,
         hasTitle: !!convertedRecipe.title,
         ingredientsCount: convertedRecipe.ingredients.length,
         instructionsCount: convertedRecipe.instructions.length

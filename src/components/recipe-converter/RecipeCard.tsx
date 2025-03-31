@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Edit, FileText, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import StartOverButton from './StartOverButton';
+import { useToast } from '@/hooks/use-toast';
 
 interface RecipeCardProps {
   recipe: RecipeData;
@@ -22,9 +23,13 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   onReset,
   onSave
 }) => {
+  const { toast } = useToast();
+  
   // Check if recipe has valid ingredients and instructions
   const hasValidIngredients = Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0;
   const hasValidInstructions = Array.isArray(recipe.instructions) && recipe.instructions.length > 0;
+  
+  const hasRequiredFields = recipe.title && hasValidIngredients && hasValidInstructions;
   
   const ingredientsList = hasValidIngredients ? recipe.ingredients.map((ingredient, index) => (
     <li key={index} className="list-disc ml-4">{ingredient}</li>
@@ -33,6 +38,21 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   const instructionsList = hasValidInstructions ? recipe.instructions.map((instruction, index) => (
     <li key={index} className="mb-2">{instruction}</li>
   )) : <li className="mb-2">No instructions available</li>;
+  
+  const handleSave = () => {
+    if (!hasRequiredFields) {
+      toast({
+        variant: "destructive",
+        title: "Cannot Save Recipe",
+        description: "Recipe must have a title, ingredients, and instructions. Please edit the recipe to add missing information.",
+      });
+      return;
+    }
+    
+    if (onSave) {
+      onSave();
+    }
+  };
   
   return (
     <Card className="shadow-md print:shadow-none overflow-hidden">
@@ -78,7 +98,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
       <CardFooter className="pt-2 pb-6 flex flex-wrap gap-3 justify-between">
         <div className="flex flex-wrap gap-2">
           {onSave && (
-            <Button variant="secondary" onClick={onSave} className="w-full sm:w-auto">
+            <Button 
+              variant="secondary" 
+              onClick={handleSave} 
+              className="w-full sm:w-auto"
+              disabled={!hasRequiredFields}
+            >
               <FileText className="mr-2 h-4 w-4" />
               Save Recipe
             </Button>
