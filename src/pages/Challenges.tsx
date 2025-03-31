@@ -8,17 +8,27 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const Challenges: React.FC = () => {
   useScrollToTop();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Function to handle view past challenges click
   const handleViewPastChallenges = () => {
     navigate('/challenges/past');
   };
 
-  // Current challenge data (sample)
+  const handleJoinChallenge = () => {
+    // Show toast for now, could be replaced with actual join functionality
+    toast({
+      title: "Challenge Joined!",
+      description: "You've successfully joined the Focaccia Art Challenge.",
+    });
+  };
+
+  // Current challenge data
   const currentChallenge = {
     title: "Focaccia Art Challenge",
     description: "Create a beautiful, edible work of art using focaccia bread as your canvas! Decorate with vegetables, herbs, and other ingredients to create a visual masterpiece that tastes as good as it looks.",
@@ -26,7 +36,7 @@ const Challenges: React.FC = () => {
     difficulty: "Intermediate",
     duration: "1 day",
     participants: 87,
-    image: "https://images.unsplash.com/photo-1586765677067-f8030bd8e303?q=80&w=1470&auto=format&fit=crop"
+    image: "/lovable-uploads/97d368e4-e38b-4189-b3fd-394c82bd5513.png" // Using the uploaded focaccia image
   };
 
   return (
@@ -104,7 +114,7 @@ const Challenges: React.FC = () => {
               </CardContent>
               
               <CardFooter>
-                <Button className="w-full">Join This Challenge</Button>
+                <Button className="w-full" onClick={handleJoinChallenge}>Join This Challenge</Button>
               </CardFooter>
             </Card>
           </div>

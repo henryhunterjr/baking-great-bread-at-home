@@ -24,6 +24,10 @@ import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 import AiAssistant from './pages/AIChat'; // Using AIChat for AiAssistant
 import { Toaster } from './components/ui/toaster';
+import Books from './pages/Books';
+import Community from './pages/Community';
+import ChallengesArchive from './pages/ChallengesArchive';
+import Blog from './pages/BlogPage';
 
 // Contexts and Providers
 import { AuthProvider } from './contexts/AuthContext';
@@ -73,14 +77,19 @@ function App() {
             <Route path="/guides" element={<BakingGuides />} />
             <Route path="/guides/:id" element={<GuideDetail />} />
             <Route path="/challenges" element={<Challenges />} />
-            <Route path="/challenges/:id" element={<ChallengeDetail />} />
+            <Route path="/challenges/past" element={<ChallengeDetail />} />
+            <Route path="/challenges/archive" element={<ChallengesArchive />} />
             <Route path="/recipe-converter" element={<RecipeConverter />} />
+            <Route path="/tools" element={<ToolsAndEquipment />} />
             <Route path="/tools-equipment" element={<ToolsAndEquipment />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/ai-assistant" element={<AiAssistant />} />
+            <Route path="/books" element={<Books />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/blog" element={<Blog />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
