@@ -22,20 +22,24 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   onReset,
   onSave
 }) => {
-  const ingredientsList = recipe.ingredients.map((ingredient, index) => (
-    <li key={index} className="list-disc ml-4">{ingredient}</li>
-  ));
+  // Check if recipe has valid ingredients and instructions
+  const hasValidIngredients = Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0;
+  const hasValidInstructions = Array.isArray(recipe.instructions) && recipe.instructions.length > 0;
   
-  const instructionsList = recipe.instructions.map((instruction, index) => (
+  const ingredientsList = hasValidIngredients ? recipe.ingredients.map((ingredient, index) => (
+    <li key={index} className="list-disc ml-4">{ingredient}</li>
+  )) : <li className="list-disc ml-4">No ingredients available</li>;
+  
+  const instructionsList = hasValidInstructions ? recipe.instructions.map((instruction, index) => (
     <li key={index} className="mb-2">{instruction}</li>
-  ));
+  )) : <li className="mb-2">No instructions available</li>;
   
   return (
     <Card className="shadow-md print:shadow-none overflow-hidden">
       <CardHeader className="pb-4">
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-xl sm:text-2xl">{recipe.title}</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl">{recipe.title || 'Untitled Recipe'}</CardTitle>
             {recipe.introduction && (
               <CardDescription className="mt-2">{recipe.introduction}</CardDescription>
             )}
@@ -74,7 +78,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
       <CardFooter className="pt-2 pb-6 flex flex-wrap gap-3 justify-between">
         <div className="flex flex-wrap gap-2">
           {onSave && (
-            <Button variant="secondary" onClick={onSave}>
+            <Button variant="secondary" onClick={onSave} className="w-full sm:w-auto">
               <FileText className="mr-2 h-4 w-4" />
               Save Recipe
             </Button>

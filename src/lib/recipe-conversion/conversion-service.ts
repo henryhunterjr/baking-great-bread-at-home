@@ -30,24 +30,41 @@ export const convertRecipeText = async (
       throw new Error("AI service is not configured with an API key. Please add your OpenAI API key in Settings.");
     }
     
-    const response = await processRecipeText(cleanedText);
-    
-    if (!response.success) {
-      throw new Error(response.error || "Failed to process recipe. Please try again.");
+    // Add error handling for browser compatibility
+    try {
+      const response = await processRecipeText(cleanedText);
+      
+      if (!response.success) {
+        throw new Error(response.error || "Failed to process recipe. Please try again.");
+      }
+      
+      if (!response.recipe) {
+        throw new Error("No recipe data was returned. The text might not be recognized as a recipe.");
+      }
+      
+      // Add converted flag and handle missing properties
+      const convertedRecipe: RecipeData = {
+        ...response.recipe,
+        isConverted: true,
+        updatedAt: new Date().toISOString(),
+        // Ensure these properties exist to prevent null/undefined errors
+        title: response.recipe.title || 'Untitled Recipe',
+        ingredients: Array.isArray(response.recipe.ingredients) ? response.recipe.ingredients : [],
+        instructions: Array.isArray(response.recipe.instructions) ? response.recipe.instructions : []
+      };
+      
+      // Log successful conversion
+      logInfo('Recipe conversion completed successfully', {
+        hasTitle: !!convertedRecipe.title,
+        ingredientsCount: convertedRecipe.ingredients.length,
+        instructionsCount: convertedRecipe.instructions.length
+      });
+      
+      onComplete(convertedRecipe);
+    } catch (processingError) {
+      logError('Error during recipe processing:', { error: processingError });
+      throw processingError;
     }
-    
-    if (!response.recipe) {
-      throw new Error("No recipe data was returned. The text might not be recognized as a recipe.");
-    }
-    
-    // Add converted flag
-    const convertedRecipe: RecipeData = {
-      ...response.recipe,
-      isConverted: true,
-      updatedAt: new Date().toISOString()
-    };
-    
-    onComplete(convertedRecipe);
   } catch (error) {
     logError('Recipe conversion error:', { error });
     onError(error instanceof Error ? error : new Error(String(error)));
