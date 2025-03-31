@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Mail, MapPin, Facebook, Instagram, Youtube } from "lucide-react";
@@ -111,6 +110,9 @@ const Contact = () => {
                   </a>
                   <a href="mailto:BGBAH2023@Gmail.com" className="text-bread-200 hover:text-white transition-colors social-icon">
                     <Mail size={24} />
+                  </a>
+                  <a href="https://www.facebook.com/groups/1082865755403754" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors social-icon">
+                    <span className="text-xs font-bold">Baking Great Bread at Home</span>
                   </a>
                 </div>
               </div>
