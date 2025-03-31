@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Sun, Moon, Home } from 'lucide-react';
@@ -113,9 +114,8 @@ const Navbar = () => {
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-    toast({
-      title: `${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} mode activated`,
-    });
+    // Fix: Use the correct signature for toast
+    toast(`${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} mode activated`);
   };
 
   return (
