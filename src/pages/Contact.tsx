@@ -75,7 +75,7 @@ const Contact = () => {
                         </Button>
                         
                         <Button asChild variant="outline" size="sm" className="justify-start">
-                          <a href="https://instagram.com/BakingGreatBreadatHome" target="_blank" rel="noopener noreferrer">
+                          <a href="https://instagram.com/bakinggreatbread" target="_blank" rel="noopener noreferrer">
                             <span className="mr-2">Instagram</span>
                           </a>
                         </Button>
@@ -100,7 +100,7 @@ const Contact = () => {
                   <a href="https://www.facebook.com/henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors social-icon">
                     <Facebook size={24} />
                   </a>
-                  <a href="https://instagram.com/BakingGreatBreadatHome" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors social-icon">
+                  <a href="https://instagram.com/bakinggreatbread" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors social-icon">
                     <Instagram size={24} />
                   </a>
                   <a href="https://tiktok.com/@HenryHunter12" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors p-1 border border-bread-200 rounded social-icon">

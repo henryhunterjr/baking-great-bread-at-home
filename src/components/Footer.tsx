@@ -40,7 +40,7 @@ const Footer = () => {
               <a href="https://www.facebook.com/henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Facebook size={20} />
               </a>
-              <a href="https://instagram.com/BakingGreatBreadatHome" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://instagram.com/bakinggreatbread" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Instagram size={20} />
               </a>
               <a href="https://tiktok.com/@HenryHunter12" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors p-1 border border-gray-700 rounded">
