@@ -7,21 +7,21 @@ import { initializeWorkers } from './utils/worker-setup';
 import { logInfo } from './utils/logger';
 
 // Pages
-import Home from './pages/Home';
+import HomePage from './pages/HomePage';
 import Recipes from './pages/Recipes';
-import RecipeDetail from './pages/RecipeDetail';
-import BakingGuides from './pages/BakingGuides';
-import GuideDetail from './pages/GuideDetail';
+import RecipePage from './pages/BlogPost'; // Using BlogPost for RecipeDetail
+import BakingGuides from './pages/Blog'; // Using Blog for BakingGuides
+import GuideDetail from './pages/BlogPage'; // Using BlogPage for GuideDetail
 import Challenges from './pages/Challenges';
-import ChallengeDetail from './pages/ChallengeDetail';
+import ChallengeDetail from './pages/PastChallenges'; // Using PastChallenges for ChallengeDetail
 import RecipeConverter from './pages/RecipeConverter';
 import Contact from './pages/Contact';
 import About from './pages/About';
-import ToolsAndEquipment from './pages/ToolsAndEquipment';
-import Profile from './pages/Profile';
+import ToolsAndEquipment from './pages/Tools'; // Using Tools for ToolsAndEquipment
+import ProfilePage from './pages/ProfilePage'; // Using ProfilePage instead of Profile
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
-import AiAssistant from './pages/AiAssistant';
+import AiAssistant from './pages/AIChat'; // Using AIChat for AiAssistant
 import { Toaster } from './components/ui/toaster';
 
 // Contexts and Providers
@@ -64,9 +64,9 @@ function App() {
         <AccessibilityManager>
           <Router>
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<HomePage />} />
               <Route path="/recipes" element={<Recipes />} />
-              <Route path="/recipes/:id" element={<RecipeDetail />} />
+              <Route path="/recipes/:id" element={<RecipePage />} />
               <Route path="/guides" element={<BakingGuides />} />
               <Route path="/guides/:id" element={<GuideDetail />} />
               <Route path="/challenges" element={<Challenges />} />
@@ -75,7 +75,7 @@ function App() {
               <Route path="/tools-equipment" element={<ToolsAndEquipment />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/ai-assistant" element={<AiAssistant />} />
               <Route path="*" element={<NotFound />} />
