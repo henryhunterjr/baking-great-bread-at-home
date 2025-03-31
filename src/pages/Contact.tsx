@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Mail, MapPin, Facebook, Instagram, Youtube } from "lucide-react";
@@ -65,32 +66,32 @@ const Contact = () => {
                     <MapPin className="w-5 h-5 text-bread-200 mt-1 flex-shrink-0" />
                     <div>
                       <h3 className="font-medium text-bread-100">Social Media</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                        <Button asChild variant="outline" size="sm" className="justify-start">
+                      <div className="grid grid-cols-1 gap-2 mt-2">
+                        <Button asChild variant="outline" size="sm" className="justify-start w-full">
                           <a href="https://tiktok.com/@HenryHunter12" target="_blank" rel="noopener noreferrer">
                             <span className="mr-2">TikTok</span>
                           </a>
                         </Button>
                         
-                        <Button asChild variant="outline" size="sm" className="justify-start">
+                        <Button asChild variant="outline" size="sm" className="justify-start w-full">
                           <a href="https://instagram.com/bakinggreatbread" target="_blank" rel="noopener noreferrer">
                             <span className="mr-2">Instagram</span>
                           </a>
                         </Button>
                         
-                        <Button asChild variant="outline" size="sm" className="justify-start">
+                        <Button asChild variant="outline" size="sm" className="justify-start w-full">
                           <a href="https://www.youtube.com/@henryhunterjr" target="_blank" rel="noopener noreferrer">
                             <span className="mr-2">YouTube</span>
                           </a>
                         </Button>
                         
-                        <Button asChild variant="outline" size="sm" className="justify-start">
+                        <Button asChild variant="outline" size="sm" className="justify-start w-full">
                           <a href="https://www.facebook.com/henryhunterjr" target="_blank" rel="noopener noreferrer">
                             <span className="mr-2">Facebook</span>
                           </a>
                         </Button>
                         
-                        <Button asChild variant="outline" size="sm" className="justify-start">
+                        <Button asChild variant="outline" size="sm" className="justify-start w-full">
                           <a href="https://www.facebook.com/groups/1082865755403754" target="_blank" rel="noopener noreferrer">
                             <span className="mr-2">Baking Great Bread at Home</span>
                           </a>
@@ -117,7 +118,7 @@ const Contact = () => {
                     <Mail size={24} />
                   </a>
                   <a href="https://www.facebook.com/groups/1082865755403754" target="_blank" rel="noopener noreferrer" className="text-bread-200 hover:text-white transition-colors social-icon">
-                    <span className="text-xs font-bold">Baking Great Bread at Home</span>
+                    <Facebook size={24} />
                   </a>
                 </div>
               </div>
