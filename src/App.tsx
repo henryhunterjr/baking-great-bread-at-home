@@ -1,6 +1,6 @@
 
 import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import './App.css';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { initializeWorkers } from './utils/worker-setup';
@@ -62,26 +62,25 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <AccessibilityManager>
-          <Router>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/recipes" element={<Recipes />} />
-              <Route path="/recipes/:id" element={<RecipePage />} />
-              <Route path="/guides" element={<BakingGuides />} />
-              <Route path="/guides/:id" element={<GuideDetail />} />
-              <Route path="/challenges" element={<Challenges />} />
-              <Route path="/challenges/:id" element={<ChallengeDetail />} />
-              <Route path="/recipe-converter" element={<RecipeConverter />} />
-              <Route path="/tools-equipment" element={<ToolsAndEquipment />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/ai-assistant" element={<AiAssistant />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </Router>
+          {/* Removed the BrowserRouter here since it's already in main.tsx */}
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/recipes" element={<Recipes />} />
+            <Route path="/recipes/:id" element={<RecipePage />} />
+            <Route path="/guides" element={<BakingGuides />} />
+            <Route path="/guides/:id" element={<GuideDetail />} />
+            <Route path="/challenges" element={<Challenges />} />
+            <Route path="/challenges/:id" element={<ChallengeDetail />} />
+            <Route path="/recipe-converter" element={<RecipeConverter />} />
+            <Route path="/tools-equipment" element={<ToolsAndEquipment />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/ai-assistant" element={<AiAssistant />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
         </AccessibilityManager>
       </AuthProvider>
     </ThemeProvider>
