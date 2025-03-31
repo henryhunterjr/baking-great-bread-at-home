@@ -28,6 +28,7 @@ import Books from './pages/Books';
 import Community from './pages/Community';
 import ChallengesArchive from './pages/ChallengesArchive';
 import Blog from './pages/BlogPage';
+import MyRecipes from './pages/MyRecipes';
 
 // Contexts and Providers
 import { AuthProvider } from './contexts/AuthContext';
@@ -80,6 +81,7 @@ function App() {
             <Route path="/challenges/past" element={<ChallengeDetail />} />
             <Route path="/challenges/archive" element={<ChallengesArchive />} />
             <Route path="/recipe-converter" element={<RecipeConverter />} />
+            <Route path="/my-recipes" element={<MyRecipes />} />
             <Route path="/tools" element={<ToolsAndEquipment />} />
             <Route path="/tools-equipment" element={<ToolsAndEquipment />} />
             <Route path="/contact" element={<Contact />} />

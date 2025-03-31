@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { RecipeData } from '@/types/recipeTypes';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +12,7 @@ interface RecipeCardProps {
   onEdit: () => void;
   onPrint: () => void;
   onReset: () => void;
-  onSave: (recipe: RecipeData) => void;
+  onSave?: () => void;
 }
 
 const RecipeCard: React.FC<RecipeCardProps> = ({ 
@@ -72,10 +73,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
       
       <CardFooter className="pt-2 pb-6 flex flex-wrap gap-3 justify-between">
         <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" onClick={() => onSave(recipe)}>
-            <FileText className="mr-2 h-4 w-4" />
-            Save Recipe
-          </Button>
+          {onSave && (
+            <Button variant="secondary" onClick={onSave}>
+              <FileText className="mr-2 h-4 w-4" />
+              Save Recipe
+            </Button>
+          )}
         </div>
         <div className="flex gap-2">
           <StartOverButton onClick={onReset} />
