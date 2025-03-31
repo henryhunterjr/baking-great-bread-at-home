@@ -13,7 +13,6 @@ const RecipeHelp: React.FC = () => {
             <li>Include the recipe title, ingredients list, and instructions</li>
             <li>Separate ingredients from instructions clearly</li>
             <li>List ingredients with amounts when possible</li>
-            <li>Number instructions or separate with line breaks</li>
           </ul>
         </div>
       </div>
