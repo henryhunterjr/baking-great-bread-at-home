@@ -17,7 +17,7 @@ export const convertRecipeText = async (
       throw new Error("Invalid text input provided");
     }
     
-    // Store original text before cleaning
+    // Store original text before cleaning - CRITICAL
     const originalText = text;
     
     // Clean and preprocess the text
@@ -62,10 +62,10 @@ export const convertRecipeText = async (
       const convertedRecipe: RecipeData = {
         ...response.recipe,
         id: recipeId,
-        isConverted: true, // Ensure this is set to true
+        isConverted: true, // CRITICAL: Ensure this is explicitly set to true
         createdAt: response.recipe.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        // Ensure introduction is preserved exactly from the original text
+        // Preserve the original text exactly as the introduction - CRITICAL
         introduction: originalText,
         // Ensure these properties exist to prevent null/undefined errors
         title: response.recipe.title || 'Untitled Recipe',

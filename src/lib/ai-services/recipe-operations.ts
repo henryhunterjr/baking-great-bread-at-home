@@ -148,7 +148,7 @@ export const processRecipeText = async (text: string): Promise<RecipeGenerationR
     };
   }
   
-  // Store original text to preserve it exactly
+  // Store original text to preserve it exactly - this is critical
   const originalText = text;
   
   try {
@@ -206,8 +206,9 @@ export const processRecipeText = async (text: string): Promise<RecipeGenerationR
       const recipeData = JSON.parse(jsonString);
       
       const recipe: RecipeData = {
+        id: crypto.randomUUID(), // Always generate a new ID
         title: recipeData.title || 'Untitled Recipe',
-        // Preserve the original text exactly as the introduction
+        // Preserve the original text exactly as the introduction - CRITICAL
         introduction: originalText,
         ingredients: recipeData.ingredients || [],
         instructions: recipeData.steps || [],
@@ -224,8 +225,7 @@ export const processRecipeText = async (text: string): Promise<RecipeGenerationR
         proTips: recipeData.proTips || [],
         equipment: recipeData.equipment || [],
         equipmentNeeded: [],
-        isConverted: true,
-        id: crypto.randomUUID(),
+        isConverted: true, // CRITICAL: Ensure this is explicitly set to true
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };

@@ -30,7 +30,14 @@ export const useImageHandler = () => {
         file,
         (extractedText) => {
           setIsProcessing(false);
-          options.onSuccess(extractedText);
+          
+          // Ensure extracted text is processed and properly formatted
+          if (extractedText && extractedText.trim().length > 0) {
+            // Make sure to mark this as ready for conversion
+            options.onSuccess(extractedText);
+          } else {
+            options.onError("No text could be extracted from this image. Please try another image or format.");
+          }
         },
         (error) => {
           setIsProcessing(false);
