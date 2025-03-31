@@ -17,8 +17,12 @@ export const useTheme = () => useContext(ThemeContext);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    return savedTheme || 'system';
+    // Check localStorage first, then fall back to system preference
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme') as Theme;
+      return savedTheme || 'system';
+    }
+    return 'system';
   });
 
   // Function to get the actual theme based on system preference
@@ -29,8 +33,10 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     return theme;
   };
 
-  // Apply theme to document
+  // Apply theme to document on initial render and when theme changes
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const root = document.documentElement;
     const actualTheme = getActualTheme();
     
@@ -42,10 +48,14 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     
     // Save to localStorage
     localStorage.setItem('theme', theme);
+    
+    console.log('Theme updated:', actualTheme);
   }, [theme]);
 
   // Listen for system preferences change
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     if (theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       
@@ -55,10 +65,23 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         
         root.classList.remove('dark', 'light');
         root.classList.add(newTheme);
+        
+        console.log('System theme preference changed:', newTheme);
       };
       
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
+      // Initial check
+      handleChange();
+      
+      // Add event listener for changes
+      try {
+        // Modern browsers
+        mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
+      } catch (error) {
+        // Fallback for older browsers
+        mediaQuery.addListener(handleChange);
+        return () => mediaQuery.removeListener(handleChange);
+      }
     }
   }, [theme]);
 

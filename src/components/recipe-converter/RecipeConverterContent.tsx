@@ -54,12 +54,25 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
     }
   }, [recipe, isEditing]);
   
-  const canSaveRecipe = recipe.isConverted && 
-    recipe.title && 
-    Array.isArray(recipe.ingredients) && 
-    recipe.ingredients.length > 0 && 
-    Array.isArray(recipe.instructions) && 
-    recipe.instructions.length > 0;
+  // Determine if the recipe can be saved
+  const canSaveRecipe = React.useMemo(() => {
+    const hasRequiredFields = recipe.isConverted && 
+      recipe.title && 
+      Array.isArray(recipe.ingredients) && 
+      recipe.ingredients.length > 0 && 
+      Array.isArray(recipe.instructions) && 
+      recipe.instructions.length > 0;
+    
+    logInfo("Save button state calculation", {
+      canSave: hasRequiredFields,
+      title: recipe.title,
+      isConverted: recipe.isConverted,
+      ingredientsLength: Array.isArray(recipe.ingredients) ? recipe.ingredients.length : 0,
+      instructionsLength: Array.isArray(recipe.instructions) ? recipe.instructions.length : 0
+    });
+    
+    return hasRequiredFields;
+  }, [recipe]);
   
   return (
     <div className="space-y-4">

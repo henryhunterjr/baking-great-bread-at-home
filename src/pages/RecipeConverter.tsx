@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import RecipeConverterHeader from '@/components/recipe-converter/RecipeConverterHeader';
 import RecipeConverterContent from '@/components/recipe-converter/RecipeConverterContent';
 import RecipeConverterSidebar from '@/components/recipe-converter/RecipeConverterSidebar';
+import RecipeConverterNav from '@/components/recipe-converter/RecipeConverterNav';
 
 // Export RecipeData type here so other files can import it from this file
 // This maintains backward compatibility with existing code
@@ -31,6 +32,7 @@ const RecipeConverter: React.FC = () => {
 
       <div className="container max-w-6xl mt-24 md:mt-28">
         <RecipeConverterHeader />
+        <RecipeConverterNav />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">

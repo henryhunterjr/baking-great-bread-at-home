@@ -1,72 +1,90 @@
 
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, Outlet } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import RecipeConverter from './pages/RecipeConverter';
-import ComingSoon from './pages/ComingSoon';
-import Blog from './pages/Blog';
-import BlogPost from './pages/BlogPost';
-import NotFound from './pages/NotFound';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import AuthPage from './pages/AuthPage';
-import ProfilePage from './pages/ProfilePage';
-import Books from './pages/Books';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import './App.css';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { initializeWorkers } from './utils/worker-setup';
+import { logInfo } from './utils/logger';
+
+// Pages
+import Home from './pages/Home';
 import Recipes from './pages/Recipes';
+import RecipeDetail from './pages/RecipeDetail';
+import BakingGuides from './pages/BakingGuides';
+import GuideDetail from './pages/GuideDetail';
 import Challenges from './pages/Challenges';
+import ChallengeDetail from './pages/ChallengeDetail';
+import RecipeConverter from './pages/RecipeConverter';
 import Contact from './pages/Contact';
-import Tools from './pages/Tools';
-import AIHome from './pages/AIHome';
-import AIChat from './pages/AIChat';
-import AffiliateCollection from './pages/AffiliateCollection';
-import CareCenter from './pages/CareCenter';
-import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
-import TermsOfServicePage from './pages/TermsOfServicePage';
-import ChallengesArchive from './pages/ChallengesArchive';
+import About from './pages/About';
+import ToolsAndEquipment from './pages/ToolsAndEquipment';
+import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import MyRecipes from './pages/MyRecipes';
-import FavoritesPage from './pages/FavoritesPage';
-import SkipToContent from './components/recipe-converter/accessibility/SkipToContent';
+import NotFound from './pages/NotFound';
+import AiAssistant from './pages/AiAssistant';
 import { Toaster } from './components/ui/toaster';
 
+// Contexts and Providers
+import { AuthProvider } from './contexts/AuthContext';
+import AccessibilityManager from './components/recipe-converter/accessibility/AccessibilityManager';
+
 function App() {
-  // State for AI initialization - we'll default to true for now
-  // In a real app, you might check if an API key is present
-  const [aiInitialized, setAiInitialized] = useState(true);
+  // Initialize workers for PDF and OCR processing
+  useEffect(() => {
+    initializeWorkers();
+  }, []);
+  
+  // Initialize theme based on system or user preference
+  useEffect(() => {
+    // Check for dark mode preference
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const savedTheme = localStorage.getItem('theme') || 'system';
+    
+    // Apply theme to document
+    const root = document.documentElement;
+    
+    if (savedTheme === 'dark' || (savedTheme === 'system' && prefersDark)) {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    } else {
+      root.classList.add('light');
+      root.classList.remove('dark');
+    }
+    
+    logInfo("Initial theme applied", { 
+      savedTheme, 
+      prefersDark, 
+      appliedTheme: savedTheme === 'system' ? (prefersDark ? 'dark' : 'light') : savedTheme 
+    });
+  }, []);
 
   return (
-    <>
-      <SkipToContent />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/recipe-converter" element={<RecipeConverter />} />
-        <Route path="/books" element={<Books />} />
-        <Route path="/tools" element={<Tools />} />
-        <Route path="/recipes" element={<Recipes />} />
-        <Route path="/challenges" element={<Challenges />} />
-        <Route path="/challenges/archive" element={<ChallengesArchive />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:slug" element={<BlogPost />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/ai" element={<AIHome aiInitialized={aiInitialized} />} />
-        <Route path="/ai/chat" element={<AIChat />} />
-        <Route path="/shop/:category" element={<AffiliateCollection />} />
-        <Route path="/care-center" element={<CareCenter />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/auth/:mode" element={<AuthPage />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-        <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-        
-        <Route path="/" element={<ProtectedRoute><Outlet /></ProtectedRoute>}>
-          <Route path="profile" element={<ProfilePage />} />
-          <Route path="my-recipes" element={<MyRecipes />} />
-          <Route path="favorites" element={<FavoritesPage />} />
-        </Route>
-        
-        <Route path="/community" element={<ComingSoon title="Community" />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Toaster />
-    </>
+    <ThemeProvider>
+      <AuthProvider>
+        <AccessibilityManager>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/recipes" element={<Recipes />} />
+              <Route path="/recipes/:id" element={<RecipeDetail />} />
+              <Route path="/guides" element={<BakingGuides />} />
+              <Route path="/guides/:id" element={<GuideDetail />} />
+              <Route path="/challenges" element={<Challenges />} />
+              <Route path="/challenges/:id" element={<ChallengeDetail />} />
+              <Route path="/recipe-converter" element={<RecipeConverter />} />
+              <Route path="/tools-equipment" element={<ToolsAndEquipment />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/ai-assistant" element={<AiAssistant />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Toaster />
+          </Router>
+        </AccessibilityManager>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

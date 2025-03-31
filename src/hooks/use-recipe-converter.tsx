@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from 'uuid';
 import { RecipeData } from '@/types/recipeTypes';
-import { logInfo } from '@/utils/logger';
+import { logInfo, logError } from '@/utils/logger';
 
 const defaultRecipe: RecipeData = {
   title: '',
@@ -31,6 +31,15 @@ export const useRecipeConverter = () => {
   const [activeTab, setActiveTab] = useState("assistant");
   const [conversionError, setConversionError] = useState<string | null>(null);
   
+  // Check localStorage for saved recipes on mount
+  useEffect(() => {
+    const savedRecipesCount = JSON.parse(localStorage.getItem('savedRecipes') || '[]').length;
+    if (savedRecipesCount > 0) {
+      // If we have saved recipes, default to the favorites tab
+      setActiveTab("favorites");
+    }
+  }, []);
+  
   useEffect(() => {
     // Show success alert for 7 seconds after conversion
     if (recipe.isConverted && !isEditing) {
@@ -44,7 +53,7 @@ export const useRecipeConverter = () => {
   
   const handleConversionComplete = (convertedRecipe: RecipeData) => {
     // Ensure we have all required fields with fallback values
-    const processedRecipe = {
+    const processedRecipe: RecipeData = {
       ...convertedRecipe,
       // Ensure recipe has a title
       title: convertedRecipe.title || 'Untitled Recipe',
@@ -85,66 +94,91 @@ export const useRecipeConverter = () => {
   };
   
   const handleSaveRecipe = (updatedRecipe: RecipeData = recipe) => {
-    // If no recipe ID exists, create one (for new recipes)
-    const recipeToSave = {
-      ...updatedRecipe,
-      id: updatedRecipe.id || uuidv4(),
-      createdAt: updatedRecipe.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    
-    logInfo("Saving recipe", {
-      id: recipeToSave.id,
-      title: recipeToSave.title,
-      ingredientsCount: recipeToSave.ingredients.length,
-      instructionsCount: recipeToSave.instructions.length
-    });
-    
-    setRecipe(recipeToSave);
-    setIsEditing(false);
-    
-    // Get existing recipes from localStorage
-    const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
-    
-    // Check if this recipe already exists in saved recipes
-    const existingRecipeIndex = savedRecipes.findIndex((r: RecipeData) => r.id === recipeToSave.id);
-    
-    if (existingRecipeIndex >= 0) {
-      // Update existing recipe
-      savedRecipes[existingRecipeIndex] = recipeToSave;
-      toast({
-        title: "Recipe Updated!",
-        description: "Your recipe has been updated in your collection.",
+    try {
+      // If no recipe ID exists, create one (for new recipes)
+      const recipeToSave = {
+        ...updatedRecipe,
+        id: updatedRecipe.id || uuidv4(),
+        createdAt: updatedRecipe.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        // Ensure isConverted flag is set
+        isConverted: true
+      };
+      
+      logInfo("Saving recipe", {
+        id: recipeToSave.id,
+        title: recipeToSave.title,
+        ingredientsCount: Array.isArray(recipeToSave.ingredients) ? recipeToSave.ingredients.length : 0,
+        instructionsCount: Array.isArray(recipeToSave.instructions) ? recipeToSave.instructions.length : 0
       });
-    } else {
-      // Add new recipe
-      savedRecipes.push(recipeToSave);
+      
+      setRecipe(recipeToSave);
+      setIsEditing(false);
+      
+      // Get existing recipes from localStorage
+      const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
+      
+      // Check if this recipe already exists in saved recipes
+      const existingRecipeIndex = savedRecipes.findIndex((r: RecipeData) => r.id === recipeToSave.id);
+      
+      if (existingRecipeIndex >= 0) {
+        // Update existing recipe
+        savedRecipes[existingRecipeIndex] = recipeToSave;
+        toast({
+          title: "Recipe Updated!",
+          description: "Your recipe has been updated in your collection.",
+        });
+      } else {
+        // Add new recipe
+        savedRecipes.push(recipeToSave);
+        toast({
+          title: "Recipe Saved!",
+          description: "Your recipe has been added to your collection.",
+        });
+      }
+      
+      // Save back to localStorage
+      localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+      
+      // Auto-switch to favorites tab after saving
+      setActiveTab("favorites");
+      
+      return true;
+    } catch (error) {
+      logError("Error saving recipe", { error });
       toast({
-        title: "Recipe Saved!",
-        description: "Your recipe has been added to your collection.",
+        variant: "destructive",
+        title: "Save Failed",
+        description: "There was an error saving your recipe. Please try again.",
       });
+      return false;
     }
-    
-    // Save back to localStorage
-    localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
-    
-    // Auto-switch to favorites tab after saving
-    setActiveTab("favorites");
   };
 
   const handleSelectSavedRecipe = (savedRecipe: RecipeData) => {
-    const processedRecipe = {
-      ...savedRecipe,
-      equipmentNeeded: savedRecipe.equipmentNeeded?.map(item => ({
-        id: item.id || uuidv4(),
-        name: item.name,
-        affiliateLink: item.affiliateLink
-      })) || []
-    };
-    
-    setRecipe(processedRecipe);
-    setIsEditing(false);
-    setConversionError(null);
+    try {
+      const processedRecipe = {
+        ...savedRecipe,
+        equipmentNeeded: savedRecipe.equipmentNeeded?.map(item => ({
+          id: item.id || uuidv4(),
+          name: item.name,
+          affiliateLink: item.affiliateLink
+        })) || [],
+        // Ensure isConverted flag is set
+        isConverted: true
+      };
+      
+      setRecipe(processedRecipe);
+      setIsEditing(false);
+      setConversionError(null);
+    } catch (error) {
+      logError("Error selecting saved recipe", { error });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not load the selected recipe. Please try again.",
+      });
+    }
   };
   
   const resetRecipe = () => {

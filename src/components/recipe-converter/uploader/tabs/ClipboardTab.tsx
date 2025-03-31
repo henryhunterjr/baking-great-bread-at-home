@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Clipboard, Save } from 'lucide-react';
@@ -23,13 +23,22 @@ const ClipboardTab: React.FC<ClipboardTabProps> = ({
   recipe,
   onSaveRecipe
 }) => {
-  const canSaveRecipe = recipe?.isConverted && 
-    recipe.title && 
-    recipe.ingredients?.length > 0 && 
-    recipe.instructions?.length > 0;
+  // Determine if recipe can be saved
+  const canSaveRecipe = React.useMemo(() => {
+    if (!recipe) return false;
+    
+    const isValid = recipe.isConverted && 
+      recipe.title && 
+      Array.isArray(recipe.ingredients) && 
+      recipe.ingredients.length > 0 && 
+      Array.isArray(recipe.instructions) && 
+      recipe.instructions.length > 0;
+    
+    return isValid;
+  }, [recipe]);
   
   // Log save button state for debugging
-  React.useEffect(() => {
+  useEffect(() => {
     if (recipe) {
       logInfo("Save button state in ClipboardTab", {
         canSave: canSaveRecipe,
@@ -75,11 +84,12 @@ const ClipboardTab: React.FC<ClipboardTabProps> = ({
             {isConverting ? 'Converting...' : 'Convert Recipe'}
           </Button>
           
-          {canSaveRecipe && onSaveRecipe && (
+          {recipe?.isConverted && onSaveRecipe && (
             <Button
               type="button"
               variant="outline"
               onClick={onSaveRecipe}
+              disabled={!canSaveRecipe}
               className="flex items-center"
             >
               <Save className="mr-2 h-4 w-4" />
