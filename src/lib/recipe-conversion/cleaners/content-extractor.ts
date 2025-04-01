@@ -1,89 +1,80 @@
 
 import { logInfo, logError } from '@/utils/logger';
+import { fixFractions } from './fraction-cleaner';
+import { fixMeasurements } from './measurement-cleaner';
+import { fixSectionHeaders } from './section-headers-cleaner';
 
 /**
- * Extract the main recipe content from surrounding text
- * with improved detection of recipe boundaries
+ * Enhanced function to extract recipe content from OCR or PDF text
+ * with better structure detection and formatting
  */
 export const enhancedExtractRecipeContent = (text: string): string => {
   if (!text) return '';
   
-  logInfo("Extracting recipe content with enhanced algorithm", { textLength: text.length });
-  
   try {
-    // Try to detect recipe boundaries
+    logInfo("Extracting recipe content with enhanced algorithm");
     
-    // Common recipe start indicators
-    const startPatterns = [
-      /ingredients:/i,
-      /yield:.*servings/i,
-      /prep time:/i,
-      /preparation time:/i,
-      /cook time:/i,
-      /baking time:/i,
-      /total time:/i
-    ];
+    // Remove excessive whitespace and normalize line breaks
+    let cleaned = text.replace(/\r\n/g, '\n');
     
-    // Common recipe end indicators
-    const endPatterns = [
-      /nutritional information/i,
-      /nutrition facts/i,
-      /serving suggestion/i,
-      /source:/i,
-      /adapted from/i,
-      /recipe by/i,
-      /enjoy!/i
-    ];
+    // Remove multiple consecutive spaces
+    cleaned = cleaned.replace(/[ \t]+/g, ' ');
     
-    // Find the earliest start marker
-    let startIndex = text.length;
-    for (const pattern of startPatterns) {
-      const match = text.match(pattern);
-      if (match && match.index !== undefined && match.index < startIndex) {
-        startIndex = match.index;
-      }
-    }
+    // Remove multiple empty lines but preserve paragraph structure
+    cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
     
-    // If no start marker found, try to find the title
-    if (startIndex === text.length) {
-      const titleMatch = text.match(/^(?:\s*)([\w\s'"-]+?)(?:\n|$)/);
-      if (titleMatch && titleMatch.index !== undefined) {
-        startIndex = titleMatch.index;
-      } else {
-        startIndex = 0;
-      }
-    }
+    // Fix common OCR errors with fractions and measurements
+    cleaned = fixFractions(cleaned);
+    cleaned = fixMeasurements(cleaned);
     
-    // Find the earliest end marker after the start marker
-    let endIndex = -1;
-    for (const pattern of endPatterns) {
-      const match = text.match(pattern);
-      if (match && match.index !== undefined && match.index > startIndex) {
-        if (endIndex === -1 || match.index < endIndex) {
-          endIndex = match.index;
+    // Fix recipe section headers with better pattern matching
+    cleaned = fixSectionHeaders(cleaned);
+    
+    // Basic recipe structure detection - look for ingredients and instructions sections
+    if (!cleaned.toLowerCase().includes('ingredient') && !cleaned.toLowerCase().includes('instruction')) {
+      // Try to identify recipe sections if not explicitly labeled
+      const lines = cleaned.split('\n');
+      let structuredText = '';
+      let inIngredientSection = false;
+      let ingredientSectionFound = false;
+      
+      // Look for ingredient patterns (quantities followed by food items)
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        
+        // Skip empty lines
+        if (!line) {
+          structuredText += '\n';
+          continue;
         }
+        
+        // Detect ingredient lines (quantities followed by food items)
+        const isIngredientLine = /^\d+[\s\/]*(cup|tbsp|tsp|oz|g|kg|ml|l|lb|pound|tablespoon|teaspoon)s?\b/i.test(line) || 
+                                /^\d+[\s\/]*(.+)/.test(line);
+        
+        // If we find what looks like an ingredient line and we're not already in the ingredient section
+        if (isIngredientLine && !inIngredientSection && !ingredientSectionFound) {
+          structuredText += "\nINGREDIENTS:\n\n";
+          inIngredientSection = true;
+          ingredientSectionFound = true;
+        }
+        
+        // If we were in ingredient section but now have a line that looks like a header or instruction
+        if (inIngredientSection && 
+            (line.endsWith(':') || line.match(/^(step|[0-9]+\.)/) || line.length > 50)) {
+          structuredText += "\nINSTRUCTIONS:\n\n";
+          inIngredientSection = false;
+        }
+        
+        structuredText += line + '\n';
       }
+      
+      cleaned = structuredText;
     }
     
-    // Extract the recipe content
-    let recipeContent;
-    if (endIndex !== -1) {
-      recipeContent = text.substring(startIndex, endIndex);
-    } else {
-      recipeContent = text.substring(startIndex);
-    }
-    
-    logInfo("Recipe content extracted with enhanced algorithm", { 
-      originalLength: text.length, 
-      extractedLength: recipeContent.length,
-      startIndex,
-      endIndex: endIndex !== -1 ? endIndex : 'end'
-    });
-    
-    return recipeContent;
+    return cleaned.trim();
   } catch (error) {
-    // If enhanced extraction fails, return the original text
-    logError("Enhanced recipe extraction failed", { error });
-    return text;
+    logError("Error in enhanced content extraction", { error });
+    return text; // Return original text if processing fails
   }
 };

@@ -19,7 +19,21 @@ export const fallbackCleanOCRText = (text: string): string => {
   cleaned = cleaned
     .replace(/l\/2/g, '1/2')
     .replace(/l\/4/g, '1/4')
-    .replace(/l\/3/g, '1/3');
+    .replace(/l\/3/g, '1/3')
+    .replace(/(\d+)\/(\d+)/g, '$1/$2');
+  
+  // Basic measurement fixes
+  cleaned = cleaned
+    .replace(/(\d+)\s+([cmt]?[lbgks])/gi, '$1$2')
+    .replace(/(\d+)\s*[oO°]\s*([CF])/gi, '$1°$2');
+  
+  // Add dual measurements for common units
+  cleaned = cleaned
+    .replace(/(\d+)\s*cups?\b/gi, '$1 cups (240ml per cup) ')
+    .replace(/(\d+)\s*tbsp\b/gi, '$1 tbsp (15ml) ')
+    .replace(/(\d+)\s*tsp\b/gi, '$1 tsp (5ml) ')
+    .replace(/(\d+)\s*oz\b/gi, '$1 oz (28g) ')
+    .replace(/(\d+)\s*pounds?\b/gi, '$1 lb (454g) ');
   
   return cleaned.trim();
 };

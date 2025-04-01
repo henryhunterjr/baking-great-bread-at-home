@@ -1,37 +1,80 @@
 
-import { logInfo } from '@/utils/logger';
-
 /**
- * Detects and fixes recipe structure issues
+ * Detect and fix recipe structure issues
+ * to improve parsing and organization
  */
 export const detectAndFixRecipeStructure = (text: string): string => {
-  logInfo('Fixing recipe structure in text', { textLength: text.length });
+  if (!text) return '';
   
-  let result = text;
+  let cleaned = text;
   
-  // Detect ingredient lists (usually has measurements and ingredients on separate lines)
-  const ingredientListPattern = /(\d+\s*(?:cup|tbsp|tsp|oz|g|lb|ml)s?\.?(?:\s+|\n)[\w\s]+)/gi;
-  const hasIngredientList = ingredientListPattern.test(text);
+  // 1. Identify if the text contains structured recipe sections
+  const hasIngredients = /ingredients:?|you(?:'ll)? need:?/i.test(cleaned);
+  const hasInstructions = /instructions:?|directions:?|method:?|steps:?|preparation:?/i.test(cleaned);
   
-  if (hasIngredientList) {
-    // Try to properly format ingredient lists by ensuring each ingredient is on its own line
-    result = result.replace(/(\d+\s*(?:cup|tbsp|tsp|oz|g|lb|ml)s?\.?)([a-zA-Z])/g, '$1 $2');
+  // 2. If missing structured sections, try to detect and add them
+  if (!hasIngredients || !hasInstructions) {
+    const lines = cleaned.split('\n');
+    let structuredText = '';
+    let inIngredientSection = false;
+    let ingredientSectionFound = hasIngredients;
+    let instructionSectionFound = hasInstructions;
     
-    // Fix cases where ingredient lines got merged
-    result = result.replace(/(\.)(\d+\s*(?:cup|tbsp|tsp|oz|g|lb|ml))/g, '$1\n$2');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      
+      // Skip empty lines
+      if (!line) {
+        structuredText += '\n';
+        continue;
+      }
+      
+      // Try to detect ingredient lines if we haven't found ingredients section yet
+      if (!ingredientSectionFound) {
+        // Check for patterns that look like ingredients (measurements + food items)
+        const isIngredientLine = /^\d+[\s\/]*(cup|tbsp|tsp|oz|g|kg|ml|l|lb|pound|tablespoon|teaspoon)s?\b/i.test(line) || 
+                                 /^\d+[\s\/]*(.+)/.test(line) && line.length < 80;
+        
+        if (isIngredientLine && !inIngredientSection) {
+          structuredText += "\n\nINGREDIENTS:\n\n";
+          inIngredientSection = true;
+          ingredientSectionFound = true;
+        }
+      }
+      
+      // Try to detect instruction lines if we were in ingredients section
+      if (inIngredientSection && !instructionSectionFound) {
+        // Patterns that might indicate instructions (numbered steps, longer paragraphs, etc.)
+        const isInstructionLine = line.match(/^(step|[0-9]+\.)/) || 
+                                 (line.length > 80 && !line.includes(',')) || 
+                                 line.includes(' for ') || line.includes(' until ');
+        
+        if (isInstructionLine) {
+          structuredText += "\n\nINSTRUCTIONS:\n\n";
+          inIngredientSection = false;
+          instructionSectionFound = true;
+        }
+      }
+      
+      structuredText += line + '\n';
+    }
+    
+    if (structuredText.trim() !== cleaned.trim()) {
+      cleaned = structuredText;
+    }
   }
   
-  // Detect instruction steps and ensure proper formatting
-  const stepPattern = /(?:^|\n)(?:Step\s*(\d+)|(\d+)\.)/gi;
-  const hasSteps = stepPattern.test(text);
+  // 3. Ensure consistent formatting
+  // Add blank lines before section headers for better readability
+  cleaned = cleaned.replace(/([^\n])\n(INGREDIENTS:|INSTRUCTIONS:|EQUIPMENT:|NOTES:|TIPS:)/gi, '$1\n\n$2');
   
-  if (hasSteps) {
-    // Ensure each step is on its own line
-    result = result.replace(/(\n|\.)(?:Step\s*(\d+)|(\d+)\.)/gi, '\n$&');
-    
-    // Add newlines between steps if missing
-    result = result.replace(/(\n|\s)(Step\s*\d+|(\d+)\.)\s/gi, '\n$2\n');
-  }
+  // Ensure section headers are in uppercase with a colon
+  cleaned = cleaned.replace(/\b(ingredients|instructions|directions|method|equipment|notes|tips)\b:?/gi, (match) => {
+    return match.toUpperCase().endsWith(':') ? match.toUpperCase() : match.toUpperCase() + ':';
+  });
   
-  return result;
+  // Fix steps formatting
+  cleaned = cleaned.replace(/\n(\d+)[.)\s-]+/g, '\n$1. ');
+  
+  return cleaned;
 };

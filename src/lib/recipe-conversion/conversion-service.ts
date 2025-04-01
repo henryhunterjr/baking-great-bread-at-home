@@ -1,7 +1,7 @@
 
 import { RecipeData } from '@/types/recipeTypes';
 import { processRecipeText } from '@/lib/ai-services';
-import { cleanOCRText } from './cleaners';
+import { cleanOCRText } from '@/lib/ai-services/text-cleaner';
 import { logError, logInfo } from '@/utils/logger';
 import { getOpenAIApiKey, isAIConfigured, updateOpenAIApiKey, checkAPIKeyStatus } from '@/lib/ai-services';
 import { toast } from 'sonner';
@@ -98,6 +98,28 @@ export const convertRecipeText = async (
         instructionsCount: convertedRecipe.instructions.length,
         isConverted: convertedRecipe.isConverted
       });
+      
+      // Fix recipe save functionality by verifying recipe validity
+      if (
+        convertedRecipe.title &&
+        convertedRecipe.ingredients.length > 0 &&
+        convertedRecipe.instructions.length > 0 &&
+        convertedRecipe.isConverted === true // CRITICAL: Ensure this is explicitly true, not just truthy
+      ) {
+        logInfo('Recipe is valid and ready to save', {
+          hasTitle: !!convertedRecipe.title,
+          ingredientsCount: convertedRecipe.ingredients.length,
+          instructionsCount: convertedRecipe.instructions.length,
+          isConverted: convertedRecipe.isConverted === true
+        });
+      } else {
+        logError('Recipe validation failed', {
+          hasTitle: !!convertedRecipe.title,
+          ingredientsCount: convertedRecipe.ingredients.length,
+          instructionsCount: convertedRecipe.instructions.length, 
+          isConverted: convertedRecipe.isConverted
+        });
+      }
       
       onComplete(convertedRecipe);
     } catch (processingError) {

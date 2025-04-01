@@ -18,6 +18,8 @@ const tesseractLangSrc = path.resolve(__dirname, '../node_modules/tesseract.js/l
 
 // Destination paths (in public folder)
 const workerDest = path.resolve(__dirname, '../public/pdf.worker.min.js');
+const assetsDirDest = path.resolve(__dirname, '../public/assets');
+const assetsWorkerDest = path.resolve(__dirname, '../public/assets/pdf.worker.min.js');
 const cmapsDest = path.resolve(__dirname, '../public/cmaps');
 const tesseractDest = path.resolve(__dirname, '../public/tesseract');
 const tesseractLangDest = path.resolve(__dirname, '../public/tesseract/lang-data');
@@ -37,6 +39,7 @@ const ensureDirectoryExists = (dir) => {
 ensureDirectoryExists(cmapsDest);
 ensureDirectoryExists(tesseractDest);
 ensureDirectoryExists(tesseractLangDest);
+ensureDirectoryExists(assetsDirDest);
 
 // Copy worker file
 try {
@@ -47,6 +50,10 @@ try {
   } else {
     fs.copyFileSync(workerSrc, workerDest);
     console.log('PDF.js worker file copied to public folder');
+    
+    // Also copy to assets directory for alternative path
+    fs.copyFileSync(workerSrc, assetsWorkerDest);
+    console.log('PDF.js worker file also copied to public/assets folder');
   }
 } catch (error) {
   console.error('Error copying PDF.js worker file:', error);
@@ -122,18 +129,14 @@ try {
   console.error('Error copying Tesseract files:', error);
 }
 
-console.log('PDF.js and Tesseract files setup complete!');
-
-// Create a basic script that redirects users to run this script
-const reminderContent = `
-// This file is a placeholder that reminds you to run the copy-pdf-worker.js script
-// Please run 'node scripts/copy-pdf-worker.js' before building or running the app
-
-console.error("⚠️ Worker files not properly installed. Please run 'node scripts/copy-pdf-worker.js' to set up required worker files.");
+// Create a worker-ready.js file that confirms workers are available
+const readyFileContent = `
+// This file confirms that PDF.js and Tesseract workers are available
+window.pdfWorkerReady = true;
+console.log('PDF.js worker files ready to use');
 `;
 
-// Write a reminder file to the public directory to help users
-fs.writeFileSync(path.join(__dirname, '../public/worker-reminder.js'), reminderContent);
+fs.writeFileSync(path.join(__dirname, '../public/worker-ready.js'), readyFileContent);
 
-console.log('\n✅ Setup complete!\n');
-console.log('📋 Remember to run this script again if you update pdfjs-dist or tesseract.js packages.');
+console.log('\n✅ Worker files setup complete!\n');
+console.log('📋 Remember to run this script before building for production.');

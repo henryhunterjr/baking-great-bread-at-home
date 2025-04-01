@@ -1,22 +1,24 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { RecipeData } from '@/types/recipeTypes';
+import { logInfo, logError } from '@/utils/logger';
 import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { RecipeData } from '@/pages/RecipeConverter';
+import { Button } from '@/components/ui/button';
+import { Form } from '@/components/ui/form';
 import { useForm, FormProvider } from 'react-hook-form';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { RecipeFormValues, EquipmentItem } from '@/types/recipeTypes';
-import { v4 as uuidv4 } from 'uuid';
+import { useToast } from '@/hooks/use-toast';
+import EditorTabs from './form/EditorTabs';
+import FormProgress from './form/FormProgress';
 
-// Import form sections
-import BasicInfoSection from './form-sections/BasicInfoSection';
-import IngredientsSection from './form-sections/IngredientsSection';
-import InstructionsSection from './form-sections/InstructionsSection';
-import TipsSection from './form-sections/TipsSection';
-import EquipmentSection from './form-sections/EquipmentSection';
-import TagsSection from './form-sections/TagsSection';
-import FormActions from './form-sections/FormActions';
+// If the mobile-optimized form exists, import it instead
+let MobileOptimizedRecipeForm: React.FC<any> | null = null;
+try {
+  MobileOptimizedRecipeForm = require('./MobileOptimizedRecipeForm').default;
+} catch (e) {
+  // If it doesn't exist, we'll fall back to the regular form
+}
 
 interface RecipeFormProps {
   initialRecipe: RecipeData;
@@ -24,137 +26,159 @@ interface RecipeFormProps {
   onCancel: () => void;
 }
 
-// Zod schema for form validation
 const recipeSchema = z.object({
   title: z.string().min(1, "Title is required"),
   introduction: z.string().optional(),
-  ingredients: z.array(z.string().min(1, "Ingredient text is required")).min(1, "At least one ingredient is required"),
+  ingredients: z.array(z.string().min(1, "Ingredient is required")),
+  instructions: z.array(z.string().min(1, "Instruction is required")),
   prepTime: z.string().optional(),
   restTime: z.string().optional(),
   bakeTime: z.string().optional(),
   totalTime: z.string().optional(),
-  instructions: z.array(z.string().min(1, "Instruction text is required")).min(1, "At least one instruction is required"),
   tips: z.array(z.string().optional()),
   proTips: z.array(z.string().optional()),
   equipmentNeeded: z.array(
     z.object({
-      id: z.string(),
+      id: z.string().optional(),
       name: z.string().min(1, "Equipment name is required"),
       affiliateLink: z.string().optional()
     })
-  ),
-  imageUrl: z.string().optional(),
-  tags: z.array(z.string()),
-  isPublic: z.boolean().default(false),
-  isConverted: z.boolean().default(true)
+  ).optional(),
+  tags: z.array(z.string()).optional(),
+  isPublic: z.boolean().optional(),
+  isConverted: z.boolean().default(true) // Default to true
 });
 
-const RecipeForm: React.FC<RecipeFormProps> = ({ 
-  initialRecipe, 
-  onSave, 
-  onCancel 
-}) => {
-  // Ensure equipment items have IDs before setting as default values
-  const preparedInitialRecipe = {
+const RecipeForm: React.FC<RecipeFormProps> = ({ initialRecipe, onSave, onCancel }) => {
+  // Use mobile optimized form if available and we're on mobile
+  const [isMobile, setIsMobile] = useState(false);
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
+  
+  // Fix for isConverted flag - ensure it's properly set
+  const preparedRecipe = {
     ...initialRecipe,
-    equipmentNeeded: initialRecipe.equipmentNeeded?.map(item => {
-      if (!item.id) {
-        return {
-          ...item,
-          id: uuidv4()
-        };
-      }
-      return item;
-    }) || []
+    isConverted: true, // Explicitly set to true
+    id: initialRecipe.id || crypto.randomUUID()
   };
   
-  const formMethods = useForm<RecipeFormValues>({
+  // Log the prepared recipe to debug save issues
+  useEffect(() => {
+    logInfo('Prepared recipe for form', {
+      hasId: !!preparedRecipe.id,
+      hasTitle: !!preparedRecipe.title,
+      ingredientsCount: Array.isArray(preparedRecipe.ingredients) ? preparedRecipe.ingredients.length : 0,
+      instructionsCount: Array.isArray(preparedRecipe.instructions) ? preparedRecipe.instructions.length : 0,
+      isConverted: preparedRecipe.isConverted === true
+    });
+  }, [preparedRecipe]);
+  
+  const methods = useForm<RecipeData>({
     resolver: zodResolver(recipeSchema),
-    defaultValues: preparedInitialRecipe as RecipeFormValues,
-    mode: 'onChange' // Validate on change for more responsive feedback
+    defaultValues: preparedRecipe,
+    mode: 'onChange' // Validate on change for better UX feedback
   });
   
-  const { 
-    register, 
-    control, 
-    handleSubmit, 
-    watch,
-    setValue,
-    formState: { errors, isDirty, isValid }
-  } = formMethods;
+  const { handleSubmit, formState: { errors, isDirty, isValid } } = methods;
   
-  const onSubmit = (data: RecipeFormValues) => {
-    onSave(data as RecipeData);
+  // debug form state
+  useEffect(() => {
+    logInfo('Form state:', { 
+      errors: Object.keys(errors).length > 0, 
+      isDirty, 
+      isValid 
+    });
+  }, [errors, isDirty, isValid]);
+  
+  const onSubmit = (data: RecipeData) => {
+    try {
+      // Ensure isConverted flag is set
+      const recipeToSave = {
+        ...data,
+        isConverted: true, // Critical: Always set this to true
+        id: data.id || preparedRecipe.id || crypto.randomUUID(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      logInfo('Saving recipe from form', {
+        hasId: !!recipeToSave.id,
+        hasTitle: !!recipeToSave.title,
+        ingredientsCount: Array.isArray(recipeToSave.ingredients) ? recipeToSave.ingredients.length : 0,
+        instructionsCount: Array.isArray(recipeToSave.instructions) ? recipeToSave.instructions.length : 0,
+        isConverted: recipeToSave.isConverted === true
+      });
+      
+      // Call the onSave callback with the updated recipe
+      onSave(recipeToSave);
+      
+      toast({
+        title: "Recipe Saved",
+        description: "Your recipe has been saved successfully",
+      });
+    } catch (error) {
+      logError('Error saving recipe from form', { error });
+      
+      toast({
+        variant: "destructive",
+        title: "Save Error",
+        description: "Failed to save recipe. Please try again.",
+      });
+    }
   };
+  
+  // Use MobileOptimizedRecipeForm if available and we're on mobile
+  if (isMobile && MobileOptimizedRecipeForm) {
+    return (
+      <MobileOptimizedRecipeForm
+        initialRecipe={preparedRecipe}
+        onSave={onSave}
+        onCancel={onCancel}
+      />
+    );
+  }
   
   return (
     <Card className="shadow-md">
       <CardContent className="pt-6">
-        <FormProvider {...formMethods}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-serif font-medium">Edit Recipe</h2>
+        <FormProvider {...methods}>
+          <Form onSubmit={handleSubmit(onSubmit)}>
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-serif font-medium">Edit Recipe</h2>
+                <FormProgress errors={errors} />
+              </div>
+              
+              <EditorTabs initialRecipe={preparedRecipe} />
+              
+              <div className="flex justify-end space-x-2 pt-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={onCancel}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={Object.keys(errors).length > 0 || !isValid}
+                >
+                  Save Recipe
+                </Button>
+              </div>
             </div>
-            
-            <Separator />
-            
-            {/* Basic Information */}
-            <BasicInfoSection 
-              register={register} 
-              errors={errors} 
-            />
-            
-            <Separator />
-            
-            {/* Ingredients */}
-            <IngredientsSection 
-              register={register}
-              control={control}
-              errors={errors}
-            />
-            
-            <Separator />
-            
-            {/* Instructions */}
-            <InstructionsSection 
-              register={register}
-              control={control}
-              errors={errors}
-            />
-            
-            <Separator />
-            
-            {/* Tips and Pro Tips */}
-            <TipsSection 
-              register={register}
-              control={control}
-            />
-            
-            <Separator />
-            
-            {/* Equipment */}
-            <EquipmentSection 
-              register={register}
-              control={control}
-              errors={errors}
-            />
-            
-            <Separator />
-            
-            {/* Tags */}
-            <TagsSection 
-              control={control}
-              watch={watch}
-              setValue={setValue}
-            />
-            
-            {/* Form Actions */}
-            <FormActions 
-              onCancel={onCancel} 
-              isDirty={isDirty} 
-              isValid={isValid}
-            />
-          </form>
+          </Form>
         </FormProvider>
       </CardContent>
     </Card>
