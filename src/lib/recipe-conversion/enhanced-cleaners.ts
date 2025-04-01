@@ -8,4 +8,4 @@ export {
   enhancedCleanOCRText,
   enhancedExtractRecipeContent,
   fallbackCleanOCRText
-} from './cleaners';
+} from './cleaners/index';

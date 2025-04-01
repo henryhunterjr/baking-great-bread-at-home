@@ -1,5 +1,15 @@
 
 /**
+ * Re-export the enhanced cleaners from index.ts
+ * This is maintained for backward compatibility
+ */
+export { 
+  enhancedCleanOCRText,
+  enhancedExtractRecipeContent,
+  fallbackCleanOCRText
+} from './cleaners/index';
+
+/**
  * Clean and normalize OCR text
  * @param text The raw OCR text to clean
  * @returns The cleaned text

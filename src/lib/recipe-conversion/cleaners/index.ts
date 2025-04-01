@@ -6,9 +6,18 @@ import { fixCookingTerms } from './cooking-terms-cleaner';
 import { fixSectionHeaders } from './section-headers-cleaner';
 import { detectAndFixRecipeStructure } from './recipe-structure-cleaner';
 import { fallbackCleanOCRText } from './fallback-cleaner';
+import { enhancedExtractRecipeContent } from './content-extractor';
 
-export { enhancedExtractRecipeContent } from './content-extractor';
-export { fallbackCleanOCRText } from './fallback-cleaner';
+// Export individual cleaners for direct use
+export { 
+  fixFractions,
+  fixMeasurements,
+  fixCookingTerms,
+  fixSectionHeaders,
+  detectAndFixRecipeStructure,
+  fallbackCleanOCRText,
+  enhancedExtractRecipeContent
+};
 
 /**
  * Enhanced version of the OCR text cleaner with better handling
