@@ -48,7 +48,7 @@ export const processPDFFile = async (
     );
     
     // Set timeout for overall process
-    timeoutId = setupProcessingTimeout(PDF_TIMEOUT_MS, () => {
+    timeoutId = window.setTimeout(() => {
       if (!isCancelled) {
         isCancelled = true;
         window.clearInterval(progressIntervalId);
@@ -65,7 +65,7 @@ export const processPDFFile = async (
           processingTask.cancel();
         }
       }
-    });
+    }, PDF_TIMEOUT_MS);
     
     // Extract text from the PDF with throttled progress reporting
     const extractResult = await extractTextFromPDF(file, (progress) => {
@@ -154,16 +154,6 @@ function setupProgressTracking(
   }, 2000);
   
   return { warningTimeoutId, progressIntervalId };
-}
-
-/**
- * Set up a timeout for the overall processing
- */
-function setupProcessingTimeout(
-  timeoutMs: number,
-  onTimeout: () => void
-): number {
-  return window.setTimeout(onTimeout, timeoutMs);
 }
 
 /**
