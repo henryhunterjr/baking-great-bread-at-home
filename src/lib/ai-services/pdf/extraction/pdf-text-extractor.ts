@@ -1,13 +1,18 @@
+
 import * as pdfjsLib from 'pdfjs-dist';
 import { logInfo, logError } from '@/utils/logger';
 import { 
   CancellableTask, 
   ProcessingError, 
-  ProcessingErrorType, 
+  ProcessingErrorType,
   ProgressCallback,
   ExtractTextResult,
   TextExtractionOptions
 } from '../types';
+import { readFileAsArrayBuffer } from './helpers/file-helpers';
+import { cleanText } from './helpers/text-helpers';
+import { safelyDestroyPdfDocument, clearTimeoutIfExists } from '../utils/cleanup-utils';
+import { createCancellableTimeout } from '../utils/timeout-utils';
 
 // Constants
 const MAX_PDF_SIZE_MB = 15;
@@ -22,49 +27,8 @@ try {
   logError('Error configuring PDF.js worker', { error });
 }
 
-// Helper function to clear a timeout if it exists
-const clearTimeoutIfExists = (timeoutId: number | null): null => {
-  if (timeoutId !== null) {
-    window.clearTimeout(timeoutId);
-  }
-  return null;
-};
-
-// Helper function to safely destroy a PDF document
-const safelyDestroyPdfDocument = (
-  pdfDocument: pdfjsLib.PDFDocumentProxy | null, 
-  reason: 'success' | 'error' | 'timeout' | 'cancellation'
-): void => {
-  if (pdfDocument) {
-    try {
-      pdfDocument.destroy().catch(e => {
-        logError('Error destroying PDF document', { error: e, reason });
-      });
-    } catch (e) {
-      logError('Error calling destroy on PDF document', { error: e, reason });
-    }
-  }
-};
-
-// Helper function to create a cancellable timeout
-const createCancellableTimeout = (
-  callback: () => void, 
-  timeout: number
-): { timeoutId: number, cancel: () => void } => {
-  const timeoutId = window.setTimeout(callback, timeout);
-  return {
-    timeoutId,
-    cancel: () => window.clearTimeout(timeoutId)
-  };
-};
-
 /**
  * Extract text from a PDF file with enhanced reliability and error handling
- * 
- * @param file PDF file to process
- * @param progressCallback Optional callback for progress updates
- * @param options Additional options for extraction
- * @returns The extracted text from the PDF or a cancellable task
  */
 export const extractTextFromPDF = async (
   file: File,
@@ -75,7 +39,7 @@ export const extractTextFromPDF = async (
   const useOCRFallback = false; // Default to not using OCR fallback
   const timeoutMs = options.timeout ?? PDF_TOTAL_TIMEOUT;
   
-  // Validate file size
+  // Validate file size before processing
   const maxSize = MAX_PDF_SIZE_MB * 1024 * 1024;
   if (file.size > maxSize) {
     throw new ProcessingError(
@@ -142,12 +106,51 @@ export const extractTextFromPDF = async (
     
     if (isCancelled) return cancellableTask;
     
+    // Set up load timeout and process the PDF
+    const result = await processPdfWithTimeout(
+      arrayBuffer, 
+      progressCallback, 
+      isCancelled, 
+      cancellableTask,
+      (doc) => { pdfDocument = doc; }
+    );
+    
+    // If processing was cancelled during document loading
+    if (isCancelled) {
+      cleanup('cancellation');
+      return cancellableTask;
+    }
+    
+    // Clean up resources
+    isCompleted = true;
+    cleanup('success');
+    cancelTotalTimeout();
+    
+    return result;
+  } catch (error) {
+    // Handle any uncaught errors
+    isCompleted = true;
+    cleanup('error');
+    
+    throw wrapProcessingError(error);
+  }
+};
+
+// Helper for processing PDF with timeout
+async function processPdfWithTimeout(
+  arrayBuffer: ArrayBuffer,
+  progressCallback?: ProgressCallback,
+  isCancelled?: boolean,
+  cancellableTask?: CancellableTask,
+  setDocument?: (doc: pdfjsLib.PDFDocumentProxy) => void
+): Promise<string> {
+  let pdfDocument: pdfjsLib.PDFDocumentProxy | null = null;
+  let loadTimeoutId: number | null = null;
+  
+  try {
     // Set a timeout for the initial PDF loading
-    const { timeoutId: loadTimeout, cancel: cancelLoadTimeout } = createCancellableTimeout(() => {
+    const { timeoutId, cancel: cancelLoadTimeout } = createCancellableTimeout(() => {
       if (!pdfDocument && !isCancelled) {
-        isCancelled = true;
-        logError('PDF document loading timed out', { timeout: PDF_LOAD_TIMEOUT });
-        cleanup('timeout');
         throw new ProcessingError(
           'PDF document loading timed out. The file may be corrupted or too complex.',
           ProcessingErrorType.TIMEOUT
@@ -155,20 +158,24 @@ export const extractTextFromPDF = async (
       }
     }, PDF_LOAD_TIMEOUT);
     
-    loadTimeoutId = loadTimeout;
+    loadTimeoutId = timeoutId;
     
     // Load the PDF document
-    logInfo('Loading PDF document', { fileSize: file.size });
+    logInfo('Loading PDF document', { fileSize: arrayBuffer.byteLength });
     const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
     pdfDocument = await loadingTask.promise;
+    
+    // Call the setter if provided
+    if (setDocument) {
+      setDocument(pdfDocument);
+    }
     
     // Clear the loading timeout since we succeeded
     cancelLoadTimeout();
     loadTimeoutId = null;
     
     if (isCancelled) {
-      safelyDestroyPdfDocument(pdfDocument, 'cancellation');
-      return cancellableTask;
+      return '';
     }
     
     // Report progress after document loading
@@ -176,86 +183,18 @@ export const extractTextFromPDF = async (
     
     // Get the total number of pages
     const numPages = pdfDocument.numPages;
-    logInfo('PDF document loaded', { numPages, fileSize: file.size });
+    logInfo('PDF document loaded', { numPages, fileSize: arrayBuffer.byteLength });
     
-    // Calculate how many pages to process
-    const pagesToProcess = Math.min(numPages, MAX_PAGES_TO_PROCESS);
-    
-    if (numPages > MAX_PAGES_TO_PROCESS) {
-      logInfo('Limiting PDF processing to first pages', { 
-        totalPages: numPages, 
-        pagesToProcess: MAX_PAGES_TO_PROCESS 
-      });
-    }
-    
-    // Extract text from pages with retry logic
-    const extractedTexts: string[] = [];
-    
-    // Use a weighted progress calculation based on number of pages
-    const progressPerPage = 0.9 / pagesToProcess; // 90% of progress divided by pages
-    const baseProgress = 0.1; // First 10% was for loading the document
-    
-    // Process pages with retries for each page
-    for (let i = 1; i <= pagesToProcess; i++) {
-      if (isCancelled) break;
-      
-      const pageNum = i;
-      let pageAttempts = 0;
-      const MAX_PAGE_RETRIES = 3;
-      
-      // Report progress at the start of each page
-      if (progressCallback) {
-        progressCallback(baseProgress + (i - 1) * progressPerPage);
-      }
-      
-      while (pageAttempts < MAX_PAGE_RETRIES) {
-        try {
-          pageAttempts++;
-          
-          // Get the page and extract its text content
-          const page = await pdfDocument.getPage(pageNum);
-          const textContent = await page.getTextContent();
-          
-          // Process the text content
-          const pageText = textContent.items
-            .map(item => 'str' in item ? item.str : '')
-            .join(' ');
-          
-          extractedTexts.push(pageText);
-          
-          // Report progress after each page
-          if (progressCallback) {
-            progressCallback(baseProgress + i * progressPerPage);
-          }
-          
-          // We succeeded, so break the retry loop
-          break;
-        } catch (error) {
-          logError(`Error extracting text from page ${pageNum}`, { 
-            error, 
-            attempt: pageAttempts, 
-            maxRetries: MAX_PAGE_RETRIES 
-          });
-          
-          // If this is the last retry, continue to the next page
-          if (pageAttempts >= MAX_PAGE_RETRIES) {
-            logError(`Failed to extract text from page ${pageNum} after ${MAX_PAGE_RETRIES} attempts`);
-            // Add a placeholder for this page
-            extractedTexts.push(`[Error extracting text from page ${pageNum}]`);
-          } else {
-            // Wait before retrying with exponential backoff
-            const backoffTime = Math.pow(2, pageAttempts) * 100;
-            await new Promise(resolve => setTimeout(resolve, backoffTime));
-          }
-        }
-        
-        if (isCancelled) break;
-      }
-    }
+    // Extract text from pages
+    const extractedTexts = await extractTextFromPages(
+      pdfDocument, 
+      numPages,
+      progressCallback,
+      isCancelled
+    );
     
     if (isCancelled) {
-      cleanup('cancellation');
-      return cancellableTask;
+      return '';
     }
     
     // Combine the text from all pages
@@ -263,11 +202,6 @@ export const extractTextFromPDF = async (
     
     // Report progress before cleanup
     if (progressCallback) progressCallback(1.0);
-    
-    // Clean up resources
-    isCompleted = true;
-    cleanup('success');
-    cancelTotalTimeout();
     
     // Clean the text before returning
     const cleanedText = cleanText(combinedText);
@@ -278,79 +212,115 @@ export const extractTextFromPDF = async (
     });
     
     return cleanedText;
-  } catch (error) {
-    // Handle any uncaught errors
-    isCompleted = true;
-    cleanup('error');
-    
-    // Wrap the error in a ProcessingError if it's not already
-    if (!(error instanceof ProcessingError)) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      
-      if (errorMessage.includes('worker') || errorMessage.includes('network')) {
-        throw new ProcessingError(
-          `PDF processing error: ${errorMessage}`,
-          ProcessingErrorType.NETWORK
-        );
-      } else {
-        throw new ProcessingError(
-          `PDF processing error: ${errorMessage}`,
-          ProcessingErrorType.EXTRACTION_FAILED
-        );
-      }
-    } else {
-      throw error;
+  } finally {
+    if (loadTimeoutId !== null) {
+      clearTimeoutIfExists(loadTimeoutId);
     }
   }
-};
+}
 
-/**
- * Helper function to read a file as ArrayBuffer with timeout
- */
-const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+// Wrap errors in a standardized ProcessingError
+function wrapProcessingError(error: unknown): ProcessingError {
+  if (error instanceof ProcessingError) {
+    return error;
+  }
+  
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  
+  if (errorMessage.includes('worker') || errorMessage.includes('network')) {
+    return new ProcessingError(
+      `PDF processing error: ${errorMessage}`,
+      ProcessingErrorType.NETWORK
+    );
+  } else {
+    return new ProcessingError(
+      `PDF processing error: ${errorMessage}`,
+      ProcessingErrorType.EXTRACTION_FAILED
+    );
+  }
+}
+
+// Helper for extracting text from PDF pages
+async function extractTextFromPages(
+  pdfDocument: pdfjsLib.PDFDocumentProxy,
+  numPages: number,
+  progressCallback?: ProgressCallback,
+  isCancelled?: boolean
+): Promise<string[]> {
+  // Calculate how many pages to process
+  const pagesToProcess = Math.min(numPages, MAX_PAGES_TO_PROCESS);
+  
+  if (numPages > MAX_PAGES_TO_PROCESS) {
+    logInfo('Limiting PDF processing to first pages', { 
+      totalPages: numPages, 
+      pagesToProcess: MAX_PAGES_TO_PROCESS 
+    });
+  }
+  
+  // Extract text from pages with retry logic
+  const extractedTexts: string[] = [];
+  
+  // Use a weighted progress calculation based on number of pages
+  const progressPerPage = 0.9 / pagesToProcess; // 90% of progress divided by pages
+  const baseProgress = 0.1; // First 10% was for loading the document
+  
+  // Process pages with retries for each page
+  for (let i = 1; i <= pagesToProcess; i++) {
+    if (isCancelled) break;
     
-    reader.onload = (event) => {
-      if (event.target?.result instanceof ArrayBuffer) {
-        resolve(event.target.result);
-      } else {
-        reject(new ProcessingError(
-          'Failed to read PDF file as ArrayBuffer',
-          ProcessingErrorType.FILE_LOAD
-        ));
+    const pageNum = i;
+    let pageAttempts = 0;
+    const MAX_PAGE_RETRIES = 3;
+    
+    // Report progress at the start of each page
+    if (progressCallback) {
+      progressCallback(baseProgress + (i - 1) * progressPerPage);
+    }
+    
+    while (pageAttempts < MAX_PAGE_RETRIES) {
+      try {
+        pageAttempts++;
+        
+        // Get the page and extract its text content
+        const page = await pdfDocument.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        
+        // Process the text content
+        const pageText = textContent.items
+          .map(item => 'str' in item ? item.str : '')
+          .join(' ');
+        
+        extractedTexts.push(pageText);
+        
+        // Report progress after each page
+        if (progressCallback) {
+          progressCallback(baseProgress + i * progressPerPage);
+        }
+        
+        // We succeeded, so break the retry loop
+        break;
+      } catch (error) {
+        logError(`Error extracting text from page ${pageNum}`, { 
+          error, 
+          attempt: pageAttempts, 
+          maxRetries: MAX_PAGE_RETRIES 
+        });
+        
+        // If this is the last retry, continue to the next page
+        if (pageAttempts >= MAX_PAGE_RETRIES) {
+          logError(`Failed to extract text from page ${pageNum} after ${MAX_PAGE_RETRIES} attempts`);
+          // Add a placeholder for this page
+          extractedTexts.push(`[Error extracting text from page ${pageNum}]`);
+        } else {
+          // Wait before retrying with exponential backoff
+          const backoffTime = Math.pow(2, pageAttempts) * 100;
+          await new Promise(resolve => setTimeout(resolve, backoffTime));
+        }
       }
-    };
-    
-    reader.onerror = () => {
-      reject(new ProcessingError(
-        'Error reading PDF file',
-        ProcessingErrorType.FILE_LOAD
-      ));
-    };
-    
-    reader.readAsArrayBuffer(file);
-  });
-};
-
-/**
- * Clean up extracted text
- */
-const cleanText = (text: string): string => {
-  if (!text) return '';
+      
+      if (isCancelled) break;
+    }
+  }
   
-  // Replace multiple newlines with a single one
-  let cleaned = text.replace(/\n{3,}/g, '\n\n');
-  
-  // Replace multiple spaces with a single one
-  cleaned = cleaned.replace(/[ \t]{2,}/g, ' ');
-  
-  // Fix broken fractions, measurements, and other common OCR issues
-  cleaned = cleaned
-    .replace(/(\d)\/(\d)/g, '$1/$2')
-    .replace(/(\d) ([cmt]?[lbgks])/gi, '$1$2')
-    .replace(/(\d)[ ]?[oO°][ ]?([CF])/g, '$1°$2')
-    .replace(/(\d) (min|hour|sec|minute)/gi, '$1 $2');
-  
-  return cleaned;
-};
+  return extractedTexts;
+}

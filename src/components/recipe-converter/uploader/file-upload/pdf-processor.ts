@@ -1,7 +1,9 @@
+
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
 import { cleanOCRText } from '@/lib/ai-services/text-cleaner';
 import { extractTextFromPDF } from '@/lib/ai-services/pdf';
+import { createCancellableTimeout } from '@/lib/ai-services/pdf/utils/timeout-utils';
 
 // Constants for timeouts and limits
 const MAX_PDF_SIZE_MB = 20; // Increased from 15MB to 20MB
