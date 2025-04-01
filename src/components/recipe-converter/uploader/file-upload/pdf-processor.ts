@@ -48,27 +48,24 @@ export const processPDFFile = async (
     );
     
     // Set timeout for overall process
-    timeoutId = setupProcessingTimeout(
-      PDF_TIMEOUT_MS,
-      () => {
-        if (!isCancelled) {
-          isCancelled = true;
-          window.clearInterval(progressIntervalId);
-          window.clearTimeout(warningTimeoutId);
-          logError('PDF processing timed out', { timeout: PDF_TIMEOUT_MS });
-          onError(
-            `PDF processing timed out after ${PDF_TIMEOUT_MS/1000} seconds. ` + 
-            `This can happen with complex PDFs or Word-exported documents. ` +
-            `Try extracting just the recipe text and use the text input tab instead.`
-          );
-          
-          // Try to cancel the processing task if it exists
-          if (processingTask && processingTask.cancel) {
-            processingTask.cancel();
-          }
+    timeoutId = setupProcessingTimeout(PDF_TIMEOUT_MS, () => {
+      if (!isCancelled) {
+        isCancelled = true;
+        window.clearInterval(progressIntervalId);
+        window.clearTimeout(warningTimeoutId);
+        logError('PDF processing timed out', { timeout: PDF_TIMEOUT_MS });
+        onError(
+          `PDF processing timed out after ${PDF_TIMEOUT_MS/1000} seconds. ` + 
+          `This can happen with complex PDFs or Word-exported documents. ` +
+          `Try extracting just the recipe text and use the text input tab instead.`
+        );
+        
+        // Try to cancel the processing task if it exists
+        if (processingTask && processingTask.cancel) {
+          processingTask.cancel();
         }
       }
-    );
+    });
     
     // Extract text from the PDF with throttled progress reporting
     const extractResult = await extractTextFromPDF(file, (progress) => {
