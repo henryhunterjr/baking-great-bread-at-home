@@ -34,8 +34,10 @@ export const useImageHandler = () => {
           // Ensure extracted text is processed and properly formatted
           if (extractedText && extractedText.trim().length > 0) {
             // Make sure to mark this as ready for conversion
+            logInfo(`Successfully extracted text from image: ${extractedText.length} characters`);
             options.onSuccess(extractedText);
           } else {
+            logError('No text extracted from image');
             options.onError("No text could be extracted from this image. Please try another image or format.");
           }
         },
@@ -46,6 +48,7 @@ export const useImageHandler = () => {
             title: "OCR Error",
             description: error,
           });
+          logError('Error during image OCR', { error });
           options.onError(error);
         }
       );

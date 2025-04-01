@@ -5,6 +5,7 @@ export const DEFAULT_CHALLENGE_IMAGE = "https://images.unsplash.com/photo-154993
 // Map of challenge IDs to their image paths
 export const challengeImages: Record<string, string> = {
   // 2025 challenges
+  "april-2025": "/lovable-uploads/a67cc3aa-1368-4132-8bc0-0fabe80f774f.png",
   "march-2025": "/lovable-uploads/ead1bdbf-c404-4780-80e1-3c76bb397376.png",
   "february-2025": "/lovable-uploads/c45185e0-7749-48d9-8108-0f10e2d5bf4e.png",
   "january-2025": "/lovable-uploads/0955746a-d26e-47cf-9269-7c37e72c2d75.png",

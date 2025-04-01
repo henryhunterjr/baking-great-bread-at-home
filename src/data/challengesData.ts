@@ -1,8 +1,16 @@
-
 import { Challenge } from '@/types/challengeTypes';
 
 export const challenges: Challenge[] = [
   // 2025 Challenges
+  {
+    id: 'april-2025',
+    title: 'Score Big Challenge',
+    date: new Date(2025, 3, 1), // April 2025
+    description: 'Explore the art of scoring bread to create beautiful patterns that not only look impressive but also help control how your bread expands during baking.',
+    link: 'https://scorebig-jp8784l.gamma.site/',
+    hashtag: 'SCOREBIG',
+    isCurrent: true,
+  },
   {
     id: 'march-2025',
     title: 'March Baking Challenge',
@@ -10,7 +18,7 @@ export const challenges: Challenge[] = [
     description: 'Explore the rich traditions and techniques of cultural bread-making from around the world.',
     link: 'https://march-baking-challenge-bqivovr.gamma.site/',
     hashtag: '#Cultural',
-    isCurrent: true,
+    isCurrent: false,
   },
   {
     id: 'february-2025',

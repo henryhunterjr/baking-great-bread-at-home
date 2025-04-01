@@ -27,7 +27,12 @@ export const useClipboard = () => {
         textLength: clipboardText.length
       });
       
-      options.onSuccess(clipboardText);
+      // Make sure we have valid text to process before calling success
+      if (clipboardText.trim().length > 0) {
+        options.onSuccess(clipboardText);
+      } else {
+        options.onError('The clipboard contained only whitespace. Please copy some text first.');
+      }
     } catch (error) {
       logError('Error accessing clipboard:', { error });
       

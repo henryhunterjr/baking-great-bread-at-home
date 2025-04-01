@@ -1,12 +1,11 @@
-
-import { extractTextFromPDF } from '@/lib/ai-services/pdf';
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
 import { cleanOCRText } from '@/lib/ai-services/text-cleaner';
+import { extractTextFromPDF } from '@/lib/ai-services/pdf';
 
 // Constants for timeouts and limits
 const MAX_PDF_SIZE_MB = 20; // Increased from 15MB to 20MB
-const PDF_TIMEOUT_MS = 180000; // 3 minutes (180 seconds)
+const PDF_TIMEOUT_MS = 240000; // 4 minutes (240 seconds) - increased from 3 minutes
 
 /**
  * Process a PDF file and extract its text
@@ -26,7 +25,6 @@ export const processPDFFile = async (
     logInfo("Starting PDF processing", { filename: file.name, filesize: file.size });
     
     // Check for potential Word documents mislabeled as PDFs
-    // Word-exported PDFs often have specific strings in their names
     const lowerFileName = file.name.toLowerCase();
     if (lowerFileName.includes('word') || 
         lowerFileName.includes('doc') || 
@@ -79,7 +77,7 @@ export const processPDFFile = async (
       // Update progress but cap at 98% until complete
       const currentProgress = Math.min(Math.round(progress * 100), 98);
       onProgress(currentProgress);
-    });
+    }, { timeout: PDF_TIMEOUT_MS }); // Pass longer timeout to PDF extractor
     
     // Clear all timers since we finished or failed
     cleanupTimers(timeoutId, progressIntervalId, warningTimeoutId);

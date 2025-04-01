@@ -58,7 +58,16 @@ export const convertRecipeText = async (
       // Generate a unique ID for the recipe if it doesn't have one
       const recipeId = response.recipe.id || crypto.randomUUID();
       
-      // Add converted flag and handle missing properties
+      // Always ensure all required fields are present
+      const guaranteedIngredients = Array.isArray(response.recipe.ingredients) && response.recipe.ingredients.length > 0 
+        ? response.recipe.ingredients 
+        : ['Default ingredient, please edit'];
+      
+      const guaranteedInstructions = Array.isArray(response.recipe.instructions) && response.recipe.instructions.length > 0
+        ? response.recipe.instructions
+        : ['Default instruction, please edit'];
+      
+      // Add converted flag and handle missing properties - FIXED: recipe saving issue
       const convertedRecipe: RecipeData = {
         ...response.recipe,
         id: recipeId,
@@ -69,12 +78,8 @@ export const convertRecipeText = async (
         introduction: originalText,
         // Ensure these properties exist to prevent null/undefined errors
         title: response.recipe.title || 'Untitled Recipe',
-        ingredients: Array.isArray(response.recipe.ingredients) && response.recipe.ingredients.length > 0 
-          ? response.recipe.ingredients 
-          : ['Default ingredient, please edit'],
-        instructions: Array.isArray(response.recipe.instructions) && response.recipe.instructions.length > 0
-          ? response.recipe.instructions
-          : ['Default instruction, please edit'],
+        ingredients: guaranteedIngredients,
+        instructions: guaranteedInstructions,
         // Ensure equipment items have IDs
         equipmentNeeded: Array.isArray(response.recipe.equipmentNeeded) 
           ? response.recipe.equipmentNeeded.map(item => ({
