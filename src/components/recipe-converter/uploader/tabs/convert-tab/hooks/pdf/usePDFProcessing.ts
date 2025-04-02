@@ -64,7 +64,11 @@ export const usePDFProcessing = () => {
         
         // Call the completion callback
         if (onComplete) {
-          onComplete(processedText);
+          // Create a proper PDFProcessingResult object instead of passing just the string
+          onComplete({
+            text: processedText,
+            error: null
+          });
         }
         
         return {
