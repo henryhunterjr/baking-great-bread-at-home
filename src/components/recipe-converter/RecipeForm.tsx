@@ -8,8 +8,8 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/hooks/use-toast';
-import EditorTabs from './form/EditorTabs';
-import FormProgress from './form/FormProgress';
+import EditorTabs from '@/components/recipe-converter/form/EditorTabs';
+import FormProgress from '@/components/recipe-converter/form/FormProgress';
 
 // If the mobile-optimized form exists, import it instead
 let MobileOptimizedRecipeForm: React.FC<any> | null = null;

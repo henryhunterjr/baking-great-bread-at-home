@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RecipeData } from '@/types/recipeTypes';
 import BasicInfoTab from './tabs/BasicInfoTab';
@@ -13,10 +13,8 @@ interface EditorTabsProps {
 }
 
 const EditorTabs: React.FC<EditorTabsProps> = ({ initialRecipe }) => {
-  const [activeTab, setActiveTab] = useState('basic-info');
-  
   return (
-    <Tabs defaultValue="basic-info" value={activeTab} onValueChange={setActiveTab} className="w-full">
+    <Tabs defaultValue="basic-info" className="w-full">
       <TabsList className="grid grid-cols-5 mb-4">
         <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
         <TabsTrigger value="ingredients">Ingredients</TabsTrigger>
