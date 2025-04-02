@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { RecipeData } from '@/types/recipeTypes';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Edit, Printer, RotateCcw, Save, ArrowLeft, Image, Upload } from 'lucide-react';
+import { Edit, Printer, RotateCcw, Save, ArrowLeft, Image, Upload, Loader } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 
@@ -26,12 +26,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [showImageOptions, setShowImageOptions] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   
   const handleBackClick = () => {
-    // Use direct URL navigation to ensure it works in all environments
     window.location.href = '/';
   };
 
@@ -71,40 +70,65 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
       });
     } finally {
       setIsUploading(false);
-      setShowImageOptions(false);
     }
   };
 
   const handleGenerateImage = async () => {
-    setIsUploading(true);
+    if (!recipe.title) {
+      toast({
+        variant: "destructive",
+        title: "Missing Recipe Title",
+        description: "Please add a title to your recipe before generating an image.",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
     
     try {
-      // Generate a placeholder image URL based on the recipe title
-      const placeholderUrl = `https://source.unsplash.com/random/1200x800/?food,${recipe.title.replace(/\s+/g, ',')}`;
+      // Call the AI image generation endpoint
+      const response = await fetch('/api/generate-recipe-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          title: recipe.title,
+          ingredients: recipe.ingredients,
+          recipeType: recipe.cuisineType || 'food'
+        }),
+      });
       
-      // Update the recipe with the new image URL
-      if (onUpdateRecipe) {
-        const updatedRecipe = {
-          ...recipe,
-          imageUrl: placeholderUrl
-        };
-        onUpdateRecipe(updatedRecipe);
+      if (!response.ok) {
+        throw new Error(`Failed to generate image: ${response.status}`);
       }
       
-      toast({
-        title: "Image Generated",
-        description: "A placeholder image for your recipe has been generated.",
-      });
+      const data = await response.json();
+      
+      // Update the recipe with the new image URL
+      if (onUpdateRecipe && data.imageUrl) {
+        const updatedRecipe = {
+          ...recipe,
+          imageUrl: data.imageUrl
+        };
+        onUpdateRecipe(updatedRecipe);
+        
+        toast({
+          title: "Image Generated",
+          description: "AI has generated an image for your recipe.",
+        });
+      } else {
+        throw new Error("No image URL returned from the server");
+      }
     } catch (error) {
       console.error("Error generating image:", error);
       toast({
         variant: "destructive",
         title: "Generation Failed",
-        description: "Failed to generate image. Please try again.",
+        description: "Failed to generate image. Please try again later.",
       });
     } finally {
-      setIsUploading(false);
-      setShowImageOptions(false);
+      setIsGenerating(false);
     }
   };
   
@@ -151,58 +175,41 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
               variant="outline" 
               size="sm" 
               className="absolute bottom-2 right-2 bg-white/80 hover:bg-white print:hidden"
-              onClick={() => setShowImageOptions(prev => !prev)}
+              onClick={handleImageUploadClick}
             >
               <Image className="h-4 w-4 mr-2" />
               Change Image
             </Button>
-            
-            {showImageOptions && (
-              <div className="absolute bottom-12 right-2 bg-white p-2 rounded-md shadow-md space-y-2 print:hidden">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full"
-                  onClick={handleImageUploadClick}
-                  disabled={isUploading}
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Image
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full"
-                  onClick={handleGenerateImage}
-                  disabled={isUploading}
-                >
-                  <Image className="h-4 w-4 mr-2" />
-                  Generate Image
-                </Button>
-              </div>
-            )}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center p-6 bg-gray-100 rounded-lg print:hidden">
+          <div className="flex flex-col items-center justify-center p-8 bg-gray-100 rounded-lg print:hidden">
             <p className="text-gray-500 mb-4">No image for this recipe</p>
-            <div className="flex space-x-2">
+            <div className="flex space-x-3">
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={handleImageUploadClick}
-                disabled={isUploading}
+                disabled={isUploading || isGenerating}
               >
-                <Upload className="h-4 w-4 mr-2" />
+                {isUploading ? (
+                  <Loader className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4 mr-2" />
+                )}
                 Upload Image
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={handleGenerateImage}
-                disabled={isUploading}
+                disabled={isUploading || isGenerating}
               >
-                <Image className="h-4 w-4 mr-2" />
-                Generate Image
+                {isGenerating ? (
+                  <Loader className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Image className="h-4 w-4 mr-2" />
+                )}
+                Generate with AI
               </Button>
             </div>
           </div>

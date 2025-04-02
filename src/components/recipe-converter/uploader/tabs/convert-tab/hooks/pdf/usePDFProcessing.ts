@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { logError, logInfo } from '@/utils/logger';
 import { useToast } from '@/hooks/use-toast';
-import { PDFProcessingCallbacks } from '../types';
+import { PDFProcessingCallbacks, PDFProcessingResult } from '../types';
 import { processPDFWithTimeout, processPDFText } from './pdfProcessingUtils';
 
 /**

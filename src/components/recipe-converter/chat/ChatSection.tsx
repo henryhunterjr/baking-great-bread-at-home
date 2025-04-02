@@ -1,14 +1,13 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Loader } from 'lucide-react';
 import { ChatMessage } from '../types/chat';
 import ChatBubble from './ChatBubble';
 import ChatForm from './ChatForm';
 import SuggestedQuestions from './SuggestedQuestions';
-import { RecipeData } from '@/pages/RecipeConverter';
+import { RecipeData } from '@/types/recipeTypes';
 import { useToast } from '@/hooks/use-toast';
-import { AI_CONFIG } from '@/services/aiService';
 
 interface ChatSectionProps {
   recipe: RecipeData;
@@ -31,29 +30,39 @@ const ChatSection: React.FC<ChatSectionProps> = ({ recipe }) => {
     
     // Add user message to history
     const userMessage = { role: 'user' as const, content: message };
-    setChatHistory([...chatHistory, userMessage]);
+    setChatHistory((prev) => [...prev, userMessage]);
     setMessage('');
     setIsLoading(true);
     
     try {
-      // Simulate AI thinking time
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call the AI assistant API
+      const response = await fetch('/api/ask-assistant', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: message,
+          recipeContext: recipe, // Send the current recipe as context
+          chatHistory: chatHistory.slice(-5) // Send recent chat history for context
+        }),
+      });
       
-      // In a real implementation, this would call the AI service
-      // For now, we'll use simple pattern matching for responses
-      let response = generateResponse(message, recipe);
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
       
-      // Add assistant response to history
-      setChatHistory([
-        ...chatHistory,
-        userMessage,
-        { role: 'assistant', content: response }
+      const data = await response.json();
+      
+      // Add AI response to history
+      setChatHistory((prev) => [
+        ...prev,
+        { role: 'assistant', content: data.response }
       ]);
     } catch (error) {
-      console.error("Error generating response:", error);
-      setChatHistory([
-        ...chatHistory,
-        userMessage,
+      console.error("Error calling AI assistant:", error);
+      setChatHistory((prev) => [
+        ...prev,
         { 
           role: 'assistant', 
           content: "I'm sorry, I'm having trouble responding right now. Please try again later." 
@@ -62,37 +71,11 @@ const ChatSection: React.FC<ChatSectionProps> = ({ recipe }) => {
       
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to generate a response. Please try again.",
+        title: "AI Assistant Error",
+        description: "Failed to get a response. Please try again.",
       });
     } finally {
       setIsLoading(false);
-    }
-  };
-  
-  const generateResponse = (query: string, recipe: RecipeData): string => {
-    const lowercaseQuery = query.toLowerCase();
-    
-    // Simple pattern matching for demo purposes
-    // In a real implementation, this would call an AI service
-    if (lowercaseQuery.includes('buttermilk substitute')) {
-      return "You can make a buttermilk substitute by adding 1 tablespoon of lemon juice or vinegar to 1 cup of milk. Let it sit for 5-10 minutes before using.";
-    } else if (lowercaseQuery.includes('gluten free')) {
-      return "To make this recipe gluten-free, you can substitute the bread flour with a gluten-free flour blend. Look for one that contains xanthan gum, or add 1/4 teaspoon of xanthan gum per cup of flour to help with binding.";
-    } else if (lowercaseQuery.includes('double')) {
-      return "You can double all ingredients in this recipe. The preparation steps remain the same, but you might need to adjust baking time by 5-10 minutes longer. Also consider if your mixing bowl and baking vessel are large enough to handle the increased volume.";
-    } else if (lowercaseQuery.includes('overnight') || lowercaseQuery.includes('finish tomorrow')) {
-      return "Yes, you can pause this recipe overnight! After shaping the dough, place it in a banneton or bowl, cover it, and refrigerate. The cold fermentation will actually improve flavor. The next day, let it come to room temperature for about 1 hour before baking.";
-    } else if (recipe.title && lowercaseQuery.includes('ingredient')) {
-      return `For this ${recipe.title} recipe, make sure all ingredients are at room temperature for best results. The most critical ingredient is the flour - use bread flour if specified as it has higher protein content which helps develop gluten structure.`;
-    } else if (lowercaseQuery.includes('how') && lowercaseQuery.includes('storage')) {
-      return "For optimal freshness, store bread at room temperature in a bread box or paper bag for 2-3 days. For longer storage, slice and freeze in an airtight container for up to 3 months. Thaw slices as needed at room temperature or toast from frozen.";
-    } else if (lowercaseQuery.includes('how') && lowercaseQuery.includes('knead')) {
-      return "To knead bread dough: 1) Push the dough away with the heel of your hand. 2) Fold it back toward you. 3) Rotate a quarter turn. 4) Repeat for 8-10 minutes until smooth and elastic. The dough should pass the 'windowpane test' - when stretched, it forms a translucent membrane without tearing.";
-    } else if (lowercaseQuery.includes('hello') || lowercaseQuery.includes('hi') || lowercaseQuery.includes('hey')) {
-      return "Hello! I'm happy to help with your baking questions. Feel free to ask about ingredient substitutions, timing adjustments, technique advice, or recipe modifications.";
-    } else {
-      return "I'm happy to help with your baking questions! Feel free to ask about ingredient substitutions, timing adjustments, technique advice, or recipe modifications.";
     }
   };
   

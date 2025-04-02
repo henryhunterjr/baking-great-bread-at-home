@@ -5,7 +5,18 @@ export interface PDFProcessingResult {
 }
 
 export interface PDFProcessingCallbacks {
-  onProgress?: (progress: number) => void;
   onComplete?: (result: PDFProcessingResult) => void;
   onError?: (error: string) => void;
+  onProgress?: (progress: number) => void;
+}
+
+export interface TextProcessingCallbacks {
+  onComplete?: (text: string) => void;
+  onError?: (error: string) => void;
+}
+
+export interface ImageProcessingCallbacks {
+  onComplete?: (text: string) => void;
+  onError?: (error: string) => void;
+  onProgress?: (progress: number) => void;
 }

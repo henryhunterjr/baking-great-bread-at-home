@@ -27,6 +27,16 @@ const RecipeConverter: React.FC = () => {
     conversionError
   } = useRecipeConverter();
   
+  // Function to handle going back to home/start
+  const handleStartOver = () => {
+    // Reset the recipe state
+    resetRecipe();
+    // Navigate to the first tab
+    setActiveTab('convert');
+    // Navigate to top of page
+    window.scrollTo(0, 0);
+  };
+  
   return (
     <div className="min-h-screen pb-12">
       <Navbar />
@@ -44,7 +54,7 @@ const RecipeConverter: React.FC = () => {
               onSetIsEditing={setIsEditing}
               onConversionComplete={handleConversionComplete}
               onSaveRecipe={handleSaveRecipe}
-              onResetRecipe={resetRecipe}
+              onResetRecipe={handleStartOver}
               updateRecipe={setRecipe}
               conversionError={conversionError}
             />
