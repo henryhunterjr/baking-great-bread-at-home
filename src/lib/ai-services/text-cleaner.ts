@@ -19,6 +19,20 @@ export const cleanOCRText = (text: string): string => {
 };
 
 /**
+ * Alias for cleanOCRText specifically for image OCR text
+ */
+export const cleanImageOCRText = (text: string): string => {
+  return cleanOCRText(text);
+};
+
+/**
+ * Alias for cleanOCRText specifically for PDF text
+ */
+export const cleanPDFText = (text: string): string => {
+  return cleanOCRText(text);
+};
+
+/**
  * Basic text normalization function
  */
 export const normalizeText = (text: string): string => {

@@ -4,7 +4,6 @@ import { RecipeData } from '@/types/recipeTypes';
 import { logInfo, logError } from '@/utils/logger';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Form } from '@/components/ui/form';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -153,7 +152,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ initialRecipe, onSave, onCancel
     <Card className="shadow-md">
       <CardContent className="pt-6">
         <FormProvider {...methods}>
-          <Form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-serif font-medium">Edit Recipe</h2>
@@ -178,7 +177,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ initialRecipe, onSave, onCancel
                 </Button>
               </div>
             </div>
-          </Form>
+          </form>
         </FormProvider>
       </CardContent>
     </Card>
