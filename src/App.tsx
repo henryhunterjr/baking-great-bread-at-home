@@ -7,6 +7,9 @@ import { initializeWorkers } from '@/utils/workerUtils';
 import { isAIConfigured } from '@/lib/ai-services';
 import { logInfo } from '@/utils/logger';
 import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/contexts/AuthContext';
+import AuthPage from '@/pages/AuthPage';
+import ProfilePage from '@/pages/ProfilePage';
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -23,11 +26,15 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <Routes>
-        <Route path="/" element={<RecipeConverter />} />
-        <Route path="*" element={<RecipeConverter />} />
-      </Routes>
-      <Toaster />
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<RecipeConverter />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="*" element={<RecipeConverter />} />
+        </Routes>
+        <Toaster />
+      </AuthProvider>
     </ErrorBoundary>
   );
 };
