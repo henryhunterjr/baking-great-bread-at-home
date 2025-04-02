@@ -10,7 +10,8 @@ const Navbar: React.FC = () => {
   
   const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    navigate('/');
+    // Force navigation to home route
+    window.location.href = '/';
   };
 
   return (

@@ -24,7 +24,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   const navigate = useNavigate();
   
   const handleBackClick = () => {
-    navigate('/');
+    // Use direct URL navigation to ensure it works in all environments
+    window.location.href = '/';
   };
   
   return (

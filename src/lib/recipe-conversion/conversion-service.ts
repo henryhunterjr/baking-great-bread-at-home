@@ -23,6 +23,9 @@ export const convertRecipeText = async (
   onError: (error: Error) => void
 ): Promise<void> => {
   try {
+    // Log initial conversion attempt
+    logInfo('Starting recipe conversion process', { textLength: text?.length || 0 });
+    
     // Validate input
     if (!text || typeof text !== 'string') {
       throw new Error("Invalid text input provided");
@@ -56,10 +59,12 @@ export const convertRecipeText = async (
     
     // Add error handling for browser compatibility
     try {
+      logInfo('Calling processRecipeText with cleaned text', { cleanedTextLength: cleanedText.length });
+      
       const response = await processRecipeText(cleanedText);
       
-      if (!response.success) {
-        throw new Error(response.error || "Failed to process recipe. Please try again.");
+      if (!response || !response.success) {
+        throw new Error(response?.error || "Failed to process recipe. Please try again.");
       }
       
       if (!response.recipe) {
@@ -68,6 +73,13 @@ export const convertRecipeText = async (
       
       // Generate a unique ID for the recipe if it doesn't have one
       const recipeId = response.recipe.id || crypto.randomUUID();
+      
+      // Log receipt of recipe data
+      logInfo('Recipe data received from AI service', { 
+        hasTitle: !!response.recipe.title,
+        hasIngredients: Array.isArray(response.recipe.ingredients) && response.recipe.ingredients.length > 0,
+        hasInstructions: Array.isArray(response.recipe.instructions) && response.recipe.instructions.length > 0
+      });
       
       // Always ensure all required fields are present
       const guaranteedIngredients = Array.isArray(response.recipe.ingredients) && response.recipe.ingredients.length > 0 
@@ -80,6 +92,7 @@ export const convertRecipeText = async (
       
       // Create a brief introduction instead of using the full recipe text
       const briefIntroduction = extractBriefIntroduction(originalText);
+      logInfo('Brief introduction created', { introLength: briefIntroduction.length });
       
       // Add converted flag and handle missing properties - FIXED: recipe saving issue
       const convertedRecipe: RecipeData = {
