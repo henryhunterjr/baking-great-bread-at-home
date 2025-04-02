@@ -1,16 +1,26 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import UserMenu from '@/components/auth/UserMenu';
 
 const Navbar: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  
+  const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    navigate('/');
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="container mx-auto px-4 flex justify-between items-center h-16 md:h-20">
-        <Link to="/" className="text-xl md:text-2xl font-bold font-serif text-bread-900">
+        <Link 
+          to="/" 
+          className="text-xl md:text-2xl font-bold font-serif text-bread-900"
+          onClick={handleHomeClick}
+        >
           Recipe Converter
         </Link>
         <div className="flex items-center space-x-4">

@@ -6,6 +6,17 @@ import { logError, logInfo } from '@/utils/logger';
 import { getOpenAIApiKey, isAIConfigured, updateOpenAIApiKey, checkAPIKeyStatus } from '@/lib/ai-services';
 import { toast } from 'sonner';
 
+// Helper function to extract a brief introduction from the recipe text
+const extractBriefIntroduction = (text: string): string => {
+  // Get first 150 characters or the first sentence, whichever is shorter
+  const firstSentence = text.split(/(?<=[.!?])\s+/)[0] || '';
+  const shortIntro = text.substring(0, 150);
+  
+  return firstSentence.length < shortIntro.length 
+    ? firstSentence 
+    : shortIntro + '...';
+};
+
 export const convertRecipeText = async (
   text: string, 
   onComplete: (recipe: RecipeData) => void,
@@ -67,6 +78,9 @@ export const convertRecipeText = async (
         ? response.recipe.instructions
         : ['Default instruction, please edit'];
       
+      // Create a brief introduction instead of using the full recipe text
+      const briefIntroduction = extractBriefIntroduction(originalText);
+      
       // Add converted flag and handle missing properties - FIXED: recipe saving issue
       const convertedRecipe: RecipeData = {
         ...response.recipe,
@@ -74,8 +88,8 @@ export const convertRecipeText = async (
         isConverted: true, // CRITICAL: Ensure this is explicitly set to true
         createdAt: response.recipe.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        // Preserve the original text exactly as the introduction - CRITICAL
-        introduction: originalText,
+        // Use a brief introduction instead of the full recipe text
+        introduction: briefIntroduction,
         // Ensure these properties exist to prevent null/undefined errors
         title: response.recipe.title || 'Untitled Recipe',
         ingredients: guaranteedIngredients,

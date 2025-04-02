@@ -42,12 +42,15 @@ const UserMenu: React.FC = () => {
     return user.email.charAt(0).toUpperCase();
   };
 
+  // Get avatar URL from user object with type safety
+  const avatarUrl = user && 'avatar_url' in user ? user.avatar_url as string : undefined;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="focus:outline-none">
           <Avatar className="h-8 w-8 md:h-10 md:w-10">
-            <AvatarImage src={user.avatar_url || undefined} />
+            <AvatarImage src={avatarUrl} />
             <AvatarFallback className="bg-bread-200 text-bread-800">
               {getInitials()}
             </AvatarFallback>
