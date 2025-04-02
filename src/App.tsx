@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import RecipeConverter from '@/pages/RecipeConverter';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { initializeWorkers } from '@/utils/workerUtils';
@@ -23,13 +23,11 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<RecipeConverter />} />
-          <Route path="*" element={<RecipeConverter />} />
-        </Routes>
-        <Toaster />
-      </BrowserRouter>
+      <Routes>
+        <Route path="/" element={<RecipeConverter />} />
+        <Route path="*" element={<RecipeConverter />} />
+      </Routes>
+      <Toaster />
     </ErrorBoundary>
   );
 };
