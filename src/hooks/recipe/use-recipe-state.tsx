@@ -17,7 +17,7 @@ export const defaultRecipe: RecipeData = {
   tips: [],
   proTips: [],
   equipmentNeeded: [],
-  imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
+  imageUrl: '',
   tags: [],
   isPublic: false,
   isConverted: false
@@ -57,11 +57,24 @@ export const useRecipeState = () => {
       isConverted: !!incomingRecipe.isConverted
     });
     
+    // Check if introduction looks like it might be the entire recipe text
+    let introduction = incomingRecipe.introduction || '';
+    
+    // If introduction is very long (over 500 characters) and contains multiple lines,
+    // it might be the entire recipe, so truncate it
+    if (introduction.length > 500 && introduction.includes('\n')) {
+      // Take only the first paragraph or first 200 characters
+      const firstParagraph = introduction.split('\n')[0];
+      introduction = firstParagraph.length > 200 
+        ? firstParagraph.substring(0, 200) + '...' 
+        : firstParagraph;
+    }
+    
     // Create a properly structured recipe with defaults where needed
     return {
       id: incomingRecipe.id || undefined, // Keep existing ID if available
       title: incomingRecipe.title || 'Untitled Recipe',
-      introduction: incomingRecipe.introduction || '',
+      introduction: introduction,
       // Ensure ingredients is always an array
       ingredients: Array.isArray(incomingRecipe.ingredients) && incomingRecipe.ingredients.length > 0 ? 
         incomingRecipe.ingredients : ['Add your ingredients here'],
@@ -69,6 +82,7 @@ export const useRecipeState = () => {
       instructions: Array.isArray(incomingRecipe.instructions) && incomingRecipe.instructions.length > 0 ? 
         incomingRecipe.instructions : ['Add your instructions here'],
       prepTime: incomingRecipe.prepTime || '',
+      cookTime: incomingRecipe.cookTime || '',
       restTime: incomingRecipe.restTime || '',
       bakeTime: incomingRecipe.bakeTime || '',
       totalTime: incomingRecipe.totalTime || '',
@@ -81,7 +95,8 @@ export const useRecipeState = () => {
         })) : [],
       tips: Array.isArray(incomingRecipe.tips) ? incomingRecipe.tips : [],
       proTips: Array.isArray(incomingRecipe.proTips) ? incomingRecipe.proTips : [],
-      imageUrl: incomingRecipe.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
+      notes: Array.isArray(incomingRecipe.notes) ? incomingRecipe.notes : [],
+      imageUrl: incomingRecipe.imageUrl || '',
       tags: Array.isArray(incomingRecipe.tags) ? incomingRecipe.tags : [],
       isPublic: !!incomingRecipe.isPublic,
       isConverted: true // Always set to true when processed

@@ -1,90 +1,143 @@
 
-import { useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { logError, logInfo } from '@/utils/logger';
+import { useToast } from '@/hooks/use-toast';
 import { PDFProcessingCallbacks } from '../types';
-import { usePDFProcessingState } from './usePDFProcessingState';
 import { processPDFWithTimeout, processPDFText } from './pdfProcessingUtils';
 
 /**
- * Hook for PDF processing with state management
+ * Custom hook for handling PDF file processing
+ * Provides state management and processing function for PDF extraction
  */
-export const usePDFProcessing = (
-  file: File | null,
-  callbacks: PDFProcessingCallbacks = {}
-) => {
-  const { 
-    processing, 
-    progress, 
-    result,
-    startProcessing,
-    updateProgress,
-    setError,
-    setComplete,
-    stopProcessing
-  } = usePDFProcessingState();
-
-  const { onProgress, onComplete, onError } = callbacks;
-
-  const processPDF = useCallback(async () => {
-    if (!file) {
-      console.warn("No file to process.");
-      return;
-    }
-
-    startProcessing();
-    const progressCallback = (progress: number) => {
-      updateProgress(progress);
-      onProgress?.(progress);
+export const usePDFProcessing = () => {
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [extractedText, setExtractedText] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Reference to cancellable task
+  const processingTask = useRef<{ cancel: () => void } | null>(null);
+  
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (processingTask.current) {
+        processingTask.current.cancel();
+      }
     };
-
-    const handleError = (error: string) => {
-      logError("PDF processing error:", { error });
-      setError(error);
-      onError?.(error);
-    };
-
+  }, []);
+  
+  /**
+   * Process a PDF file with progress tracking and error handling
+   */
+  const processPDF = async (
+    file: File,
+    callbacks: PDFProcessingCallbacks
+  ) => {
+    const { onComplete, onError } = callbacks;
+    
+    // Reset state
+    setIsProcessing(true);
+    setProgress(0);
+    setExtractedText(null);
+    setError(null);
+    
     try {
       logInfo("Starting PDF processing", { filename: file.name, filesize: file.size });
       
-      const extractResult = await processPDFWithTimeout(file, progressCallback);
+      // Use our enhanced PDF processing function
+      const result = await processPDFWithTimeout(
+        file,
+        (newProgress) => {
+          setProgress(Math.min(Math.round(newProgress * 100), 99));
+        },
+        600000  // 10 minutes timeout
+      );
       
       // Handle different types of results
-      if (extractResult === null || extractResult === undefined) {
-        handleError("Failed to extract text from the PDF. The file may be empty or corrupted.");
-        return;
-      }
-      
-      // Check if the result is a cancellable task
-      if (typeof extractResult === 'object' && extractResult !== null && 'cancel' in extractResult) {
-        // Store the cancellable task reference for later use
-        return;
-      }
-      
-      // At this point, we know extractResult is a string
-      const extractedText = extractResult as string;
-      
-      try {
-        const cleanedText = processPDFText(extractedText);
+      if (typeof result === 'string') {
+        // Process the extracted text
+        const processedText = processPDFText(result);
+        setExtractedText(processedText);
+        setProgress(100);
         
-        setComplete(cleanedText);
-        logInfo("PDF extraction complete", { textLength: cleanedText.length });
-        onComplete?.({ text: cleanedText, error: null });
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "An error occurred processing the PDF text";
-        handleError(errorMessage);
+        // Call the completion callback
+        if (onComplete) {
+          onComplete(processedText);
+        }
+        
+        return {
+          text: processedText,
+          success: true
+        };
+      } else if (result && typeof result === 'object' && 'cancel' in result) {
+        // Store the cancellable task
+        processingTask.current = result;
+        
+        // Return the cancellable task
+        return {
+          text: null,
+          success: false,
+          cancel: result.cancel
+        };
+      } else {
+        // Handle empty or unexpected result
+        throw new Error("Failed to extract text from PDF.");
       }
-
-    } catch (error: any) {
-      handleError(error.message || "An unexpected error occurred during PDF processing.");
+    } catch (err) {
+      // Log and handle errors
+      logError("PDF Processing Error:", { error: err });
+      
+      let errorMessage = "Failed to process PDF file.";
+      
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
+      
+      // Call the error callback
+      if (onError) {
+        onError(errorMessage);
+      }
+      
+      // Toast notification for user
+      toast({
+        variant: "destructive",
+        title: "PDF Processing Error",
+        description: errorMessage,
+      });
+      
+      return {
+        text: null,
+        success: false,
+        error: errorMessage
+      };
     } finally {
-      stopProcessing();
+      setIsProcessing(false);
     }
-  }, [file, onProgress, onComplete, onError, startProcessing, updateProgress, setError, setComplete, stopProcessing]);
-
+  };
+  
+  /**
+   * Cancel any ongoing processing
+   */
+  const cancelProcessing = () => {
+    if (processingTask.current) {
+      processingTask.current.cancel();
+      processingTask.current = null;
+      setIsProcessing(false);
+      return true;
+    }
+    return false;
+  };
+  
   return {
-    processing,
+    isProcessing,
     progress,
-    result,
+    extractedText,
+    error,
     processPDF,
+    cancelProcessing
   };
 };

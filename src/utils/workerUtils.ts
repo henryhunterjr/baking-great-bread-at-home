@@ -2,138 +2,115 @@
 import { logInfo, logError } from './logger';
 
 /**
- * Configure PDF.js and Tesseract.js workers with fallbacks
- * This is crucial for production environments where worker paths may differ
- */
-export const configureWorkers = (): void => {
-  if (typeof window === 'undefined') return;
-  
-  try {
-    configurePDFWorker();
-    configureTesseractWorker();
-    logInfo('Workers configured successfully');
-  } catch (error) {
-    logError('Error configuring workers:', { error });
-  }
-};
-
-/**
- * Configure PDF.js worker with multiple fallbacks
- */
-const configurePDFWorker = (): void => {
-  // Try to dynamically import pdfjs-dist to set the worker path
-  const tryImportPDFJS = async () => {
-    try {
-      const pdfjs = await import('pdfjs-dist');
-      
-      // Array of possible worker paths to try, in order of preference
-      const workerPaths = [
-        '/pdf.worker.min.js',  // Local path in public directory
-        '/assets/pdf.worker.min.js',  // Alternative local path
-        'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js',  // CDN fallback 1
-        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',  // CDN fallback 2
-      ];
-      
-      // Set the worker source URL
-      setWorkerUrl(pdfjs, workerPaths);
-      
-      // Also set the global variable that some PDF.js imports look for
-      (window as any).pdfjsWorkerSrc = pdfjs.GlobalWorkerOptions.workerSrc;
-      
-      logInfo('PDF.js worker configured', { path: pdfjs.GlobalWorkerOptions.workerSrc });
-    } catch (error) {
-      logError('Error importing PDF.js:', { error });
-    }
-  };
-
-  // Test worker paths and set the first one that works
-  const setWorkerUrl = async (pdfjs: any, paths: string[]) => {
-    for (const path of paths) {
-      try {
-        // Try fetching the worker file to see if it exists
-        const response = await fetch(path, { method: 'HEAD' });
-        if (response.ok) {
-          pdfjs.GlobalWorkerOptions.workerSrc = path;
-          logInfo('PDF.js worker path set successfully', { path });
-          return;
-        }
-      } catch (e) {
-        logError('Error checking worker path:', { path, error: e });
-      }
-    }
-    
-    // If no paths worked, try the last one anyway
-    pdfjs.GlobalWorkerOptions.workerSrc = paths[paths.length - 1];
-    logInfo('PDF.js worker path set to fallback', { path: paths[paths.length - 1] });
-  };
-  
-  // Try configuring the worker
-  tryImportPDFJS();
-};
-
-/**
- * Configure Tesseract.js worker with fallbacks
- */
-const configureTesseractWorker = (): void => {
-  try {
-    // Set global Tesseract variables that the library looks for
-    (window as any).Tesseract = (window as any).Tesseract || {};
-    
-    // Define fallback paths for Tesseract worker and core files
-    const workerPath = '/tesseract/worker.min.js';
-    const corePath = '/tesseract/tesseract-core.wasm.js';
-    const langPath = '/tesseract/lang-data/';
-    
-    // CDN fallbacks
-    const workerCDN = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/worker.min.js';
-    const coreCDN = 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.0.0/tesseract-core.wasm.js';
-    
-    // Try local paths first, then fall back to CDN
-    const checkAndSetPath = async (localPath: string, cdnPath: string, pathName: string) => {
-      try {
-        const response = await fetch(localPath, { method: 'HEAD' });
-        if (response.ok) {
-          return localPath;
-        }
-        return cdnPath;
-      } catch (e) {
-        logError(`Error checking Tesseract ${pathName} path:`, { error: e });
-        return cdnPath;
-      }
-    };
-    
-    // Set up paths asynchronously
-    const configurePaths = async () => {
-      (window as any).tesseractWorkerSrc = await checkAndSetPath(workerPath, workerCDN, 'worker');
-      (window as any).tesseractCorePath = await checkAndSetPath(corePath, coreCDN, 'core');
-      (window as any).Tesseract.workerPath = (window as any).tesseractWorkerSrc;
-      (window as any).Tesseract.corePath = (window as any).tesseractCorePath;
-      (window as any).Tesseract.langPath = langPath;
-      
-      logInfo('Tesseract worker configured', { 
-        worker: (window as any).tesseractWorkerSrc,
-        core: (window as any).tesseractCorePath 
-      });
-    };
-    
-    configurePaths();
-  } catch (error) {
-    logError('Error configuring Tesseract worker:', { error });
-  }
-};
-
-/**
- * Initialize all workers on page load
- * This should be called from your application root component
+ * Initialize workers for PDF.js and Tesseract.js
+ * This should be called early in the application lifecycle
  */
 export const initializeWorkers = (): void => {
-  if (typeof window !== 'undefined') {
-    // Configure immediately
-    configureWorkers();
+  try {
+    // Set up PDF.js worker
+    setupPDFWorker();
     
-    // Also configure when the window loads (for better browser compatibility)
-    window.addEventListener('load', () => {
-      configureWorkers();
-    });
+    // Set up Tesseract worker (if needed)
+    setupTesseractWorker();
+    
+    logInfo('Workers initialized successfully');
+  } catch (error) {
+    logError('Error initializing workers', { error });
+  }
+};
+
+/**
+ * Set up the PDF.js worker
+ */
+const setupPDFWorker = (): void => {
+  try {
+    // Add fallback for PDF.js worker
+    // This makes the worker available globally so PDF.js can find it
+    if (typeof window !== 'undefined') {
+      // Try to use local worker first
+      (window as any).pdfjsWorkerSrc = '/pdf.worker.min.js';
+      
+      // Add a fallback to CDN in case local worker fails
+      window.addEventListener('error', (event) => {
+        // Check if error is related to PDF.js worker
+        if (event.filename?.includes('pdf.worker.min.js')) {
+          logInfo('PDF worker load failed, using CDN fallback');
+          (window as any).pdfjsWorkerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+      }, { once: true });
+      
+      // Report worker availability for debugging
+      checkWorkerAvailability('/pdf.worker.min.js')
+        .then(available => {
+          logInfo('PDF worker availability check', { available });
+          if (!available) {
+            logInfo('PDF worker not available at primary location, using CDN fallback');
+            (window as any).pdfjsWorkerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          }
+        })
+        .catch(error => {
+          logError('Error checking PDF worker availability', { error });
+        });
+    }
+  } catch (error) {
+    logError('Error setting up PDF worker', { error });
+  }
+};
+
+/**
+ * Set up the Tesseract worker
+ */
+const setupTesseractWorker = (): void => {
+  try {
+    // Add fallback for Tesseract worker
+    if (typeof window !== 'undefined') {
+      // Provide a CDN fallback for tesseract worker
+      // This is only needed if we don't include the worker in our build
+      (window as any).tesseractWorkerSrc = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/worker.min.js';
+      (window as any).tesseractCorePath = 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.0.0/tesseract-core.wasm.js';
+    }
+  } catch (error) {
+    logError('Error setting up Tesseract worker', { error });
+  }
+};
+
+/**
+ * Check if a worker is available by trying to fetch it
+ * @param url Worker URL to check
+ * @returns Promise resolving to boolean indicating if worker is available
+ */
+export const checkWorkerAvailability = async (url: string): Promise<boolean> => {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    return response.ok;
+  } catch (error) {
+    logError(`Worker not available at ${url}`, { error });
+    return false;
+  }
+};
+
+/**
+ * Preload the worker files to ensure they're cached and ready
+ * Call this function early in the app lifecycle
+ */
+export const preloadWorkers = (): void => {
+  try {
+    // Preload the PDF.js worker
+    if (typeof window !== 'undefined') {
+      // Try to preload from different potential locations
+      const workerUrls = [
+        '/pdf.worker.min.js',
+        '/assets/pdf.worker.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+      ];
+      
+      workerUrls.forEach(url => {
+        fetch(url, { method: 'HEAD' })
+          .then(() => logInfo(`Successfully preloaded worker from ${url}`))
+          .catch(() => logInfo(`Failed to preload worker from ${url}`));
+      });
+    }
+  } catch (error) {
+    logError('Error preloading workers', { error });
   }
 };
