@@ -23,6 +23,7 @@ interface RecipeConverterContentProps {
   onConversionComplete: (recipe: RecipeData) => void;
   onSaveRecipe: (recipe: RecipeData) => void;
   onResetRecipe: () => void;
+  updateRecipe?: (recipe: RecipeData) => void;
   conversionError?: string | null;
 }
 
@@ -34,6 +35,7 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
   onConversionComplete,
   onSaveRecipe,
   onResetRecipe,
+  updateRecipe,
   conversionError: pageConversionError
 }) => {
   // Create a form context to wrap all components
@@ -137,6 +139,12 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
     }
   };
   
+  const handleUpdateRecipe = (updatedRecipe: RecipeData) => {
+    if (updateRecipe) {
+      updateRecipe(updatedRecipe);
+    }
+  };
+  
   return (
     <div className="space-y-4">
       {!isApiConfigured && <NoAPIKeyMessage />}
@@ -172,6 +180,7 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
             onPrint={() => window.print()} 
             onReset={onResetRecipe}
             onSave={canSaveRecipe ? handleSaveRecipe : undefined}
+            onUpdateRecipe={handleUpdateRecipe}
           />
         )}
       </FormProvider>

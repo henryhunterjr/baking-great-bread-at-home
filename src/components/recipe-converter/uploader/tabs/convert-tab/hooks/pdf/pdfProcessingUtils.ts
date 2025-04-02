@@ -36,6 +36,27 @@ export const processPDFWithTimeout = async (
         onProgress(progress);
       } : undefined;
     
+    // For large files, adjust the timeout or try alternate processing method
+    if (file.size > 5 * 1024 * 1024) { // If larger than 5MB
+      logInfo("Large PDF detected, using alternative processing method", { fileSize: file.size });
+      // Try processing complex PDF with longer timeout
+      const processingPromise = processComplexPDF(file, progressCallback);
+      
+      const extractResult = await Promise.race([
+        processingPromise,
+        timeoutPromise
+      ]);
+      
+      // Clear the timeout since we're done
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      
+      if (cancelled) return null;
+      
+      return extractResult;
+    }
+    
     // Race the actual extraction against the timeout
     const extractResult = await Promise.race([
       extractTextFromPDF(file, progressCallback),

@@ -57,6 +57,7 @@ export const useRecipeConverter = () => {
 
   return {
     recipe,
+    setRecipe,
     isEditing,
     setIsEditing,
     showConversionSuccess,

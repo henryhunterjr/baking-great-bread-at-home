@@ -14,6 +14,7 @@ export type { RecipeData } from '@/types/recipeTypes';
 const RecipeConverter: React.FC = () => {
   const {
     recipe,
+    setRecipe,
     isEditing,
     setIsEditing,
     showConversionSuccess,
@@ -44,6 +45,7 @@ const RecipeConverter: React.FC = () => {
               onConversionComplete={handleConversionComplete}
               onSaveRecipe={handleSaveRecipe}
               onResetRecipe={resetRecipe}
+              updateRecipe={setRecipe}
               conversionError={conversionError}
             />
           </div>
