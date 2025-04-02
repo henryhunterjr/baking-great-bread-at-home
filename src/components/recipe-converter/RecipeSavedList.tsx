@@ -4,7 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { RecipeData } from '@/types/recipeTypes';
-import { AlertCircle, Bookmark, BookOpen, RefreshCw } from 'lucide-react';
+import { AlertCircle, Bookmark, BookOpen, LogIn, RefreshCw } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 interface RecipeSavedListProps {
   onSelectRecipe: (recipe: RecipeData) => void;
@@ -16,20 +18,25 @@ const RecipeSavedList: React.FC<RecipeSavedListProps> = ({
   activeTab
 }) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [savedRecipes, setSavedRecipes] = useState<RecipeData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   // Load saved recipes initially and when activeTab changes to "favorites"
   useEffect(() => {
-    if (activeTab === "favorites") {
+    if (activeTab === "favorites" && user) {
       loadSavedRecipes();
     }
-  }, [activeTab]);
+  }, [activeTab, user]);
   
   // Initial load
   useEffect(() => {
-    loadSavedRecipes();
-  }, []);
+    if (user) {
+      loadSavedRecipes();
+    } else {
+      setIsLoading(false);
+    }
+  }, [user]);
   
   const loadSavedRecipes = () => {
     setIsLoading(true);
@@ -78,6 +85,37 @@ const RecipeSavedList: React.FC<RecipeSavedListProps> = ({
       });
     }
   };
+
+  // If not logged in, display authentication message
+  if (!user) {
+    return (
+      <Card className="p-4 h-full">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold flex items-center">
+            <Bookmark className="h-5 w-5 mr-2" />
+            Saved Recipes
+          </h3>
+        </div>
+        
+        <div className="text-center py-8 space-y-3">
+          <div className="mx-auto bg-muted rounded-full w-12 h-12 flex items-center justify-center">
+            <LogIn className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <div>
+            <p className="text-muted-foreground text-sm">Login required</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Sign in to save and access your recipes
+            </p>
+          </div>
+          <Link to="/auth">
+            <Button className="mt-2" variant="default">
+              Sign In
+            </Button>
+          </Link>
+        </div>
+      </Card>
+    );
+  }
   
   return (
     <Card className="p-4 h-full">

@@ -11,6 +11,9 @@ import { logInfo, logError } from '@/utils/logger';
 import { isAIConfigured } from '@/lib/ai-services';
 import NoAPIKeyMessage from './NoAPIKeyMessage';
 import ErrorAlert from '@/components/common/ErrorAlert';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface RecipeConverterContentProps {
   recipe: RecipeData;
@@ -35,6 +38,9 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
 }) => {
   // Create a form context to wrap all components
   const methods = useForm();
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   
   // Use the recipe conversion hook
   const { isConverting, conversionError, handleConversion } = useRecipeConversion(
@@ -96,8 +102,27 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
   }, [recipe]);
   
   const handleSaveRecipe = () => {
+    // Check if user is logged in
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Required",
+        description: "Please log in to save recipes to your collection.",
+        action: (
+          <button 
+            className="px-3 py-1 rounded bg-primary text-white text-xs"
+            onClick={() => navigate('/auth')}
+          >
+            Log In
+          </button>
+        )
+      });
+      return;
+    }
+    
     logInfo("Attempting to save recipe from RecipeConverterContent", {
-      hasRequiredFields: canSaveRecipe
+      hasRequiredFields: canSaveRecipe,
+      userId: user?.id
     });
     
     if (canSaveRecipe) {
