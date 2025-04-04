@@ -9,8 +9,8 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   
   const handleHomeClick = () => {
-    // Use navigate instead of directly manipulating location
-    navigate('/');
+    // Use navigate with replace: true to ensure we fully reset the navigation
+    navigate('/', { replace: true });
     // Scroll to the top of the page
     window.scrollTo(0, 0);
   };
@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
       <div className="container mx-auto px-4 flex justify-between items-center h-16 md:h-20">
         <button 
           onClick={handleHomeClick}
-          className="text-xl md:text-2xl font-bold font-serif text-bread-900"
+          className="text-xl md:text-2xl font-bold font-serif text-bread-900 cursor-pointer"
         >
           Recipe Converter
         </button>

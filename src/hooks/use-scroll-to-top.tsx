@@ -9,6 +9,12 @@ export const useScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // Add a small delay to ensure the navigation has completed
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }, 100);
   }, [pathname]);
 };

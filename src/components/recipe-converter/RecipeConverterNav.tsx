@@ -8,8 +8,8 @@ const RecipeConverterNav = () => {
   const navigate = useNavigate();
 
   const handleHomeClick = () => {
-    // Use navigate and ensure we're redirecting to the root path
-    navigate('/');
+    // Use navigate with replace: true to force a complete navigation
+    navigate('/', { replace: true });
     // Scroll to top
     window.scrollTo(0, 0);
   };
