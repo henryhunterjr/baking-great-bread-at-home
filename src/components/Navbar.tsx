@@ -9,10 +9,15 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   
   const handleHomeClick = () => {
-    // Use navigate with replace: true to ensure we fully reset the navigation
+    // Force a complete navigation reset
     navigate('/', { replace: true });
+    // Clear any cached state that might be affecting navigation
+    window.history.replaceState({}, document.title, '/');
     // Scroll to the top of the page
-    window.scrollTo(0, 0);
+    window.scrollTo({
+      top: 0,
+      behavior: 'auto'
+    });
   };
 
   return (

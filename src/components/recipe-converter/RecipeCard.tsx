@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { RecipeData } from '@/types/recipeTypes';
 import { Button } from '@/components/ui/button';
@@ -31,7 +30,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   
   const handleBackClick = () => {
-    window.location.href = '/';
+    navigate('/', { replace: true });
+    window.scrollTo(0, 0);
   };
 
   const handleImageUploadClick = () => {
@@ -45,10 +45,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     setIsUploading(true);
     
     try {
-      // Create a URL for the selected image
       const imageUrl = URL.createObjectURL(file);
       
-      // Update the recipe with the new image URL
       if (onUpdateRecipe) {
         const updatedRecipe = {
           ...recipe,
@@ -86,7 +84,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     setIsGenerating(true);
     
     try {
-      // Call the AI image generation endpoint
       const response = await fetch('/api/generate-recipe-image', {
         method: 'POST',
         headers: {
@@ -105,7 +102,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
       
       const data = await response.json();
       
-      // Update the recipe with the new image URL
       if (onUpdateRecipe && data.imageUrl) {
         const updatedRecipe = {
           ...recipe,
@@ -163,7 +159,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           </div>
         </div>
         
-        {/* Recipe Image Section */}
         {recipe.imageUrl ? (
           <div className="relative rounded-lg overflow-hidden h-48 md:h-64 bg-gray-100">
             <img 

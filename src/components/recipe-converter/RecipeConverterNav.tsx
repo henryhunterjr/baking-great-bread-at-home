@@ -8,10 +8,15 @@ const RecipeConverterNav = () => {
   const navigate = useNavigate();
 
   const handleHomeClick = () => {
-    // Use navigate with replace: true to force a complete navigation
+    // Force a complete navigation reset
     navigate('/', { replace: true });
-    // Scroll to top
-    window.scrollTo(0, 0);
+    // Clear any cached state that might be affecting navigation
+    window.history.replaceState({}, document.title, '/');
+    // Scroll to top immediately without animation
+    window.scrollTo({
+      top: 0,
+      behavior: 'auto'
+    });
   };
   
   return (
@@ -24,17 +29,17 @@ const RecipeConverterNav = () => {
       </div>
       
       <div className="flex items-center space-x-2">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/recipes')}>
+        <Button variant="ghost" size="sm" onClick={() => navigate('/recipes', { replace: true })}>
           <Coffee className="mr-2 h-4 w-4" />
           Recipes
         </Button>
         
-        <Button variant="ghost" size="sm" onClick={() => navigate('/guides')}>
+        <Button variant="ghost" size="sm" onClick={() => navigate('/guides', { replace: true })}>
           <Book className="mr-2 h-4 w-4" />
           Guides
         </Button>
         
-        <Button variant="ghost" size="sm" onClick={() => navigate('/challenges')}>
+        <Button variant="ghost" size="sm" onClick={() => navigate('/challenges', { replace: true })}>
           <Calendar className="mr-2 h-4 w-4" />
           Challenges
         </Button>
