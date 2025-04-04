@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import RecipeConverter from '@/pages/RecipeConverter';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { initializeWorkers, preloadWorkers } from '@/utils/workerUtils';
@@ -10,8 +10,12 @@ import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/AuthContext';
 import AuthPage from '@/pages/AuthPage';
 import ProfilePage from '@/pages/ProfilePage';
+import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 
 const App: React.FC = () => {
+  // Use the scroll to top hook to ensure navigation scrolls to top
+  useScrollToTop();
+  
   useEffect(() => {
     // Initialize workers for PDF and image processing
     initializeWorkers();
@@ -34,6 +38,9 @@ const App: React.FC = () => {
           <Route path="/" element={<RecipeConverter />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/recipes" element={<Navigate to="/" />} />
+          <Route path="/guides" element={<Navigate to="/" />} />
+          <Route path="/challenges" element={<Navigate to="/" />} />
           <Route path="*" element={<RecipeConverter />} />
         </Routes>
         <Toaster />
