@@ -6,6 +6,7 @@ import { AlertCircle } from 'lucide-react';
 import { RecipeData } from '@/types/recipeTypes';
 import RecipeAssistant from './RecipeAssistant';
 import RecipeSavedList from './RecipeSavedList';
+import BreadAssistantPanel from './BreadAssistantPanel';
 
 interface RecipeConverterSidebarProps {
   activeTab: string;
@@ -24,8 +25,9 @@ const RecipeConverterSidebar: React.FC<RecipeConverterSidebarProps> = ({
 }) => {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
+      <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="assistant">AI Assistant</TabsTrigger>
+        <TabsTrigger value="bread">Bread Tips</TabsTrigger>
         <TabsTrigger value="favorites" className="relative">
           My Recipes
           {recipe.isConverted && !isEditing && (
@@ -38,6 +40,9 @@ const RecipeConverterSidebar: React.FC<RecipeConverterSidebarProps> = ({
       </TabsList>
       <TabsContent value="assistant" className="mt-4">
         <RecipeAssistant recipe={recipe} />
+      </TabsContent>
+      <TabsContent value="bread" className="mt-4">
+        <BreadAssistantPanel recipe={recipe} />
       </TabsContent>
       <TabsContent value="favorites" className="mt-4">
         <RecipeSavedList 
