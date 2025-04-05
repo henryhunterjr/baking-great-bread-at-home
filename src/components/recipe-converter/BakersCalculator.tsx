@@ -48,19 +48,18 @@ const BakersCalculator: React.FC = () => {
   // Parse ingredients to structured format for internal use
   const parseIngredients = (): Ingredient[] => {
     return recipeForm.ingredients.map(ing => {
-      if (typeof ing === 'string') {
-        // Simple parsing logic - can be enhanced
-        const match = ing.match(/(\d+\.?\d*)([a-zA-Z]+)\s+(.+)/);
-        if (match) {
-          return {
-            quantity: parseFloat(match[1]),
-            unit: match[2],
-            name: match[3]
-          };
-        }
-        return { name: ing, quantity: 0, unit: 'g' };
+      const ingredientStr = typeof ing === 'string' ? ing : String(ing);
+      
+      // Simple parsing logic - can be enhanced
+      const match = ingredientStr.match(/(\d+\.?\d*)([a-zA-Z]+)\s+(.+)/);
+      if (match) {
+        return {
+          quantity: parseFloat(match[1]),
+          unit: match[2],
+          name: match[3]
+        };
       }
-      return { name: ing.toString(), quantity: 0, unit: 'g' };
+      return { name: ingredientStr, quantity: 0, unit: 'g' };
     });
   };
   
@@ -150,7 +149,8 @@ const BakersCalculator: React.FC = () => {
     if (bakersPercentages) {
       await analyzeRecipe({
         ...recipeForm,
-        calculatedHydration: bakersPercentages.hydration
+        // Pass hydration as a separate parameter rather than trying to add it to RecipeData
+        hydration: bakersPercentages.hydration
       });
     }
   };
@@ -182,7 +182,7 @@ const BakersCalculator: React.FC = () => {
               {recipeForm.ingredients.map((ingredient, index) => (
                 <div key={index} className="mb-2">
                   <Input
-                    value={typeof ingredient === 'string' ? ingredient : ingredient.toString()}
+                    value={typeof ingredient === 'string' ? ingredient : String(ingredient)}
                     onChange={e => updateIngredient(index, e.target.value)}
                     placeholder="e.g. 500g Bread Flour"
                     className="mb-2"
