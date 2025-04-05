@@ -14,6 +14,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import FavoritesPage from '@/pages/FavoritesPage';
 import { BreadAssistantProvider } from '@/contexts/BreadAssistantContext';
 import AIBreadAssistant from '@/components/AIBreadAssistant';
+import Settings from '@/pages/Settings';
 
 const App: React.FC = () => {
   // Use the scroll to top hook to ensure navigation scrolls to top
@@ -39,7 +40,7 @@ const App: React.FC = () => {
       <BreadAssistantProvider>
         <Routes>
           <Route path="/" element={<RecipeConverter />} />
-          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/auth/*" element={<AuthPage />} />
           
           {/* Protected Routes */}
           <Route path="/profile" element={
@@ -50,6 +51,11 @@ const App: React.FC = () => {
           <Route path="/favorites" element={
             <ProtectedRoute>
               <FavoritesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           } />
           
