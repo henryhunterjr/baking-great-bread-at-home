@@ -23,7 +23,7 @@ export function StorageSettings() {
     setIsSwitching(true);
     
     try {
-      const success = await storageService.switchProvider(provider);
+      const success = await storageService.setProvider(provider);
       
       if (success) {
         toast.success(`Storage provider switched to ${provider}`);

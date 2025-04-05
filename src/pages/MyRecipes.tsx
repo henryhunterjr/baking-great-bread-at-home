@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -24,7 +23,6 @@ const MyRecipes: React.FC = () => {
   const [storageProvider, setStorageProvider] = useState(localStorage.getItem('storage_provider') || 'local');
   
   useEffect(() => {
-    // Load recipes from storage service
     loadRecipes();
   }, [storageProvider]);
   
@@ -68,9 +66,7 @@ const MyRecipes: React.FC = () => {
   };
   
   const handleEditRecipe = (recipe: RecipeData) => {
-    // Store the recipe to edit in localStorage
     localStorage.setItem('recipeToEdit', JSON.stringify(recipe));
-    // Navigate to the recipe converter page
     navigate('/recipe-converter');
   };
 
@@ -79,7 +75,7 @@ const MyRecipes: React.FC = () => {
     
     setIsLoading(true);
     try {
-      await storageService.switchProvider(provider as any);
+      await storageService.setProvider(provider as any);
       setStorageProvider(provider);
       toast({
         title: "Storage Changed",

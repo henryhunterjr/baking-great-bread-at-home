@@ -1,5 +1,5 @@
 
-import { Recipe, StorageProvider } from './types';
+import { Recipe, StorageProvider, IStorageProvider } from './types';
 import { logInfo, logError } from '@/utils/logger';
 import { cloudStorageProvider } from './providers/cloud-storage';
 
@@ -204,4 +204,4 @@ class StorageService {
 export const storageService = StorageService.getInstance();
 
 // Re-export types for convenience
-export type { Recipe, StorageProvider } from './types';
+export type { Recipe, StorageProvider, IStorageProvider } from './types';
