@@ -12,11 +12,11 @@ export class EnrichedConverter extends BaseConverter {
     const baseResult = await super.convert(recipeData, targetSystem);
     
     // Add enriched dough specific notes
-    if (!baseResult.converted.notes) {
-      baseResult.converted.notes = [];
+    if (!baseResult.converted!.notes) {
+      baseResult.converted!.notes = [];
     }
     
-    baseResult.converted.notes.push(
+    baseResult.converted!.notes.push(
       `This is an enriched dough recipe with eggs, dairy, and/or fat.`,
       `For tender results, avoid overmixing and use room temperature ingredients.`
     );

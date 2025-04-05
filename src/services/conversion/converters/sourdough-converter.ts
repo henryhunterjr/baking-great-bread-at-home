@@ -12,11 +12,11 @@ export class SourdoughConverter extends BaseConverter {
     const baseResult = await super.convert(recipeData, targetSystem);
     
     // Add sourdough-specific notes
-    if (!baseResult.converted.notes) {
-      baseResult.converted.notes = [];
+    if (!baseResult.converted!.notes) {
+      baseResult.converted!.notes = [];
     }
     
-    baseResult.converted.notes.push(
+    baseResult.converted!.notes.push(
       `This is a sourdough recipe with ${baseResult.hydration}% hydration.`,
       `For best results, ensure your starter is active and at peak rise before mixing.`
     );

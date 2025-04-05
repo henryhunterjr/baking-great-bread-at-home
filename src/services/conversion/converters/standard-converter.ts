@@ -12,11 +12,11 @@ export class StandardConverter extends BaseConverter {
     const baseResult = await super.convert(recipeData, targetSystem);
     
     // Add standard recipe notes
-    if (!baseResult.converted.notes) {
-      baseResult.converted.notes = [];
+    if (!baseResult.converted!.notes) {
+      baseResult.converted!.notes = [];
     }
     
-    baseResult.converted.notes.push(
+    baseResult.converted!.notes.push(
       `This recipe has been converted to ${targetSystem} units.`
     );
     

@@ -12,11 +12,11 @@ export class QuickBreadConverter extends BaseConverter {
     const baseResult = await super.convert(recipeData, targetSystem);
     
     // Add quickbread specific notes
-    if (!baseResult.converted.notes) {
-      baseResult.converted.notes = [];
+    if (!baseResult.converted!.notes) {
+      baseResult.converted!.notes = [];
     }
     
-    baseResult.converted.notes.push(
+    baseResult.converted!.notes.push(
       `This is a quick bread recipe that uses chemical leaveners instead of yeast.`,
       `For best results, mix just until ingredients are combined to avoid tough texture.`
     );

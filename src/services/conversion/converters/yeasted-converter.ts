@@ -12,11 +12,11 @@ export class YeastedConverter extends BaseConverter {
     const baseResult = await super.convert(recipeData, targetSystem);
     
     // Add yeasted bread specific notes
-    if (!baseResult.converted.notes) {
-      baseResult.converted.notes = [];
+    if (!baseResult.converted!.notes) {
+      baseResult.converted!.notes = [];
     }
     
-    baseResult.converted.notes.push(
+    baseResult.converted!.notes.push(
       `This yeasted bread recipe has ${baseResult.hydration}% hydration.`,
       `Allow the dough to rise until doubled in size before shaping.`
     );
