@@ -5,7 +5,8 @@ import { AlertCircle, HelpCircle, ExternalLink, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ErrorAlertProps {
-  error: string | null;
+  error?: string | null;
+  message?: string | null;
   className?: string;
   title?: string;
   showRetry?: boolean;
@@ -16,6 +17,7 @@ interface ErrorAlertProps {
 
 const ErrorAlert: React.FC<ErrorAlertProps> = ({ 
   error, 
+  message, 
   className = '', 
   title = 'Error',
   showRetry = false,
@@ -23,20 +25,23 @@ const ErrorAlert: React.FC<ErrorAlertProps> = ({
   solution,
   learnMoreLink
 }) => {
-  if (!error) return null;
+  // Use message if provided, otherwise use error
+  const displayMessage = message || error;
+  
+  if (!displayMessage) return null;
 
   // Determine if this is a worker-related error
-  const isWorkerError = error.includes('worker') || 
-                        error.includes('importScripts') ||
-                        error.includes('tesseract') ||
-                        error.includes('PDF');
+  const isWorkerError = displayMessage.includes('worker') || 
+                        displayMessage.includes('importScripts') ||
+                        displayMessage.includes('tesseract') ||
+                        displayMessage.includes('PDF');
 
   return (
     <Alert variant="destructive" className={className}>
       <AlertCircle className="h-4 w-4" />
       <div className="w-full">
         {title && <AlertTitle className="font-medium">{title}</AlertTitle>}
-        <AlertDescription className="mt-1">{error}</AlertDescription>
+        <AlertDescription className="mt-1">{displayMessage}</AlertDescription>
         
         {(solution || isWorkerError) && (
           <div className="flex items-center gap-1 mt-2 text-xs">

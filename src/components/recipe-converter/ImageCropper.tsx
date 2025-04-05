@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ZoomIn, ZoomOut, RotateClockwise } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCw } from 'lucide-react';
 
 interface ImageCropperProps {
   imageUrl: string;
@@ -183,7 +183,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageUrl, onComplete, onCan
                 <ZoomOut size={20} />
               </button>
               <button className="p-1 hover:bg-white/20 rounded" onClick={handleRotate} title="Rotate">
-                <RotateClockwise size={20} />
+                <RotateCw size={20} />
               </button>
             </div>
             <div className="text-sm">

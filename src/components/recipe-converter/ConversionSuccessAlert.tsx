@@ -4,10 +4,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BookmarkPlus } from 'lucide-react';
 
 interface ConversionSuccessAlertProps {
-  show: boolean;
+  show?: boolean;
 }
 
-const ConversionSuccessAlert: React.FC<ConversionSuccessAlertProps> = ({ show }) => {
+const ConversionSuccessAlert: React.FC<ConversionSuccessAlertProps> = ({ show = true }) => {
   if (!show) return null;
   
   return (

@@ -1,5 +1,4 @@
 import React from 'react';
-import RecipeUploader from './RecipeUploader';
 import RecipeForm from './RecipeForm';
 import RecipeCard from './RecipeCard';
 import { RecipeData } from '@/types/recipeTypes';
@@ -46,14 +45,30 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
     // We keep this method for compatibility but it's now a no-op
   };
 
+  const handleConversion = (text: string) => {
+    try {
+      const parsedRecipe: RecipeData = { 
+        ...recipe,
+        title: recipe.title || "New Recipe",
+        ingredients: recipe.ingredients || [],
+        instructions: recipe.instructions || [],
+        isConverted: true
+      };
+      
+      onConversionComplete(parsedRecipe);
+    } catch (error) {
+      console.error("Error handling conversion:", error);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {showConversionSuccess && isConverted && !isEditing && (
-        <ConversionSuccessAlert />
+        <ConversionSuccessAlert show={showConversionSuccess} />
       )}
       
       {conversionError && (
-        <ErrorAlert title="Recipe Conversion Error" message={conversionError} />
+        <ErrorAlert error={conversionError} title="Recipe Conversion Error" />
       )}
       
       {hasRecipeData && isConverted ? (
@@ -75,7 +90,7 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
         )
       ) : (
         <ConversionService 
-          onConvertRecipe={onConversionComplete}
+          onConvertRecipe={handleConversion}
           isConverting={false}
           conversionError={conversionError}
           onReset={onResetRecipe}
