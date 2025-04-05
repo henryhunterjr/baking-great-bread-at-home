@@ -7,9 +7,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RecipeData } from '@/types/recipeTypes';
-import { Clock, Edit, Search, Trash2 } from 'lucide-react';
+import { Clock, Edit, Search, Trash2, Database } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { getSavedRecipes, deleteRecipe } from '@/utils/storage-helpers';
+import { storageService } from '@/services/StorageService';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const MyRecipes: React.FC = () => {
   useScrollToTop();
@@ -17,29 +20,51 @@ const MyRecipes: React.FC = () => {
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState<RecipeData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [storageProvider, setStorageProvider] = useState(localStorage.getItem('storage_provider') || 'local');
   
   useEffect(() => {
-    // Load recipes from localStorage
+    // Load recipes from storage service
+    loadRecipes();
+  }, [storageProvider]);
+  
+  const loadRecipes = async () => {
+    setIsLoading(true);
     try {
-      const savedRecipes = localStorage.getItem('savedRecipes');
-      if (savedRecipes) {
-        setRecipes(JSON.parse(savedRecipes));
-      }
+      const loadedRecipes = await getSavedRecipes();
+      setRecipes(loadedRecipes);
     } catch (error) {
       console.error('Error loading saved recipes:', error);
+      toast({
+        title: "Error Loading Recipes",
+        description: "There was a problem loading your saved recipes.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  };
   
-  const handleDeleteRecipe = (index: number) => {
-    const updatedRecipes = [...recipes];
-    updatedRecipes.splice(index, 1);
-    setRecipes(updatedRecipes);
-    localStorage.setItem('savedRecipes', JSON.stringify(updatedRecipes));
-    
-    toast({
-      title: "Recipe Deleted",
-      description: "The recipe has been removed from your collection.",
-    });
+  const handleDeleteRecipe = async (id: string) => {
+    try {
+      const success = await deleteRecipe(id);
+      if (success) {
+        setRecipes(recipes.filter(recipe => recipe.id !== id));
+        toast({
+          title: "Recipe Deleted",
+          description: "The recipe has been removed from your collection.",
+        });
+      } else {
+        throw new Error("Failed to delete recipe");
+      }
+    } catch (error) {
+      console.error('Error deleting recipe:', error);
+      toast({
+        title: "Delete Failed",
+        description: "Could not delete this recipe. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
   
   const handleEditRecipe = (recipe: RecipeData) => {
@@ -47,6 +72,27 @@ const MyRecipes: React.FC = () => {
     localStorage.setItem('recipeToEdit', JSON.stringify(recipe));
     // Navigate to the recipe converter page
     navigate('/recipe-converter');
+  };
+
+  const handleChangeStorage = async (provider: string) => {
+    if (provider === storageProvider) return;
+    
+    setIsLoading(true);
+    try {
+      await storageService.switchProvider(provider as any);
+      setStorageProvider(provider);
+      toast({
+        title: "Storage Changed",
+        description: `Your recipes are now stored in ${provider === 'local' ? 'browser storage' : provider}.`,
+      });
+    } catch (error) {
+      console.error('Error changing storage:', error);
+      toast({
+        title: "Error",
+        description: "Could not change storage provider.",
+        variant: "destructive"
+      });
+    }
   };
   
   const filteredRecipes = recipes.filter(recipe => 
@@ -69,18 +115,38 @@ const MyRecipes: React.FC = () => {
             </p>
           </div>
           
-          <div className="relative w-full md:w-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search recipes..."
-              className="pl-9 w-full md:w-64"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div className="flex flex-col md:flex-row gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search recipes..."
+                className="pl-9"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Database className="h-4 w-4 text-muted-foreground" />
+              <Select value={storageProvider} onValueChange={handleChangeStorage}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Storage" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="local">Browser Storage</SelectItem>
+                  <SelectItem value="firebase" disabled>Firebase (Soon)</SelectItem>
+                  <SelectItem value="cloud" disabled>Cloud Storage (Soon)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
         
-        {recipes.length === 0 ? (
+        {isLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        ) : recipes.length === 0 ? (
           <div className="text-center py-16">
             <h2 className="text-xl font-medium mb-2">No Saved Recipes Yet</h2>
             <p className="text-muted-foreground mb-6">
@@ -148,7 +214,7 @@ const MyRecipes: React.FC = () => {
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    onClick={() => handleDeleteRecipe(index)}
+                    onClick={() => recipe.id && handleDeleteRecipe(recipe.id)}
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete

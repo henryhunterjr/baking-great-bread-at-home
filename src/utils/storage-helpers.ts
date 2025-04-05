@@ -1,10 +1,12 @@
+
 import { RecipeData } from '@/types/recipeTypes';
 import { logError, logInfo } from '@/utils/logger';
+import { storageService } from '@/services/StorageService';
 
 /**
- * Save a recipe to localStorage with error handling
+ * Save a recipe to storage with error handling
  */
-export const saveRecipeToStorage = (recipe: RecipeData): boolean => {
+export const saveRecipeToStorage = async (recipe: RecipeData): Promise<boolean> => {
   try {
     // Ensure recipe has required fields
     if (!recipe.title || !recipe.ingredients || !recipe.instructions) {
@@ -16,9 +18,6 @@ export const saveRecipeToStorage = (recipe: RecipeData): boolean => {
       return false;
     }
     
-    // Get existing recipes
-    const savedRecipes = getSavedRecipes();
-    
     // Create a unique identifier for this recipe if it doesn't have one
     const recipeToSave = {
       ...recipe,
@@ -26,77 +25,26 @@ export const saveRecipeToStorage = (recipe: RecipeData): boolean => {
       updatedAt: new Date().toISOString()
     };
     
-    // Check if this recipe already exists by ID
-    const existingIndex = savedRecipes.findIndex(r => r.id === recipeToSave.id);
+    logInfo('Saving recipe using storage service', { 
+      id: recipeToSave.id,
+      title: recipeToSave.title
+    });
     
-    // Create new array of recipes
-    let updatedRecipes;
+    // Use the storage service to save the recipe
+    const result = await storageService.saveRecipe(recipeToSave as any);
     
-    if (existingIndex >= 0) {
-      // Update existing recipe
-      updatedRecipes = [...savedRecipes];
-      updatedRecipes[existingIndex] = recipeToSave;
-      logInfo('Updating existing recipe', { id: recipeToSave.id, title: recipeToSave.title });
-    } else {
-      // Check for duplicate titles to avoid confusion
-      const duplicateTitleIndex = savedRecipes.findIndex(
-        r => r.title.toLowerCase() === recipeToSave.title.toLowerCase() && r.id !== recipeToSave.id
-      );
-      
-      if (duplicateTitleIndex >= 0) {
-        // Append a number to make the title unique
-        recipeToSave.title = `${recipeToSave.title} (${new Date().toLocaleTimeString()})`;
-      }
-      
-      // Add new recipe
-      updatedRecipes = [...savedRecipes, recipeToSave];
-      logInfo('Adding new recipe', { id: recipeToSave.id, title: recipeToSave.title });
-    }
-    
-    // Save back to localStorage with error handling
-    try {
-      localStorage.setItem('savedRecipes', JSON.stringify(updatedRecipes));
-      
-      // Verify the save worked by reading it back
-      const savedData = localStorage.getItem('savedRecipes');
-      if (!savedData) {
-        throw new Error('Verification failed: saved data not found');
-      }
-      
+    if (result) {
       logInfo('Recipe saved successfully', { 
         id: recipeToSave.id,
-        title: recipeToSave.title,
-        recipeCount: updatedRecipes.length
+        title: recipeToSave.title
       });
-      
-      return true;
-    } catch (storageError) {
-      // Handle storage errors (quota exceeded, etc.)
-      logError('localStorage error', { error: storageError });
-      
-      // If storage is full, try to remove old recipes
-      if (updatedRecipes.length > 10) {
-        try {
-          // Keep only the 5 most recent recipes
-          const recentRecipes = updatedRecipes.slice(-5);
-          localStorage.setItem('savedRecipes', JSON.stringify(recentRecipes));
-          logInfo('Cleaned up storage by removing old recipes', { 
-            removed: updatedRecipes.length - recentRecipes.length,
-            remaining: recentRecipes.length
-          });
-          
-          // Try to save the current recipe again
-          recentRecipes.push(recipeToSave);
-          localStorage.setItem('savedRecipes', JSON.stringify(recentRecipes));
-          return true;
-        } catch (retryError) {
-          logError('Failed to save recipe after cleanup', { error: retryError });
-          return false;
-        }
-      }
-      
-      return false;
+    } else {
+      logError('Failed to save recipe via storage service', {
+        id: recipeToSave.id
+      });
     }
+    
+    return result;
   } catch (error) {
     logError('Error saving recipe', { error });
     return false;
@@ -104,24 +52,22 @@ export const saveRecipeToStorage = (recipe: RecipeData): boolean => {
 };
 
 /**
- * Get all saved recipes from localStorage with error handling
+ * Get all saved recipes from storage with error handling
  */
-export const getSavedRecipes = (): RecipeData[] => {
+export const getSavedRecipes = async (): Promise<RecipeData[]> => {
   try {
-    const savedRecipesJson = localStorage.getItem('savedRecipes');
-    if (!savedRecipesJson) return [];
-    
-    const savedRecipes = JSON.parse(savedRecipesJson);
+    // Use the storage service to get all recipes
+    const recipes = await storageService.getAllRecipes();
     
     // Validate the data structure is an array
-    if (!Array.isArray(savedRecipes)) {
-      logError('Saved recipes data is not an array', { data: typeof savedRecipes });
+    if (!Array.isArray(recipes)) {
+      logError('Saved recipes data is not an array', { data: typeof recipes });
       return [];
     }
     
     // Filter out invalid recipes and ensure they have unique IDs
     const seenIds = new Set();
-    const validRecipes = savedRecipes
+    const validRecipes = recipes
       .filter(recipe => 
         recipe && 
         typeof recipe === 'object' && 
@@ -147,7 +93,7 @@ export const getSavedRecipes = (): RecipeData[] => {
     });
     
     logInfo('Retrieved saved recipes', { count: validRecipes.length });
-    return validRecipes;
+    return validRecipes as RecipeData[];
   } catch (error) {
     logError('Error retrieving saved recipes', { error });
     return [];
@@ -155,20 +101,12 @@ export const getSavedRecipes = (): RecipeData[] => {
 };
 
 /**
- * Delete a recipe from localStorage
+ * Delete a recipe from storage
  */
-export const deleteRecipe = (recipeId: string): boolean => {
+export const deleteRecipe = async (recipeId: string): Promise<boolean> => {
   try {
-    const savedRecipes = getSavedRecipes();
-    const filteredRecipes = savedRecipes.filter(recipe => recipe.id !== recipeId);
-    
-    if (filteredRecipes.length === savedRecipes.length) {
-      // Recipe not found
-      return false;
-    }
-    
-    localStorage.setItem('savedRecipes', JSON.stringify(filteredRecipes));
-    return true;
+    // Use the storage service to delete the recipe
+    return await storageService.deleteRecipe(recipeId);
   } catch (error) {
     logError('Error deleting recipe', { error });
     return false;
@@ -178,9 +116,16 @@ export const deleteRecipe = (recipeId: string): boolean => {
 /**
  * Clear all saved recipes
  */
-export const clearAllRecipes = (): boolean => {
+export const clearAllRecipes = async (): Promise<boolean> => {
   try {
-    localStorage.removeItem('savedRecipes');
+    // Get all recipes
+    const recipes = await storageService.getAllRecipes();
+    
+    // Delete each recipe
+    for (const recipe of recipes) {
+      await storageService.deleteRecipe(recipe.id);
+    }
+    
     return true;
   } catch (error) {
     logError('Error clearing recipes', { error });

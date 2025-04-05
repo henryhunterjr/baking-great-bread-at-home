@@ -6,11 +6,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import APIKeyForm from '@/components/ai/settings/APIKeyForm';
-import { SettingsIcon, SunIcon, MoonIcon } from 'lucide-react';
+import { SettingsIcon, SunIcon, MoonIcon, UserIcon, Database } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useTheme } from '@/contexts/ThemeContext';
 import { toast } from 'sonner';
+import ProfilePreferencesForm from '@/components/auth/ProfilePreferencesForm';
+import StorageSettings from '@/components/settings/StorageSettings';
 
 const Settings = () => {
   useScrollToTop();
@@ -37,7 +39,8 @@ const Settings = () => {
             <Tabs defaultValue="api" className="space-y-6">
               <TabsList>
                 <TabsTrigger value="api">API Configuration</TabsTrigger>
-                <TabsTrigger value="general">General</TabsTrigger>
+                <TabsTrigger value="preferences">User Preferences</TabsTrigger>
+                <TabsTrigger value="storage">Storage</TabsTrigger>
                 <TabsTrigger value="appearance">Appearance</TabsTrigger>
               </TabsList>
               
@@ -55,18 +58,24 @@ const Settings = () => {
                 </Card>
               </TabsContent>
               
-              <TabsContent value="general">
+              <TabsContent value="preferences">
                 <Card>
                   <CardHeader>
-                    <CardTitle>General Settings</CardTitle>
+                    <CardTitle className="flex items-center">
+                      <UserIcon className="mr-2 h-5 w-5" /> User Preferences
+                    </CardTitle>
                     <CardDescription>
-                      Manage your general application settings
+                      Customize your baking experience
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">General settings will be available in a future update.</p>
+                    <ProfilePreferencesForm />
                   </CardContent>
                 </Card>
+              </TabsContent>
+              
+              <TabsContent value="storage">
+                <StorageSettings />
               </TabsContent>
               
               <TabsContent value="appearance">

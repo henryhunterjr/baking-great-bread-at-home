@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { RecipeData } from '@/types/recipeTypes';
 import { AlertCircle, Bookmark, BookOpen, LogIn, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import { getSavedRecipes, clearAllRecipes, deleteRecipe } from '@/utils/storage-helpers';
 
 interface RecipeSavedListProps {
   onSelectRecipe: (recipe: RecipeData) => void;
@@ -38,18 +38,10 @@ const RecipeSavedList: React.FC<RecipeSavedListProps> = ({
     }
   }, [user]);
   
-  const loadSavedRecipes = () => {
+  const loadSavedRecipes = async () => {
     setIsLoading(true);
     try {
-      const recipes = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
-      
-      // Sort recipes by updatedAt date (newest first)
-      recipes.sort((a: RecipeData, b: RecipeData) => {
-        const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
-        const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
-        return dateB - dateA;
-      });
-      
+      const recipes = await getSavedRecipes();
       setSavedRecipes(recipes);
     } catch (error) {
       console.error('Error loading saved recipes:', error);
@@ -63,26 +55,55 @@ const RecipeSavedList: React.FC<RecipeSavedListProps> = ({
     }
   };
   
-  const handleDelete = (index: number) => {
-    const updatedRecipes = [...savedRecipes];
-    updatedRecipes.splice(index, 1);
-    setSavedRecipes(updatedRecipes);
-    localStorage.setItem('savedRecipes', JSON.stringify(updatedRecipes));
+  const handleDelete = async (index: number) => {
+    const recipeId = savedRecipes[index].id;
+    if (!recipeId) return;
     
-    toast({
-      title: "Recipe Deleted",
-      description: "Recipe was successfully removed from your saved recipes.",
-    });
+    try {
+      const success = await deleteRecipe(recipeId);
+      if (success) {
+        const updatedRecipes = [...savedRecipes];
+        updatedRecipes.splice(index, 1);
+        setSavedRecipes(updatedRecipes);
+        
+        toast({
+          title: "Recipe Deleted",
+          description: "Recipe was successfully removed from your saved recipes.",
+        });
+      } else {
+        throw new Error("Failed to delete recipe");
+      }
+    } catch (error) {
+      console.error('Error deleting recipe:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not delete the recipe. Please try again.",
+      });
+    }
   };
 
-  const handleClearAll = () => {
+  const handleClearAll = async () => {
     if (window.confirm('Are you sure you want to delete all saved recipes? This action cannot be undone.')) {
-      localStorage.removeItem('savedRecipes');
-      setSavedRecipes([]);
-      toast({
-        title: "All Recipes Deleted",
-        description: "All your saved recipes have been deleted.",
-      });
+      try {
+        const success = await clearAllRecipes();
+        if (success) {
+          setSavedRecipes([]);
+          toast({
+            title: "All Recipes Deleted",
+            description: "All your saved recipes have been deleted.",
+          });
+        } else {
+          throw new Error("Failed to clear recipes");
+        }
+      } catch (error) {
+        console.error('Error clearing recipes:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to clear all recipes. Please try again.",
+        });
+      }
     }
   };
 
