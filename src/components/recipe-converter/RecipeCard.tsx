@@ -1,9 +1,9 @@
+
 import React, { useState } from 'react';
 import { RecipeData } from '@/types/recipeTypes';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Edit, Printer, RotateCcw, Save, ArrowLeft, Image, Upload, Loader } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 
 interface RecipeCardProps {
@@ -23,15 +23,15 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   onSave,
   onUpdateRecipe
 }) => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   
-  const handleBackClick = () => {
-    navigate('/', { replace: true });
-    window.scrollTo(0, 0);
+  const handleBackClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    // Force a hard navigation to the root page
+    window.location.href = '/';
   };
 
   const handleImageUploadClick = () => {

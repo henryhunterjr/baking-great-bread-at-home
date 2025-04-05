@@ -1,22 +1,18 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Home, ArrowLeft, Coffee, Book, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const RecipeConverterNav = () => {
-  const navigate = useNavigate();
-
-  const handleHomeClick = () => {
-    // Force a complete navigation reset
-    navigate('/', { replace: true });
-    // Clear any cached state that might be affecting navigation
-    window.history.replaceState({}, document.title, '/');
-    // Scroll to top immediately without animation
-    window.scrollTo({
-      top: 0,
-      behavior: 'auto'
-    });
+  const handleHomeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    // Force a hard navigation to home
+    window.location.href = '/';
+  };
+  
+  const handleNavClick = (path: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.location.href = path;
   };
   
   return (
@@ -29,17 +25,17 @@ const RecipeConverterNav = () => {
       </div>
       
       <div className="flex items-center space-x-2">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/recipes', { replace: true })}>
+        <Button variant="ghost" size="sm" onClick={handleNavClick('/recipes')}>
           <Coffee className="mr-2 h-4 w-4" />
           Recipes
         </Button>
         
-        <Button variant="ghost" size="sm" onClick={() => navigate('/guides', { replace: true })}>
+        <Button variant="ghost" size="sm" onClick={handleNavClick('/guides')}>
           <Book className="mr-2 h-4 w-4" />
           Guides
         </Button>
         
-        <Button variant="ghost" size="sm" onClick={() => navigate('/challenges', { replace: true })}>
+        <Button variant="ghost" size="sm" onClick={handleNavClick('/challenges')}>
           <Calendar className="mr-2 h-4 w-4" />
           Challenges
         </Button>

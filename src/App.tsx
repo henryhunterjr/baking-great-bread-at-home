@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import RecipeConverter from '@/pages/RecipeConverter';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { initializeWorkers, preloadWorkers } from '@/utils/workerUtils';
@@ -38,9 +38,9 @@ const App: React.FC = () => {
           <Route path="/" element={<RecipeConverter />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/recipes" element={<Navigate to="/" />} />
-          <Route path="/guides" element={<Navigate to="/" />} />
-          <Route path="/challenges" element={<Navigate to="/" />} />
+          <Route path="/recipes" element={<RecipeConverter />} />
+          <Route path="/guides" element={<RecipeConverter />} />
+          <Route path="/challenges" element={<RecipeConverter />} />
           <Route path="*" element={<RecipeConverter />} />
         </Routes>
         <Toaster />
