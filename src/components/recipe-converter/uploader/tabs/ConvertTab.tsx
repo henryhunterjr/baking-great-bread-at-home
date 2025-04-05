@@ -8,6 +8,8 @@ import RecipeHelp from './convert-tab/components/RecipeHelp';
 import AlertMessages from './convert-tab/components/AlertMessages';
 import { useConvertTab } from './convert-tab/hooks/useConvertTab';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import { useAIConversion } from '@/services/AIConversionService';
+import { AlertCircle, Lightbulb } from 'lucide-react';
 
 interface ConvertTabProps {
   recipeText: string;
@@ -27,6 +29,7 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
   const formContext = useFormContext();
   const { showSuccess, showHelpTip } = useConvertTab({ recipeText });
   const [localError, setLocalError] = useState<string | null>(null);
+  const { hasApiKey } = useAIConversion();
   
   // Combine local and prop errors
   const displayError = localError || error;
@@ -40,6 +43,28 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
           showHelpTip={showHelpTip}
           isConverting={isConverting}
         />
+        
+        {hasApiKey && (
+          <div className="flex items-start p-3 bg-green-50 border border-green-100 rounded-md">
+            <Lightbulb className="h-5 w-5 text-green-600 mt-0.5 mr-2" />
+            <div>
+              <p className="text-sm text-green-800">
+                AI recipe assistant enabled! Paste your recipe and we'll analyze it to provide bread-specific tips and improvements.
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {!hasApiKey && (
+          <div className="flex items-start p-3 bg-amber-50 border border-amber-100 rounded-md">
+            <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5 mr-2" />
+            <div>
+              <p className="text-sm text-amber-800">
+                Add your OpenAI API key in Settings to enable AI-powered recipe analysis and get baking tips specific to your recipe.
+              </p>
+            </div>
+          </div>
+        )}
         
         <div className="space-y-2">
           <div className="flex justify-between items-center">
