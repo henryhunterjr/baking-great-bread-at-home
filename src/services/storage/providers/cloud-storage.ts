@@ -1,59 +1,107 @@
 
-import { Recipe, IStorageProvider } from '../types';
-import { LocalStorageProvider } from './local-storage';
+import { Recipe } from '../types';
+import { logError, logInfo } from '@/utils/logger';
 
-export class CloudStorageProvider implements IStorageProvider {
-  private localStorageFallback = new LocalStorageProvider();
-  
-  async saveRecipe(recipeData: Recipe): Promise<boolean> {
+export class CloudStorageProvider {
+  private apiUrl: string = '';
+  private apiToken: string | null = null;
+
+  constructor(apiUrl?: string, apiToken?: string) {
+    if (apiUrl) this.apiUrl = apiUrl;
+    if (apiToken) this.apiToken = apiToken;
+  }
+
+  async configure(apiUrl: string, apiToken: string): Promise<boolean> {
     try {
-      console.log('Cloud storage not yet implemented');
-      // Cloud API implementation would go here
-      
-      // Fallback to local storage for now
-      return this.localStorageFallback.saveRecipe(recipeData);
+      this.apiUrl = apiUrl;
+      this.apiToken = apiToken;
+      return true;
     } catch (error) {
-      console.error('Cloud storage error:', error);
-      return this.localStorageFallback.saveRecipe(recipeData);
+      logError('Error configuring cloud storage', { error });
+      return false;
     }
   }
-  
+
+  async saveRecipe(recipe: Recipe): Promise<boolean> {
+    try {
+      if (!this.apiUrl || !this.apiToken) {
+        throw new Error('Cloud storage not configured');
+      }
+
+      const response = await fetch(`${this.apiUrl}/recipes`, {
+        method: recipe.id ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiToken}`
+        },
+        body: JSON.stringify(recipe)
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      logInfo('Recipe saved to cloud storage', { id: recipe.id, title: recipe.title });
+      return true;
+    } catch (error) {
+      logError('Error saving recipe to cloud storage', { error, recipeId: recipe.id });
+      return false;
+    }
+  }
+
   async getAllRecipes(): Promise<Recipe[]> {
     try {
-      console.log('Cloud retrieval not yet implemented');
-      // Cloud API implementation would go here
-      
-      // Fallback to local storage for now
-      return this.localStorageFallback.getAllRecipes();
+      if (!this.apiUrl || !this.apiToken) {
+        throw new Error('Cloud storage not configured');
+      }
+
+      const response = await fetch(`${this.apiUrl}/recipes`, {
+        headers: {
+          'Authorization': `Bearer ${this.apiToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const recipes = await response.json();
+      logInfo('Recipes fetched from cloud storage', { count: recipes.length });
+      return recipes;
     } catch (error) {
-      console.error('Cloud retrieval error:', error);
-      return this.localStorageFallback.getAllRecipes();
+      logError('Error getting recipes from cloud storage', { error });
+      return [];
     }
   }
-  
-  async getRecipe(id: string): Promise<Recipe | null> {
-    try {
-      console.log('Cloud specific recipe retrieval not yet implemented');
-      // Cloud API implementation would go here
-      
-      // Fallback to local storage for now
-      return this.localStorageFallback.getRecipe(id);
-    } catch (error) {
-      console.error('Cloud recipe retrieval error:', error);
-      return this.localStorageFallback.getRecipe(id);
-    }
-  }
-  
+
   async deleteRecipe(id: string): Promise<boolean> {
     try {
-      console.log('Cloud deletion not yet implemented');
-      // Cloud API implementation would go here
-      
-      // Fallback to local storage for now
-      return this.localStorageFallback.deleteRecipe(id);
+      if (!this.apiUrl || !this.apiToken) {
+        throw new Error('Cloud storage not configured');
+      }
+
+      const response = await fetch(`${this.apiUrl}/recipes/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${this.apiToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      logInfo('Recipe deleted from cloud storage', { id });
+      return true;
     } catch (error) {
-      console.error('Cloud deletion error:', error);
-      return this.localStorageFallback.deleteRecipe(id);
+      logError('Error deleting recipe from cloud storage', { error, recipeId: id });
+      return false;
     }
   }
+
+  isConfigured(): boolean {
+    return !!(this.apiUrl && this.apiToken);
+  }
 }
+
+export const cloudStorageProvider = new CloudStorageProvider();

@@ -14,3 +14,13 @@ export interface BakersPercentages {
 export interface BakersCalculatorProps {
   // Add any props if needed
 }
+
+export interface RecipeIngredient {
+  name: string;
+  quantity: number;
+  unit: string;
+}
+
+export interface RecipeFormProps {
+  onCalculate: (ingredients: Ingredient[]) => void;
+}
