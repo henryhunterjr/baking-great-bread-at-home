@@ -7,12 +7,20 @@ const conversionMap: Record<string, Record<string, number>> = {
   'oz': { 'g': 28.3495 },
   'kg': { 'lb': 2.20462 },
   'lb': { 'kg': 0.453592 },
-  'ml': { 'fl oz': 0.033814 },
-  'fl oz': { 'ml': 29.5735 },
+  'ml': { 
+    'fl oz': 0.033814,
+    'c': 0.00422675 // Corrected from the duplicate entry
+  },
+  'fl oz': { 
+    'ml': 29.5735,
+    'c': 0.125 // Added conversion for fluid ounces to cups
+  },
   'l': { 'qt': 1.05669 },
   'qt': { 'l': 0.946353 },
-  'c': { 'ml': 236.588 },
-  'ml': { 'c': 0.00423 }
+  'c': { 
+    'ml': 236.588,
+    'fl oz': 8 // Added conversion for cups to fluid ounces
+  }
 };
 
 /**
