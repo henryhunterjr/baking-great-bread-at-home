@@ -18,8 +18,8 @@ export class FirebaseStorageProvider implements IStorageProvider {
   private async initializeFirebase(): Promise<void> {
     try {
       // Dynamically import Firebase to reduce initial bundle size
-      const { initializeApp } = await import('firebase/app');
-      const { getFirestore } = await import('firebase/firestore');
+      const firebase = await import('firebase/app');
+      const firestoreModule = await import('firebase/firestore');
       
       // Firebase configuration - in a real app, use environment variables
       const firebaseConfig = {
@@ -32,8 +32,8 @@ export class FirebaseStorageProvider implements IStorageProvider {
       };
       
       // Initialize Firebase
-      const app = initializeApp(firebaseConfig);
-      this.firestore = getFirestore(app);
+      const app = firebase.initializeApp(firebaseConfig);
+      this.firestore = firestoreModule.getFirestore(app);
       this.isInitialized = true;
       
       logInfo('Firebase initialized successfully');
@@ -66,7 +66,7 @@ export class FirebaseStorageProvider implements IStorageProvider {
       }
       
       // Import Firestore methods on-demand
-      const { doc, setDoc, collection } = await import('firebase/firestore');
+      const firestoreModule = await import('firebase/firestore');
       
       // Prepare the recipe data - ensure ID and timestamps
       const preparedRecipe = {
@@ -77,7 +77,10 @@ export class FirebaseStorageProvider implements IStorageProvider {
       };
       
       // Save to Firestore
-      await setDoc(doc(db, 'recipes', preparedRecipe.id), preparedRecipe);
+      await firestoreModule.setDoc(
+        firestoreModule.doc(db, 'recipes', preparedRecipe.id), 
+        preparedRecipe
+      );
       logInfo('Recipe saved to Firebase', { recipeId: preparedRecipe.id });
       
       return true;
@@ -97,13 +100,15 @@ export class FirebaseStorageProvider implements IStorageProvider {
       }
       
       // Import Firestore methods on-demand
-      const { collection, getDocs } = await import('firebase/firestore');
+      const firestoreModule = await import('firebase/firestore');
       
       // Get all recipes from the collection
-      const recipesSnapshot = await getDocs(collection(db, 'recipes'));
+      const recipesSnapshot = await firestoreModule.getDocs(
+        firestoreModule.collection(db, 'recipes')
+      );
       const recipes: Recipe[] = [];
       
-      recipesSnapshot.forEach((doc) => {
+      recipesSnapshot.forEach((doc: any) => {
         recipes.push(doc.data() as Recipe);
       });
       
@@ -129,10 +134,12 @@ export class FirebaseStorageProvider implements IStorageProvider {
       }
       
       // Import Firestore methods on-demand
-      const { doc, getDoc } = await import('firebase/firestore');
+      const firestoreModule = await import('firebase/firestore');
       
       // Get the specific recipe
-      const recipeSnapshot = await getDoc(doc(db, 'recipes', id));
+      const recipeSnapshot = await firestoreModule.getDoc(
+        firestoreModule.doc(db, 'recipes', id)
+      );
       
       if (recipeSnapshot.exists()) {
         return recipeSnapshot.data() as Recipe;
@@ -155,10 +162,12 @@ export class FirebaseStorageProvider implements IStorageProvider {
       }
       
       // Import Firestore methods on-demand
-      const { doc, deleteDoc } = await import('firebase/firestore');
+      const firestoreModule = await import('firebase/firestore');
       
       // Delete the recipe
-      await deleteDoc(doc(db, 'recipes', id));
+      await firestoreModule.deleteDoc(
+        firestoreModule.doc(db, 'recipes', id)
+      );
       logInfo('Recipe deleted from Firebase', { recipeId: id });
       
       return true;
