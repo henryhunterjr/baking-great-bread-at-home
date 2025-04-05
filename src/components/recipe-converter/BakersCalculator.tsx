@@ -147,11 +147,12 @@ const BakersCalculator: React.FC = () => {
     
     // Enhance with AI analysis
     if (bakersPercentages) {
-      await analyzeRecipe({
-        ...recipeForm,
-        // Pass hydration as a separate parameter rather than trying to add it to RecipeData
-        hydration: bakersPercentages.hydration
-      });
+      // Create a copy of the recipe to analyze
+      const recipeToAnalyze: RecipeData = { ...recipeForm };
+      
+      // Pass the recipe to analyze without modifying the RecipeData type
+      // The hydration will be extracted from bakersPercentages in the context
+      await analyzeRecipe(recipeToAnalyze);
     }
   };
   
