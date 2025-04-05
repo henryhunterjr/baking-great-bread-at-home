@@ -7,10 +7,11 @@ import { initializeWorkers, preloadWorkers } from '@/utils/workerUtils';
 import { isAIConfigured } from '@/lib/ai-services';
 import { logInfo } from '@/utils/logger';
 import { Toaster } from '@/components/ui/toaster';
-import { AuthProvider } from '@/contexts/AuthContext';
 import AuthPage from '@/pages/AuthPage';
 import ProfilePage from '@/pages/ProfilePage';
 import { useScrollToTop } from '@/hooks/use-scroll-to-top';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import FavoritesPage from '@/pages/FavoritesPage';
 
 const App: React.FC = () => {
   // Use the scroll to top hook to ensure navigation scrolls to top
@@ -33,18 +34,28 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<RecipeConverter />} />
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/recipes" element={<RecipeConverter />} />
-          <Route path="/guides" element={<RecipeConverter />} />
-          <Route path="/challenges" element={<RecipeConverter />} />
-          <Route path="*" element={<RecipeConverter />} />
-        </Routes>
-        <Toaster />
-      </AuthProvider>
+      <Routes>
+        <Route path="/" element={<RecipeConverter />} />
+        <Route path="/auth" element={<AuthPage />} />
+        
+        {/* Protected Routes */}
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        } />
+        <Route path="/favorites" element={
+          <ProtectedRoute>
+            <FavoritesPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/recipes" element={<RecipeConverter />} />
+        <Route path="/guides" element={<RecipeConverter />} />
+        <Route path="/challenges" element={<RecipeConverter />} />
+        <Route path="*" element={<RecipeConverter />} />
+      </Routes>
+      <Toaster />
     </ErrorBoundary>
   );
 };
