@@ -2,6 +2,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+import { AIAssistantProvider } from './contexts/AIAssistantContext'
 import App from './App.tsx'
 import './index.css'  // This now points to our refactored CSS structure
 
@@ -11,8 +12,10 @@ import DevToolsToggle from './components/dev/DevToolsToggle'
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
-      <DevToolsToggle />
+      <AIAssistantProvider>
+        <App />
+        <DevToolsToggle />
+      </AIAssistantProvider>
     </BrowserRouter>
   </React.StrictMode>,
 )

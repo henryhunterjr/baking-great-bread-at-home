@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { RecipeData } from '@/types/recipeTypes';
-import { ChatMessage } from './types/chat';
-import ChatSection from './chat/ChatSection';
+import AIAssistantPanel from '@/components/ai/AIAssistantPanel';
 import RecipeGenerator from './generator/RecipeGenerator';
 
 interface RecipeAssistantProps {
@@ -10,25 +9,14 @@ interface RecipeAssistantProps {
 }
 
 const RecipeAssistant: React.FC<RecipeAssistantProps> = ({ recipe }) => {
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
-    {
-      role: 'assistant',
-      content: 'Hi there! I\'m your Recipe Assistant. I can help you with substitutions, answer baking questions, generate new recipes, and more. What would you like help with today?'
-    }
-  ]);
-  
   const handleGenerateRecipe = (generatedRecipe: RecipeData) => {
     // Handle the generated recipe here
-    const newMessage: ChatMessage = {
-      role: 'assistant',
-      content: `I've generated a recipe for ${generatedRecipe.title}. Would you like me to explain any part of it in detail?`
-    };
-    setChatHistory(prevHistory => [...prevHistory, newMessage]);
+    console.log('Generated recipe:', generatedRecipe);
   };
   
   return (
     <div className="space-y-4">
-      <ChatSection recipe={recipe} />
+      <AIAssistantPanel recipe={recipe} />
       <RecipeGenerator onGenerateRecipe={handleGenerateRecipe} />
     </div>
   );
