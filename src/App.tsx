@@ -13,6 +13,7 @@ import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import FavoritesPage from '@/pages/FavoritesPage';
 import { BreadAssistantProvider } from '@/contexts/BreadAssistantContext';
+import AIBreadAssistant from '@/components/AIBreadAssistant';
 
 const App: React.FC = () => {
   // Use the scroll to top hook to ensure navigation scrolls to top
@@ -57,6 +58,7 @@ const App: React.FC = () => {
           <Route path="/challenges" element={<RecipeConverter />} />
           <Route path="*" element={<RecipeConverter />} />
         </Routes>
+        <AIBreadAssistant />
         <Toaster />
       </BreadAssistantProvider>
     </ErrorBoundary>
