@@ -7,6 +7,7 @@ import { RecipeData } from '@/types/recipeTypes';
 import RecipeAssistant from './RecipeAssistant';
 import RecipeSavedList from './RecipeSavedList';
 import BreadAssistantPanel from './BreadAssistantPanel';
+import BakersCalculator from './BakersCalculator';
 
 interface RecipeConverterSidebarProps {
   activeTab: string;
@@ -25,9 +26,10 @@ const RecipeConverterSidebar: React.FC<RecipeConverterSidebarProps> = ({
 }) => {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="assistant">AI Assistant</TabsTrigger>
         <TabsTrigger value="bread">Bread Tips</TabsTrigger>
+        <TabsTrigger value="calculator">Calculator</TabsTrigger>
         <TabsTrigger value="favorites" className="relative">
           My Recipes
           {recipe.isConverted && !isEditing && (
@@ -43,6 +45,9 @@ const RecipeConverterSidebar: React.FC<RecipeConverterSidebarProps> = ({
       </TabsContent>
       <TabsContent value="bread" className="mt-4">
         <BreadAssistantPanel recipe={recipe} />
+      </TabsContent>
+      <TabsContent value="calculator" className="mt-4">
+        <BakersCalculator />
       </TabsContent>
       <TabsContent value="favorites" className="mt-4">
         <RecipeSavedList 

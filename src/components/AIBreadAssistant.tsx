@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, Send } from 'lucide-react';
+import { Loader2, Send, Sparkles } from 'lucide-react';
 import { useBreadAssistant } from '@/contexts/BreadAssistantContext';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
@@ -15,7 +15,8 @@ const AIBreadAssistant: React.FC = () => {
     conversationHistory, 
     askQuestion, 
     clearHistory, 
-    isAnalyzing 
+    isAnalyzing,
+    recentSuggestions
   } = useBreadAssistant();
   
   // Scroll to bottom of chat on new messages
@@ -48,7 +49,10 @@ const AIBreadAssistant: React.FC = () => {
         <Card className="h-full flex flex-col">
           <CardHeader>
             <CardTitle className="text-lg flex items-center justify-between">
-              Bread Baking Assistant
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-amber-500" />
+                Bread Baking Assistant
+              </div>
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -65,6 +69,24 @@ const AIBreadAssistant: React.FC = () => {
               <div className="text-center text-muted-foreground py-8">
                 <p>Hello! I'm your bread baking assistant.</p>
                 <p className="mt-2">Ask me anything about bread recipes, techniques, or troubleshooting.</p>
+                
+                <div className="mt-8">
+                  <p className="font-medium mb-2">Try asking questions like:</p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="p-2 bg-muted rounded-md hover:bg-muted/70 cursor-pointer"
+                        onClick={() => askQuestion("What's a good hydration percentage for sourdough?")}>
+                      What's a good hydration percentage for sourdough?
+                    </li>
+                    <li className="p-2 bg-muted rounded-md hover:bg-muted/70 cursor-pointer"
+                        onClick={() => askQuestion("How do I achieve a more open crumb?")}>
+                      How do I achieve a more open crumb?
+                    </li>
+                    <li className="p-2 bg-muted rounded-md hover:bg-muted/70 cursor-pointer"
+                        onClick={() => askQuestion("What's the best way to store bread?")}>
+                      What's the best way to store bread?
+                    </li>
+                  </ul>
+                </div>
               </div>
             ) : (
               conversationHistory.map((msg, index) => (
@@ -77,6 +99,11 @@ const AIBreadAssistant: React.FC = () => {
                   }`}
                 >
                   {msg.content}
+                  {msg.timestamp && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  )}
                 </div>
               ))
             )}
