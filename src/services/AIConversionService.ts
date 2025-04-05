@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
+import { isAIConfigured, getOpenAIApiKey } from '@/lib/ai-services/ai-config';
 import { logError, logInfo } from '@/utils/logger';
-import { isAIConfigured, getOpenAIApiKey, updateOpenAIApiKey } from '@/lib/ai-services';
 
 // Types
 export enum ConversionErrorType {
@@ -32,10 +32,7 @@ export interface ConversionResult {
 class AIConversionService {
   private static instance: AIConversionService;
   
-  private constructor() {
-    // Make sure we have the latest API key
-    updateOpenAIApiKey();
-  }
+  private constructor() {}
   
   public static getInstance(): AIConversionService {
     if (!AIConversionService.instance) {
@@ -54,14 +51,7 @@ class AIConversionService {
     text: string, 
     options = { detailed: false }
   ): Promise<ConversionResult> {
-    const apiKey = getOpenAIApiKey();
-    
-    if (!apiKey) {
-      logError('OpenAI API key not set during recipe processing', {
-        code: 'AI_MISSING_KEY',
-        component: 'AIConversionService'
-      });
-      
+    if (!this.hasApiKey()) {
       return {
         success: false,
         error: {
@@ -72,15 +62,12 @@ class AIConversionService {
     }
     
     try {
+      const apiKey = getOpenAIApiKey();
+      
       // Prepare prompt based on detail level
       const prompt = options.detailed
         ? `Parse this bread recipe in detail, identifying all ingredients with quantities, instructions, and any special techniques:`
         : `Parse this bread recipe, extracting ingredients with quantities and basic instructions:`;
-      
-      logInfo('Making API call to process recipe text', { 
-        textLength: text.length,
-        detailed: options.detailed
-      });
       
       // Make OpenAI API call
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -120,12 +107,6 @@ class AIConversionService {
       // Generate AI suggestions
       const suggestions = await this.generateSuggestions(parsedRecipe);
       
-      logInfo('Recipe processed successfully with AI', {
-        hasIngredients: Array.isArray(parsedRecipe.ingredients),
-        hasInstructions: Array.isArray(parsedRecipe.instructions),
-        hasSuggestions: !!suggestions
-      });
-      
       return {
         success: true,
         data: parsedRecipe,
@@ -133,9 +114,9 @@ class AIConversionService {
       };
     } catch (error) {
       // Log error
-      logError('AI processing error', {
+      logError('AI processing error', { 
         error: error instanceof Error ? error.message : 'Unknown error',
-        textLength: text.length
+        textLength: text.length 
       });
       
       return {
@@ -150,129 +131,13 @@ class AIConversionService {
     }
   }
   
-  // Handle conversion errors with AI assistance
-  public async handleConversionError(
-    errorType: ConversionErrorType,
-    originalText: string
-  ): Promise<ConversionResult> {
-    const apiKey = getOpenAIApiKey();
-    
-    if (!apiKey) {
-      return {
-        success: false,
-        error: {
-          type: ConversionErrorType.UNKNOWN,
-          message: 'API key not configured. Please add your OpenAI API key in settings.'
-        }
-      };
-    }
-    
-    try {
-      // Create error-specific prompt
-      let prompt = '';
-      switch (errorType) {
-        case ConversionErrorType.PDF_EXTRACTION:
-          prompt = 'The text was extracted from a PDF but seems to be poorly formatted. ' +
-            'Please try to identify any bread recipe content in the following text, even if formatting is messy:';
-          break;
-        case ConversionErrorType.IMAGE_PROCESSING:
-          prompt = 'This text was extracted from an image using OCR and may contain errors. ' +
-            'Please identify any bread recipe ingredients and instructions, correcting obvious OCR errors:';
-          break;
-        case ConversionErrorType.FORMAT_DETECTION:
-          prompt = 'This text contains a bread recipe, but the standard format parser failed. ' +
-            'Please extract ingredients, quantities, and instructions in a structured JSON format:';
-          break;
-        default:
-          prompt = 'Please try to parse this text into a bread recipe format, ' +
-            'extracting ingredients with quantities, units, and instructions:';
-      }
-      
-      logInfo('Attempting AI error recovery', { 
-        errorType,
-        textLength: originalText.length
-      });
-      
-      // Make OpenAI API call with error-handling prompt
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a helpful assistant that specializes in bread baking. ' +
-                'You can extract recipe data even from poorly formatted or partially corrupted text. ' +
-                'Generate a JSON response with the recipe structure, doing your best to infer missing information.'
-            },
-            { role: 'user', content: `${prompt}\n\n${originalText}` }
-          ],
-          temperature: 0.3,
-          response_format: { type: 'json_object' }
-        })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'API call failed');
-      }
-      
-      const data = await response.json();
-      const parsedRecipe = JSON.parse(data.choices[0].message.content);
-      
-      // Additional analysis for error recovery suggestions
-      const recoverySuggestions = {
-        tips: [
-          'The recipe was recovered with AI assistance - please review for accuracy',
-          'Some measurements may need adjustment based on your experience'
-        ],
-        improvements: [
-          'Consider manually checking ingredient ratios',
-          'Review instructions for completeness'
-        ]
-      };
-      
-      logInfo('AI error recovery successful', {
-        errorType,
-        recipeFound: !!parsedRecipe
-      });
-      
-      return {
-        success: true,
-        data: parsedRecipe,
-        aiSuggestions: recoverySuggestions
-      };
-    } catch (error) {
-      // Log error
-      logError('AI error recovery failed', {
-        errorType,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        textLength: originalText.length
-      });
-      
-      return {
-        success: false,
-        error: {
-          type: errorType,
-          message: 'Unable to recover recipe data. Please try manual entry.'
-        }
-      };
-    }
-  }
-  
   // Generate suggestions based on recipe content
   private async generateSuggestions(recipe: any): Promise<{
     tips: string[];
     improvements: string[];
     alternativeMethods?: string[];
   }> {
-    const apiKey = getOpenAIApiKey();
-    
-    if (!apiKey) {
+    if (!this.hasApiKey()) {
       return {
         tips: [],
         improvements: []
@@ -280,6 +145,8 @@ class AIConversionService {
     }
     
     try {
+      const apiKey = getOpenAIApiKey();
+      
       // Make OpenAI API call for suggestions
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -321,7 +188,7 @@ class AIConversionService {
         alternativeMethods: suggestions.alternativeMethods || []
       };
     } catch (error) {
-      logError('Failed to generate AI suggestions', {
+      logError('Failed to generate AI suggestions', { 
         error: error instanceof Error ? error.message : 'Unknown error'
       });
       
@@ -351,7 +218,7 @@ export function useAIConversion() {
     try {
       return await service.processRecipeText(text, options);
     } catch (error) {
-      logError('AI conversion hook error', {
+      logError('AI conversion failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
         textLength: text.length
       });
@@ -368,30 +235,8 @@ export function useAIConversion() {
     }
   };
   
-  const handleError = async (
-    errorType: ConversionErrorType, 
-    originalText: string
-  ): Promise<ConversionResult> => {
-    setIsProcessing(true);
-    
-    try {
-      return await service.handleConversionError(errorType, originalText);
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          type: ConversionErrorType.UNKNOWN,
-          message: 'Unable to recover from conversion error.'
-        }
-      };
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-  
   return {
     processRecipe,
-    handleError,
     hasApiKey: service.hasApiKey(),
     isProcessing
   };
