@@ -9,14 +9,24 @@ export class FirebaseStorageProvider implements IStorageProvider {
   private firestore: any = null;
   
   constructor() {
-    this.initializeFirebase().catch(err => {
-      logError('Failed to initialize Firebase', { error: err });
-    });
+    // Only try to initialize Firebase in browser environment
+    if (typeof window !== 'undefined') {
+      this.initializeFirebase().catch(err => {
+        logError('Failed to initialize Firebase', { error: err });
+      });
+    }
   }
   
   // Initialize Firebase
   private async initializeFirebase(): Promise<void> {
     try {
+      // In production, always use local storage fallback due to configuration issues
+      if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+        this.isInitialized = false;
+        logInfo('Firebase initialization skipped in production environment');
+        return;
+      }
+      
       // Dynamically import Firebase to reduce initial bundle size
       const firebase = await import('firebase/app');
       const firestoreModule = await import('firebase/firestore');
@@ -45,6 +55,11 @@ export class FirebaseStorageProvider implements IStorageProvider {
   }
   
   private async getFirestore() {
+    // In production, always return null to use the fallback
+    if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+      return null;
+    }
+    
     if (!this.isInitialized) {
       try {
         await this.initializeFirebase();

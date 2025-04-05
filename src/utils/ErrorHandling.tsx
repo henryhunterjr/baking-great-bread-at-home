@@ -63,9 +63,9 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
       console.error('Failed to store error in localStorage:', e);
     }
     
-    // For critical errors, you might want to send to a monitoring service
+    // For critical errors, we may want to add additional reporting in the future
     if (errorDetails.severity === 'critical') {
-      // e.g., sendToMonitoringService(errorDetails);
+      // Future enhancement: Add monitoring service integration
     }
   };
   
@@ -94,6 +94,32 @@ export function useErrorHandling() {
   }
   return context;
 }
+
+// Fix for ARIA accessibility issue
+export const fixAriaAccessibility = (): void => {
+  try {
+    // Find elements with aria-hidden="true" that might contain focusable elements
+    const ariaHiddenElements = document.querySelectorAll('[aria-hidden="true"]');
+    
+    ariaHiddenElements.forEach(el => {
+      // Check if this element contains any focusable elements
+      const focusableElements = el.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      
+      if (focusableElements.length > 0) {
+        // Replace aria-hidden with inert attribute for better accessibility
+        el.removeAttribute('aria-hidden');
+        el.setAttribute('inert', '');
+        
+        logError('Fixed ARIA accessibility issue', { 
+          element: el.tagName, 
+          focusableCount: focusableElements.length 
+        });
+      }
+    });
+  } catch (error) {
+    logError('Error fixing ARIA accessibility', { error });
+  }
+};
 
 // Error toast notification component
 export const ErrorToast: React.FC = () => {
@@ -129,3 +155,9 @@ export const ErrorToast: React.FC = () => {
     </div>
   );
 };
+
+// Run accessibility fixes on DOM content loaded
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', fixAriaAccessibility);
+  window.addEventListener('load', fixAriaAccessibility);
+}

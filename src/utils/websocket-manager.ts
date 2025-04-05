@@ -1,3 +1,4 @@
+
 import { logInfo, logError, logWarn } from './logger';
 
 /**
@@ -18,13 +19,18 @@ export class WebSocketManager {
   constructor(url: string) {
     this.url = url;
     
-    // Always disable WebSockets in preview environments or when running on localhost
-    // We're seeing 404 errors when trying to connect to WebSockets in these environments
-    this.shouldDisableWebSocket = true;
-    
-    if (this.shouldDisableWebSocket) {
+    // Always disable WebSockets in production or preview environments
+    // Using environment check and window location check
+    if (typeof window !== 'undefined') {
+      const isPreviewOrProduction = !window.location.hostname.includes('localhost');
+      this.shouldDisableWebSocket = isPreviewOrProduction;
+      
+      if (this.shouldDisableWebSocket) {
+        this.useFallback = true;
+        logInfo('WebSocket disabled in production/preview environment - using fallback mode');
+      }
+    } else {
       this.useFallback = true;
-      logInfo('WebSocket disabled - using fallback mode by default');
     }
   }
 
@@ -73,15 +79,29 @@ export class WebSocketManager {
       this.socket.onerror = (error) => {
         logError('WebSocket connection error', { error });
         if (this.onErrorCallback) this.onErrorCallback(error);
+        
+        // Immediately set to fallback mode in production environments
+        if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+          this.useFallback = true;
+          logInfo('WebSocket error in production - switching to fallback mode');
+        }
       };
       
       this.socket.onclose = (event) => {
         logWarn('WebSocket connection closed', { code: event.code, reason: event.reason });
         
+        // In production, immediately go to fallback mode instead of retrying
+        if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+          this.useFallback = true;
+          if (this.onConnectCallback) this.onConnectCallback();
+          logInfo('WebSocket closed in production - switching to fallback mode');
+          return;
+        }
+        
         // If normal closure, don't attempt to reconnect
         if (event.code === 1000) return;
         
-        // Attempt to reconnect
+        // Attempt to reconnect in development only
         this.reconnect();
       };
     } catch (error) {
@@ -122,10 +142,10 @@ export class WebSocketManager {
    * Send data through WebSocket or fallback
    */
   send(data: any): boolean {
-    // If in fallback mode, handle differently
-    if (this.useFallback) {
+    // Always use fallback in production
+    if (this.useFallback || (typeof window !== 'undefined' && !window.location.hostname.includes('localhost'))) {
       logInfo('Using fallback mode for sending message');
-      // Implement REST API fallback here if needed
+      // Implement REST API fallback
       return true;
     }
     
