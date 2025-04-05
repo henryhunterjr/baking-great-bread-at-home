@@ -15,6 +15,7 @@ import FavoritesPage from '@/pages/FavoritesPage';
 import { BreadAssistantProvider } from '@/contexts/BreadAssistantContext';
 import AIBreadAssistant from '@/components/AIBreadAssistant';
 import Settings from '@/pages/Settings';
+import FloatingAIButton from '@/components/ai/FloatingAIButton';
 
 const App: React.FC = () => {
   // Use the scroll to top hook to ensure navigation scrolls to top
@@ -65,6 +66,7 @@ const App: React.FC = () => {
           <Route path="*" element={<RecipeConverter />} />
         </Routes>
         <AIBreadAssistant />
+        <FloatingAIButton />
         <Toaster />
       </BreadAssistantProvider>
     </ErrorBoundary>
