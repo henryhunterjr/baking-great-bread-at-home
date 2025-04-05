@@ -11,7 +11,7 @@ import { Clock, Edit, Search, Trash2, Database } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { getSavedRecipes, deleteRecipe } from '@/utils/storage-helpers';
-import { storageService } from '@/services/StorageService';
+import { storageService } from '@/services/storage';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const MyRecipes: React.FC = () => {

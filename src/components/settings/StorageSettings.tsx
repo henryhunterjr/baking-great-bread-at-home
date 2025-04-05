@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -6,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Cloud, Database, HardDrive, Loader2 } from "lucide-react";
-import { storageService } from '@/services/StorageService';
+import { storageService, StorageProvider } from '@/services/storage';
 
 type StorageProvider = 'local' | 'firebase' | 'cloud';
 

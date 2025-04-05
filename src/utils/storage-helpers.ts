@@ -1,7 +1,6 @@
-
 import { RecipeData } from '@/types/recipeTypes';
 import { logError, logInfo } from '@/utils/logger';
-import { storageService } from '@/services/StorageService';
+import { storageService } from '@/services/storage';
 
 /**
  * Save a recipe to storage with error handling
