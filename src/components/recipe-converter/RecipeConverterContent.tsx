@@ -1,3 +1,4 @@
+
 import React from 'react';
 import RecipeForm from './RecipeForm';
 import RecipeCard from './RecipeCard';
@@ -12,7 +13,7 @@ interface RecipeConverterContentProps {
   showConversionSuccess: boolean;
   onSetIsEditing: (isEditing: boolean) => void;
   onConversionComplete: (recipe: RecipeData) => void;
-  onSaveRecipe: (recipe?: RecipeData) => boolean;
+  onSaveRecipe: (recipe?: RecipeData) => Promise<boolean>;
   onResetRecipe: () => void;
   updateRecipe: (recipe: RecipeData) => void;
   conversionError: string | null;

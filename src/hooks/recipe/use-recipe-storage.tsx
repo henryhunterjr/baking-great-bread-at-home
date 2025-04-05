@@ -27,7 +27,7 @@ export const useRecipeStorage = (
     return hasTitle && hasIngredients && hasInstructions;
   };
 
-  const handleSaveRecipe = (updatedRecipe: RecipeData = recipe) => {
+  const handleSaveRecipe = async (updatedRecipe: RecipeData = recipe): Promise<boolean> => {
     try {
       // Log the recipe being saved for debugging
       logInfo("Attempting to save recipe", {
@@ -65,7 +65,7 @@ export const useRecipeStorage = (
       };
       
       // Use the utility function to save to localStorage
-      const saveSuccess = saveRecipeToStorage(recipeToSave);
+      const saveSuccess = await saveRecipeToStorage(recipeToSave);
       
       if (saveSuccess) {
         // Update the recipe state with the saved version

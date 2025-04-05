@@ -40,8 +40,8 @@ export const useRecipeConverter = () => {
   useConversionSuccess(recipe, isEditing, setShowConversionSuccess);
 
   // Auto-switch to favorites tab after saving
-  const handleSaveWithTabSwitch = (updatedRecipe: RecipeData = recipe) => {
-    const success = handleSaveRecipe(updatedRecipe);
+  const handleSaveWithTabSwitch = async (updatedRecipe: RecipeData = recipe): Promise<boolean> => {
+    const success = await handleSaveRecipe(updatedRecipe);
     if (success) {
       // Auto-switch to favorites tab after saving
       setActiveTab("favorites");
