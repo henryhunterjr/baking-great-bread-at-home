@@ -1,40 +1,39 @@
 
--- Create a profiles table to store user profile information
-CREATE TABLE IF NOT EXISTS public.profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  name TEXT,
-  avatar_url TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
+-- Create a table for public profiles
+create table if not exists public.profiles (
+    id uuid references auth.users on delete cascade not null primary key,
+    name text,
+    avatar_url text,
+    preferences jsonb default '{"measurementSystem": "metric", "bakingExperience": "beginner", "favoriteBreads": []}'::jsonb,
+    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+    updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- Enable Row Level Security
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+-- Set up row level security
+alter table public.profiles
+    enable row level security;
 
--- Create policy to allow users to view their own profile
-CREATE POLICY "Users can view their own profile" ON public.profiles
-  FOR SELECT
-  USING (auth.uid() = id);
+-- This allows users to read any profile
+create policy "Anyone can view profiles"
+    on profiles for select
+    using (true);
 
--- Create policy to allow users to update their own profile
-CREATE POLICY "Users can update their own profile" ON public.profiles
-  FOR UPDATE
-  USING (auth.uid() = id);
+-- This allows users to update only their own profile
+create policy "Users can update their own profile"
+    on profiles for update
+    using (auth.uid() = id);
 
--- Create a trigger to automatically create a profile when a new user signs up
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO public.profiles (id, name, avatar_url)
-  VALUES (
-    new.id,
-    new.raw_user_meta_data->>'name',
-    new.raw_user_meta_data->>'avatar_url'
-  );
-  RETURN new;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- This trigger automatically creates a profile entry when a new user signs up
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+    insert into public.profiles (id, name, avatar_url)
+    values (new.id, coalesce(new.raw_user_meta_data->>'name', split_part(new.email, '@', 1)), new.raw_user_meta_data->>'avatar_url');
+    return new;
+end;
+$$ language plpgsql security definer;
 
-CREATE OR REPLACE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+-- Trigger the function every time a user is created
+create or replace trigger on_auth_user_created
+    after insert on auth.users
+    for each row execute procedure public.handle_new_user();

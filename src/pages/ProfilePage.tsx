@@ -13,6 +13,8 @@ import Footer from '@/components/Footer';
 import ResponsiveWrapper from '@/components/recipe-converter/ResponsiveWrapper';
 import ProfileHeader from '@/components/auth/ProfileHeader';
 import ProfileForm from '@/components/auth/ProfileForm';
+import ProfilePreferencesForm from '@/components/auth/ProfilePreferencesForm';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProfileErrorAlert from '@/components/auth/ProfileErrorAlert';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -36,7 +38,6 @@ const ProfilePage = () => {
     const checkProfilesTable = async () => {
       try {
         // Cast supabase to any to bypass TypeScript restrictions
-        // This is necessary because the Supabase client typing doesn't know about our tables yet
         await (supabase as any).from('profiles').select('*').limit(1);
         setTableExists(true);
       } catch (error: any) {
@@ -67,7 +68,6 @@ const ProfilePage = () => {
       setError(null);
       
       // Cast supabase to any to bypass TypeScript restrictions
-      // This is necessary because the Supabase client typing doesn't know about our tables yet
       const { error } = await (supabase as any)
         .from('profiles')
         .update({
@@ -126,8 +126,8 @@ const ProfilePage = () => {
               <CardDescription>Manage your account information</CardDescription>
             </CardHeader>
             
-            <CardContent className="space-y-6 pt-4">
-              {!tableExists && (
+            {!tableExists && (
+              <CardContent className="pt-4">
                 <Alert variant="destructive" className="mb-4">
                   <AlertTitle>Database Error</AlertTitle>
                   <AlertDescription>
@@ -145,22 +145,37 @@ const ProfilePage = () => {
                     </div>
                   </AlertDescription>
                 </Alert>
-              )}
-
+              </CardContent>
+            )}
+            
+            <CardContent className="space-y-6 pt-4">
               <ProfileHeader 
                 name={profile?.name || user.user_metadata?.name || ''} 
                 email={user.email}
                 avatarUrl={profile?.avatar_url || user.user_metadata?.avatar_url}
               />
 
-              <ProfileErrorAlert error={error} />
-
-              <ProfileForm 
-                initialName={profile?.name || user.user_metadata?.name || ''} 
-                onSubmit={handleUpdateProfile}
-                loading={loading}
-                disabled={!tableExists}
-              />
+              <Tabs defaultValue="basic" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="basic">Basic Info</TabsTrigger>
+                  <TabsTrigger value="preferences">Baking Preferences</TabsTrigger>
+                </TabsList>
+                
+                <ProfileErrorAlert error={error} />
+                
+                <TabsContent value="basic" className="pt-4">
+                  <ProfileForm 
+                    initialName={profile?.name || user.user_metadata?.name || ''} 
+                    onSubmit={handleUpdateProfile}
+                    loading={loading}
+                    disabled={!tableExists}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="preferences" className="pt-4">
+                  <ProfilePreferencesForm />
+                </TabsContent>
+              </Tabs>
             </CardContent>
             
             <CardFooter className="flex justify-center pb-6">

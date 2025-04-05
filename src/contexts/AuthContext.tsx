@@ -4,6 +4,20 @@ import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+// Enhanced user profile with user preferences
+interface UserProfile {
+  id: string;
+  name?: string;
+  avatar_url?: string;
+  created_at?: string;
+  updated_at?: string;
+  preferences?: {
+    measurementSystem: 'metric' | 'imperial';
+    bakingExperience: 'beginner' | 'intermediate' | 'advanced';
+    favoriteBreads: string[];
+  };
+}
+
 interface AuthContextType {
   session: Session | null;
   user: User | null;
@@ -11,14 +25,7 @@ interface AuthContextType {
   isLoading: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
-}
-
-interface UserProfile {
-  id: string;
-  name?: string;
-  avatar_url?: string;
-  created_at?: string;
-  updated_at?: string;
+  updateUserPreferences: (preferences: Partial<UserProfile['preferences']>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Fetch user profile data
+  // Fetch user profile data including preferences
   const fetchProfile = async (userId: string) => {
     try {
       // Use maybeSingle instead of single to handle the case when the profile doesn't exist
@@ -60,7 +67,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               name: userMetadata?.name || user.email?.split('@')[0] || 'User',
               avatar_url: userMetadata?.avatar_url || '',
               created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
+              updated_at: new Date().toISOString(),
+              preferences: {
+                measurementSystem: 'metric',
+                bakingExperience: 'beginner',
+                favoriteBreads: [],
+              }
             };
             
             return defaultProfile;
@@ -84,6 +96,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (profileData) {
         setProfile(profileData);
       }
+    }
+  };
+
+  // Function to update user preferences
+  const updateUserPreferences = async (preferences: Partial<UserProfile['preferences']>) => {
+    if (!user?.id || !profile) {
+      toast({
+        title: "Authentication error",
+        description: "You need to be logged in to update preferences.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      
+      const currentPreferences = profile.preferences || {
+        measurementSystem: 'metric',
+        bakingExperience: 'beginner',
+        favoriteBreads: []
+      };
+      
+      const updatedPreferences = {
+        ...currentPreferences,
+        ...preferences
+      };
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          preferences: updatedPreferences,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      
+      // Update local state
+      setProfile({
+        ...profile,
+        preferences: updatedPreferences
+      });
+      
+      toast({
+        title: "Preferences updated",
+        description: "Your baking preferences have been saved.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error updating preferences",
+        description: error.message || "There was a problem updating your preferences.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -162,6 +230,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isLoading,
     signOut,
     refreshProfile,
+    updateUserPreferences,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
