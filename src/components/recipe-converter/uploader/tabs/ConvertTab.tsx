@@ -10,6 +10,7 @@ import { useConvertTab } from './convert-tab/hooks/useConvertTab';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { useAIConversion } from '@/services/AIConversionService';
 import { AlertCircle, Lightbulb } from 'lucide-react';
+import { useBreakpoint } from '@/hooks/use-media-query';
 
 interface ConvertTabProps {
   recipeText: string;
@@ -30,6 +31,7 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
   const { showSuccess, showHelpTip } = useConvertTab({ recipeText });
   const [localError, setLocalError] = useState<string | null>(null);
   const { hasApiKey } = useAIConversion();
+  const isMobile = useBreakpoint('smDown');
   
   // Combine local and prop errors
   const displayError = localError || error;
@@ -84,10 +86,10 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
           
           <Textarea
             id="recipe-text"
-            placeholder="Paste your recipe here or use one of the upload options below..."
+            placeholder={isMobile ? "Paste your recipe here..." : "Paste your recipe here or use one of the upload options below..."}
             value={recipeText}
             onChange={(e) => setRecipeText(e.target.value)}
-            className="min-h-[200px] w-full p-4 resize-y"
+            className={`${isMobile ? 'min-h-[150px]' : 'min-h-[200px]'} w-full p-4 resize-y`}
             disabled={isConverting}
           />
         </div>

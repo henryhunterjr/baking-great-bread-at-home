@@ -11,13 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import EditorTabs from '@/components/recipe-converter/form/EditorTabs';
 import FormProgress from '@/components/recipe-converter/form/FormProgress';
 
-// If the mobile-optimized form exists, import it instead
-let MobileOptimizedRecipeForm: React.FC<any> | null = null;
-try {
-  MobileOptimizedRecipeForm = require('./MobileOptimizedRecipeForm').default;
-} catch (e) {
-  // If it doesn't exist, we'll fall back to the regular form
-}
+// Import mobile optimized form
+import MobileOptimizedRecipeForm from './MobileOptimizedRecipeForm';
 
 interface RecipeFormProps {
   initialRecipe: RecipeData;
@@ -137,8 +132,8 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ initialRecipe, onSave, onCancel
     }
   };
   
-  // Use MobileOptimizedRecipeForm if available and we're on mobile
-  if (isMobile && MobileOptimizedRecipeForm) {
+  // Use MobileOptimizedRecipeForm if we're on mobile
+  if (isMobile) {
     return (
       <MobileOptimizedRecipeForm
         initialRecipe={preparedRecipe}

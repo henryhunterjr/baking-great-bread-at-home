@@ -10,6 +10,7 @@ import NoAPIKeyMessage from './NoAPIKeyMessage';
 import { useAIConversion } from '@/services/AIConversionService';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Lightbulb } from 'lucide-react';
+import { useBreakpoint } from '@/hooks/use-media-query';
 
 interface ConversionServiceProps {
   onConvertRecipe: (text: string) => void;
@@ -31,6 +32,7 @@ const ConversionService: React.FC<ConversionServiceProps> = ({
   const isApiConfigured = isAIConfigured();
   const { hasApiKey, isProcessing: isAiProcessing } = useAIConversion();
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+  const isMobile = useBreakpoint('smDown');
   
   // Combined loading state
   const isLoading = isConverting || isAiProcessing;
@@ -38,7 +40,7 @@ const ConversionService: React.FC<ConversionServiceProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Convert a Recipe</h2>
+        <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-semibold`}>Convert a Recipe</h2>
         {/* Add Start Over button if there's a previous conversion */}
         {recipe && <StartOverButton onClick={onReset} />}
       </div>

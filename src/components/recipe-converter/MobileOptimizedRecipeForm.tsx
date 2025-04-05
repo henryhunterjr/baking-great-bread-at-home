@@ -1,7 +1,9 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useBreakpoint } from '@/hooks/use-media-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 import { RecipeData } from '@/types/recipeTypes';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,6 +12,7 @@ import { RecipeFormValues } from '@/types/recipeTypes';
 import { v4 as uuidv4 } from 'uuid';
 import AccessibilityManager from './accessibility/AccessibilityManager';
 import ResponsiveWrapper from './ResponsiveWrapper';
+import { InputGroup } from '@/components/ui/mobile-forms';
 
 // Import form sections
 import BasicInfoSection from './form-sections/BasicInfoSection';
