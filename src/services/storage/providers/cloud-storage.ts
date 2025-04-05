@@ -1,8 +1,8 @@
 
-import { Recipe } from '../types';
+import { Recipe, IStorageProvider } from '../types';
 import { logError, logInfo } from '@/utils/logger';
 
-export class CloudStorageProvider {
+export class CloudStorageProvider implements IStorageProvider {
   private apiUrl: string = '';
   private apiToken: string | null = null;
 
@@ -71,6 +71,34 @@ export class CloudStorageProvider {
     } catch (error) {
       logError('Error getting recipes from cloud storage', { error });
       return [];
+    }
+  }
+
+  async getRecipe(id: string): Promise<Recipe | null> {
+    try {
+      if (!this.apiUrl || !this.apiToken) {
+        throw new Error('Cloud storage not configured');
+      }
+
+      const response = await fetch(`${this.apiUrl}/recipes/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${this.apiToken}`
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const recipe = await response.json();
+      logInfo('Recipe fetched from cloud storage', { id });
+      return recipe;
+    } catch (error) {
+      logError('Error getting recipe from cloud storage', { error, recipeId: id });
+      return null;
     }
   }
 
