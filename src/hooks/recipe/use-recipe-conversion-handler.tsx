@@ -23,13 +23,13 @@ export const useRecipeConversionHandler = (
     });
     
     setRecipe(processedRecipe);
-    // Now go directly to editing mode
-    setIsEditing(true);
+    // Show the recipe card first for review, not editing mode
+    setIsEditing(false);
     setConversionError(null);
     
     toast({
       title: "Recipe Converted!",
-      description: "Your recipe has been converted. You can now edit and save it to your collection.",
+      description: "Your recipe has been converted. Review the details, then click Edit to make changes if needed.",
     });
   };
 

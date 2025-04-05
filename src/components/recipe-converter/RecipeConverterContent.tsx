@@ -1,19 +1,11 @@
-
-import React, { useEffect } from 'react';
-import { RecipeData } from '@/types/recipeTypes';
-import ConversionService from './ConversionService';
+import React from 'react';
+import RecipeUploader from './RecipeUploader';
 import RecipeForm from './RecipeForm';
 import RecipeCard from './RecipeCard';
+import { RecipeData } from '@/types/recipeTypes';
+import ConversionService from './ConversionService';
 import ConversionSuccessAlert from './ConversionSuccessAlert';
-import { useRecipeConversion } from '@/hooks/use-recipe-conversion';
-import { FormProvider, useForm } from 'react-hook-form';
-import { logInfo, logError } from '@/utils/logger';
-import { isAIConfigured } from '@/lib/ai-services';
-import NoAPIKeyMessage from './NoAPIKeyMessage';
 import ErrorAlert from '@/components/common/ErrorAlert';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
 
 interface RecipeConverterContentProps {
   recipe: RecipeData;
@@ -21,10 +13,10 @@ interface RecipeConverterContentProps {
   showConversionSuccess: boolean;
   onSetIsEditing: (isEditing: boolean) => void;
   onConversionComplete: (recipe: RecipeData) => void;
-  onSaveRecipe: (recipe: RecipeData) => void;
+  onSaveRecipe: (recipe?: RecipeData) => boolean;
   onResetRecipe: () => void;
-  updateRecipe?: (recipe: RecipeData) => void;
-  conversionError?: string | null;
+  updateRecipe: (recipe: RecipeData) => void;
+  conversionError: string | null;
 }
 
 const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
@@ -36,154 +28,61 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
   onSaveRecipe,
   onResetRecipe,
   updateRecipe,
-  conversionError: pageConversionError
+  conversionError
 }) => {
-  // Create a form context to wrap all components
-  const methods = useForm();
-  const { toast } = useToast();
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const hasRecipeData = recipe && recipe.title && recipe.ingredients && recipe.instructions;
+  const isConverted = recipe.isConverted === true;
   
-  // Use the recipe conversion hook
-  const { isConverting, conversionError, handleConversion } = useRecipeConversion(
-    (convertedRecipe) => {
-      // Immediately set edit mode to true for new conversions
-      onConversionComplete(convertedRecipe);
-      // Set to editing mode right after conversion
-      onSetIsEditing(true);
-    }
-  );
-
-  // Check if API is configured
-  const isApiConfigured = isAIConfigured();
-  
-  // Combine conversion errors from both sources
-  const displayError = pageConversionError || conversionError;
-  
-  // Check if error is related to API key
-  const isApiKeyError = displayError?.includes('API key') || displayError?.includes('OpenAI');
-
-  // Log the recipe state for debugging
-  useEffect(() => {
-    logInfo("Recipe state in RecipeConverterContent", {
-      hasId: !!recipe.id,
-      hasTitle: !!recipe.title,
-      ingredientsCount: Array.isArray(recipe.ingredients) ? recipe.ingredients.length : 0,
-      instructionsCount: Array.isArray(recipe.instructions) ? recipe.instructions.length : 0,
-      isConverted: !!recipe.isConverted,
-      isEditing
-    });
-  }, [recipe, isEditing]);
-  
-  // Determine if the recipe can be saved - improved validation logic
-  const canSaveRecipe = React.useMemo(() => {
-    // A recipe can be saved if it has:
-    // 1. A title
-    // 2. At least one ingredient
-    // 3. At least one instruction
-    // 4. Is marked as converted
-    const hasTitle = !!recipe.title && recipe.title.trim() !== '';
-    const hasIngredients = Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0;
-    const hasInstructions = Array.isArray(recipe.instructions) && recipe.instructions.length > 0;
-    const isConverted = !!recipe.isConverted;
-    
-    const isValid = hasTitle && hasIngredients && hasInstructions && isConverted;
-    
-    logInfo("Save button validation in RecipeConverterContent", {
-      canSave: isValid,
-      hasTitle,
-      titleLength: recipe.title ? recipe.title.length : 0,
-      hasIngredients,
-      ingredientsCount: Array.isArray(recipe.ingredients) ? recipe.ingredients.length : 0,
-      hasInstructions,
-      instructionsCount: Array.isArray(recipe.instructions) ? recipe.instructions.length : 0,
-      isConverted
-    });
-    
-    return isValid;
-  }, [recipe]);
-  
-  const handleSaveRecipe = () => {
-    // Check if user is logged in
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Required",
-        description: "Please log in to save recipes to your collection.",
-        action: (
-          <button 
-            className="px-3 py-1 rounded bg-primary text-white text-xs"
-            onClick={() => navigate('/auth')}
-          >
-            Log In
-          </button>
-        )
-      });
-      return;
-    }
-    
-    logInfo("Attempting to save recipe from RecipeConverterContent", {
-      hasRequiredFields: canSaveRecipe,
-      userId: user?.id
-    });
-    
-    if (canSaveRecipe) {
-      onSaveRecipe(recipe);
-    } else {
-      logError("Save button clicked but recipe can't be saved", {
-        hasTitle: !!recipe.title,
-        hasIngredients: Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0,
-        hasInstructions: Array.isArray(recipe.instructions) && recipe.instructions.length > 0,
-        isConverted: !!recipe.isConverted
-      });
-    }
+  const handleSave = () => {
+    onSaveRecipe(recipe);
   };
   
-  const handleUpdateRecipe = (updatedRecipe: RecipeData) => {
-    if (updateRecipe) {
-      updateRecipe(updatedRecipe);
-    }
+  const handleFormCancel = () => {
+    onSetIsEditing(false);
   };
-  
+
+  const handlePrint = () => {
+    // Print function is now implemented within the RecipeCard component
+    // We keep this method for compatibility but it's now a no-op
+  };
+
   return (
-    <div className="space-y-4">
-      {!isApiConfigured && <NoAPIKeyMessage />}
+    <div className="space-y-6">
+      {showConversionSuccess && isConverted && !isEditing && (
+        <ConversionSuccessAlert />
+      )}
       
-      {isApiKeyError ? (
-        <NoAPIKeyMessage />
-      ) : displayError ? (
-        <ErrorAlert error={displayError} />
-      ) : null}
+      {conversionError && (
+        <ErrorAlert title="Recipe Conversion Error" message={conversionError} />
+      )}
       
-      <ConversionSuccessAlert show={showConversionSuccess && recipe.isConverted && !isEditing} />
-      
-      <FormProvider {...methods}>
-        {!recipe.isConverted ? (
-          <ConversionService 
-            onConvertRecipe={handleConversion}
-            isConverting={isConverting}
-            conversionError={displayError && !isApiKeyError ? displayError : null}
-            onReset={onResetRecipe}
-            recipe={recipe}
-            onSaveRecipe={canSaveRecipe ? handleSaveRecipe : undefined}
-          />
-        ) : isEditing ? (
+      {hasRecipeData && isConverted ? (
+        isEditing ? (
           <RecipeForm 
             initialRecipe={recipe} 
-            onSave={onSaveRecipe} 
-            onCancel={() => onSetIsEditing(false)} 
+            onSave={updateRecipe} 
+            onCancel={handleFormCancel} 
           />
         ) : (
           <RecipeCard 
-            recipe={recipe} 
-            onEdit={() => onSetIsEditing(true)} 
-            onPrint={() => window.print()} 
+            recipe={recipe}
+            onEdit={() => onSetIsEditing(true)}
+            onPrint={handlePrint}
             onReset={onResetRecipe}
-            onSave={canSaveRecipe ? handleSaveRecipe : undefined}
-            onUpdateRecipe={handleUpdateRecipe}
+            onSave={handleSave}
+            onUpdateRecipe={updateRecipe}
           />
-        )}
-      </FormProvider>
+        )
+      ) : (
+        <ConversionService 
+          onConvertRecipe={onConversionComplete}
+          isConverting={false}
+          conversionError={conversionError}
+          onReset={onResetRecipe}
+          recipe={hasRecipeData ? recipe : undefined}
+          onSaveRecipe={hasRecipeData ? handleSave : undefined}
+        />
+      )}
     </div>
   );
 };
