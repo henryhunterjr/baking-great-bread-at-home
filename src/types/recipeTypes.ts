@@ -28,6 +28,7 @@ export interface RecipeData {
   rating?: number;
   calories?: number;
   equipmentNeeded?: EquipmentItem[];
+  originalUrl?: string;
   nutrition?: {
     protein?: string;
     carbs?: string;

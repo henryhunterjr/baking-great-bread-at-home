@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { InfoIcon, Check, AlertCircle, Loader2 } from 'lucide-react';
 import { 
-  configureAI, 
+  configureAIKey, 
   verifyAPIKey, 
   isAIConfigured,
   checkAPIKeyStatus,
@@ -25,15 +24,12 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onKeyConfigured }) => {
   const [isConfigured, setIsConfigured] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Check if API key is already configured
   useEffect(() => {
     const status = checkAPIKeyStatus();
     setIsConfigured(status.hasKey && status.keyFormat);
     
-    // If key exists, get it from localStorage for display (masked)
     const storedKey = localStorage.getItem('openai_api_key');
     if (storedKey) {
-      // Mask the key for display
       const maskedKey = storedKey.substring(0, 3) + '••••••••••••••••' + storedKey.substring(storedKey.length - 4);
       setApiKey(maskedKey);
     }
@@ -42,7 +38,6 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onKeyConfigured }) => {
   const handleSaveKey = async () => {
     setError(null);
     
-    // Check if the key was changed from the masked version
     if (apiKey.includes('••••')) {
       toast({
         title: "No Changes Made",
@@ -51,7 +46,6 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onKeyConfigured }) => {
       return;
     }
     
-    // Basic validation
     if (!apiKey.trim() || !apiKey.startsWith('sk-') || apiKey.length < 20) {
       setError("Please enter a valid OpenAI API key. It should start with 'sk-' and be at least 20 characters long.");
       return;
@@ -60,16 +54,13 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onKeyConfigured }) => {
     setIsVerifying(true);
     
     try {
-      // Configure the AI with the new key
-      configureAI(apiKey);
+      configureAIKey(apiKey);
       
-      // Verify the key works
       const isValid = await verifyAPIKey();
       
       if (isValid) {
         setIsConfigured(true);
         
-        // Call the callback if provided
         if (onKeyConfigured) {
           onKeyConfigured();
         }
@@ -101,10 +92,7 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onKeyConfigured }) => {
   };
   
   const handleClearKey = () => {
-    // Remove key from localStorage
     localStorage.removeItem('openai_api_key');
-    
-    // Clear state
     setApiKey('');
     setIsConfigured(false);
     setError(null);

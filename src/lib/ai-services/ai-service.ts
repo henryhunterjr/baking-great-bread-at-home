@@ -87,7 +87,7 @@ class AIService {
             ingredients: [],
             instructions: [],
             imageUrl: blogResult.results[0].imageUrl,
-            isFromBlog: true,
+            source: blogResult.results[0].link,
             originalUrl: blogResult.results[0].link
           }
         };
