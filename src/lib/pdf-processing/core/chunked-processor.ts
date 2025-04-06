@@ -40,8 +40,8 @@ export const processLargePDFInChunks = async (
     const numPages = pdf.numPages;
     logInfo(`PDF loaded with ${numPages} pages`);
     
-    // Define chunk processing parameters
-    const CHUNK_SIZE = 5; // Process 5 pages at a time
+    // Define chunk processing parameters - now smaller to avoid memory issues
+    const CHUNK_SIZE = 3; // Process 3 pages at a time (reduced from 5)
     const numChunks = Math.ceil(numPages / CHUNK_SIZE);
     
     // To store all extracted text
@@ -72,9 +72,18 @@ export const processLargePDFInChunks = async (
         progressCallback(progress);
       }
       
-      // Add a small delay between chunks to allow for garbage collection
+      // Add a slightly larger delay between chunks to allow for garbage collection
       if (chunkIndex < numChunks - 1) {
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      // Force garbage collection if available (only in certain environments)
+      if (typeof window !== 'undefined' && (window as any).gc) {
+        try {
+          (window as any).gc();
+        } catch (e) {
+          // Ignore if not available
+        }
       }
     }
     
@@ -103,9 +112,17 @@ async function extractPageText(pdf: any, pageNum: number): Promise<string> {
     const textContent = await page.getTextContent();
     
     // Extract text strings
-    return textContent.items
+    const text = textContent.items
       .map((item: any) => item.str || '')
       .join(' ');
+    
+    // Clean up page object to help garbage collection
+    // @ts-ignore - This isn't in the public API but helps with memory
+    if (page.cleanup && typeof page.cleanup === 'function') {
+      page.cleanup();
+    }
+    
+    return text;
   } catch (error) {
     logError(`Failed to extract text from page ${pageNum}`, { error });
     return `[Error extracting text from page ${pageNum}]`;

@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { RecipeData } from '@/types/recipeTypes';
-import { MessageSquare, Book } from 'lucide-react';
+import { MessageSquare, Book, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface BreadAssistantPanelProps {
   recipe?: RecipeData;
@@ -18,12 +19,15 @@ const BreadAssistantPanel: React.FC<BreadAssistantPanelProps> = ({ recipe }) => 
     conversationHistory, 
     analyzeRecipe, 
     askQuestion,
+    findRecipe,
     clearHistory,
     lastAnalysisResult
   } = useBreadAssistant();
   
   const [userQuestion, setUserQuestion] = useState('');
+  const [recipeQuery, setRecipeQuery] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   
   const handleAnalyzeRecipe = async () => {
     if (!recipe) return;
@@ -39,6 +43,19 @@ const BreadAssistantPanel: React.FC<BreadAssistantPanelProps> = ({ recipe }) => 
     await askQuestion(userQuestion);
     setUserQuestion('');
     setIsSubmitting(false);
+  };
+  
+  const handleFindRecipe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!recipeQuery.trim()) return;
+    
+    setIsSearching(true);
+    const result = await findRecipe(recipeQuery);
+    if (result) {
+      // Recipe found and automatically added to conversation history
+      setRecipeQuery('');
+    }
+    setIsSearching(false);
   };
   
   return (
@@ -87,6 +104,29 @@ const BreadAssistantPanel: React.FC<BreadAssistantPanelProps> = ({ recipe }) => 
         
         <div className="border-t pt-4">
           <h3 className="flex items-center text-sm font-medium mb-2">
+            <Search className="h-4 w-4 mr-1" />
+            Find a Bread Recipe
+          </h3>
+          
+          <form onSubmit={handleFindRecipe} className="space-y-2 mb-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="e.g., sourdough focaccia" 
+                value={recipeQuery}
+                onChange={(e) => setRecipeQuery(e.target.value)}
+                className="flex-1"
+              />
+              <Button 
+                type="submit"
+                size="sm"
+                disabled={!recipeQuery.trim() || isSearching}
+              >
+                {isSearching ? 'Finding...' : 'Find'}
+              </Button>
+            </div>
+          </form>
+          
+          <h3 className="flex items-center text-sm font-medium mb-2">
             <MessageSquare className="h-4 w-4 mr-1" />
             Ask about bread baking
           </h3>
@@ -130,6 +170,16 @@ const BreadAssistantPanel: React.FC<BreadAssistantPanelProps> = ({ recipe }) => 
                   }`}
                 >
                   <p className="text-sm">{message.content}</p>
+                  
+                  {message.attachedRecipe && (
+                    <div className="mt-2 p-2 border rounded-md bg-muted/30">
+                      <p className="font-medium text-sm">{message.attachedRecipe.title}</p>
+                      {message.attachedRecipe.introduction && (
+                        <p className="text-xs text-muted-foreground mt-1">{message.attachedRecipe.introduction}</p>
+                      )}
+                    </div>
+                  )}
+                  
                   {message.timestamp && (
                     <span className="text-xs text-muted-foreground block mt-1">
                       {message.timestamp.toLocaleTimeString()}
