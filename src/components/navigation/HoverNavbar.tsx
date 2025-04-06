@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import UserMenu from '@/components/auth/UserMenu';
 import { Home, Book, Calendar, Coffee } from 'lucide-react';
@@ -8,11 +8,12 @@ import { Home, Book, Calendar, Coffee } from 'lucide-react';
 const HoverNavbar: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // Show navbar when mouse is near top of screen
+  // Show navbar when mouse is near top of screen or on scroll to top
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      // Show navbar when mouse is within 50px of the top
       if (e.clientY <= 50) {
         setVisible(true);
       } else if (e.clientY > 100) {
@@ -20,7 +21,6 @@ const HoverNavbar: React.FC = () => {
       }
     };
 
-    // Also show navbar on scroll to top
     const handleScroll = () => {
       if (window.scrollY < 50) {
         setVisible(true);
@@ -29,20 +29,35 @@ const HoverNavbar: React.FC = () => {
       }
     };
 
-    // Add event listeners
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('scroll', handleScroll);
     
-    // Initial check - show navbar if already at top of page
-    if (window.scrollY < 50) {
-      setVisible(true);
-    }
+    // Initial check - always show navbar first
+    setVisible(true);
+    
+    // Hide after initial display if not at top
+    const initialTimeout = setTimeout(() => {
+      if (window.scrollY > 50) {
+        setVisible(false);
+      }
+    }, 2000);
     
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('scroll', handleScroll);
+      clearTimeout(initialTimeout);
     };
   }, [visible]);
+
+  // Enhanced navigation handler to prevent getting stuck
+  const handleNavigation = (path: string) => {
+    // Force a full page refresh if already on the same page
+    if (location.pathname === path) {
+      window.location.href = path;
+    } else {
+      navigate(path);
+    }
+  };
 
   return (
     <nav 
@@ -50,43 +65,43 @@ const HoverNavbar: React.FC = () => {
     >
       <div className="container mx-auto px-4 flex justify-between items-center h-16 md:h-20">
         <div className="flex items-center space-x-2">
-          <Link 
-            to="/"
+          <button
+            onClick={() => handleNavigation("/")}
             className="text-xl md:text-2xl font-bold font-serif text-bread-900 cursor-pointer"
           >
             Baking Great Bread
-          </Link>
+          </button>
         </div>
         
         <div className="hidden md:flex items-center space-x-6">
-          <Link to="/" className="nav-link flex items-center space-x-2 text-bread-800 hover:text-bread-600">
+          <button onClick={() => handleNavigation("/")} className="nav-link flex items-center space-x-2 text-bread-800 hover:text-bread-600">
             <Home size={18} />
             <span>Home</span>
-          </Link>
-          <Link to="/recipes" className="nav-link flex items-center space-x-2 text-bread-800 hover:text-bread-600">
+          </button>
+          <button onClick={() => handleNavigation("/recipes")} className="nav-link flex items-center space-x-2 text-bread-800 hover:text-bread-600">
             <Coffee size={18} />
             <span>Recipes</span>
-          </Link>
-          <Link to="/guides" className="nav-link flex items-center space-x-2 text-bread-800 hover:text-bread-600">
+          </button>
+          <button onClick={() => handleNavigation("/guides")} className="nav-link flex items-center space-x-2 text-bread-800 hover:text-bread-600">
             <Book size={18} />
             <span>Guides</span>
-          </Link>
-          <Link to="/challenges" className="nav-link flex items-center space-x-2 text-bread-800 hover:text-bread-600">
+          </button>
+          <button onClick={() => handleNavigation("/challenges")} className="nav-link flex items-center space-x-2 text-bread-800 hover:text-bread-600">
             <Calendar size={18} />
             <span>Challenges</span>
-          </Link>
+          </button>
         </div>
 
         <div className="flex items-center space-x-4">
           {user ? (
             <UserMenu />
           ) : (
-            <Link 
-              to="/auth" 
+            <button 
+              onClick={() => handleNavigation("/auth")}
               className="px-4 py-2 bg-bread-700 hover:bg-bread-800 text-white rounded-md transition-colors"
             >
               Login / Signup
-            </Link>
+            </button>
           )}
         </div>
       </div>
