@@ -6,6 +6,7 @@ import { AIAssistantProvider } from './contexts/AIAssistantContext'
 import { AuthProvider } from './contexts/AuthContext'
 import App from './App.tsx'
 import './index.css'  // This now points to our refactored CSS structure
+import './styles/navigation.css'  // Add the new navigation styles
 
 // Add DevToolsToggle for better development experience
 import DevToolsToggle from './components/dev/DevToolsToggle'

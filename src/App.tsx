@@ -9,11 +9,13 @@ import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import { BreadAssistantProvider } from '@/contexts/BreadAssistantContext';
 import { ErrorProvider, ErrorToast } from '@/utils/ErrorHandling';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import HoverNavbar from '@/components/navigation/HoverNavbar';
 
 // Eagerly load critical route components
 import RecipeConverter from '@/pages/RecipeConverter';
 import AuthPage from '@/pages/AuthPage';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import HomePage from '@/pages/HomePage';
 
 // Lazily load non-critical components
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
@@ -52,8 +54,11 @@ const App: React.FC = () => {
     <ErrorProvider>
       <ErrorBoundary>
         <BreadAssistantProvider>
+          {/* Add the HoverNavbar component here so it's available on all pages */}
+          <HoverNavbar />
+          
           <Routes>
-            <Route path="/" element={<RecipeConverter />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/auth/*" element={<AuthPage />} />
             
             {/* Protected Routes - Lazily loaded */}

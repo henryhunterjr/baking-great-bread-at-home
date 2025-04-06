@@ -50,6 +50,7 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
     "firebase": "^11.6.0",
+    "framer-motion": "^12.6.3",
     "fuse.js": "^6.6.2",
     "input-otp": "^1.2.4",
     "jest-environment-jsdom": "^29.7.0",
