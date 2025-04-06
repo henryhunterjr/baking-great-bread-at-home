@@ -53,11 +53,13 @@ export const useRecipeState = () => {
           return item;
         } else if (typeof item === 'object' && item !== null) {
           // Handle case where ingredient is an object
-          if ('name' in item && 'quantity' in item && 'unit' in item) {
+          // Add type assertion to fix the TypeScript error
+          const ingredientObj = item as { name?: string; quantity?: string | number; unit?: string };
+          if (ingredientObj.name && ingredientObj.quantity && ingredientObj.unit) {
             // Format nicely if it has the expected structure
-            const quantity = item.quantity || '';
-            const unit = item.unit || '';
-            const name = item.name || '';
+            const quantity = ingredientObj.quantity || '';
+            const unit = ingredientObj.unit || '';
+            const name = ingredientObj.name || '';
             return `${quantity} ${unit} ${name}`.trim();
           } else {
             // Just stringify the object
