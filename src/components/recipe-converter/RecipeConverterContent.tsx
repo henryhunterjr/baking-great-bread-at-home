@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import RecipeForm from './RecipeForm';
 import RecipeCard from './RecipeCard';
 import { RecipeData } from '@/types/recipeTypes';
@@ -30,8 +30,18 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
   updateRecipe,
   conversionError
 }) => {
-  const hasRecipeData = recipe && recipe.title && recipe.ingredients && recipe.instructions;
+  const hasRecipeData = recipe && recipe.title && 
+    Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0 && 
+    Array.isArray(recipe.instructions) && recipe.instructions.length > 0;
+    
   const isConverted = recipe.isConverted === true;
+  
+  // Log recipe data for debugging
+  useEffect(() => {
+    console.log("Recipe in RecipeConverterContent:", recipe, 
+      "hasRecipeData:", hasRecipeData,
+      "isConverted:", isConverted);
+  }, [recipe, hasRecipeData, isConverted]);
   
   const handleSave = () => {
     onSaveRecipe(recipe);

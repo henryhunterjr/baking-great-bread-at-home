@@ -36,7 +36,7 @@ export const handleRecipeRequest = async (
     if (searchResults.length > 0) {
       const recipe = searchResults[0]; // Use the top matching recipe
       
-      // Prepare the full recipe data to be displayed and editable
+      // Create a complete recipe with all necessary fields
       const fullRecipeData: RecipeData = {
         title: recipe.title,
         introduction: recipe.description,
@@ -75,7 +75,8 @@ export const handleRecipeRequest = async (
           description: recipe.description,
           imageUrl: recipe.imageUrl,
           link: recipe.link,
-          fullRecipe: fullRecipeData
+          fullRecipe: fullRecipeData,
+          isGenerated: true
         }
       };
       

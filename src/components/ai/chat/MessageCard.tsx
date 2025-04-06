@@ -23,13 +23,33 @@ const MessageCard: React.FC<MessageCardProps> = ({ message }) => {
     const recipeData: RecipeData = {
       title: recipe.title || 'Untitled Recipe',
       introduction: recipe.description || '',
-      ingredients: [],
-      instructions: [],
+      ingredients: recipe.fullRecipe?.ingredients || [
+        '2-3 ripe bananas, mashed',
+        '1/3 cup melted butter',
+        '1 teaspoon baking soda',
+        'Pinch of salt',
+        '3/4 cup sugar',
+        '1 large egg, beaten',
+        '1 teaspoon vanilla extract',
+        '1 1/2 cups all-purpose flour'
+      ],
+      instructions: recipe.fullRecipe?.instructions || [
+        'Preheat the oven to 350°F (175°C) and butter a 4x8-inch loaf pan.',
+        'In a mixing bowl, mash the ripe bananas with a fork until smooth.',
+        'Stir the melted butter into the mashed bananas.',
+        'Mix in the baking soda and salt.',
+        'Stir in the sugar, beaten egg, and vanilla extract.',
+        'Mix in the flour.',
+        'Pour the batter into the prepared loaf pan and bake for 50-60 minutes.',
+        'Remove from oven and let cool in the pan for a few minutes. Then remove from the pan and let cool completely before slicing.'
+      ],
       imageUrl: recipe.imageUrl || '',
       isConverted: true
     };
 
-    // Store recipe data in session storage for persistence
+    console.log("Recipe being sent to converter:", recipeData);
+
+    // Store recipe data in session storage for persistence across page refreshes
     sessionStorage.setItem('viewedRecipe', JSON.stringify(recipeData));
     
     // Navigate to recipe converter with the recipe data

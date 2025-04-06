@@ -28,11 +28,19 @@ export const useRecipeState = () => {
 
   // Process a recipe after conversion or update
   const processRecipe = useCallback((updatedRecipe: RecipeData) => {
-    // Add timestamp if not present
-    const processedRecipe = {
+    // Ensure recipe always has required arrays
+    const processedRecipe: RecipeData = {
       ...updatedRecipe,
-      createdAt: updatedRecipe.createdAt || new Date().toISOString()
+      ingredients: Array.isArray(updatedRecipe.ingredients) ? updatedRecipe.ingredients : [],
+      instructions: Array.isArray(updatedRecipe.instructions) ? updatedRecipe.instructions : [],
+      notes: Array.isArray(updatedRecipe.notes) ? updatedRecipe.notes : [],
+      tips: Array.isArray(updatedRecipe.tips) ? updatedRecipe.tips : [],
+      createdAt: updatedRecipe.createdAt || new Date().toISOString(),
+      isConverted: true // Explicitly mark as converted
     };
+    
+    // Log processed recipe for debugging
+    console.log("Processing recipe:", processedRecipe);
     
     // Set the recipe and enable editing
     setRecipe(processedRecipe);
