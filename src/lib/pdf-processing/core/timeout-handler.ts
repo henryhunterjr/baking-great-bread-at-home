@@ -1,52 +1,57 @@
-import { logError, logInfo } from '@/utils/logger';
+
+import { logError } from '@/utils/logger';
 
 /**
- * Execute a function with a timeout
- * 
- * @param fn The function to execute
- * @param timeout Timeout duration in milliseconds
- * @param onProgress Optional progress callback
- * @returns The result of the function or throws an error if timeout is reached
+ * Execute an operation with timeout protection
+ * @param operation The function to execute with timeout protection
+ * @param timeoutMs Timeout in milliseconds
+ * @param progressCallback Optional callback for progress updates
+ * @returns The result of the operation or a cancellable task
  */
 export const executeWithTimeout = async <T>(
-  fn: (progressCallback?: (progress: number) => void) => Promise<T>,
-  timeout: number,
-  onProgress?: (progress: number) => void
-): Promise<T> => {
-  return new Promise((resolve, reject) => {
-    // Track if timeout has occurred
-    let isTimedOut = false;
-    
-    // Set timeout
+  operation: (progressCallback?: (progress: number) => void) => Promise<T>,
+  timeoutMs: number = 300000, // 5 minutes default timeout
+  progressCallback?: (progress: number) => void
+): Promise<T | { cancel: () => void }> => {
+  // Create a promise that resolves when the operation completes
+  const operationPromise = operation(progressCallback);
+  
+  // Create a timeout promise
+  const timeoutPromise = new Promise((_, reject) => {
     const timeoutId = setTimeout(() => {
-      isTimedOut = true;
-      const timeoutDuration = Math.round(timeout / 1000);
-      logError(`Operation timed out after ${timeoutDuration} seconds`);
-      reject(new Error(`Operation timed out after ${timeoutDuration} seconds. The file may be too large or complex.`));
-    }, timeout);
+      reject(new Error(`Operation timed out after ${timeoutMs / 1000} seconds`));
+    }, timeoutMs);
     
-    // Progress wrapper to handle timeout
-    const progressWrapper = (progress: number) => {
-      if (!isTimedOut && onProgress) {
-        onProgress(progress);
+    // Attach the timeout ID to the promise for cleanup
+    (timeoutPromise as any).timeoutId = timeoutId;
+  });
+  
+  // Create a cancellation function
+  const cancel = () => {
+    if ((timeoutPromise as any).timeoutId) {
+      clearTimeout((timeoutPromise as any).timeoutId);
+    }
+    
+    return {
+      cancel: () => {
+        logError('Operation already cancelled');
       }
     };
-    
-    // Execute the function
-    fn(progressWrapper)
-      .then((result) => {
-        if (!isTimedOut) {
-          clearTimeout(timeoutId);
-          resolve(result);
-        }
-        // Otherwise ignore the result since we already rejected with timeout
-      })
-      .catch((error) => {
-        if (!isTimedOut) {
-          clearTimeout(timeoutId);
-          reject(error);
-        }
-        // Otherwise ignore the error since we already rejected with timeout
-      });
-  });
+  };
+  
+  try {
+    // Race between the operation and timeout
+    const result = await Promise.race([operationPromise, timeoutPromise]);
+    return result;
+  } catch (error) {
+    if ((error as Error).message.includes('timed out')) {
+      logError('Operation timed out', { timeoutMs });
+    }
+    throw error;
+  } finally {
+    // Clean up the timeout
+    if ((timeoutPromise as any).timeoutId) {
+      clearTimeout((timeoutPromise as any).timeoutId);
+    }
+  }
 };
