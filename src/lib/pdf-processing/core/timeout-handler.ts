@@ -1,71 +1,52 @@
-
 import { logError, logInfo } from '@/utils/logger';
 
 /**
- * Process a task with timeout handling
- * @param task The async function to execute with timeout protection
- * @param timeoutDuration Timeout in milliseconds
+ * Execute a function with a timeout
+ * 
+ * @param fn The function to execute
+ * @param timeout Timeout duration in milliseconds
  * @param onProgress Optional progress callback
- * @returns Result of the task or null if timed out/cancelled
+ * @returns The result of the function or throws an error if timeout is reached
  */
 export const executeWithTimeout = async <T>(
-  task: (progressCallback?: (progress: number) => void) => Promise<T>,
-  timeoutDuration: number = 600000, // 10 minutes default
+  fn: (progressCallback?: (progress: number) => void) => Promise<T>,
+  timeout: number,
   onProgress?: (progress: number) => void
-): Promise<T | null> => {
-  let timeoutId: NodeJS.Timeout | null = null;
-  let cancelled = false;
-  
-  try {
-    logInfo("Processing task with timeout protection", { timeout: timeoutDuration });
+): Promise<T> => {
+  return new Promise((resolve, reject) => {
+    // Track if timeout has occurred
+    let isTimedOut = false;
     
-    // Set a timeout to prevent indefinite processing
-    const timeoutPromise = new Promise<null>((_, reject) => {
-      timeoutId = setTimeout(() => {
-        cancelled = true;
-        reject(new Error(`Processing timed out after ${timeoutDuration/60000} minutes.`));
-      }, timeoutDuration);
-    });
+    // Set timeout
+    const timeoutId = setTimeout(() => {
+      isTimedOut = true;
+      const timeoutDuration = Math.round(timeout / 1000);
+      logError(`Operation timed out after ${timeoutDuration} seconds`);
+      reject(new Error(`Operation timed out after ${timeoutDuration} seconds. The file may be too large or complex.`));
+    }, timeout);
     
-    // Create a progress wrapper that checks for cancellation
-    const progressCallback = onProgress ? 
-      (progress: number) => {
-        if (cancelled) return;
-        
-        // Report more realistic progress that never reaches 100% until complete
-        const adjustedProgress = progress * 0.95; // Cap at 95% until fully complete
-        onProgress(adjustedProgress);
-      } : undefined;
+    // Progress wrapper to handle timeout
+    const progressWrapper = (progress: number) => {
+      if (!isTimedOut && onProgress) {
+        onProgress(progress);
+      }
+    };
     
-    // Race the actual task against the timeout
-    const result = await Promise.race([
-      task(progressCallback),
-      timeoutPromise
-    ]);
-    
-    // Clear the timeout since we're done
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-    
-    // Check if processing was cancelled
-    if (cancelled) return null;
-    
-    return result;
-  } catch (error) {
-    logError("Error in task processing with timeout", { error });
-    
-    // Clear the timeout if it exists
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-    
-    // If it's a timeout error, provide a more helpful message
-    if (error instanceof Error && error.message.includes('timed out')) {
-      throw new Error(`Processing timed out after ${timeoutDuration/60000} minutes. This may be due to the file being too large or complex.`);
-    }
-    
-    // Rethrow the error for the caller to handle
-    throw error;
-  }
+    // Execute the function
+    fn(progressWrapper)
+      .then((result) => {
+        if (!isTimedOut) {
+          clearTimeout(timeoutId);
+          resolve(result);
+        }
+        // Otherwise ignore the result since we already rejected with timeout
+      })
+      .catch((error) => {
+        if (!isTimedOut) {
+          clearTimeout(timeoutId);
+          reject(error);
+        }
+        // Otherwise ignore the error since we already rejected with timeout
+      });
+  });
 };

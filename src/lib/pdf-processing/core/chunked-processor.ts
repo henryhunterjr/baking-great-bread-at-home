@@ -30,6 +30,11 @@ export const processLargePDFInChunks = async (
     
     if (onProgress) onProgress(0.2);
     
+    // Check if too many pages
+    if (numPages > 50) {
+      throw new Error(`PDF has ${numPages} pages. Maximum supported is 50. Please extract just the recipe portion.`);
+    }
+    
     // Extract text from each page individually
     let allText = '';
     
@@ -41,35 +46,27 @@ export const processLargePDFInChunks = async (
       const startPage = batchIndex * BATCH_SIZE + 1;
       const endPage = Math.min((batchIndex + 1) * BATCH_SIZE, numPages);
       
-      // Process this batch of pages
+      logInfo(`Processing PDF batch ${batchIndex + 1}/${batches}`, { 
+        startPage, 
+        endPage,
+        totalPages: numPages 
+      });
+      
+      // Process this batch of pages using parallel promises
+      const pagePromises = [];
+      
       for (let pageNum = startPage; pageNum <= endPage; pageNum++) {
-        try {
-          const page = await pdf.getPage(pageNum);
-          const content = await page.getTextContent();
-          
-          // Extract text from this page
-          const pageText = content.items
-            .map((item: any) => item.str)
-            .join(' ');
-          
-          allText += pageText + '\n\n';
-          
-          // Update progress
-          if (onProgress) {
-            const progress = 0.2 + 0.7 * (pageNum / numPages);
-            onProgress(progress);
-          }
-          
-          // Clean up page to free memory
-          page.cleanup();
-          
-          // Force garbage collection between pages (not really possible in JS,
-          // but we can null references to help)
-          content.items = null;
-        } catch (pageError) {
-          logError(`Error processing page ${pageNum}`, { error: pageError });
-          // Continue with other pages even if one fails
-        }
+        pagePromises.push(extractPageText(pdf, pageNum));
+      }
+      
+      // Wait for all pages in this batch to complete
+      const batchTexts = await Promise.all(pagePromises);
+      allText += batchTexts.join('\n\n');
+      
+      // Update progress
+      if (onProgress) {
+        const progress = 0.2 + 0.7 * ((batchIndex + 1) / batches);
+        onProgress(progress);
       }
       
       // Small delay between batches to allow for garbage collection
@@ -83,7 +80,7 @@ export const processLargePDFInChunks = async (
     const cleanedText = cleanOCRText(allText);
     
     // Complete
-    if (onProgress) onProgress(0.99);
+    if (onProgress) onProgress(1.0);
     
     return cleanedText;
   } catch (error) {
@@ -91,3 +88,26 @@ export const processLargePDFInChunks = async (
     throw error;
   }
 };
+
+/**
+ * Helper function to extract text from a single page
+ */
+async function extractPageText(pdf: any, pageNum: number): Promise<string> {
+  try {
+    const page = await pdf.getPage(pageNum);
+    const content = await page.getTextContent();
+    
+    // Extract text from this page
+    const pageText = content.items
+      .map((item: any) => item.str)
+      .join(' ');
+    
+    // Clean up page to free memory
+    page.cleanup();
+    
+    return pageText;
+  } catch (error) {
+    logError(`Error processing page ${pageNum}`, { error });
+    return ''; // Return empty string for failed pages
+  }
+}

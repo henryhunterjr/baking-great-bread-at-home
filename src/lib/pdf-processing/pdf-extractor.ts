@@ -14,6 +14,11 @@ export const processPDFWithTimeout = async (
   timeoutDuration: number = 600000 // 10 minutes default
 ): Promise<string | { cancel: () => void } | null> => {
   try {
+    // Basic file validation
+    if (file.size > 20 * 1024 * 1024) { // 20MB limit
+      throw new Error("PDF file is too large (max 20MB). Please try a smaller file or extract just the recipe section.");
+    }
+    
     logInfo("Processing PDF with timeout", { 
       filename: file.name, 
       filesize: file.size, 
@@ -24,9 +29,8 @@ export const processPDFWithTimeout = async (
     if (file.size > 5 * 1024 * 1024) { // If larger than 5MB
       logInfo("Large PDF detected, using chunked processing method", { fileSize: file.size });
       
-      // Use a different processing method for large PDFs
+      // Process the PDF in chunks to avoid memory issues
       try {
-        // Process the PDF in chunks to avoid memory issues
         return await executeWithTimeout(
           (progressCallback) => processLargePDFInChunks(file, progressCallback),
           timeoutDuration,
@@ -61,8 +65,15 @@ export const processPDF = async (
   try {
     logInfo("Processing PDF directly", { filename: file.name, filesize: file.size });
     
+    // Check file size
+    if (file.size > 20 * 1024 * 1024) { // 20MB
+      onError("PDF file is too large (max 20MB). Please try a smaller file or extract just the recipe section.");
+      return null;
+    }
+    
     const progressCallback = (progress: number) => {
       // Just track progress, no state to update here
+      logInfo("PDF processing progress", { progress: Math.round(progress * 100) + '%' });
     };
     
     const extractResult = await processPDFWithTimeout(file, progressCallback);
