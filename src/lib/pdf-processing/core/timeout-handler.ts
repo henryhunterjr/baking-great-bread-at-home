@@ -17,7 +17,7 @@ export const executeWithTimeout = async <T>(
   const operationPromise = operation(progressCallback);
   
   // Create a timeout promise
-  const timeoutPromise = new Promise((_, reject) => {
+  const timeoutPromise = new Promise<never>((_, reject) => {
     const timeoutId = setTimeout(() => {
       reject(new Error(`Operation timed out after ${timeoutMs / 1000} seconds`));
     }, timeoutMs);
@@ -41,7 +41,7 @@ export const executeWithTimeout = async <T>(
   
   try {
     // Race between the operation and timeout
-    const result = await Promise.race([operationPromise, timeoutPromise]);
+    const result = await Promise.race([operationPromise, timeoutPromise]) as T;
     return result;
   } catch (error) {
     if ((error as Error).message.includes('timed out')) {
