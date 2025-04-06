@@ -29,7 +29,11 @@ export function initDevErrorHandler(suppressErrors = true): void {
     /https:\/\/id-preview-.*lovable\.app\//i,
     /Failed to load resource: the server responded with a status of 500/i,
     /Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies/i,
-    /Microsoft Edge is moving towards a new experience that allows users to choose to browse without third-party cookies/i
+    /Microsoft Edge is moving towards a new experience that allows users to choose to browse without third-party cookies/i,
+    /wss:\/\//i,
+    /Unexpected response code: 404/i,
+    /Unexpected response code: 412/i,
+    /Error during WebSocket handshake/i
   ];
 
   // Override console.error

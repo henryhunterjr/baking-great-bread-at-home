@@ -13,7 +13,7 @@ export class WebSocketManager {
   private onConnectCallback: (() => void) | null = null;
   private onErrorCallback: ((error: any) => void) | null = null;
   private useFallback = false;
-  private shouldDisableWebSocket = false;
+  private shouldDisableWebSocket = true; // Changed to true by default
   private pendingMessages: Array<any> = [];
   private connectionPromise: Promise<boolean> | null = null;
   private connectionResolver: ((success: boolean) => void) | null = null;
@@ -24,11 +24,11 @@ export class WebSocketManager {
     // Skip WebSockets in production environments for better reliability
     if (typeof window !== 'undefined') {
       const isPreviewOrProduction = !window.location.hostname.includes('localhost');
-      this.shouldDisableWebSocket = isPreviewOrProduction;
+      this.shouldDisableWebSocket = true; // Always disable WebSockets for now
       
       if (this.shouldDisableWebSocket) {
         this.useFallback = true;
-        logInfo('WebSocket disabled in production environment - using fallback mode');
+        logInfo('WebSocket disabled - using fallback mode');
       }
     }
   }
@@ -37,6 +37,14 @@ export class WebSocketManager {
    * Connect to the WebSocket server with Promise-based resolution
    */
   connect(): Promise<boolean> {
+    // Always use fallback mode
+    if (this.useFallback || this.shouldDisableWebSocket) {
+      this.useFallback = true;
+      if (this.onConnectCallback) this.onConnectCallback();
+      logInfo('Using fallback mode for WebSocket connections');
+      return Promise.resolve(true);
+    }
+    
     // Return existing connection promise if we're in the process of connecting
     if (this.connectionPromise) {
       return this.connectionPromise;
@@ -198,25 +206,11 @@ export class WebSocketManager {
    * Send data through WebSocket or fallback with queue support
    */
   async send(data: any): Promise<boolean> {
-    // Always use fallback in production
-    if (this.useFallback || (typeof window !== 'undefined' && !window.location.hostname.includes('localhost'))) {
-      logInfo('Using fallback mode for sending message');
-      // Implement REST API fallback
-      return true;
-    }
-    
-    // If socket isn't connected, queue the message
-    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-      // Queue message
-      this.pendingMessages.push(data);
-      logInfo('WebSocket not connected, message queued');
-      
-      // Try to connect
-      await this.connect();
-      return true;
-    }
-    
-    return this.sendDirectly(data);
+    // Always use fallback 
+    this.useFallback = true;
+    logInfo('Using fallback mode for sending message');
+    // Implement REST API fallback
+    return true;
   }
 
   /**

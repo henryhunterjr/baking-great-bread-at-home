@@ -44,7 +44,7 @@ export const useRecipeState = () => {
     
     // Set the recipe and enable editing
     setRecipe(processedRecipe);
-    setIsEditing(true);
+    setIsEditing(false); // Changed to false to show the recipe card first
     
     // Show success message
     setShowConversionSuccess(true);

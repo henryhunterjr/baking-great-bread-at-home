@@ -19,6 +19,16 @@ const MessageCard: React.FC<MessageCardProps> = ({ message }) => {
   const handleViewRecipe = (e: React.MouseEvent, recipe: any) => {
     e.preventDefault();
     
+    if (!recipe.fullRecipe) {
+      console.error("Recipe is missing full recipe data:", recipe);
+      toast({
+        title: "Error",
+        description: "Recipe data is incomplete. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Convert the attached recipe to the proper RecipeData format
     const recipeData: RecipeData = {
       title: recipe.title || 'Untitled Recipe',
@@ -44,7 +54,8 @@ const MessageCard: React.FC<MessageCardProps> = ({ message }) => {
         'Remove from oven and let cool in the pan for a few minutes. Then remove from the pan and let cool completely before slicing.'
       ],
       imageUrl: recipe.imageUrl || '',
-      isConverted: true
+      isConverted: true,
+      notes: recipe.fullRecipe?.notes || []
     };
 
     console.log("Recipe being sent to converter:", recipeData);
@@ -86,7 +97,16 @@ const MessageCard: React.FC<MessageCardProps> = ({ message }) => {
               className="mt-2 w-full flex items-center justify-center"
               onClick={(e) => handleViewRecipe(e, message.attachedRecipe)}
             >
-              View Recipe
+              {message.attachedRecipe.isGenerated ? (
+                <div className="flex items-center justify-center">
+                  <span>View Recipe</span>
+                </div>
+              ) : (
+                <a href={message.attachedRecipe.link} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-3 w-3 mr-1" />
+                  View Recipe
+                </a>
+              )}
             </Button>
           </div>
         )}

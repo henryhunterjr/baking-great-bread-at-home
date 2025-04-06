@@ -6,7 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { restoreConsole, initDevErrorHandler } from '@/utils/devErrorHandler';
 import { getRecentLogs, clearLogs, LogLevel } from '@/utils/logger';
-import { AlertTriangle, Bug, RefreshCw, X } from 'lucide-react';
+import { AlertTriangle, Bug, RefreshCw, X, WifiOff } from 'lucide-react';
 import LogsPanel from './LogsPanel';
 
 interface DevConsoleProps {
@@ -16,6 +16,7 @@ interface DevConsoleProps {
 const DevConsole: React.FC<DevConsoleProps> = ({ onClose }) => {
   const [logs, setLogs] = useState(getRecentLogs());
   const [errorFiltering, setErrorFiltering] = useState(true);
+  const [hideWebSocketErrors, setHideWebSocketErrors] = useState(true);
   
   // Update logs every second
   useEffect(() => {
@@ -40,11 +41,16 @@ const DevConsole: React.FC<DevConsoleProps> = ({ onClose }) => {
     setLogs([]);
   };
   
+  // Filter WebSocket errors if requested
+  const filteredLogs = hideWebSocketErrors 
+    ? logs.filter(log => !log.message.includes('WebSocket'))
+    : logs;
+  
   // Count logs by level for tab labels
-  const errorLogsCount = logs.filter(log => log.level === LogLevel.ERROR).length;
-  const warnLogsCount = logs.filter(log => log.level === LogLevel.WARN).length;
-  const infoLogsCount = logs.filter(log => log.level === LogLevel.INFO).length;
-  const debugLogsCount = logs.filter(log => log.level === LogLevel.DEBUG).length;
+  const errorLogsCount = filteredLogs.filter(log => log.level === LogLevel.ERROR).length;
+  const warnLogsCount = filteredLogs.filter(log => log.level === LogLevel.WARN).length;
+  const infoLogsCount = filteredLogs.filter(log => log.level === LogLevel.INFO).length;
+  const debugLogsCount = filteredLogs.filter(log => log.level === LogLevel.DEBUG).length;
   
   return (
     <div className="fixed bottom-4 right-4 w-[600px] h-[400px] bg-background border rounded-lg shadow-lg z-50 flex flex-col">
@@ -54,6 +60,15 @@ const DevConsole: React.FC<DevConsoleProps> = ({ onClose }) => {
           <h3 className="text-sm font-medium">Developer Console</h3>
         </div>
         <div className="flex items-center space-x-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setHideWebSocketErrors(!hideWebSocketErrors)}
+            className={hideWebSocketErrors ? "bg-red-100/20" : ""}
+          >
+            <WifiOff className="h-4 w-4 mr-1" />
+            {hideWebSocketErrors ? "Show WS Errors" : "Hide WS Errors"}
+          </Button>
           <Button 
             variant="outline" 
             size="sm" 
@@ -86,29 +101,29 @@ const DevConsole: React.FC<DevConsoleProps> = ({ onClose }) => {
             Debug ({debugLogsCount})
           </TabsTrigger>
           <TabsTrigger value="all" className="text-xs">
-            All ({logs.length})
+            All ({filteredLogs.length})
           </TabsTrigger>
         </TabsList>
         
         <ScrollArea className="flex-1 p-2">
           <TabsContent value="errors" className="mt-0">
-            <LogsPanel logs={logs} type="errors" />
+            <LogsPanel logs={filteredLogs} type="errors" />
           </TabsContent>
           
           <TabsContent value="warnings" className="mt-0">
-            <LogsPanel logs={logs} type="warnings" />
+            <LogsPanel logs={filteredLogs} type="warnings" />
           </TabsContent>
           
           <TabsContent value="info" className="mt-0">
-            <LogsPanel logs={logs} type="info" />
+            <LogsPanel logs={filteredLogs} type="info" />
           </TabsContent>
           
           <TabsContent value="debug" className="mt-0">
-            <LogsPanel logs={logs} type="debug" />
+            <LogsPanel logs={filteredLogs} type="debug" />
           </TabsContent>
           
           <TabsContent value="all" className="mt-0">
-            <LogsPanel logs={logs} type="all" />
+            <LogsPanel logs={filteredLogs} type="all" />
           </TabsContent>
         </ScrollArea>
       </Tabs>
