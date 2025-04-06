@@ -1,9 +1,10 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Camera, Loader2, RefreshCw } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { extractTextWithOCR } from '@/lib/ai-services/pdf/ocr-processor';
+import { extractTextWithOCR } from '@/lib/ai-services/pdf/ocr/ocr-processor';
 import FileUploadError from '../file-upload/FileUploadError';
 import { useToast } from '@/hooks/use-toast';
 

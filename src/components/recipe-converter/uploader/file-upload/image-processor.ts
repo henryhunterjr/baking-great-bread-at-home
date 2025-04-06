@@ -1,5 +1,5 @@
 
-import { extractTextWithOCR } from '@/lib/ai-services/pdf';
+import { extractTextWithOCR } from '@/lib/ai-services/pdf/ocr/ocr-processor';
 import { logError, logInfo } from '@/utils/logger';
 import { ProcessingCallbacks, ProcessingTask } from './types';
 import { createThrottledProgressReporter } from '@/lib/ai-services/pdf/ocr/ocr-utils';
