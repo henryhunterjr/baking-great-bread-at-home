@@ -63,7 +63,7 @@ const MessageAttachment: React.FC<MessageAttachmentProps> = ({ message }) => {
           <div className="flex flex-col sm:flex-row">
             <div className="w-full sm:w-1/3 h-24 sm:h-auto">
               <img 
-                src={message.attachedBook.imageUrl}
+                src={message.attachedBook.imageUrl || message.attachedBook.cover}
                 alt={message.attachedBook.title}
                 className="w-full h-full object-cover"
                 onError={(e) => {

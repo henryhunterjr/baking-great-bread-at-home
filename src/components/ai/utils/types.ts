@@ -1,4 +1,6 @@
+
 import { RecipeData } from '@/types/recipeTypes';
+import { Challenge } from '@/types/challengeTypes';
 
 export type ChatMessage = {
   role: 'user' | 'assistant';
@@ -17,8 +19,18 @@ export type ChatMessage = {
     title: string;
     author: string;
     cover?: string;
+    imageUrl?: string;
     description: string;
     link?: string;
+  };
+  attachedChallenge?: {
+    id: string;
+    title: string;
+    description: string;
+    imageUrl: string;
+    link: string;
+    dueDate?: string;
+    isCurrent: boolean;
   };
 };
 
@@ -64,3 +76,21 @@ export interface AIAssistantContextType {
   isProcessing: boolean;
   setIsProcessing: (isProcessing: boolean) => void;
 }
+
+// Add missing types for book recommendations and challenge info
+export type BookRecommendation = {
+  title: string;
+  author: string;
+  description: string;
+  imageUrl: string;
+  link: string;
+  keywords?: string[];
+};
+
+export type ChallengeInfo = {
+  id: string;
+  title: string;
+  description: string;
+  dueDate: string;
+  link: string;
+};
