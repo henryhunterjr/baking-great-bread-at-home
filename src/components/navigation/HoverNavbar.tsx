@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import UserMenu from '@/components/auth/UserMenu';
-import { motion } from 'framer-motion';
 import { Home, Book, Calendar, Coffee } from 'lucide-react';
 
 const HoverNavbar: React.FC = () => {
@@ -29,11 +28,8 @@ const HoverNavbar: React.FC = () => {
   }, []);
 
   return (
-    <motion.nav 
-      initial={{ y: -100 }}
-      animate={{ y: visible ? 0 : -100 }}
-      transition={{ duration: 0.3 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm"
+    <nav 
+      className={`fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm transition-transform duration-300 ${visible ? 'transform-none' : '-translate-y-full'}`}
     >
       <div className="container mx-auto px-4 flex justify-between items-center h-16 md:h-20">
         <div className="flex items-center space-x-2">
@@ -77,7 +73,7 @@ const HoverNavbar: React.FC = () => {
           )}
         </div>
       </div>
-    </motion.nav>
+    </nav>
   );
 };
 

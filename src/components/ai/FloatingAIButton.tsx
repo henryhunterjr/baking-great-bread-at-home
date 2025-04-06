@@ -127,30 +127,32 @@ const FloatingAIButton = () => {
         <Sparkles className="h-5 w-5 md:h-7 md:w-7 text-white z-10" />
       </Button>
 
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent 
-          side={isMobile ? "bottom" : "right"}
-          className={`
-            ${isMobile ? 'h-[90vh] rounded-t-xl' : 'w-[85vw] sm:w-[500px] md:w-[600px] lg:w-[800px]'} 
-            p-0 border-l-2 border-bread-600/30
-          `}
-        >
-          <SheetHeader className="p-4 border-b flex flex-row items-center justify-between">
-            <SheetTitle>Baking Assistant</SheetTitle>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => setIsOpen(false)} 
-              className="rounded-full h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </SheetHeader>
-          <div className={`${isMobile ? 'h-[calc(90vh-5rem)]' : 'h-[calc(100vh-6rem)]'} overflow-hidden`}>
-            <AIAssistant />
-          </div>
-        </SheetContent>
-      </Sheet>
+      {isMobile !== null && (
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetContent 
+            side={isMobile ? "bottom" : "right"}
+            className={`
+              ${isMobile ? 'h-[90vh] rounded-t-xl' : 'w-[85vw] sm:w-[500px] md:w-[600px] lg:w-[800px]'} 
+              p-0 border-l-2 border-bread-600/30
+            `}
+          >
+            <SheetHeader className="p-4 border-b flex flex-row items-center justify-between">
+              <SheetTitle>Baking Assistant</SheetTitle>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => setIsOpen(false)} 
+                className="rounded-full h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </SheetHeader>
+            <div className={`${isMobile ? 'h-[calc(90vh-5rem)]' : 'h-[calc(100vh-6rem)]'} overflow-hidden`}>
+              <AIAssistant />
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
     </>
   );
 };
