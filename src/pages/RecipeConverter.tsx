@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRecipeConverter } from '@/hooks/use-recipe-converter';
 import Navbar from '@/components/Navbar';
 import RecipeConverterHeader from '@/components/recipe-converter/RecipeConverterHeader';
 import RecipeConverterContent from '@/components/recipe-converter/RecipeConverterContent';
 import RecipeConverterSidebar from '@/components/recipe-converter/RecipeConverterSidebar';
 import RecipeConverterNav from '@/components/recipe-converter/RecipeConverterNav';
+import { useLocation } from 'react-router-dom';
 
 // Export RecipeData type here so other files can import it from this file
 // This maintains backward compatibility with existing code
@@ -26,6 +27,34 @@ const RecipeConverter: React.FC = () => {
     resetRecipe,
     conversionError
   } = useRecipeConverter();
+  
+  const location = useLocation();
+  
+  // Handle incoming recipe data from navigation state or session storage
+  useEffect(() => {
+    // Check for recipe in location state first (from navigation)
+    if (location.state?.recipe) {
+      console.log("Recipe received from navigation:", location.state.recipe);
+      setRecipe(location.state.recipe);
+      setIsEditing(true);
+      return;
+    }
+    
+    // Then check session storage (for page refreshes)
+    const storedRecipe = sessionStorage.getItem('viewedRecipe');
+    if (storedRecipe) {
+      try {
+        const parsedRecipe = JSON.parse(storedRecipe);
+        console.log("Recipe loaded from session storage:", parsedRecipe);
+        setRecipe(parsedRecipe);
+        setIsEditing(true);
+        // Clear session storage after loading to prevent reloads
+        sessionStorage.removeItem('viewedRecipe');
+      } catch (error) {
+        console.error("Error parsing stored recipe:", error);
+      }
+    }
+  }, [location.state, setRecipe, setIsEditing]);
   
   // Function to handle going back to home/start
   const handleStartOver = () => {

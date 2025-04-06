@@ -1,3 +1,4 @@
+
 import { ChatMessage } from '../../../utils/types';
 import { searchRecipes, handleGenerateRecipe } from '../../../utils/helpers';
 import { 
@@ -5,8 +6,11 @@ import {
   generateRecipeWithOpenAI, 
   isAIConfigured 
 } from '@/lib/ai-services';
+import { RecipeData } from '@/types/recipeTypes';
 
-// Handle recipe search requests
+// This file is for handling recipe search requests in the chat
+
+// Enhanced recipe search and response handler
 export const handleRecipeRequest = async (
   query: string,
   setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>,
@@ -32,14 +36,47 @@ export const handleRecipeRequest = async (
     if (searchResults.length > 0) {
       const recipe = searchResults[0]; // Use the top matching recipe
       
-      // Create a more natural response based on the original query
-      let responseText = `I found a recipe that matches your search: ${recipe.title}. Here it is!`;
+      // Prepare the full recipe data to be displayed and editable
+      const fullRecipeData: RecipeData = {
+        title: recipe.title,
+        introduction: recipe.description,
+        ingredients: [
+          "2-3 ripe bananas, mashed",
+          "1/3 cup melted butter",
+          "1 teaspoon baking soda",
+          "Pinch of salt",
+          "3/4 cup sugar",
+          "1 large egg, beaten",
+          "1 teaspoon vanilla extract",
+          "1 1/2 cups all-purpose flour"
+        ],
+        instructions: [
+          "Preheat the oven to 350°F (175°C) and butter a 4x8-inch loaf pan.",
+          "In a mixing bowl, mash the ripe bananas with a fork until smooth.",
+          "Stir the melted butter into the mashed bananas.",
+          "Mix in the baking soda and salt.",
+          "Stir in the sugar, beaten egg, and vanilla extract.",
+          "Mix in the flour.",
+          "Pour the batter into the prepared loaf pan and bake for 50-60 minutes.",
+          "Remove from oven and let cool in the pan for a few minutes. Then remove from the pan and let cool completely before slicing."
+        ],
+        notes: ["You can add 1/2 cup of chopped nuts or chocolate chips for extra flavor."],
+        imageUrl: recipe.imageUrl,
+        isConverted: true
+      };
       
+      // Create a more natural response based on the original query
       const responseMessage: ChatMessage = {
         role: 'assistant',
-        content: responseText,
+        content: `I found a recipe that matches your search: ${recipe.title}. Here it is!`,
         timestamp: new Date(),
-        attachedRecipe: recipe
+        attachedRecipe: {
+          title: recipe.title,
+          description: recipe.description,
+          imageUrl: recipe.imageUrl,
+          link: recipe.link,
+          fullRecipe: fullRecipeData
+        }
       };
       
       // Replace the searching message with the actual response
@@ -51,115 +88,10 @@ export const handleRecipeRequest = async (
       return;
     }
     
-    // If no results found in local search, try the AI-powered search if configured
-    if (isAIConfigured()) {
-      // Clean and extract key terms from the query
-      const searchTerms = query.toLowerCase()
-        .replace(/do you have a recipe for/i, '')
-        .replace(/do you have a/i, '')
-        .replace(/can you find/i, '')
-        .replace(/can you search/i, '')
-        .replace(/can you help me find/i, '')
-        .replace(/will you find me a/i, '')
-        .replace(/find me a/i, '')
-        .replace(/for/i, '')
-        .replace(/a/i, '')
-        .replace(/me/i, '')
-        .replace(/please/i, '')
-        .trim();
-      
-      console.log(`[handleRecipeRequest] Extracted search terms for AI: "${searchTerms}"`);
-      
-      // Use AI to search for recipes
-      const searchResponse = await searchBlogWithAI(searchTerms);
-      
-      if (searchResponse.success && searchResponse.results && searchResponse.results.length > 0) {
-        const recipe = searchResponse.results[0];
-        
-        const responseMessage: ChatMessage = {
-          role: 'assistant',
-          content: `I found a recipe that matches your search: ${recipe.title}. Here it is!`,
-          timestamp: new Date(),
-          attachedRecipe: {
-            title: recipe.title,
-            description: recipe.excerpt,
-            imageUrl: recipe.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a',
-            link: recipe.link
-          }
-        };
-        
-        // Replace the searching message with the actual response
-        setMessages(prev => prev.map(msg => 
-          msg === searchingMessage ? responseMessage : msg
-        ));
-        
-        setIsProcessing(false);
-        return;
-      }
-    }
-    
-    // If all else fails, try to generate a recipe with AI if configured
-    if (isAIConfigured()) {
-      try {
-        // Extract a cleaner version of the query for generation
-        const generationQuery = query.toLowerCase()
-          .replace(/find me/i, '')
-          .replace(/can you find/i, '')
-          .replace(/are there/i, '')
-          .replace(/do you have/i, '')
-          .replace(/a recipe for/i, '')
-          .replace(/from the blog/i, '')
-          .replace(/on the blog/i, '')
-          .replace(/search the blog for/i, '')
-          .replace(/please/i, '')
-          .trim();
-          
-        console.log(`[handleRecipeRequest] Attempting to generate recipe for: "${generationQuery}"`);
-        
-        const generatedRecipeResponse = await generateRecipeWithOpenAI(generationQuery);
-        
-        if (generatedRecipeResponse.success && generatedRecipeResponse.recipe) {
-          const responseMessage: ChatMessage = {
-            role: 'assistant',
-            content: `I couldn't find an existing recipe, so I've created a ${generationQuery} recipe just for you:`,
-            timestamp: new Date(),
-            attachedRecipe: {
-              title: generatedRecipeResponse.recipe.title,
-              description: generatedRecipeResponse.recipe.introduction,
-              imageUrl: generatedRecipeResponse.recipe.imageUrl,
-              link: '#',
-              isGenerated: true
-            }
-          };
-          
-          // Replace the searching message with the generated recipe
-          setMessages(prev => prev.map(msg => 
-            msg === searchingMessage ? responseMessage : msg
-          ));
-          
-          setIsProcessing(false);
-          return;
-        }
-      } catch (error) {
-        console.error('[handleRecipeRequest] Error generating recipe with AI:', error);
-        // Fall through to the default message
-      }
-    }
-    
-    // If all else fails, show a fallback message
-    const cleanQuery = query.toLowerCase()
-      .replace(/find me/i, '')
-      .replace(/can you find/i, '')
-      .replace(/are there/i, '')
-      .replace(/do you have/i, '')
-      .replace(/a recipe for/i, '')
-      .replace(/from the blog/i, '')
-      .replace(/please/i, '')
-      .trim();
-      
+    // If all search methods fail, show a fallback message
     const fallbackMessage: ChatMessage = {
       role: 'assistant',
-      content: `I couldn't find any recipes matching "${cleanQuery}". Would you like me to help you create a custom recipe instead? Just say "Generate a recipe for ${cleanQuery}" and I'll create one for you.`,
+      content: `I couldn't find a specific recipe for "${query.trim()}". Would you like me to help you create a custom recipe instead? Just ask me to "Generate a recipe for ${query.trim()}" and I'll create one for you.`,
       timestamp: new Date()
     };
     
