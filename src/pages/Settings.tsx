@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import APIKeyForm from '@/components/ai/settings/APIKeyForm';
-import { SettingsIcon, SunIcon, MoonIcon, UserIcon, Database } from 'lucide-react';
+import { SettingsIcon, SunIcon, MoonIcon, UserIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useTheme } from '@/contexts/ThemeContext';

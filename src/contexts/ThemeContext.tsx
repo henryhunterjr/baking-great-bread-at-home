@@ -8,21 +8,26 @@ interface ThemeContextType {
   setTheme: (theme: Theme) => void;
 }
 
+interface ThemeProviderProps {
+  children: React.ReactNode;
+  defaultTheme?: Theme;
+}
+
 const ThemeContext = createContext<ThemeContextType>({
-  theme: 'system',
+  theme: 'dark', // Changed default to dark
   setTheme: () => null,
 });
 
 export const useTheme = () => useContext(ThemeContext);
 
-export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+export const ThemeProvider = ({ children, defaultTheme = 'dark' }: ThemeProviderProps) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    // Check localStorage first, then fall back to system preference
+    // Check localStorage first, then fall back to provided defaultTheme
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme') as Theme;
-      return savedTheme || 'system';
+      return savedTheme || defaultTheme;
     }
-    return 'system';
+    return defaultTheme;
   });
 
   // Function to get the actual theme based on system preference
