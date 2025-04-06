@@ -1,13 +1,15 @@
 
 {
   "routes": [
-    { "src": "/pdf.worker.min.js", "dest": "/pdf.worker.min.js", "headers": { "Cache-Control": "public, max-age=3600" } },
-    { "src": "/assets/pdf.worker.min.js", "dest": "/pdf.worker.min.js", "headers": { "Cache-Control": "public, max-age=3600" } },
-    { "src": "/cmaps/(.*)", "dest": "/cmaps/$1", "headers": { "Cache-Control": "public, max-age=3600" } },
-    { "src": "/tesseract/(.*)", "dest": "/tesseract/$1", "headers": { "Cache-Control": "public, max-age=3600" } },
-    { "src": "/assets/(.*)", "dest": "/assets/$1" },
-    { "src": "/favicon.ico", "dest": "/favicon.ico" },
-    { "src": "/manifest.json", "dest": "/manifest.json" },
+    { "src": "/pdf.worker.min.js", "dest": "/pdf.worker.min.js", "headers": { "Cache-Control": "public, max-age=31536000, immutable" } },
+    { "src": "/assets/pdf.worker.min.js", "dest": "/pdf.worker.min.js", "headers": { "Cache-Control": "public, max-age=31536000, immutable" } },
+    { "src": "/cmaps/(.*)", "dest": "/cmaps/$1", "headers": { "Cache-Control": "public, max-age=31536000, immutable" } },
+    { "src": "/tesseract/(.*)", "dest": "/tesseract/$1", "headers": { "Cache-Control": "public, max-age=31536000, immutable" } },
+    { "src": "/assets/(.*)", "dest": "/assets/$1", "headers": { "Cache-Control": "public, max-age=604800" } },
+    { "src": "/(.*\\.(js|css|woff2))", "dest": "/$1", "headers": { "Cache-Control": "public, max-age=31536000, immutable" } },
+    { "src": "/(.*\\.(png|jpg|jpeg|svg|webp|avif))", "dest": "/$1", "headers": { "Cache-Control": "public, max-age=604800" } },
+    { "src": "/favicon.ico", "dest": "/favicon.ico", "headers": { "Cache-Control": "public, max-age=86400" } },
+    { "src": "/manifest.json", "dest": "/manifest.json", "headers": { "Cache-Control": "public, max-age=86400" } },
     { "src": "/(.*)", "dest": "/index.html" }
   ],
   "headers": [
@@ -16,7 +18,12 @@
       "headers": [
         { "key": "Access-Control-Allow-Origin", "value": "*" },
         { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, PATCH, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "X-Requested-With, Content-Type, Authorization, X-CSRF-Token, apikey, x-client-info" }
+        { "key": "Access-Control-Allow-Headers", "value": "X-Requested-With, Content-Type, Authorization, X-CSRF-Token, apikey, x-client-info" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=*, microphone=*, geolocation=*" }
       ]
     },
     {
@@ -24,7 +31,19 @@
       "headers": [
         { "key": "Access-Control-Allow-Origin", "value": "*" },
         { "key": "Content-Type", "value": "application/javascript" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" }
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/_next/static/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=604800" }
       ]
     }
   ],

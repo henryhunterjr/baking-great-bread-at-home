@@ -7,51 +7,60 @@ export class FirebaseStorageProvider implements IStorageProvider {
   private localStorageFallback = new LocalStorageProvider();
   private isInitialized = false;
   private firestore: any = null;
+  private initializationPromise: Promise<void> | null = null;
   
   constructor() {
     // Only try to initialize Firebase in browser environment
-    if (typeof window !== 'undefined') {
-      this.initializeFirebase().catch(err => {
-        logError('Failed to initialize Firebase', { error: err });
-      });
-    }
+    // and only when actually needed (lazy initialization)
+    this.isInitialized = false;
   }
   
-  // Initialize Firebase
-  private async initializeFirebase(): Promise<void> {
-    try {
-      // In production, always use local storage fallback due to configuration issues
-      if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
-        this.isInitialized = false;
-        logInfo('Firebase initialization skipped in production environment');
-        return;
-      }
-      
-      // Dynamically import Firebase to reduce initial bundle size
-      const firebase = await import('firebase/app');
-      const firestoreModule = await import('firebase/firestore');
-      
-      // Firebase configuration - in a real app, use environment variables
-      const firebaseConfig = {
-        apiKey: "YOUR_API_KEY", // Replace with your Firebase API key
-        authDomain: "YOUR_AUTH_DOMAIN",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_STORAGE_BUCKET",
-        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-        appId: "YOUR_APP_ID"
-      };
-      
-      // Initialize Firebase
-      const app = firebase.initializeApp(firebaseConfig);
-      this.firestore = firestoreModule.getFirestore(app);
-      this.isInitialized = true;
-      
-      logInfo('Firebase initialized successfully');
-    } catch (error) {
-      this.isInitialized = false;
-      logError('Firebase initialization error', { error });
-      // We'll fall back to local storage when Firebase fails
+  // Initialize Firebase lazily
+  private initializeFirebase(): Promise<void> {
+    // Only initialize once - return existing promise if in progress
+    if (this.initializationPromise) {
+      return this.initializationPromise;
     }
+    
+    this.initializationPromise = new Promise<void>(async (resolve) => {
+      try {
+        // In production, always use local storage fallback due to configuration issues
+        if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+          this.isInitialized = false;
+          logInfo('Firebase initialization skipped in production environment');
+          resolve();
+          return;
+        }
+        
+        // Dynamically import Firebase to reduce initial bundle size
+        const firebase = await import('firebase/app');
+        const firestoreModule = await import('firebase/firestore');
+        
+        // Firebase configuration - in a real app, use environment variables
+        const firebaseConfig = {
+          apiKey: "YOUR_API_KEY", // Replace with your Firebase API key
+          authDomain: "YOUR_AUTH_DOMAIN",
+          projectId: "YOUR_PROJECT_ID",
+          storageBucket: "YOUR_STORAGE_BUCKET",
+          messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+          appId: "YOUR_APP_ID"
+        };
+        
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        this.firestore = firestoreModule.getFirestore(app);
+        this.isInitialized = true;
+        
+        logInfo('Firebase initialized successfully');
+        resolve();
+      } catch (error) {
+        this.isInitialized = false;
+        logError('Firebase initialization error', { error });
+        resolve(); // Resolve anyway, we'll fall back to local storage
+      }
+    });
+    
+    return this.initializationPromise;
   }
   
   private async getFirestore() {

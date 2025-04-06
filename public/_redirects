@@ -1,3 +1,7 @@
 
+# Redirects for SPA
 /*    /index.html   200
 
+# Cache static assets
+/assets/*  /assets/:splat  200
+/static/*  /static/:splat  200

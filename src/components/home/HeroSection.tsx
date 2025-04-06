@@ -54,6 +54,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ heroRef }) => {
                 src="/lovable-uploads/ecf6ed85-89c2-44ae-97ef-35087b9b3b16.png" 
                 alt="Cross-section of artisan sourdough bread showing open crumb structure" 
                 className="hero-image rounded-lg shadow-xl"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                width="600" 
+                height="400"
                 onError={(e) => {
                   e.currentTarget.src = "https://images.unsplash.com/photo-1549931319-a545dcf3bc7c?q=80&w=1000&auto=format&fit=crop";
                 }}

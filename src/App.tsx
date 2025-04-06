@@ -1,22 +1,33 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import RecipeConverter from '@/pages/RecipeConverter';
-import ErrorBoundary from '@/components/ErrorBoundary';
 import { initializeWorkers, preloadWorkers } from '@/utils/workerUtils';
 import { isAIConfigured } from '@/lib/ai-services';
 import { logInfo } from '@/utils/logger';
 import { Toaster } from '@/components/ui/toaster';
-import AuthPage from '@/pages/AuthPage';
-import ProfilePage from '@/pages/ProfilePage';
 import { useScrollToTop } from '@/hooks/use-scroll-to-top';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import FavoritesPage from '@/pages/FavoritesPage';
 import { BreadAssistantProvider } from '@/contexts/BreadAssistantContext';
-import AIBreadAssistant from '@/components/AIBreadAssistant';
-import Settings from '@/pages/Settings';
-import FloatingAIButton from '@/components/ai/FloatingAIButton';
 import { ErrorProvider, ErrorToast } from '@/utils/ErrorHandling';
+import ErrorBoundary from '@/components/ErrorBoundary';
+
+// Eagerly load critical route components
+import RecipeConverter from '@/pages/RecipeConverter';
+import AuthPage from '@/pages/AuthPage';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
+
+// Lazily load non-critical components
+const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
+const FavoritesPage = lazy(() => import('@/pages/FavoritesPage'));
+const Settings = lazy(() => import('@/pages/Settings'));
+const FloatingAIButton = lazy(() => import('@/components/ai/FloatingAIButton'));
+const AIBreadAssistant = lazy(() => import('@/components/AIBreadAssistant'));
+
+// Loading fallback
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-[50vh]">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-bread-800"></div>
+  </div>
+);
 
 const App: React.FC = () => {
   // Use the scroll to top hook to ensure navigation scrolls to top
@@ -45,20 +56,26 @@ const App: React.FC = () => {
             <Route path="/" element={<RecipeConverter />} />
             <Route path="/auth/*" element={<AuthPage />} />
             
-            {/* Protected Routes */}
+            {/* Protected Routes - Lazily loaded */}
             <Route path="/profile" element={
               <ProtectedRoute>
-                <ProfilePage />
+                <Suspense fallback={<LoadingFallback />}>
+                  <ProfilePage />
+                </Suspense>
               </ProtectedRoute>
             } />
             <Route path="/favorites" element={
               <ProtectedRoute>
-                <FavoritesPage />
+                <Suspense fallback={<LoadingFallback />}>
+                  <FavoritesPage />
+                </Suspense>
               </ProtectedRoute>
             } />
             <Route path="/settings" element={
               <ProtectedRoute>
-                <Settings />
+                <Suspense fallback={<LoadingFallback />}>
+                  <Settings />
+                </Suspense>
               </ProtectedRoute>
             } />
             
@@ -67,8 +84,15 @@ const App: React.FC = () => {
             <Route path="/challenges" element={<RecipeConverter />} />
             <Route path="*" element={<RecipeConverter />} />
           </Routes>
-          <AIBreadAssistant />
-          <FloatingAIButton />
+          
+          <Suspense fallback={null}>
+            <AIBreadAssistant />
+          </Suspense>
+          
+          <Suspense fallback={null}>
+            <FloatingAIButton />
+          </Suspense>
+          
           <Toaster />
           <ErrorToast />
         </BreadAssistantProvider>
