@@ -20,12 +20,29 @@ const HoverNavbar: React.FC = () => {
       }
     };
 
+    // Also show navbar on scroll to top
+    const handleScroll = () => {
+      if (window.scrollY < 50) {
+        setVisible(true);
+      } else if (!visible && window.scrollY > 100) {
+        setVisible(false);
+      }
+    };
+
+    // Add event listeners
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll);
+    
+    // Initial check - show navbar if already at top of page
+    if (window.scrollY < 50) {
+      setVisible(true);
+    }
     
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [visible]);
 
   return (
     <nav 

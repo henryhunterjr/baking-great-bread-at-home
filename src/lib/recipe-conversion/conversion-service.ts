@@ -17,6 +17,66 @@ const extractBriefIntroduction = (text: string): string => {
     : shortIntro + '...';
 };
 
+// Parse recipe text into structured format with improved error handling
+export const parseRecipeText = async (text: string): Promise<{
+  success: boolean;
+  title?: string;
+  ingredients?: string[];
+  instructions?: string[];
+  prepTime?: string;
+  cookTime?: string;
+  servings?: string;
+  notes?: string[];
+  error?: string;
+}> => {
+  try {
+    // Clean the input text
+    const cleanedText = cleanOCRText(text);
+    
+    if (!cleanedText || cleanedText.trim().length < 20) {
+      return {
+        success: false,
+        error: "The provided text is too short or doesn't appear to be a recipe."
+      };
+    }
+    
+    // Check API key status
+    if (!isAIConfigured()) {
+      return {
+        success: false,
+        error: "AI service is not configured with an API key."
+      };
+    }
+    
+    const response = await processRecipeText(cleanedText);
+    
+    if (!response || !response.success) {
+      return {
+        success: false,
+        error: response?.error || "Failed to process recipe."
+      };
+    }
+    
+    return {
+      success: true,
+      title: response.recipe?.title,
+      ingredients: response.recipe?.ingredients,
+      instructions: response.recipe?.instructions,
+      prepTime: response.recipe?.prepTime,
+      cookTime: response.recipe?.bakeTime,
+      servings: response.recipe?.servings,
+      notes: response.recipe?.notes
+    };
+    
+  } catch (error) {
+    logError('Error parsing recipe text', { error });
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown parsing error"
+    };
+  }
+};
+
 export const convertRecipeText = async (
   text: string, 
   onComplete: (recipe: RecipeData) => void,
@@ -34,11 +94,11 @@ export const convertRecipeText = async (
     // Store original text before cleaning - CRITICAL
     const originalText = text;
     
-    // Clean and preprocess the text
-    const cleanedText = cleanOCRText(text);
+    // Parse the recipe text first
+    const parseResult = await parseRecipeText(text);
     
-    if (!cleanedText || cleanedText.trim().length < 20) {
-      throw new Error("The provided text is too short or doesn't appear to be a recipe.");
+    if (!parseResult.success) {
+      throw new Error(parseResult.error || "Failed to parse recipe");
     }
     
     // Make sure we have the latest OpenAI API key
@@ -57,37 +117,23 @@ export const convertRecipeText = async (
       return;
     }
     
-    // Add error handling for browser compatibility
     try {
-      logInfo('Calling processRecipeText with cleaned text', { cleanedTextLength: cleanedText.length });
-      
-      const response = await processRecipeText(cleanedText);
-      
-      if (!response || !response.success) {
-        throw new Error(response?.error || "Failed to process recipe. Please try again.");
-      }
-      
-      if (!response.recipe) {
-        throw new Error("No recipe data was returned. The text might not be recognized as a recipe.");
-      }
-      
-      // Generate a unique ID for the recipe if it doesn't have one
-      const recipeId = response.recipe.id || crypto.randomUUID();
-      
-      // Log receipt of recipe data
-      logInfo('Recipe data received from AI service', { 
-        hasTitle: !!response.recipe.title,
-        hasIngredients: Array.isArray(response.recipe.ingredients) && response.recipe.ingredients.length > 0,
-        hasInstructions: Array.isArray(response.recipe.instructions) && response.recipe.instructions.length > 0
+      logInfo('Processing recipe with parsed data', { 
+        hasTitle: !!parseResult.title,
+        ingredientsCount: parseResult.ingredients?.length || 0,
+        instructionsCount: parseResult.instructions?.length || 0
       });
       
+      // Generate a unique ID for the recipe
+      const recipeId = crypto.randomUUID();
+      
       // Always ensure all required fields are present
-      const guaranteedIngredients = Array.isArray(response.recipe.ingredients) && response.recipe.ingredients.length > 0 
-        ? response.recipe.ingredients 
+      const guaranteedIngredients = Array.isArray(parseResult.ingredients) && parseResult.ingredients.length > 0 
+        ? parseResult.ingredients 
         : ['Default ingredient, please edit'];
       
-      const guaranteedInstructions = Array.isArray(response.recipe.instructions) && response.recipe.instructions.length > 0
-        ? response.recipe.instructions
+      const guaranteedInstructions = Array.isArray(parseResult.instructions) && parseResult.instructions.length > 0
+        ? parseResult.instructions
         : ['Default instruction, please edit'];
       
       // Create a brief introduction instead of using the full recipe text
@@ -96,25 +142,24 @@ export const convertRecipeText = async (
       
       // Add converted flag and handle missing properties - FIXED: recipe saving issue
       const convertedRecipe: RecipeData = {
-        ...response.recipe,
         id: recipeId,
         isConverted: true, // CRITICAL: Ensure this is explicitly set to true
-        createdAt: response.recipe.createdAt || new Date().toISOString(),
+        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         // Use a brief introduction instead of the full recipe text
         introduction: briefIntroduction,
         // Ensure these properties exist to prevent null/undefined errors
-        title: response.recipe.title || 'Untitled Recipe',
+        title: parseResult.title || 'Untitled Recipe',
         ingredients: guaranteedIngredients,
         instructions: guaranteedInstructions,
-        // Ensure equipment items have IDs
-        equipmentNeeded: Array.isArray(response.recipe.equipmentNeeded) 
-          ? response.recipe.equipmentNeeded.map(item => ({
-              id: item.id || crypto.randomUUID(),
-              name: item.name,
-              affiliateLink: item.affiliateLink
-            }))
-          : []
+        prepTime: parseResult.prepTime || '',
+        bakeTime: parseResult.cookTime || '',
+        servings: parseResult.servings || '',
+        notes: parseResult.notes || [],
+        // Initialize empty arrays for other properties
+        tips: [],
+        proTips: [],
+        equipmentNeeded: []
       };
       
       // Log successful conversion
