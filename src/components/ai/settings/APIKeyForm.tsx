@@ -8,9 +8,10 @@ import { InfoIcon, Check, AlertCircle, Loader2 } from 'lucide-react';
 import { 
   configureAI, 
   verifyAPIKey, 
-  isOpenAIConfigured,
-  checkAPIKeyStatus 
-} from '@/lib/ai-services/ai-config';
+  isAIConfigured,
+  checkAPIKeyStatus,
+  getOpenAIApiKey
+} from '@/lib/ai-services/key-management';
 import { useToast } from '@/hooks/use-toast';
 
 interface APIKeyFormProps {

@@ -1,11 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RecipeUploader from './RecipeUploader';
 import ConversionSettings from './ConversionSettings';
 import { RecipeData } from '@/types/recipeTypes';
 import StartOverButton from './StartOverButton';
 import APIKeyTester from './APIKeyTester';
-import { isAIConfigured } from '@/lib/ai-services';
+import { isAIConfigured } from '@/lib/ai-services/key-management';
 import NoAPIKeyMessage from './NoAPIKeyMessage';
 import { useAIConversion } from '@/services/AIConversionService';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -29,10 +29,19 @@ const ConversionService: React.FC<ConversionServiceProps> = ({
   recipe,
   onSaveRecipe
 }) => {
-  const isApiConfigured = isAIConfigured();
+  const [isApiConfigured, setIsApiConfigured] = useState(isAIConfigured());
   const { hasApiKey, isProcessing: isAiProcessing } = useAIConversion();
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const isMobile = useBreakpoint('smDown');
+  
+  // Check API key status when component mounts or dependencies change
+  useEffect(() => {
+    setIsApiConfigured(isAIConfigured());
+  }, [hasApiKey]);
+  
+  const refreshApiStatus = () => {
+    setIsApiConfigured(isAIConfigured());
+  };
   
   // Combined loading state
   const isLoading = isConverting || isAiProcessing;
@@ -47,9 +56,9 @@ const ConversionService: React.FC<ConversionServiceProps> = ({
       
       {!isApiConfigured && (
         <div className="mb-4">
-          <NoAPIKeyMessage />
+          <NoAPIKeyMessage onRefresh={refreshApiStatus} />
           <div className="mt-4">
-            <APIKeyTester />
+            <APIKeyTester onComplete={refreshApiStatus} />
           </div>
         </div>
       )}

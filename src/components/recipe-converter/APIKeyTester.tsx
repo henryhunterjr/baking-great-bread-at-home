@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
-import { verifyAPIKey, checkAPIKeyStatus } from '@/lib/ai-services/ai-config';
+import { verifyAPIKey, checkAPIKeyStatus } from '@/lib/ai-services/key-management';
 import { Link } from 'react-router-dom';
 
 interface APIKeyTesterProps {

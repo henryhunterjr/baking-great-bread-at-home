@@ -67,6 +67,38 @@ class AIService {
   isReady(): boolean {
     return isAIConfigured();
   }
+  
+  /**
+   * Generate a recipe using AI
+   */
+  async generateRecipe(query: string): Promise<RecipeGenerationResponse> {
+    // Update key first
+    updateOpenAIApiKey();
+    
+    // First try to find recipe from blog
+    try {
+      const blogResult = await searchBlogWithAI(query);
+      if (blogResult.success && blogResult.results && blogResult.results.length > 0) {
+        return {
+          success: true,
+          recipe: {
+            title: blogResult.results[0].title,
+            introduction: blogResult.results[0].excerpt || '',
+            ingredients: [],
+            instructions: [],
+            imageUrl: blogResult.results[0].imageUrl,
+            isFromBlog: true,
+            originalUrl: blogResult.results[0].link
+          }
+        };
+      }
+    } catch (error) {
+      console.error('Blog search failed, falling back to AI generation', error);
+    }
+    
+    // Fall back to OpenAI generation
+    return generateRecipeWithOpenAI(query);
+  }
 }
 
 // Create singleton instance
