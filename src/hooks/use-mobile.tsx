@@ -1,25 +1,29 @@
 
 import { useState, useEffect } from 'react';
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
+/**
+ * Custom hook to detect if the current device is mobile
+ * Returns null during SSR/initial render to prevent hydration mismatch
+ */
+export const useIsMobile = (): boolean | null => {
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const checkIfMobile = () => {
+    const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-
+    
     // Set initial value
-    checkIfMobile();
-
+    checkMobile();
+    
     // Add event listener
-    window.addEventListener('resize', checkIfMobile);
-
+    window.addEventListener('resize', checkMobile);
+    
     // Clean up
-    return () => {
-      window.removeEventListener('resize', checkIfMobile);
-    };
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   return isMobile;
-}
+};
+
+export default useIsMobile;
