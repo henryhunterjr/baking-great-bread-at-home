@@ -7,7 +7,7 @@ import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import { BreadAssistantProvider } from '@/contexts/BreadAssistantContext';
 import { ErrorProvider, ErrorToast } from '@/utils/ErrorHandling';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/navigation/Navbar';
 
 // Eagerly load critical components
 import HomePage from '@/pages/HomePage';
@@ -45,7 +45,7 @@ const App: React.FC = () => {
     <ErrorProvider>
       <ErrorBoundary>
         <BreadAssistantProvider>
-          {/* Use standard Navbar component */}
+          {/* Use navigation Navbar component */}
           <Navbar />
           
           <main className="pt-16 pb-8">
