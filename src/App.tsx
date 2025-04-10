@@ -39,13 +39,16 @@ const App: React.FC = () => {
     
     // Set page title
     document.title = "Baking Great Bread at Home with Henry";
+    
+    // Log that the app is initialized
+    console.info("App initialized correctly");
   }, []);
 
   return (
     <ErrorProvider>
       <ErrorBoundary>
         <BreadAssistantProvider>
-          {/* Use HoverNavbar component for enhanced navigation */}
+          {/* HoverNavbar component - always visible initially */}
           <HoverNavbar />
           
           <main className="pt-16 pb-8">

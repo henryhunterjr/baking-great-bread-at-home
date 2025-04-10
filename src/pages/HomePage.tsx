@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import HeroSection from '@/components/home/HeroSection';
 import AboutSection from '@/components/home/AboutSection';
@@ -72,7 +71,7 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      {/* Remove Navbar from here - it's now being rendered by App.tsx */}
       
       <main className="flex-grow">
         <HeroSection heroRef={heroRef} />
