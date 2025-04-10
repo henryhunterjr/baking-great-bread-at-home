@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -12,12 +11,11 @@ const FloatingAIButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [pulseAnimation, setPulseAnimation] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
-  const [position, setPosition] = useState({ right: 20, bottom: 20 });
+  const [position, setPosition] = useState({ right: 20, bottom: 90 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const isMobile = useIsMobile();
 
-  // Stop pulsing animation after 5 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!isHovered) {
@@ -28,7 +26,6 @@ const FloatingAIButton = () => {
     return () => clearTimeout(timer);
   }, [isHovered]);
 
-  // Periodically pulse every 30 seconds to remind users
   useEffect(() => {
     const interval = setInterval(() => {
       if (!isHovered) {
@@ -44,7 +41,6 @@ const FloatingAIButton = () => {
     return () => clearInterval(interval);
   }, [isHovered]);
 
-  // Mouse enter/leave handlers for hover glow effect
   const handleMouseEnter = () => {
     setIsHovered(true);
     setPulseAnimation(true);
@@ -52,7 +48,6 @@ const FloatingAIButton = () => {
 
   const handleMouseLeave = () => {
     setIsHovered(false);
-    // Only disable the pulse animation after a smooth transition
     setTimeout(() => {
       if (!isHovered) {
         setPulseAnimation(false);
@@ -60,7 +55,6 @@ const FloatingAIButton = () => {
     }, 1000);
   };
 
-  // Mouse down handler for dragging
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -70,18 +64,15 @@ const FloatingAIButton = () => {
     });
   };
 
-  // Mouse move handler for dragging
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isDragging) {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
         
-        // Calculate new position (inverted for right/bottom positioning)
         const newRight = viewportWidth - e.clientX - dragOffset.x;
         const newBottom = viewportHeight - e.clientY - dragOffset.y;
         
-        // Ensure button stays within viewport bounds
         setPosition({
           right: Math.max(10, Math.min(viewportWidth - 70, newRight)),
           bottom: Math.max(10, Math.min(viewportHeight - 70, newBottom))
