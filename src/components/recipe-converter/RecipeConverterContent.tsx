@@ -6,6 +6,8 @@ import { RecipeData } from '@/types/recipeTypes';
 import ConversionService from './ConversionService';
 import ConversionSuccessAlert from './ConversionSuccessAlert';
 import ErrorAlert from '@/components/common/ErrorAlert';
+import { useToast } from '@/hooks/use-toast';
+import { logInfo } from '@/utils/logger';
 
 interface RecipeConverterContentProps {
   recipe: RecipeData;
@@ -30,6 +32,8 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
   updateRecipe,
   conversionError
 }) => {
+  const { toast } = useToast();
+  
   const hasRecipeData = recipe && recipe.title && 
     Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0 && 
     Array.isArray(recipe.instructions) && recipe.instructions.length > 0;
@@ -38,18 +42,49 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
   
   // Log recipe data for debugging
   useEffect(() => {
-    console.log("Recipe in RecipeConverterContent:", recipe, 
+    logInfo("Recipe in RecipeConverterContent:", recipe, 
       "hasRecipeData:", hasRecipeData,
       "isConverted:", isConverted);
   }, [recipe, hasRecipeData, isConverted]);
   
-  const handleSave = () => {
+  const handleSave = async () => {
     // Ensure the recipe is marked as converted before saving
-    const recipeToSave = {
+    const recipeToSave: RecipeData = {
       ...recipe,
-      isConverted: true
+      isConverted: true // Force this to true
     };
-    onSaveRecipe(recipeToSave);
+    
+    // Log the save attempt
+    logInfo("Attempting to save recipe:", {
+      hasId: !!recipeToSave.id,
+      title: recipeToSave.title,
+      ingredientsCount: recipeToSave.ingredients.length,
+      isConverted: recipeToSave.isConverted
+    });
+    
+    try {
+      const result = await onSaveRecipe(recipeToSave);
+      if (result) {
+        toast({
+          title: "Recipe Saved",
+          description: "Your recipe has been saved successfully.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Save Failed",
+          description: "There was a problem saving your recipe. Please try again.",
+        });
+      }
+      return result;
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Save Error",
+        description: "There was a problem saving your recipe. Please try again.",
+      });
+      return false;
+    }
   };
   
   const handleFormCancel = () => {
@@ -63,17 +98,28 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
 
   const handleConversion = (text: string) => {
     try {
+      // Create a base recipe with required fields and ensure isConverted is true
       const parsedRecipe: RecipeData = { 
         ...recipe,
         title: recipe.title || "New Recipe",
-        ingredients: recipe.ingredients || [],
-        instructions: recipe.instructions || [],
-        isConverted: true // Ensure this is set to true
+        ingredients: Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0 
+          ? recipe.ingredients 
+          : ["Add ingredients"],
+        instructions: Array.isArray(recipe.instructions) && recipe.instructions.length > 0 
+          ? recipe.instructions 
+          : ["Add instructions"],
+        isConverted: true // Explicitly set to true
       };
       
+      logInfo("Handling conversion with recipe:", parsedRecipe);
       onConversionComplete(parsedRecipe);
     } catch (error) {
       console.error("Error handling conversion:", error);
+      toast({
+        variant: "destructive",
+        title: "Conversion Error",
+        description: "There was a problem converting your recipe. Please try again.",
+      });
     }
   };
 

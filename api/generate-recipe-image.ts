@@ -34,36 +34,54 @@ export default async function handler(
     // Add style details for better results
     prompt += ` Professional food photography, overhead shot, natural lighting, on a wooden table, high resolution, 4K, detailed, mouth-watering presentation.`;
 
-    // Call the OpenAI API to generate an image
-    const openaiResponse = await fetch('https://api.openai.com/v1/images/generations', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'dall-e-3',
-        prompt,
-        n: 1,
-        size: '1024x1024',
-        quality: 'standard',
-        response_format: 'url',
-      }),
-    });
-
-    if (!openaiResponse.ok) {
-      const errorData = await openaiResponse.json();
-      console.error('OpenAI API error:', errorData);
-      return res.status(openaiResponse.status).json({ 
-        error: 'Failed to generate image', 
-        details: errorData 
+    // Check if OpenAI API key is available
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    if (!OPENAI_API_KEY) {
+      console.error('OpenAI API key is not configured');
+      return res.status(500).json({ 
+        error: 'OpenAI API key is not configured',
+        message: 'Please add your OpenAI API key in the environment variables.'
       });
     }
 
-    const data = await openaiResponse.json();
-    const imageUrl = data.data[0].url;
+    // Call the OpenAI API to generate an image
+    try {
+      const openaiResponse = await fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'dall-e-3',
+          prompt,
+          n: 1,
+          size: '1024x1024',
+          quality: 'standard',
+          response_format: 'url',
+        }),
+      });
 
-    return res.status(200).json({ imageUrl });
+      if (!openaiResponse.ok) {
+        const errorData = await openaiResponse.json();
+        console.error('OpenAI API error:', errorData);
+        return res.status(openaiResponse.status).json({ 
+          error: 'Failed to generate image', 
+          details: errorData 
+        });
+      }
+
+      const data = await openaiResponse.json();
+      const imageUrl = data.data[0].url;
+
+      return res.status(200).json({ imageUrl });
+    } catch (apiError) {
+      console.error('Error calling OpenAI API:', apiError);
+      return res.status(500).json({ 
+        error: 'Error calling OpenAI API',
+        details: apiError instanceof Error ? apiError.message : 'Unknown error'
+      });
+    }
   } catch (error) {
     console.error('Error generating image:', error);
     return res.status(500).json({ 

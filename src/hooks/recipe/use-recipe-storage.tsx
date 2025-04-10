@@ -29,21 +29,27 @@ export const useRecipeStorage = (
 
   const handleSaveRecipe = async (updatedRecipe: RecipeData = recipe): Promise<boolean> => {
     try {
+      // Ensure isConverted is set to true
+      const recipeToProcess = {
+        ...updatedRecipe,
+        isConverted: true
+      };
+      
       // Log the recipe being saved for debugging
       logInfo("Attempting to save recipe", {
-        id: updatedRecipe.id || "new",
-        title: updatedRecipe.title,
-        ingredientsCount: Array.isArray(updatedRecipe.ingredients) ? updatedRecipe.ingredients.length : 0,
-        instructionsCount: Array.isArray(updatedRecipe.instructions) ? updatedRecipe.instructions.length : 0,
-        isConverted: !!updatedRecipe.isConverted
+        id: recipeToProcess.id || "new",
+        title: recipeToProcess.title,
+        ingredientsCount: Array.isArray(recipeToProcess.ingredients) ? recipeToProcess.ingredients.length : 0,
+        instructionsCount: Array.isArray(recipeToProcess.instructions) ? recipeToProcess.instructions.length : 0,
+        isConverted: recipeToProcess.isConverted
       });
       
       // Check if the recipe is valid before saving
-      if (!isRecipeValid(updatedRecipe)) {
+      if (!isRecipeValid(recipeToProcess)) {
         logError("Cannot save recipe: invalid data", {
-          hasTitle: !!updatedRecipe.title,
-          hasIngredients: Array.isArray(updatedRecipe.ingredients) && updatedRecipe.ingredients.length > 0,
-          hasInstructions: Array.isArray(updatedRecipe.instructions) && updatedRecipe.instructions.length > 0
+          hasTitle: !!recipeToProcess.title,
+          hasIngredients: Array.isArray(recipeToProcess.ingredients) && recipeToProcess.ingredients.length > 0,
+          hasInstructions: Array.isArray(recipeToProcess.instructions) && recipeToProcess.instructions.length > 0
         });
         
         toast({
@@ -57,11 +63,11 @@ export const useRecipeStorage = (
 
       // Prepare the recipe for saving with required fields
       const recipeToSave = {
-        ...updatedRecipe,
-        id: updatedRecipe.id || uuidv4(),
-        createdAt: updatedRecipe.createdAt || new Date().toISOString(),
+        ...recipeToProcess,
+        id: recipeToProcess.id || uuidv4(),
+        createdAt: recipeToProcess.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        isConverted: true
+        isConverted: true // Ensure this flag is set to true
       };
       
       // Use the utility function to save to localStorage
@@ -105,7 +111,7 @@ export const useRecipeStorage = (
         title: savedRecipe.title
       });
       
-      // Ensure the recipe has all required fields
+      // Ensure the recipe has all required fields and isConverted is true
       const processedRecipe = {
         ...savedRecipe,
         ingredients: Array.isArray(savedRecipe.ingredients) ? savedRecipe.ingredients : ['Add ingredients'],
@@ -116,7 +122,7 @@ export const useRecipeStorage = (
             name: item.name,
             affiliateLink: item.affiliateLink
           })) : [],
-        isConverted: true
+        isConverted: true // Ensure this is set to true
       };
       
       setRecipe(processedRecipe);
