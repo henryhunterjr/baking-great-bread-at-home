@@ -40,11 +40,13 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
     
   const isConverted = recipe.isConverted === true;
   
-  // Log recipe data for debugging
+  // Log recipe data for debugging - fixed to use proper object format
   useEffect(() => {
-    logInfo("Recipe in RecipeConverterContent:", recipe, 
-      "hasRecipeData:", hasRecipeData,
-      "isConverted:", isConverted);
+    logInfo("Recipe in RecipeConverterContent:", {
+      recipe,
+      hasRecipeData,
+      isConverted
+    });
   }, [recipe, hasRecipeData, isConverted]);
   
   const handleSave = async () => {
