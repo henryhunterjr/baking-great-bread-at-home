@@ -7,14 +7,14 @@ import { useScrollToTop } from '@/hooks/use-scroll-to-top';
 import { BreadAssistantProvider } from '@/contexts/BreadAssistantContext';
 import { ErrorProvider, ErrorToast } from '@/utils/ErrorHandling';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import Navbar from '@/components/navigation/Navbar';
+import HoverNavbar from '@/components/navigation/HoverNavbar';
+import NotFound from '@/pages/NotFound';
 
 // Eagerly load critical components
 import HomePage from '@/pages/HomePage';
 import RecipeConverter from '@/pages/RecipeConverter';
 import AuthPage from '@/pages/AuthPage';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import NotFound from '@/pages/NotFound';
 
 // Lazily load non-critical components
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
@@ -45,8 +45,8 @@ const App: React.FC = () => {
     <ErrorProvider>
       <ErrorBoundary>
         <BreadAssistantProvider>
-          {/* Use navigation Navbar component */}
-          <Navbar />
+          {/* Use HoverNavbar component for enhanced navigation */}
+          <HoverNavbar />
           
           <main className="pt-16 pb-8">
             <Routes>
