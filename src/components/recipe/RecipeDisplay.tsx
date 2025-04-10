@@ -77,7 +77,7 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({
         <ul>
           ${recipe.ingredients.map(ingredient => `<li>${
             typeof ingredient === 'string' ? ingredient : 
-            `${(ingredient as any).quantity || ''} ${(ingredient as any).unit || ''} ${(ingredient as any).name}`
+            `${ingredient.quantity || ''} ${ingredient.unit || ''} ${ingredient.name}`
           }</li>`).join('')}
         </ul>
 
@@ -169,13 +169,7 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({
                 <Check className="h-4 w-4 mr-2 flex-shrink-0 text-muted-foreground" />
                 <span>
                   {typeof ingredient === 'string' ? ingredient : (
-                    <>
-                      {/* Handle case where ingredient might be an object with quantity, unit, name */}
-                      <span className="font-medium mr-2">
-                        {(ingredient as any).quantity} {(ingredient as any).unit}
-                      </span>
-                      <span>{(ingredient as any).name}</span>
-                    </>
+                    `${ingredient.quantity || ''} ${ingredient.unit || ''} ${ingredient.name}`
                   )}
                 </span>
               </li>
@@ -203,7 +197,7 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({
         )}
       </div>
       
-      {recipe.notes && recipe.notes.length > 0 && (
+      {recipe.notes && (Array.isArray(recipe.notes) ? recipe.notes.length > 0 : recipe.notes) && (
         <div className="mb-8">
           <h2 className="text-xl font-serif mb-3 flex items-center">
             <Info className="h-5 w-5 mr-2" />

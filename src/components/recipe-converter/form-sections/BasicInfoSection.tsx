@@ -4,11 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
-import { RecipeFormValues } from '@/types/recipeTypes';
+import { RecipeData } from '@/types/recipeTypes';
 
 interface BasicInfoSectionProps {
-  register: UseFormRegister<RecipeFormValues>;
-  errors: FieldErrors<RecipeFormValues>;
+  register: UseFormRegister<RecipeData>;
+  errors: FieldErrors<RecipeData>;
 }
 
 const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ 
@@ -67,7 +67,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
           <Label htmlFor="bakeTime" className="dark:text-gray-300">Bake Time</Label>
           <Input
             id="bakeTime"
-            {...register('bakeTime')}
+            {...register('cookTime')}
             placeholder="e.g., 45 minutes"
             className="dark:bg-bread-900 dark:border-bread-700 dark:text-white"
           />

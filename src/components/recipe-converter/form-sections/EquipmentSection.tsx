@@ -4,14 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { UseFormRegister, FieldErrors, Control, useFieldArray } from 'react-hook-form';
-import { RecipeFormValues } from '@/types/recipeTypes';
+import { RecipeData } from '@/types/recipeTypes';
 import { Plus, Trash2, Link } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 interface EquipmentSectionProps {
-  register: UseFormRegister<RecipeFormValues>;
-  control: Control<RecipeFormValues>;
-  errors: FieldErrors<RecipeFormValues>;
+  register: UseFormRegister<RecipeData>;
+  control: Control<RecipeData>;
+  errors: FieldErrors<RecipeData>;
 }
 
 const EquipmentSection: React.FC<EquipmentSectionProps> = ({ 
@@ -47,7 +47,7 @@ const EquipmentSection: React.FC<EquipmentSectionProps> = ({
         </Button>
       </div>
       
-      {fields.map((field, index) => (
+      {fields && fields.map((field, index) => (
         <div key={field.id} className="grid grid-cols-12 gap-2 items-start">
           <div className="col-span-5">
             <Input
@@ -86,7 +86,7 @@ const EquipmentSection: React.FC<EquipmentSectionProps> = ({
         </div>
       ))}
       
-      {fields.length === 0 && (
+      {(!fields || fields.length === 0) && (
         <div className="text-center py-4 border border-dashed rounded-lg">
           <p className="text-muted-foreground">No equipment added yet</p>
           <Button 

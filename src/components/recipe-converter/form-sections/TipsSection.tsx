@@ -4,13 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { UseFormRegister, Control, useFieldArray } from 'react-hook-form';
-import { RecipeFormValues } from '@/types/recipeTypes';
+import { RecipeData } from '@/types/recipeTypes';
 import { Plus, Trash2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface TipsSectionProps {
-  register: UseFormRegister<RecipeFormValues>;
-  control: Control<RecipeFormValues>;
+  register: UseFormRegister<RecipeData>;
+  control: Control<RecipeData>;
 }
 
 const TipsSection: React.FC<TipsSectionProps> = ({ 
@@ -68,7 +68,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             </Button>
           </div>
           
-          {tipFields.map((field, index) => (
+          {tipFields && tipFields.map((field, index) => (
             <div key={field.id} className="flex items-start space-x-2">
               <div className="flex-grow">
                 <Input
@@ -87,7 +87,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             </div>
           ))}
           
-          {tipFields.length === 0 && (
+          {(!tipFields || tipFields.length === 0) && (
             <div className="text-center py-4 border border-dashed rounded-lg">
               <p className="text-muted-foreground">No tips added yet</p>
               <Button 
@@ -118,7 +118,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             </Button>
           </div>
           
-          {proTipFields.map((field, index) => (
+          {proTipFields && proTipFields.map((field, index) => (
             <div key={field.id} className="flex items-start space-x-2">
               <div className="flex-grow">
                 <Input
@@ -137,7 +137,7 @@ const TipsSection: React.FC<TipsSectionProps> = ({
             </div>
           ))}
           
-          {proTipFields.length === 0 && (
+          {(!proTipFields || proTipFields.length === 0) && (
             <div className="text-center py-4 border border-dashed rounded-lg">
               <p className="text-muted-foreground">No pro tips added yet</p>
               <Button 

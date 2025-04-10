@@ -5,11 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { useFieldArray, Control, UseFormRegister } from 'react-hook-form';
-import { RecipeFormValues } from '@/types/recipeTypes';
+import { RecipeData } from '@/types/recipeTypes';
 
 interface IngredientsFormSectionProps {
-  control: Control<RecipeFormValues>;
-  register: UseFormRegister<RecipeFormValues>;
+  control: Control<RecipeData>;
+  register: UseFormRegister<RecipeData>;
   errors: Record<string, any>;
 }
 

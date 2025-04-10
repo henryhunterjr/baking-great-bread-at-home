@@ -356,7 +356,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
               <h3 className="text-xl font-medium mb-2 font-serif">Ingredients</h3>
               <ul className="list-disc pl-5 space-y-1">
                 {recipe.ingredients.map((ingredient, index) => (
-                  <li key={index} className="text-gray-600">{ingredient}</li>
+                  <li key={index} className="text-gray-600">
+                    {typeof ingredient === 'string' ? ingredient : 
+                      `${ingredient.quantity} ${ingredient.unit} ${ingredient.name}`
+                    }
+                  </li>
                 ))}
               </ul>
             </div>
@@ -371,13 +375,17 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
             </div>
           </div>
           
-          {recipe.notes && recipe.notes.length > 0 && (
+          {recipe.notes && (Array.isArray(recipe.notes) ? recipe.notes.length > 0 : recipe.notes) && (
             <div className="mt-6">
               <h3 className="text-xl font-medium mb-2 font-serif">Notes</h3>
               <ul className="list-disc pl-5 space-y-1">
-                {recipe.notes.map((note, index) => (
-                  <li key={index} className="text-gray-600">{note}</li>
-                ))}
+                {Array.isArray(recipe.notes) ? 
+                  recipe.notes.map((note, index) => (
+                    <li key={index} className="text-gray-600">{note}</li>
+                  ))
+                  :
+                  <li className="text-gray-600">{recipe.notes}</li>
+                }
               </ul>
             </div>
           )}

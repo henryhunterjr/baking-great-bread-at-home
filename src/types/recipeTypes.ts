@@ -10,12 +10,40 @@ export interface RecipeData {
   notes?: string[] | string;
   prepTime?: string;
   cookTime?: string;
-  servings?: number;
+  restTime?: string;
+  bakeTime?: string;
+  totalTime?: string;
+  servings?: number | string;
   imageUrl?: string;
   tags?: string[];
   introduction?: string;
   isConverted?: boolean;
-  createdAt?: number;
-  updatedAt?: number;
+  createdAt?: number | string;
+  updatedAt?: number | string;
   userId?: string;
+  tips?: string[];
+  proTips?: string[];
+  equipmentNeeded?: Array<{
+    id: string;
+    name: string;
+    affiliateLink?: string;
+  }>;
+  source?: string;
+  cuisineType?: string;
+  difficulty?: string;
+  isPublic?: boolean;
+}
+
+/**
+ * Form values for recipe forms - extending RecipeData
+ */
+export type RecipeFormValues = RecipeData;
+
+/**
+ * Equipment item structure
+ */
+export interface EquipmentItem {
+  id: string;
+  name: string;
+  affiliateLink?: string;
 }

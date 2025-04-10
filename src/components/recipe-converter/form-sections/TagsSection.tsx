@@ -5,12 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { X } from 'lucide-react';
-import { RecipeFormValues } from '@/types/recipeTypes';
+import { RecipeData } from '@/types/recipeTypes';
 
 interface TagsSectionProps {
-  control: Control<RecipeFormValues>;
-  watch: UseFormWatch<RecipeFormValues>;
-  setValue: UseFormSetValue<RecipeFormValues>;
+  control: Control<RecipeData>;
+  watch: UseFormWatch<RecipeData>;
+  setValue: UseFormSetValue<RecipeData>;
 }
 
 const TagsSection: React.FC<TagsSectionProps> = ({ control, watch, setValue }) => {

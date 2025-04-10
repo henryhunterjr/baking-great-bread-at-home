@@ -5,11 +5,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { useFieldArray, Control, UseFormRegister } from 'react-hook-form';
-import { RecipeFormValues } from '@/types/recipeTypes';
+import { RecipeData } from '@/types/recipeTypes';
 
 interface InstructionsSectionProps {
-  control: Control<RecipeFormValues>;
-  register: UseFormRegister<RecipeFormValues>;
+  control: Control<RecipeData>;
+  register: UseFormRegister<RecipeData>;
   errors: Record<string, any>;
 }
 

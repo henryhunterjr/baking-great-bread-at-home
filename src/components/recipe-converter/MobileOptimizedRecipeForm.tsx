@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useBreakpoint } from '@/hooks/use-media-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,7 +7,6 @@ import { RecipeData } from '@/types/recipeTypes';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { RecipeFormValues } from '@/types/recipeTypes';
 import { v4 as uuidv4 } from 'uuid';
 import AccessibilityManager from './accessibility/AccessibilityManager';
 import ResponsiveWrapper from './ResponsiveWrapper';
@@ -39,17 +37,17 @@ const recipeSchema = z.object({
   bakeTime: z.string().optional(),
   totalTime: z.string().optional(),
   instructions: z.array(z.string().min(1, "Instruction text is required")),
-  tips: z.array(z.string().optional()),
-  proTips: z.array(z.string().optional()),
+  tips: z.array(z.string().optional()).optional(),
+  proTips: z.array(z.string().optional()).optional(),
   equipmentNeeded: z.array(
     z.object({
       id: z.string(),
       name: z.string().min(1, "Equipment name is required"),
       affiliateLink: z.string().optional()
     })
-  ),
+  ).optional(),
   imageUrl: z.string().optional(),
-  tags: z.array(z.string()),
+  tags: z.array(z.string()).optional(),
   isPublic: z.boolean().default(false),
   isConverted: z.boolean().default(true)
 });
@@ -76,9 +74,9 @@ const MobileOptimizedRecipeForm: React.FC<MobileOptimizedRecipeFormProps> = ({
     }) || []
   };
   
-  const formMethods = useForm<RecipeFormValues>({
+  const formMethods = useForm<RecipeData>({
     resolver: zodResolver(recipeSchema),
-    defaultValues: preparedInitialRecipe as RecipeFormValues
+    defaultValues: preparedInitialRecipe
   });
   
   const { 
@@ -90,8 +88,8 @@ const MobileOptimizedRecipeForm: React.FC<MobileOptimizedRecipeFormProps> = ({
     formState: { errors, isDirty }
   } = formMethods;
   
-  const onSubmit = (data: RecipeFormValues) => {
-    onSave(data as RecipeData);
+  const onSubmit = (data: RecipeData) => {
+    onSave(data);
   };
   
   // Define responsive classes based on screen size
