@@ -36,10 +36,10 @@ export const handleRecipeRequest = async (
     if (searchResults.length > 0) {
       const recipe = searchResults[0]; // Use the top matching recipe
       
-      // Create a complete recipe with all necessary fields
+      // Create a complete recipe with all necessary fields for display
       const fullRecipeData: RecipeData = {
         title: recipe.title,
-        introduction: recipe.description,
+        introduction: recipe.description || "A delicious recipe to try!",
         ingredients: [
           "2-3 ripe bananas, mashed",
           "1/3 cup melted butter",
@@ -61,20 +61,22 @@ export const handleRecipeRequest = async (
           "Remove from oven and let cool in the pan for a few minutes. Then remove from the pan and let cool completely before slicing."
         ],
         notes: ["You can add 1/2 cup of chopped nuts or chocolate chips for extra flavor."],
-        imageUrl: recipe.imageUrl,
+        tips: ["For extra moist banana bread, use very ripe bananas with lots of brown spots."],
+        imageUrl: recipe.imageUrl || "",
+        servings: "1 loaf (8-10 slices)",
         isConverted: true
       };
       
       // Create a more natural response based on the original query
       const responseMessage: ChatMessage = {
         role: 'assistant',
-        content: `I found a recipe that matches your search: ${recipe.title}. Here it is!`,
+        content: `Here's a recipe for ${recipe.title}. I've displayed the full recipe details on the left panel for easier reading.`,
         timestamp: new Date(),
         attachedRecipe: {
           title: recipe.title,
-          description: recipe.description,
-          imageUrl: recipe.imageUrl,
-          link: recipe.link,
+          description: recipe.description || "A delicious recipe to try!",
+          imageUrl: recipe.imageUrl || "",
+          link: recipe.link || "",
           fullRecipe: fullRecipeData,
           isGenerated: true
         }

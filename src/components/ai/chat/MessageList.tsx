@@ -8,7 +8,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 interface MessageListProps {
   messages: ChatMessage[];
   isProcessing?: boolean;
-  hasRecipe?: boolean; // New prop to indicate if a recipe is being shown in the sidebar
+  hasRecipe?: boolean; // Prop to indicate if a recipe is being shown in the sidebar
 }
 
 const MessageList: React.FC<MessageListProps> = ({ 

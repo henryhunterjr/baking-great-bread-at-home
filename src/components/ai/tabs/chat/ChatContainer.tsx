@@ -13,10 +13,20 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isProcessing })
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Filter out messages that only have attachments without content
-  // This is optional - remove if you want to keep those messages
-  const displayMessages = messages.filter(msg => 
-    msg.content.trim() !== '' || !msg.attachedRecipe
-  );
+  // Also filter out the recipe content if the recipe is displayed in the sidebar
+  const displayMessages = messages.map(msg => {
+    // If this message has a recipe attachment shown in the sidebar,
+    // modify the message to just indicate there's a recipe
+    if (msg.attachedRecipe) {
+      return {
+        ...msg,
+        content: msg.content.includes("Here's a recipe") ? 
+          `I've found a recipe for ${msg.attachedRecipe.title}. You can see the full recipe details on the left.` : 
+          msg.content
+      };
+    }
+    return msg;
+  }).filter(msg => msg.content.trim() !== '');
   
   // Check if any message has a recipe attachment (used to adjust message layout)
   const hasRecipe = messages.some(msg => msg.attachedRecipe);

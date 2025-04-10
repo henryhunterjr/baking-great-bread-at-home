@@ -28,20 +28,20 @@ const AIAssistant = () => {
     }
   ]);
   
-  // Get the recipe from the messages if available
+  // Find the message with a recipe attachment
   const recipeMessage = messages.find(msg => msg.attachedRecipe);
   
-  // Transform the attachedRecipe to match RecipeData format if it exists
+  // Create a proper RecipeData object from the attached recipe
   const displayRecipe = recipeMessage?.attachedRecipe ? {
-    title: recipeMessage.attachedRecipe.title || "",
+    title: recipeMessage.attachedRecipe.title || "Untitled Recipe",
     introduction: recipeMessage.attachedRecipe.description || "",
     ingredients: recipeMessage.attachedRecipe.fullRecipe?.ingredients || [],
     instructions: recipeMessage.attachedRecipe.fullRecipe?.instructions || [],
-    imageUrl: recipeMessage.attachedRecipe.imageUrl,
-    // Include other required fields from RecipeData
+    imageUrl: recipeMessage.attachedRecipe.imageUrl || "",
     tips: recipeMessage.attachedRecipe.fullRecipe?.tips || [],
+    servings: recipeMessage.attachedRecipe.fullRecipe?.servings || "1",
     isConverted: recipeMessage.attachedRecipe.isGenerated || false,
-    servings: "1",
+    notes: recipeMessage.attachedRecipe.fullRecipe?.notes || []
   } as RecipeData : undefined;
   
   // Settings state

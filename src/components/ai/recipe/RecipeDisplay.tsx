@@ -31,11 +31,13 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe }) => {
         )}
         
         {/* Servings info */}
-        <div className="bg-muted/50 rounded-md p-3 w-24 mx-auto text-center">
-          <User className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
-          <p className="text-sm font-medium">Servings</p>
-          <p className="text-xl">{recipe.servings || 1}</p>
-        </div>
+        {recipe.servings && (
+          <div className="bg-muted/50 rounded-md p-3 w-24 mx-auto text-center">
+            <User className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
+            <p className="text-sm font-medium">Servings</p>
+            <p className="text-xl">{recipe.servings}</p>
+          </div>
+        )}
         
         {/* Ingredients */}
         <div>
@@ -65,7 +67,7 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe }) => {
             {recipe.instructions && recipe.instructions.length > 0 ? (
               recipe.instructions.map((instruction, index) => (
                 <li key={index} className="text-sm pl-1">
-                  {instruction}
+                  <span className="ml-2">{instruction}</span>
                 </li>
               ))
             ) : (
@@ -75,16 +77,23 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe }) => {
         </div>
         
         {/* Notes/Tips */}
-        {recipe.tips && recipe.tips.length > 0 && (
+        {(recipe.tips && recipe.tips.length > 0) || (recipe.notes && recipe.notes.length > 0) ? (
           <div className="bg-muted/30 p-3 rounded-md">
-            <h3 className="text-sm font-medium mb-1">Tips</h3>
+            <h3 className="text-sm font-medium mb-1">Tips & Notes</h3>
             <ul className="space-y-1">
-              {recipe.tips.map((tip, index) => (
-                <li key={index} className="text-sm text-muted-foreground">• {tip}</li>
+              {recipe.tips && recipe.tips.map((tip, index) => (
+                <li key={`tip-${index}`} className="text-sm text-muted-foreground">• {tip}</li>
               ))}
+              
+              {recipe.notes && (Array.isArray(recipe.notes) 
+                ? recipe.notes.map((note, index) => (
+                  <li key={`note-${index}`} className="text-sm text-muted-foreground">• {note}</li>
+                ))
+                : <li className="text-sm text-muted-foreground">• {recipe.notes}</li>
+              )}
             </ul>
           </div>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   );
