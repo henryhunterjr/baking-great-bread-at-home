@@ -1,39 +1,53 @@
 
-import { useToast } from "@/hooks/use-toast";
+import { useCallback } from 'react';
 import { RecipeData } from '@/types/recipeTypes';
-import { logInfo } from '@/utils/logger';
+import { processRecipe as processRecipeService } from '@/services/RecipeService';
+import { logError } from '@/utils/logger';
 
-export const useRecipeConversionHandler = (
+export function useRecipeConversionHandler(
   setRecipe: (recipe: RecipeData) => void,
   processRecipe: (recipe: RecipeData) => RecipeData,
-  setIsEditing: (isEditing: boolean) => void,
+  setIsEditing: (editing: boolean) => void,
   setConversionError: (error: string | null) => void
-) => {
-  const { toast } = useToast();
+) {
+  const handleConversionComplete = useCallback(
+    async (recipe: RecipeData) => {
+      try {
+        // Set minimal required fields if they're missing
+        const completedRecipe: RecipeData = {
+          ...recipe,
+          title: recipe.title || 'New Recipe',
+          ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
+          instructions: Array.isArray(recipe.instructions) ? recipe.instructions : [],
+          isConverted: true, // Explicitly ensure this is set to true
+          createdAt: recipe.createdAt || new Date().toISOString()
+        };
 
-  const handleConversionComplete = (convertedRecipe: RecipeData) => {
-    // Process the converted recipe to ensure it has all required fields
-    const processedRecipe = processRecipe(convertedRecipe);
-    
-    logInfo("Recipe conversion complete", {
-      hasTitle: !!processedRecipe.title,
-      ingredientsCount: processedRecipe.ingredients.length,
-      instructionsCount: processedRecipe.instructions.length,
-      isConverted: processedRecipe.isConverted
-    });
-    
-    setRecipe(processedRecipe);
-    // Show the recipe card first for review, not editing mode
-    setIsEditing(false);
-    setConversionError(null);
-    
-    toast({
-      title: "Recipe Converted!",
-      description: "Your recipe has been converted. Review the details, then click Edit to make changes if needed.",
-    });
-  };
+        // Process and validate the recipe
+        const processedRecipe = processRecipe(completedRecipe);
+        
+        // Set the processed recipe to the state
+        setRecipe(processedRecipe);
+        
+        // Set editing mode (allow user to make changes if needed)
+        setIsEditing(true);
+        
+        // Clear any previous conversion errors
+        setConversionError(null);
+      } catch (error) {
+        // Log the error
+        const errorMessage = 
+          error instanceof Error ? error.message : 'Unknown error during recipe conversion';
+        logError('Error in handleConversionComplete:', { error });
+        
+        // Set the error message to display to the user
+        setConversionError(errorMessage);
+      }
+    },
+    [setRecipe, processRecipe, setIsEditing, setConversionError]
+  );
 
   return {
     handleConversionComplete
   };
-};
+}

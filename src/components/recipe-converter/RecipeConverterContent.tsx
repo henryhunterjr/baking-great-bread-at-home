@@ -44,7 +44,12 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
   }, [recipe, hasRecipeData, isConverted]);
   
   const handleSave = () => {
-    onSaveRecipe(recipe);
+    // Ensure the recipe is marked as converted before saving
+    const recipeToSave = {
+      ...recipe,
+      isConverted: true
+    };
+    onSaveRecipe(recipeToSave);
   };
   
   const handleFormCancel = () => {
@@ -63,7 +68,7 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
         title: recipe.title || "New Recipe",
         ingredients: recipe.ingredients || [],
         instructions: recipe.instructions || [],
-        isConverted: true
+        isConverted: true // Ensure this is set to true
       };
       
       onConversionComplete(parsedRecipe);

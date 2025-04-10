@@ -167,6 +167,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ initialRecipe, onSave, onCancel
                 <Button 
                   type="submit" 
                   disabled={Object.keys(errors).length > 0 || !isValid}
+                  className="bg-bread-800 hover:bg-bread-900 text-white"
                 >
                   Save Recipe
                 </Button>

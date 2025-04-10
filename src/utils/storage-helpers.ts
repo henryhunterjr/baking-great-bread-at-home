@@ -8,7 +8,7 @@ import { storageService } from '@/services/storage';
  */
 export const saveRecipeToStorage = async (recipe: RecipeData): Promise<boolean> => {
   try {
-    // Ensure recipe has required fields
+    // Ensure recipe has required fields and isConverted flag is set
     if (!recipe.title || !recipe.ingredients || !recipe.instructions) {
       logError('Cannot save recipe: missing required fields', {
         hasTitle: !!recipe.title,
@@ -29,7 +29,8 @@ export const saveRecipeToStorage = async (recipe: RecipeData): Promise<boolean> 
     
     logInfo('Attempting to save recipe using storage service', { 
       id: recipeToSave.id,
-      title: recipeToSave.title
+      title: recipeToSave.title,
+      isConverted: recipeToSave.isConverted
     });
     
     try {
@@ -64,7 +65,7 @@ export const saveRecipeToStorage = async (recipe: RecipeData): Promise<boolean> 
     // Final attempt - save directly to localStorage
     try {
       if (recipe.id) {
-        saveToLocalStorageDirect(recipe);
+        saveToLocalStorageDirect({...recipe, isConverted: true});
         return true;
       }
     } catch (finalError) {
@@ -83,7 +84,7 @@ const saveToLocalStorageDirect = (recipe: RecipeData): void => {
   if (typeof window === 'undefined') return;
   
   try {
-    // Ensure recipe has minimal required structure
+    // Ensure recipe has minimal required structure and isConverted is set to true
     const recipeToSave = {
       ...recipe,
       id: recipe.id || crypto.randomUUID(),
@@ -109,6 +110,20 @@ const saveToLocalStorageDirect = (recipe: RecipeData): void => {
     
     // Save back to storage
     localStorage.setItem('bread_recipes_backup', JSON.stringify(existingRecipes));
+    
+    // Also save to the main storage key
+    const mainRecipesJson = localStorage.getItem('bread_recipes');
+    const mainRecipes = mainRecipesJson ? JSON.parse(mainRecipesJson) : [];
+    
+    const mainIndex = mainRecipes.findIndex((r: RecipeData) => r.id === recipeToSave.id);
+    
+    if (mainIndex >= 0) {
+      mainRecipes[mainIndex] = recipeToSave;
+    } else {
+      mainRecipes.push(recipeToSave);
+    }
+    
+    localStorage.setItem('bread_recipes', JSON.stringify(mainRecipes));
   } catch (error) {
     logError('Error in direct localStorage save', { error });
     throw error;

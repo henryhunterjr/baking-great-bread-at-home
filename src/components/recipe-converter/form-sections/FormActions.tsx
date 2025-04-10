@@ -28,7 +28,7 @@ const FormActions: React.FC<FormActionsProps> = ({
       </Button>
       <Button 
         type="submit" 
-        className="bg-bread-800 hover:bg-bread-900"
+        className="bg-bread-800 hover:bg-bread-900 text-white"
         disabled={!isSaveEnabled}
       >
         <Save className="mr-2 h-4 w-4" />
