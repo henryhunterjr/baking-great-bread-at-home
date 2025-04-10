@@ -8,17 +8,16 @@ import { useIsMobile } from '@/hooks/use-mobile';
 interface MessageListProps {
   messages: ChatMessage[];
   isProcessing?: boolean;
+  hasRecipe?: boolean; // New prop to indicate if a recipe is being shown in the sidebar
 }
 
 const MessageList: React.FC<MessageListProps> = ({ 
   messages, 
-  isProcessing = false
+  isProcessing = false,
+  hasRecipe = false
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  
-  // Check if any message has a recipe attachment
-  const hasRecipe = messages.some(msg => msg.attachedRecipe);
   
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -43,7 +42,7 @@ const MessageList: React.FC<MessageListProps> = ({
               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </p>
             
-            {/* Only show attachment in MessageList if we're not displaying it separately */}
+            {/* Only show attachment in MessageList if we're not displaying it separately in the sidebar */}
             {message.role === 'assistant' && message.attachedRecipe && !hasRecipe && (
               <MessageAttachment message={message} />
             )}

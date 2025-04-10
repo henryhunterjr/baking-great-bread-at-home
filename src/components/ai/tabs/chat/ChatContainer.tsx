@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import MessageList from '../../chat/MessageList';
 import { ChatMessage } from '../../utils/types';
@@ -17,6 +18,9 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isProcessing })
     msg.content.trim() !== '' || !msg.attachedRecipe
   );
   
+  // Check if any message has a recipe attachment (used to adjust message layout)
+  const hasRecipe = messages.some(msg => msg.attachedRecipe);
+  
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -28,6 +32,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isProcessing })
       <MessageList 
         messages={displayMessages}
         isProcessing={isProcessing}
+        hasRecipe={hasRecipe}
       />
       
       {isProcessing && (

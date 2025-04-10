@@ -34,23 +34,27 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe }) => {
         <div className="bg-muted/50 rounded-md p-3 w-24 mx-auto text-center">
           <User className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
           <p className="text-sm font-medium">Servings</p>
-          <p className="text-xl">1</p>
+          <p className="text-xl">{recipe.servings || 1}</p>
         </div>
         
         {/* Ingredients */}
         <div>
           <h3 className="text-lg font-medium mb-2">Ingredients</h3>
           <ul className="space-y-1.5">
-            {recipe.ingredients && recipe.ingredients.map((ingredient, index) => (
-              <li key={index} className="flex items-start">
-                <Check className="h-4 w-4 mr-2 mt-0.5 text-bread-600 flex-shrink-0" />
-                <span className="text-sm">
-                  {typeof ingredient === 'string' 
-                    ? ingredient 
-                    : `${ingredient.quantity} ${ingredient.unit} ${ingredient.name}`}
-                </span>
-              </li>
-            ))}
+            {recipe.ingredients && recipe.ingredients.length > 0 ? (
+              recipe.ingredients.map((ingredient, index) => (
+                <li key={index} className="flex items-start">
+                  <Check className="h-4 w-4 mr-2 mt-0.5 text-bread-600 flex-shrink-0" />
+                  <span className="text-sm">
+                    {typeof ingredient === 'string' 
+                      ? ingredient 
+                      : `${ingredient.quantity || ''} ${ingredient.unit || ''} ${ingredient.name || ''}`}
+                  </span>
+                </li>
+              ))
+            ) : (
+              <li className="text-sm italic text-muted-foreground">No ingredients provided</li>
+            )}
           </ul>
         </div>
         
@@ -58,11 +62,15 @@ const RecipeDisplay: React.FC<RecipeDisplayProps> = ({ recipe }) => {
         <div>
           <h3 className="text-lg font-medium mb-2">Instructions</h3>
           <ol className="list-decimal list-inside space-y-2">
-            {recipe.instructions && recipe.instructions.map((instruction, index) => (
-              <li key={index} className="text-sm pl-1">
-                {instruction}
-              </li>
-            ))}
+            {recipe.instructions && recipe.instructions.length > 0 ? (
+              recipe.instructions.map((instruction, index) => (
+                <li key={index} className="text-sm pl-1">
+                  {instruction}
+                </li>
+              ))
+            ) : (
+              <li className="text-sm italic text-muted-foreground">No instructions provided</li>
+            )}
           </ol>
         </div>
         

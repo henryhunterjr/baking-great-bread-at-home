@@ -12,6 +12,7 @@ import { henryQuotes } from './utils/data';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import RecipeDisplay from './recipe/RecipeDisplay';
+import { RecipeData } from '@/types/recipeTypes';
 
 const AIAssistant = () => {
   const [activeTab, setActiveTab] = useState('chat');
@@ -29,7 +30,19 @@ const AIAssistant = () => {
   
   // Get the recipe from the messages if available
   const recipeMessage = messages.find(msg => msg.attachedRecipe);
-  const displayRecipe = recipeMessage?.attachedRecipe;
+  
+  // Transform the attachedRecipe to match RecipeData format if it exists
+  const displayRecipe = recipeMessage?.attachedRecipe ? {
+    title: recipeMessage.attachedRecipe.title || "",
+    introduction: recipeMessage.attachedRecipe.description || "",
+    ingredients: recipeMessage.attachedRecipe.fullRecipe?.ingredients || [],
+    instructions: recipeMessage.attachedRecipe.fullRecipe?.instructions || [],
+    imageUrl: recipeMessage.attachedRecipe.imageUrl,
+    // Include other required fields from RecipeData
+    tips: recipeMessage.attachedRecipe.fullRecipe?.tips || [],
+    isConverted: recipeMessage.attachedRecipe.isGenerated || false,
+    servings: "1",
+  } as RecipeData : undefined;
   
   // Settings state
   const [useAI, setUseAI] = useState(true);
