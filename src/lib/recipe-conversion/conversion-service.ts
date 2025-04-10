@@ -1,3 +1,4 @@
+
 import { v4 as uuidv4 } from 'uuid';
 import { logInfo } from '@/utils/logger';
 import { StandardRecipe } from '@/types/standardRecipeFormat';
@@ -114,4 +115,63 @@ export const formatFromStandardRecipe = (standardRecipe: StandardRecipe): Recipe
   };
   
   return recipeData;
+};
+
+/**
+ * Converts recipe text to structured recipe data
+ * @param text The recipe text to convert
+ * @param successCallback Function to call with the converted recipe
+ * @param errorCallback Function to call if conversion fails
+ */
+export const convertRecipeText = async (
+  text: string,
+  successCallback: (recipe: RecipeData) => void,
+  errorCallback: (error: Error) => void
+) => {
+  try {
+    // This is a simplified implementation - in a real app, this would
+    // process the text with NLP or AI to extract structured data
+    
+    // For now, create a basic recipe from the text
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+    
+    // Try to extract a title from the first line
+    const title = lines[0] || 'Converted Recipe';
+    
+    // Assume ingredients are lines that start with numbers or bullet points
+    const ingredients = lines
+      .filter(line => /^[\d•\-*]/.test(line.trim()))
+      .map(line => line.trim());
+    
+    // Assume instructions are the remaining lines
+    const instructions = lines
+      .filter(line => !/^[\d•\-*]/.test(line.trim()) && line !== title)
+      .map(line => line.trim());
+    
+    // Create the recipe data
+    const recipe: RecipeData = {
+      title,
+      introduction: 'Converted from text',
+      ingredients,
+      instructions,
+      prepTime: '',
+      cookTime: '',
+      restTime: '',
+      bakeTime: '',
+      totalTime: '',
+      tips: [],
+      proTips: [],
+      equipmentNeeded: [],
+      tags: ['converted'],
+      imageUrl: '',
+      isPublic: false,
+      isConverted: true
+    };
+    
+    // Call the success callback with the recipe
+    successCallback(recipe);
+  } catch (error) {
+    // Call the error callback with the error
+    errorCallback(error instanceof Error ? error : new Error('Failed to convert recipe text'));
+  }
 };
