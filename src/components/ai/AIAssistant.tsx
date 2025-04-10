@@ -11,6 +11,7 @@ import SettingsTab from './tabs/SettingsTab';
 import { henryQuotes } from './utils/data';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import RecipeDisplay from './recipe/RecipeDisplay';
 
 const AIAssistant = () => {
   const [activeTab, setActiveTab] = useState('chat');
@@ -25,6 +26,10 @@ const AIAssistant = () => {
       timestamp: new Date()
     }
   ]);
+  
+  // Get the recipe from the messages if available
+  const recipeMessage = messages.find(msg => msg.attachedRecipe);
+  const displayRecipe = recipeMessage?.attachedRecipe;
   
   // Settings state
   const [useAI, setUseAI] = useState(true);
@@ -42,73 +47,85 @@ const AIAssistant = () => {
         </div>
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-        <div className="px-4 py-2 border-b">
-          <TabsList className="grid grid-cols-4">
-            <TabsTrigger value="chat" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              <span>Chat</span>
-            </TabsTrigger>
-            <TabsTrigger value="convert" className="flex items-center gap-2">
-              <Wand2 className="h-4 w-4" />
-              <span>Convert</span>
-            </TabsTrigger>
-            <TabsTrigger value="generate" className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4" />
-              <span>Generate</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              <span>Settings</span>
-            </TabsTrigger>
-          </TabsList>
+      <div className="flex-1 flex overflow-hidden">
+        {/* Recipe display on the left */}
+        {displayRecipe && (
+          <div className="w-1/2 border-r overflow-y-auto p-4">
+            <RecipeDisplay recipe={displayRecipe} />
+          </div>
+        )}
+        
+        {/* Tabs and chat on the right */}
+        <div className={`${displayRecipe ? 'w-1/2' : 'w-full'} flex flex-col`}>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+            <div className="px-4 py-2 border-b">
+              <TabsList className="grid grid-cols-4">
+                <TabsTrigger value="chat" className="flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  <span>Chat</span>
+                </TabsTrigger>
+                <TabsTrigger value="convert" className="flex items-center gap-2">
+                  <Wand2 className="h-4 w-4" />
+                  <span>Convert</span>
+                </TabsTrigger>
+                <TabsTrigger value="generate" className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  <span>Generate</span>
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  <span>Settings</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value="chat" className="flex-1 flex flex-col p-0 h-full">
+              <ChatTab 
+                messages={messages}
+                setMessages={setMessages}
+                setActiveTab={setActiveTab}
+                setRecipeText={setRecipeText}
+                setRecipePrompt={setRecipePrompt}
+                isProcessing={isProcessing}
+                setIsProcessing={setIsProcessing}
+              />
+            </TabsContent>
+
+            <TabsContent value="convert" className="flex-1 p-0 h-full">
+              <ConvertTab 
+                recipeText={recipeText}
+                setRecipeText={setRecipeText}
+                isProcessing={isProcessing}
+                setIsProcessing={setIsProcessing}
+                setMessages={setMessages}
+                setActiveTab={setActiveTab}
+              />
+            </TabsContent>
+            
+            <TabsContent value="generate" className="flex-1 p-0 h-full">
+              <GenerateTab 
+                recipePrompt={recipePrompt}
+                setRecipePrompt={setRecipePrompt}
+                isProcessing={isProcessing}
+                setIsProcessing={setIsProcessing}
+                setMessages={setMessages}
+                setActiveTab={setActiveTab}
+              />
+            </TabsContent>
+            
+            <TabsContent value="settings" className="flex-1 p-0 h-full">
+              <SettingsTab 
+                useAI={useAI}
+                setUseAI={setUseAI}
+                saveHistory={saveHistory}
+                setSaveHistory={setSaveHistory}
+                enhanceRecipes={enhanceRecipes}
+                setEnhanceRecipes={setEnhanceRecipes}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
-
-        <TabsContent value="chat" className="flex-1 flex flex-col p-0 h-full">
-          <ChatTab 
-            messages={messages}
-            setMessages={setMessages}
-            setActiveTab={setActiveTab}
-            setRecipeText={setRecipeText}
-            setRecipePrompt={setRecipePrompt}
-            isProcessing={isProcessing}
-            setIsProcessing={setIsProcessing}
-          />
-        </TabsContent>
-
-        <TabsContent value="convert" className="flex-1 p-0 h-full">
-          <ConvertTab 
-            recipeText={recipeText}
-            setRecipeText={setRecipeText}
-            isProcessing={isProcessing}
-            setIsProcessing={setIsProcessing}
-            setMessages={setMessages}
-            setActiveTab={setActiveTab}
-          />
-        </TabsContent>
-        
-        <TabsContent value="generate" className="flex-1 p-0 h-full">
-          <GenerateTab 
-            recipePrompt={recipePrompt}
-            setRecipePrompt={setRecipePrompt}
-            isProcessing={isProcessing}
-            setIsProcessing={setIsProcessing}
-            setMessages={setMessages}
-            setActiveTab={setActiveTab}
-          />
-        </TabsContent>
-        
-        <TabsContent value="settings" className="flex-1 p-0 h-full">
-          <SettingsTab 
-            useAI={useAI}
-            setUseAI={setUseAI}
-            saveHistory={saveHistory}
-            setSaveHistory={setSaveHistory}
-            enhanceRecipes={enhanceRecipes}
-            setEnhanceRecipes={setEnhanceRecipes}
-          />
-        </TabsContent>
-      </Tabs>
+      </div>
     </div>
   );
 };

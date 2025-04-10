@@ -7,15 +7,18 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MessageListProps {
   messages: ChatMessage[];
-  isProcessing?: boolean; // This is now optional with a default value
+  isProcessing?: boolean;
 }
 
 const MessageList: React.FC<MessageListProps> = ({ 
   messages, 
-  isProcessing = false // Default value
+  isProcessing = false
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  
+  // Check if any message has a recipe attachment
+  const hasRecipe = messages.some(msg => msg.attachedRecipe);
   
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -39,10 +42,15 @@ const MessageList: React.FC<MessageListProps> = ({
             <p className="text-xs opacity-70 mt-1">
               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </p>
-            {message.role === 'assistant' && <MessageAttachment message={message} />}
+            
+            {/* Only show attachment in MessageList if we're not displaying it separately */}
+            {message.role === 'assistant' && message.attachedRecipe && !hasRecipe && (
+              <MessageAttachment message={message} />
+            )}
           </div>
         </div>
       ))}
+      
       {isProcessing && (
         <div className="flex justify-start">
           <div className="max-w-[80%] rounded-lg p-3 bg-muted border border-border">
@@ -53,6 +61,7 @@ const MessageList: React.FC<MessageListProps> = ({
           </div>
         </div>
       )}
+      
       <div ref={messagesEndRef} />
     </div>
   );

@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import MessageList from '../../chat/MessageList';
 import { ChatMessage } from '../../utils/types';
@@ -12,6 +11,12 @@ interface ChatContainerProps {
 const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isProcessing }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
+  // Filter out messages that only have attachments without content
+  // This is optional - remove if you want to keep those messages
+  const displayMessages = messages.filter(msg => 
+    msg.content.trim() !== '' || !msg.attachedRecipe
+  );
+  
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -21,7 +26,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ messages, isProcessing })
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
       <MessageList 
-        messages={messages}
+        messages={displayMessages}
         isProcessing={isProcessing}
       />
       
