@@ -19,6 +19,15 @@ const IngredientsSection: React.FC<IngredientsFormSectionProps> = ({ control, re
     name: "ingredients"
   });
 
+  // Helper function to format ingredient values for display
+  const formatIngredientValue = (ingredient: string | { quantity: string; unit: string; name: string }): string => {
+    if (typeof ingredient === 'string') {
+      return ingredient;
+    } else {
+      return `${ingredient.quantity} ${ingredient.unit} ${ingredient.name}`.trim();
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -46,10 +55,11 @@ const IngredientsSection: React.FC<IngredientsFormSectionProps> = ({ control, re
                   <Input 
                     {...field} 
                     placeholder={`Ingredient ${index + 1}`}
-                    value={typeof field.value === 'string' 
-                      ? field.value 
-                      : `${field.value.quantity} ${field.value.unit} ${field.value.name}`
-                    } 
+                    value={formatIngredientValue(field.value)}
+                    onChange={(e) => {
+                      // Set the value as a simple string
+                      field.onChange(e.target.value);
+                    }}
                   />
                   <Button
                     type="button"

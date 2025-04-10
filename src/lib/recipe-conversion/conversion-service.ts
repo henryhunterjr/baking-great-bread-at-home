@@ -1,206 +1,117 @@
+import { v4 as uuidv4 } from 'uuid';
+import { logInfo } from '@/utils/logger';
+import { StandardRecipe } from '@/types/standardRecipeFormat';
+import { RecipeData, EquipmentItem } from '@/types/recipeTypes';
 
-import { RecipeData } from '@/types/recipeTypes';
-import { processRecipeText } from '@/lib/ai-services';
-import { cleanOCRText } from '@/lib/ai-services/text-cleaner';
-import { logError, logInfo } from '@/utils/logger';
-import { getOpenAIApiKey, isAIConfigured, updateOpenAIApiKey, checkAPIKeyStatus } from '@/lib/ai-services';
-import { toast } from 'sonner';
-
-// Helper function to extract a brief introduction from the recipe text
-const extractBriefIntroduction = (text: string): string => {
-  // Get first 150 characters or the first sentence, whichever is shorter
-  const firstSentence = text.split(/(?<=[.!?])\s+/)[0] || '';
-  const shortIntro = text.substring(0, 150);
+/**
+ * Formats recipe data from AI output into the standard recipe format
+ */
+export const formatToStandardRecipe = (recipeData: RecipeData): StandardRecipe => {
+  logInfo('Formatting recipe to standard format', { title: recipeData.title });
   
-  return firstSentence.length < shortIntro.length 
-    ? firstSentence 
-    : shortIntro + '...';
-};
-
-// Parse recipe text into structured format with improved error handling
-export const parseRecipeText = async (text: string): Promise<{
-  success: boolean;
-  title?: string;
-  ingredients?: string[];
-  instructions?: string[];
-  prepTime?: string;
-  cookTime?: string;
-  servings?: string;
-  notes?: string[];
-  error?: string;
-}> => {
-  try {
-    // Clean the input text
-    const cleanedText = cleanOCRText(text);
-    
-    if (!cleanedText || cleanedText.trim().length < 20) {
-      return {
-        success: false,
-        error: "The provided text is too short or doesn't appear to be a recipe."
-      };
-    }
-    
-    // Check API key status
-    if (!isAIConfigured()) {
-      return {
-        success: false,
-        error: "AI service is not configured with an API key."
-      };
-    }
-    
-    const response = await processRecipeText(cleanedText);
-    
-    if (!response || !response.success) {
-      return {
-        success: false,
-        error: response?.error || "Failed to process recipe."
-      };
-    }
-    
-    return {
-      success: true,
-      title: response.recipe?.title,
-      ingredients: response.recipe?.ingredients,
-      instructions: response.recipe?.instructions,
-      prepTime: response.recipe?.prepTime,
-      cookTime: response.recipe?.bakeTime,
-      servings: response.recipe?.servings,
-      notes: response.recipe?.notes
-    };
-    
-  } catch (error) {
-    logError('Error parsing recipe text', { error });
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown parsing error"
-    };
-  }
-};
-
-export const convertRecipeText = async (
-  text: string, 
-  onComplete: (recipe: RecipeData) => void,
-  onError: (error: Error) => void
-): Promise<void> => {
-  try {
-    // Log initial conversion attempt
-    logInfo('Starting recipe conversion process', { textLength: text?.length || 0 });
-    
-    // Validate input
-    if (!text || typeof text !== 'string') {
-      throw new Error("Invalid text input provided");
-    }
-    
-    // Store original text before cleaning - CRITICAL
-    const originalText = text;
-    
-    // Parse the recipe text first
-    const parseResult = await parseRecipeText(text);
-    
-    if (!parseResult.success) {
-      throw new Error(parseResult.error || "Failed to parse recipe");
-    }
-    
-    // Make sure we have the latest OpenAI API key
-    updateOpenAIApiKey();
-    
-    // Check API key status
-    const keyStatus = checkAPIKeyStatus();
-    logInfo('API Key Status during recipe conversion', keyStatus);
-    
-    // Check if OpenAI API is configured before proceeding
-    if (!isAIConfigured()) {
-      const error = new Error("AI service is not configured with an API key. Please add your OpenAI API key in Settings.");
-      // Log this as an important error
-      logError('OpenAI API key missing during recipe conversion', { error });
-      onError(error);
-      return;
-    }
-    
-    try {
-      logInfo('Processing recipe with parsed data', { 
-        hasTitle: !!parseResult.title,
-        ingredientsCount: parseResult.ingredients?.length || 0,
-        instructionsCount: parseResult.instructions?.length || 0
-      });
+  // Parse ingredients into the required format
+  const formattedIngredients = recipeData.ingredients.map(ingredient => {
+    if (typeof ingredient === 'string') {
+      const parts = ingredient.split(' ');
+      const quantity = parts[0];
+      let unit = '';
+      let name = '';
       
-      // Generate a unique ID for the recipe
-      const recipeId = crypto.randomUUID();
-      
-      // Always ensure all required fields are present
-      // Ensure ingredients are properly formatted as strings
-      const guaranteedIngredients = Array.isArray(parseResult.ingredients) && parseResult.ingredients.length > 0 
-        ? parseResult.ingredients.map(ing => typeof ing === 'string' ? ing : `${ing.quantity} ${ing.unit} ${ing.name}`)
-        : ['Default ingredient, please edit'];
-      
-      const guaranteedInstructions = Array.isArray(parseResult.instructions) && parseResult.instructions.length > 0
-        ? parseResult.instructions
-        : ['Default instruction, please edit'];
-      
-      // Create a brief introduction instead of using the full recipe text
-      const briefIntroduction = extractBriefIntroduction(originalText);
-      logInfo('Brief introduction created', { introLength: briefIntroduction.length });
-      
-      // Add converted flag and handle missing properties - FIXED: recipe saving issue
-      const convertedRecipe: RecipeData = {
-        id: recipeId,
-        isConverted: true, // CRITICAL: Ensure this is explicitly set to true
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        // Use a brief introduction instead of the full recipe text
-        introduction: briefIntroduction,
-        // Ensure these properties exist to prevent null/undefined errors
-        title: parseResult.title || 'Untitled Recipe',
-        ingredients: guaranteedIngredients,
-        instructions: guaranteedInstructions,
-        prepTime: parseResult.prepTime || '',
-        bakeTime: parseResult.cookTime || '',
-        servings: parseResult.servings || '',
-        notes: parseResult.notes || [],
-        // Initialize empty arrays for other properties
-        tips: [],
-        proTips: [],
-        equipmentNeeded: []
-      };
-      
-      // Log successful conversion
-      logInfo('Recipe conversion completed successfully', {
-        id: convertedRecipe.id,
-        hasTitle: !!convertedRecipe.title,
-        ingredientsCount: convertedRecipe.ingredients.length,
-        instructionsCount: convertedRecipe.instructions.length,
-        isConverted: convertedRecipe.isConverted
-      });
-      
-      // Fix recipe save functionality by verifying recipe validity
-      if (
-        convertedRecipe.title &&
-        convertedRecipe.ingredients.length > 0 &&
-        convertedRecipe.instructions.length > 0 &&
-        convertedRecipe.isConverted === true // CRITICAL: Ensure this is explicitly true, not just truthy
-      ) {
-        logInfo('Recipe is valid and ready to save', {
-          hasTitle: !!convertedRecipe.title,
-          ingredientsCount: convertedRecipe.ingredients.length,
-          instructionsCount: convertedRecipe.instructions.length,
-          isConverted: convertedRecipe.isConverted === true
-        });
+      if (parts.length > 2) {
+        unit = parts[1];
+        name = parts.slice(2).join(' ');
       } else {
-        logError('Recipe validation failed', {
-          hasTitle: !!convertedRecipe.title,
-          ingredientsCount: convertedRecipe.ingredients.length,
-          instructionsCount: convertedRecipe.instructions.length, 
-          isConverted: convertedRecipe.isConverted
-        });
+        name = parts.slice(1).join(' ');
       }
       
-      onComplete(convertedRecipe);
-    } catch (processingError) {
-      logError('Error during recipe processing:', { error: processingError });
-      onError(processingError instanceof Error ? processingError : new Error(String(processingError)));
+      return {
+        quantity,
+        unit,
+        name
+      };
+    } else {
+      // Already in object format
+      return {
+        quantity: ingredient.quantity,
+        unit: ingredient.unit,
+        name: ingredient.name
+      };
     }
-  } catch (error) {
-    logError('Recipe conversion error:', { error });
-    onError(error instanceof Error ? error : new Error(String(error)));
+  });
+  
+  // Create standard recipe format
+  const standardRecipe: StandardRecipe = {
+    title: recipeData.title,
+    description: recipeData.introduction,
+    ingredients: formattedIngredients,
+    prepTime: parseInt(recipeData.prepTime || '0') || 0,
+    cookTime: parseInt(recipeData.cookTime || '0') || 0,
+    restTime: parseInt(recipeData.restTime || '0') || 0,
+    totalTime: parseInt(recipeData.totalTime || '0') || 0,
+    steps: recipeData.instructions,
+    notes: recipeData.tips && recipeData.tips.length > 0 ? recipeData.tips.join('\n') : '',
+    equipment: recipeData.equipmentNeeded ? recipeData.equipmentNeeded.map(item => ({
+      name: item.name,
+      required: true
+    })) : [],
+    imageUrl: recipeData.imageUrl,
+    tags: recipeData.tags
+  };
+  
+  return standardRecipe;
+};
+
+/**
+ * Formats standard recipe format into the app's RecipeData format
+ */
+export const formatFromStandardRecipe = (standardRecipe: StandardRecipe): RecipeData => {
+  logInfo('Formatting from standard recipe format', { title: standardRecipe.title });
+  
+  // Parse ingredients back into string format
+  const formattedIngredients = standardRecipe.ingredients.map(ingredient => {
+    if (typeof ingredient === 'string') return ingredient;
+    
+    return `${ingredient.quantity || ''} ${ingredient.unit || ''} ${ingredient.name}`.trim();
+  });
+  
+  // Map equipment items
+  const equipmentItems: EquipmentItem[] = [];
+  if (standardRecipe.equipment) {
+    standardRecipe.equipment.forEach(item => {
+      if (typeof item === 'string') {
+        equipmentItems.push({
+          id: uuidv4(),
+          name: item
+        });
+      } else {
+        equipmentItems.push({
+          id: uuidv4(),
+          name: item.name
+        });
+      }
+    });
   }
+  
+  // Create app recipe data format
+  const recipeData: RecipeData = {
+    title: standardRecipe.title,
+    introduction: standardRecipe.description || '',
+    ingredients: formattedIngredients,
+    prepTime: (standardRecipe.prepTime || 0).toString(),
+    restTime: (standardRecipe.restTime || 0).toString(),
+    bakeTime: (standardRecipe.cookTime || 0).toString(),
+    totalTime: (standardRecipe.totalTime || 0).toString(),
+    instructions: standardRecipe.steps,
+    tips: Array.isArray(standardRecipe.notes) 
+      ? standardRecipe.notes 
+      : standardRecipe.notes ? [standardRecipe.notes] : [],
+    proTips: [],
+    equipmentNeeded: equipmentItems,
+    imageUrl: standardRecipe.imageUrl || 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
+    tags: standardRecipe.tags || [],
+    isPublic: false,
+    isConverted: true
+  };
+  
+  return recipeData;
 };
