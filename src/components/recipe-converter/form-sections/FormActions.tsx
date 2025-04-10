@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Save, X, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { logInfo } from '@/utils/logger';
 
 interface FormActionsProps {
   onCancel: () => void;
@@ -30,6 +31,8 @@ const FormActions: React.FC<FormActionsProps> = ({
       return;
     }
     
+    logInfo("FormActions: Save button clicked", { isDirty, isValid });
+    
     if (onSubmit) {
       onSubmit();
     }
@@ -46,7 +49,7 @@ const FormActions: React.FC<FormActionsProps> = ({
         Cancel
       </Button>
       <Button 
-        type="button" // Changed from "submit" to "button" to use our custom handler
+        type="button"
         className="bg-bread-800 hover:bg-bread-900 text-white"
         disabled={!isSaveEnabled}
         onClick={handleSave}

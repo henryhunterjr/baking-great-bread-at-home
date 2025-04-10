@@ -34,11 +34,13 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
 }) => {
   const { toast } = useToast();
   
+  // Ensure recipe always has the required fields
   const hasRecipeData = recipe && recipe.title && 
     Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0 && 
     Array.isArray(recipe.instructions) && recipe.instructions.length > 0;
     
-  const isConverted = recipe.isConverted === true;
+  // Force isConverted to be true whenever we're showing a recipe
+  const isConverted = hasRecipeData ? true : recipe.isConverted === true;
   
   // Log recipe data for debugging - fixed to use proper object format
   useEffect(() => {
@@ -53,7 +55,7 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
     // Ensure the recipe is marked as converted before saving
     const recipeToSave: RecipeData = {
       ...recipe,
-      isConverted: true // Force this to true
+      isConverted: true // Always force this to true when saving
     };
     
     // Log the save attempt
@@ -135,16 +137,16 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
         <ErrorAlert error={conversionError} title="Recipe Conversion Error" />
       )}
       
-      {hasRecipeData && isConverted ? (
+      {hasRecipeData ? (
         isEditing ? (
           <RecipeForm 
-            initialRecipe={recipe} 
+            initialRecipe={{...recipe, isConverted: true}} 
             onSave={updateRecipe} 
             onCancel={handleFormCancel} 
           />
         ) : (
           <RecipeCard 
-            recipe={recipe}
+            recipe={{...recipe, isConverted: true}}
             onEdit={() => onSetIsEditing(true)}
             onPrint={handlePrint}
             onReset={onResetRecipe}

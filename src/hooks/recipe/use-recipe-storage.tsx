@@ -29,7 +29,7 @@ export const useRecipeStorage = (
 
   const handleSaveRecipe = async (updatedRecipe: RecipeData = recipe): Promise<boolean> => {
     try {
-      // Ensure isConverted is set to true
+      // Always ensure isConverted is true when saving
       const recipeToProcess = {
         ...updatedRecipe,
         isConverted: true
@@ -41,7 +41,7 @@ export const useRecipeStorage = (
         title: recipeToProcess.title,
         ingredientsCount: Array.isArray(recipeToProcess.ingredients) ? recipeToProcess.ingredients.length : 0,
         instructionsCount: Array.isArray(recipeToProcess.instructions) ? recipeToProcess.instructions.length : 0,
-        isConverted: recipeToProcess.isConverted
+        isConverted: recipeToProcess.isConverted === true
       });
       
       // Check if the recipe is valid before saving

@@ -35,10 +35,10 @@ export function useRecipeConversionHandler(
         });
 
         // Process and validate the recipe
-        const processedRecipe = processRecipe(completedRecipe);
-        
-        // Ensure isConverted flag is true even after processing
-        processedRecipe.isConverted = true;
+        const processedRecipe = {
+          ...processRecipe(completedRecipe),
+          isConverted: true // Ensure isConverted flag stays true even after processing
+        };
         
         // Log after processing
         logInfo('Recipe in conversion handler after processing:', { 

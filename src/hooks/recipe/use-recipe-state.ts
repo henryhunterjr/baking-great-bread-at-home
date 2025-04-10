@@ -27,6 +27,23 @@ export const useRecipeState = () => {
   // Error state
   const [conversionError, setConversionError] = useState<string | null>(null);
 
+  // Set recipe with guaranteed isConverted flag
+  const setRecipeWithConversion = useCallback((newRecipe: RecipeData) => {
+    // Always ensure isConverted is true for valid recipes
+    const hasRequiredFields = 
+      !!newRecipe.title && 
+      Array.isArray(newRecipe.ingredients) && newRecipe.ingredients.length > 0 &&
+      Array.isArray(newRecipe.instructions) && newRecipe.instructions.length > 0;
+      
+    const updatedRecipe = {
+      ...newRecipe,
+      isConverted: hasRequiredFields ? true : newRecipe.isConverted
+    };
+    
+    setRecipe(updatedRecipe);
+    return updatedRecipe;
+  }, []);
+
   // Process a recipe after conversion or update
   const processRecipe = useCallback((updatedRecipe: RecipeData) => {
     try {
@@ -85,26 +102,19 @@ export const useRecipeState = () => {
       };
       
       // Log processed recipe for debugging
-      logInfo("Processing recipe:", processedRecipe);
-      
-      // Set the recipe and enable editing
-      setRecipe(processedRecipe);
-      setIsEditing(false); // Changed to false to show the recipe card first
-      
-      // Show success message
-      setShowConversionSuccess(true);
-      
-      // Clear any previous errors
-      setConversionError(null);
+      logInfo("Processing recipe:", {
+        title: processedRecipe.title,
+        ingredientsCount: processedRecipe.ingredients.length,
+        isConverted: processedRecipe.isConverted === true
+      });
       
       return processedRecipe;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error processing recipe';
       logError('Error in processRecipe:', { error });
-      setConversionError(errorMessage);
-      return recipe; // Return current recipe on error
+      throw error;
     }
-  }, [recipe]);
+  }, []);
 
   // Reset recipe to default state
   const resetRecipe = useCallback(() => {
@@ -116,7 +126,7 @@ export const useRecipeState = () => {
 
   return {
     recipe,
-    setRecipe,
+    setRecipe: setRecipeWithConversion,
     isEditing,
     setIsEditing,
     showConversionSuccess,

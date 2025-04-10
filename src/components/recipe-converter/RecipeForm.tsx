@@ -61,10 +61,10 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ initialRecipe, onSave, onCancel
     };
   }, []);
   
-  // Fix for isConverted flag - ensure it's properly set
+  // Fix for isConverted flag - always ensure it's set to true
   const preparedRecipe = {
     ...initialRecipe,
-    isConverted: true, // Explicitly set to true
+    isConverted: true, // Explicitly force to true
     id: initialRecipe.id || crypto.randomUUID()
   };
   
@@ -98,7 +98,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ initialRecipe, onSave, onCancel
   
   const onSubmit = (data: RecipeData) => {
     try {
-      // Ensure isConverted flag is set
+      // Always ensure isConverted flag is set
       const recipeToSave = {
         ...data,
         isConverted: true, // Critical: Always set this to true
