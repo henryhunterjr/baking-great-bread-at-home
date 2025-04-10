@@ -41,16 +41,25 @@ const BakersCalculator: React.FC = () => {
     // Basic calculation
     const bakersPercentages = calculateBakersPercentages(
       recipeForm.ingredients.map(ing => {
-        const ingredientStr = typeof ing === 'string' ? ing : String(ing);
-        const match = ingredientStr.match(/(\d+\.?\d*)([a-zA-Z]+)\s+(.+)/);
-        if (match) {
+        // Handle both string and object formats of ingredients
+        if (typeof ing === 'string') {
+          const match = ing.match(/(\d+\.?\d*)([a-zA-Z]+)\s+(.+)/);
+          if (match) {
+            return {
+              quantity: parseFloat(match[1]),
+              unit: match[2],
+              name: match[3]
+            };
+          }
+          return { name: ing, quantity: 0, unit: 'g' };
+        } else {
+          // Already in object format
           return {
-            quantity: parseFloat(match[1]),
-            unit: match[2],
-            name: match[3]
+            name: ing.name,
+            quantity: parseFloat(ing.quantity) || 0,
+            unit: ing.unit
           };
         }
-        return { name: ingredientStr, quantity: 0, unit: 'g' };
       })
     );
     

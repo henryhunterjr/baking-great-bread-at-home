@@ -16,7 +16,7 @@ interface IngredientsFormSectionProps {
 const IngredientsSection: React.FC<IngredientsFormSectionProps> = ({ control, register, errors }) => {
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "ingredients" as any // Type assertion to bypass type check
+    name: "ingredients"
   });
 
   return (
@@ -27,7 +27,7 @@ const IngredientsSection: React.FC<IngredientsFormSectionProps> = ({ control, re
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append("" as any)} // Type assertion to bypass type check
+          onClick={() => append("")}
           className="flex items-center gap-1"
         >
           <Plus className="h-4 w-4" /> Add Ingredient
@@ -43,7 +43,14 @@ const IngredientsSection: React.FC<IngredientsFormSectionProps> = ({ control, re
             <FormItem>
               <FormControl>
                 <div className="flex gap-2">
-                  <Input {...field} placeholder={`Ingredient ${index + 1}`} />
+                  <Input 
+                    {...field} 
+                    placeholder={`Ingredient ${index + 1}`}
+                    value={typeof field.value === 'string' 
+                      ? field.value 
+                      : `${field.value.quantity} ${field.value.unit} ${field.value.name}`
+                    } 
+                  />
                   <Button
                     type="button"
                     variant="ghost"

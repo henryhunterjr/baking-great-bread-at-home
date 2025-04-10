@@ -128,8 +128,9 @@ export const convertRecipeText = async (
       const recipeId = crypto.randomUUID();
       
       // Always ensure all required fields are present
+      // Ensure ingredients are properly formatted as strings
       const guaranteedIngredients = Array.isArray(parseResult.ingredients) && parseResult.ingredients.length > 0 
-        ? parseResult.ingredients 
+        ? parseResult.ingredients.map(ing => typeof ing === 'string' ? ing : `${ing.quantity} ${ing.unit} ${ing.name}`)
         : ['Default ingredient, please edit'];
       
       const guaranteedInstructions = Array.isArray(parseResult.instructions) && parseResult.instructions.length > 0

@@ -12,23 +12,32 @@ export const formatToStandardRecipe = (recipeData: RecipeData): StandardRecipe =
   
   // Parse ingredients into the required format
   const formattedIngredients = recipeData.ingredients.map(ingredient => {
-    const parts = ingredient.split(' ');
-    const quantity = parts[0];
-    let unit = '';
-    let name = '';
-    
-    if (parts.length > 2) {
-      unit = parts[1];
-      name = parts.slice(2).join(' ');
+    if (typeof ingredient === 'string') {
+      const parts = ingredient.split(' ');
+      const quantity = parts[0];
+      let unit = '';
+      let name = '';
+      
+      if (parts.length > 2) {
+        unit = parts[1];
+        name = parts.slice(2).join(' ');
+      } else {
+        name = parts.slice(1).join(' ');
+      }
+      
+      return {
+        quantity,
+        unit,
+        name
+      };
     } else {
-      name = parts.slice(1).join(' ');
+      // Already in object format
+      return {
+        quantity: ingredient.quantity,
+        unit: ingredient.unit,
+        name: ingredient.name
+      };
     }
-    
-    return {
-      quantity,
-      unit,
-      name
-    };
   });
   
   // Create standard recipe format
@@ -36,16 +45,16 @@ export const formatToStandardRecipe = (recipeData: RecipeData): StandardRecipe =
     title: recipeData.title,
     description: recipeData.introduction,
     ingredients: formattedIngredients,
-    prepTime: parseInt(recipeData.prepTime) || 0,
-    cookTime: parseInt(recipeData.bakeTime) || 0,
-    restTime: parseInt(recipeData.restTime) || 0,
-    totalTime: parseInt(recipeData.totalTime) || 0,
+    prepTime: parseInt(recipeData.prepTime || '0') || 0,
+    cookTime: parseInt(recipeData.cookTime || '0') || 0,
+    restTime: parseInt(recipeData.restTime || '0') || 0,
+    totalTime: parseInt(recipeData.totalTime || '0') || 0,
     steps: recipeData.instructions,
-    notes: recipeData.tips.length > 0 ? recipeData.tips.join('\n') : '',
-    equipment: recipeData.equipmentNeeded.map(item => ({
+    notes: recipeData.tips && recipeData.tips.length > 0 ? recipeData.tips.join('\n') : '',
+    equipment: recipeData.equipmentNeeded ? recipeData.equipmentNeeded.map(item => ({
       name: item.name,
       required: true
-    })),
+    })) : [],
     imageUrl: recipeData.imageUrl,
     tags: recipeData.tags
   };

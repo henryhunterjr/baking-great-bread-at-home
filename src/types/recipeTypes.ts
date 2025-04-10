@@ -32,6 +32,8 @@ export interface RecipeData {
   cuisineType?: string;
   difficulty?: string;
   isPublic?: boolean;
+  originalUrl?: string;
+  equipment?: string[];
 }
 
 /**

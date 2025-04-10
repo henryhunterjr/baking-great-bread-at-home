@@ -1,8 +1,10 @@
-
-import { RecipeData } from '@/types/recipeTypes';
+import OpenAI from 'openai';
+import { v4 as uuidv4 } from 'uuid';
 import { logInfo, logError } from '@/utils/logger';
-import { getOpenAIApiKey } from './key-management';
-import { AI_CONFIG } from './config';
+import { RecipeData } from '@/types/recipeTypes';
+import { isAIConfigured, getOpenAIApiKey } from './key-management';
+
+const defaultRecipeImage = 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop';
 
 export interface RecipeGenerationResponse {
   success: boolean;
@@ -11,239 +13,194 @@ export interface RecipeGenerationResponse {
 }
 
 /**
- * Generate a recipe using OpenAI based on a user prompt
- * @param prompt The recipe generation prompt
- * @returns A response object containing the generated recipe or an error
+ * Generate recipe with OpenAI
  */
-export const generateRecipeWithOpenAI = async (prompt: string): Promise<RecipeGenerationResponse> => {
+export const generateRecipeWithOpenAI = async (query: string): Promise<RecipeGenerationResponse> => {
+  if (!isAIConfigured()) {
+    return {
+      success: false,
+      error: 'OpenAI API key is not configured.'
+    };
+  }
+  
   const apiKey = getOpenAIApiKey();
   
   if (!apiKey) {
     return {
       success: false,
-      error: 'AI service not configured with valid API key'
-    };
-  }
-  
-  if (!prompt || prompt.trim() === '') {
-    return {
-      success: false,
-      error: 'No prompt provided for recipe generation'
+      error: 'No OpenAI API key found.'
     };
   }
   
   try {
-    logInfo('Generating recipe with OpenAI', { prompt });
+    const openai = new OpenAI({ apiKey: apiKey });
     
-    // Store original text to preserve it exactly
-    const originalText = prompt;
-    
-    try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a helpful assistant that generates recipes based on user queries. ' +
+            'Please provide a detailed recipe, including ingredients, instructions, and any helpful tips.'
         },
-        body: JSON.stringify({
-          model: AI_CONFIG.openai.model,
-          messages: [
-            {
-              role: 'system',
-              content: `You are a professional baker specialized in creating detailed bread recipes. 
-              Format your response as a JSON object with the following structure:
-              {
-                "title": "Recipe name",
-                "description": "Brief introduction to the recipe",
-                "ingredients": ["ingredient 1", "ingredient 2", ...],
-                "steps": ["step 1", "step 2", ...],
-                "prepTime": "preparation time in minutes",
-                "cookTime": "cooking/baking time in minutes",
-                "tips": ["tip 1", "tip 2", ...],
-                "tags": ["tag1", "tag2", ...]
-              }
-              Do not include any explanations or markdown, just the JSON object.`
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.7
-        })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const statusText = response.statusText || 'Unknown error';
-        throw new Error(`OpenAI API error (${response.status}): ${statusText}. ${errorData.error?.message || ''}`);
-      }
-      
-      const data = await response.json();
-      const content = data.choices?.[0]?.message?.content;
-      
-      if (!content) {
-        throw new Error('No content returned from OpenAI');
-      }
-      
-      try {
-        const jsonMatch = content.match(/\{[\s\S]*\}/);
-        const jsonString = jsonMatch ? jsonMatch[0] : content;
-        const recipeData = JSON.parse(jsonString);
-        
-        const recipe: RecipeData = {
-          title: recipeData.title || 'New Recipe',
-          // Preserve the original text exactly as the introduction
-          introduction: originalText,
-          ingredients: recipeData.ingredients || [],
-          instructions: recipeData.steps || [],
-          prepTime: recipeData.prepTime ? `${recipeData.prepTime} minutes` : '',
-          bakeTime: recipeData.cookTime ? `${recipeData.cookTime} minutes` : '',
-          totalTime: recipeData.prepTime && recipeData.cookTime ? 
-            `${parseInt(recipeData.prepTime) + parseInt(recipeData.cookTime)} minutes` : '',
-          tips: recipeData.tips || [],
-          proTips: [],
-          equipmentNeeded: [],
-          imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a',
-          tags: recipeData.tags || [],
-          isConverted: true,
-          restTime: '',
-          isPublic: false
-        };
-        
-        return {
-          success: true,
-          recipe
-        };
-      } catch (parseError) {
-        logError('Failed to parse OpenAI response:', { error: parseError, content });
-        throw new Error(`Failed to parse OpenAI response: ${parseError.message}`);
-      }
-    } catch (apiError) {
-      logError('OpenAI API error:', { error: apiError });
-      throw new Error(`OpenAI API error: ${apiError.message}`);
+        {
+          role: 'user',
+          content: `Generate a recipe for: ${query}`
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000,
+      n: 1,
+      stop: null,
+    });
+    
+    const recipeText = completion.choices[0].message.content;
+    
+    if (!recipeText) {
+      return {
+        success: false,
+        error: 'Could not generate recipe text.'
+      };
     }
-  } catch (error) {
-    logError('Error generating recipe with OpenAI:', { error });
+    
+    // Basic parsing of the generated text
+    const recipe: RecipeData = {
+      title: `AI Generated Recipe for ${query}`,
+      introduction: `This recipe was generated by AI based on the query: ${query}.`,
+      ingredients: [],
+      instructions: [],
+      notes: [],
+      tips: [],
+      isConverted: true
+    };
     
     return {
+      success: true,
+      recipe: recipe
+    };
+  } catch (error) {
+    logError('Error generating recipe with OpenAI', { error });
+    return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+      error: 'Failed to generate recipe with OpenAI.'
     };
   }
 };
 
 /**
- * Process existing recipe text and structure it
- * @param text The raw recipe text to process
- * @returns A response containing the structured recipe or an error
+ * Process recipe text with OpenAI
  */
 export const processRecipeText = async (text: string): Promise<RecipeGenerationResponse> => {
+  if (!isAIConfigured()) {
+    return {
+      success: false,
+      error: 'OpenAI API key is not configured.'
+    };
+  }
+  
   const apiKey = getOpenAIApiKey();
   
   if (!apiKey) {
     return {
       success: false,
-      error: 'AI service not configured with valid API key'
+      error: 'No OpenAI API key found.'
     };
   }
   
-  // Store original text to preserve it exactly - this is critical
-  const originalText = text;
-  
   try {
-    logInfo('Processing recipe text with OpenAI', { textLength: text.length });
+    const openai = new OpenAI({ apiKey: apiKey });
     
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: AI_CONFIG.openai.model,
-        messages: [
-          {
-            role: 'system',
-            content: `You are a professional chef specialized in structured recipe formatting.
-            Format the provided recipe text as a JSON object with the following structure:
-            {
-              "title": "Recipe name",
-              "ingredients": ["ingredient 1", "ingredient 2", ...],
-              "steps": ["step 1", "step 2", ...],
-              "prepTime": "preparation time in minutes",
-              "cookTime": "cooking/baking time in minutes",
-              "tips": ["tip 1", "tip 2", ...],
-              "tags": ["tag1", "tag2", ...]
-            }
-            Extract all information accurately from the provided text.
-            Do not add any explanations, commentary or markdown, just the JSON object.`
-          },
-          {
-            role: 'user',
-            content: text
-          }
-        ],
-        temperature: 0.3
-      })
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a recipe parser. Your task is to take a recipe text and extract structured data from it. ' +
+            'Identify the title, ingredients, instructions, prep time, cook time, total time, servings, tags, notes, tips, and equipment needed. ' +
+            'If the equipment has an affiliate link, include it. Return a JSON object with these fields.'
+        },
+        {
+          role: 'user',
+          content: `Parse the following recipe text:\n${text}`
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 2000,
+      response_format: { type: 'json_object' }
     });
     
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`OpenAI API error (${response.status}): ${errorData.error?.message || 'Unknown error'}`);
-    }
-    
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
+    const content = completion.choices[0].message.content;
     
     if (!content) {
-      throw new Error('No content returned from OpenAI');
+      return {
+        success: false,
+        error: 'Could not process recipe text.'
+      };
     }
     
-    try {
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      const jsonString = jsonMatch ? jsonMatch[0] : content;
-      const recipeData = JSON.parse(jsonString);
-      
-      const recipe: RecipeData = {
-        id: crypto.randomUUID(), // Always generate a new ID
-        title: recipeData.title || 'Untitled Recipe',
-        // Preserve the original text exactly as the introduction - CRITICAL
-        introduction: originalText,
-        ingredients: recipeData.ingredients || [],
-        instructions: recipeData.steps || [],
-        prepTime: recipeData.prepTime ? `${recipeData.prepTime} minutes` : '',
-        cookTime: recipeData.cookTime ? `${recipeData.cookTime} minutes` : '',
-        bakeTime: recipeData.bakeTime ? `${recipeData.bakeTime} minutes` : '',
-        totalTime: recipeData.totalTime || '',
-        servings: recipeData.servings || '',
-        difficulty: recipeData.difficulty || '',
-        cuisineType: recipeData.cuisineType || '',
-        tags: recipeData.tags || [],
-        notes: recipeData.notes || [],
-        tips: recipeData.tips || [],
-        proTips: recipeData.proTips || [],
-        equipment: recipeData.equipment || [],
-        equipmentNeeded: [],
-        isConverted: true, // CRITICAL: Ensure this is explicitly set to true
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      return {
-        success: true,
-        recipe
-      };
-    } catch (parseError) {
-      logError('Failed to parse OpenAI response:', { error: parseError, content });
-      throw new Error(`Failed to parse OpenAI response: ${parseError.message}`);
-    }
-  } catch (error) {
-    logError('Error processing recipe text with OpenAI:', { error });
+    const response = JSON.parse(content);
+    
+    // Process ingredients to ensure they are properly formatted strings
+    const processedIngredients = response.ingredients.map((ingredient: any) => {
+      if (typeof ingredient === 'string') {
+        return ingredient;
+      } else if (typeof ingredient === 'object' && ingredient !== null) {
+        // Format object to string
+        const quantity = ingredient.quantity || '';
+        const unit = ingredient.unit || '';
+        const name = ingredient.name || '';
+        return `${quantity} ${unit} ${name}`.trim();
+      }
+      return String(ingredient);
+    });
+    
+    // Create the recipe object
+    const recipe: RecipeData = {
+      title: response.title || 'Untitled Recipe',
+      introduction: response.introduction || response.description || '',
+      ingredients: processedIngredients,
+      instructions: response.instructions || response.steps || [],
+      prepTime: response.prepTime || response.prep_time || '',
+      cookTime: response.cookTime || response.cook_time || '',
+      totalTime: response.totalTime || response.total_time || '',
+      servings: response.servings || '',
+      tags: response.tags || [],
+      notes: response.notes || [],
+      tips: response.tips || [],
+      proTips: response.proTips || response.pro_tips || [],
+      equipmentNeeded: (response.equipment || []).map((item: string | any) => {
+        if (typeof item === 'string') {
+          return {
+            id: uuidv4(),
+            name: item
+          };
+        } else {
+          return {
+            id: item.id || uuidv4(),
+            name: item.name || 'Equipment',
+            affiliateLink: item.affiliateLink || item.affiliate_link
+          };
+        }
+      }),
+      equipment: response.equipment || [],
+      // Set recipe metadata
+      isConverted: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      imageUrl: response.imageUrl || defaultRecipeImage
+    };
+    
+    logInfo('Recipe processed successfully', { title: recipe.title });
     
     return {
+      success: true,
+      recipe: recipe
+    };
+  } catch (error) {
+    logError('Error processing recipe text with OpenAI', { error });
+    return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+      error: 'Failed to process recipe text with OpenAI.'
     };
   }
 };
