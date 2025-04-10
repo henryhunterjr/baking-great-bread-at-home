@@ -16,7 +16,7 @@ const DevToolsToggle: React.FC = () => {
       <Button
         variant="outline"
         size="icon"
-        className="fixed bottom-4 right-4 z-50 bg-background/80 backdrop-blur-sm shadow-md hover:bg-primary/20"
+        className="fixed bottom-4 left-4 z-50 bg-background/80 backdrop-blur-sm shadow-md hover:bg-primary/20"
         onClick={() => setShowConsole(!showConsole)}
       >
         <Bug className="h-4 w-4" />
@@ -28,3 +28,4 @@ const DevToolsToggle: React.FC = () => {
 };
 
 export default DevToolsToggle;
+
