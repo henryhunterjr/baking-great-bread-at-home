@@ -1,55 +1,21 @@
 
+/**
+ * Recipe data structure used throughout the application
+ */
 export interface RecipeData {
   id?: string;
   title: string;
-  introduction?: string;
+  ingredients: Array<string | { quantity: string; unit: string; name: string }>;
+  instructions: string[];
+  notes?: string[] | string;
   prepTime?: string;
   cookTime?: string;
-  totalTime?: string;
-  restTime?: string;
-  bakeTime?: string;
-  servings?: string;
-  difficulty?: 'Easy' | 'Medium' | 'Hard';
-  cuisineType?: string;
-  tags?: string[];
-  ingredients: string[];
-  equipment?: string[];
-  instructions: string[];
-  notes?: string[];
-  tips?: string[];
-  proTips?: string[];
+  servings?: number;
   imageUrl?: string;
-  createdBy?: string;
-  createdAt?: Date | string;
-  updatedAt?: Date | string;
-  source?: string;
-  isPublic?: boolean;
+  tags?: string[];
+  introduction?: string;
   isConverted?: boolean;
-  rating?: number;
-  calories?: number;
-  equipmentNeeded?: EquipmentItem[];
-  originalUrl?: string;
-  nutrition?: {
-    protein?: string;
-    carbs?: string;
-    fat?: string;
-    sugar?: string;
-    fiber?: string;
-  };
-}
-
-export interface EquipmentItem {
-  id?: string;
-  name: string;
-  affiliateLink?: string;
-}
-
-export interface RecipeFormValues extends RecipeData {
-  // Any additional fields specific to form handling
-}
-
-export interface RecipeGenerationResponse {
-  success: boolean;
-  recipe?: RecipeData;
-  error?: string;
+  createdAt?: number;
+  updatedAt?: number;
+  userId?: string;
 }
