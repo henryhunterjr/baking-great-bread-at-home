@@ -33,6 +33,8 @@ type BreadAssistantContextType = {
   askQuestion: (question: string) => Promise<string>;
   findRecipe: (query: string) => Promise<RecipeData | null>;
   clearHistory: () => void;
+  isAssistantOpen: boolean;
+  toggleAssistant: () => void;
 };
 
 const BreadAssistantContext = createContext<BreadAssistantContextType | undefined>(undefined);
@@ -47,6 +49,11 @@ export function BreadAssistantProvider({ children }: { children: ReactNode }) {
     timestamp?: Date;
     attachedRecipe?: RecipeData;
   }>>([]);
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+
+  const toggleAssistant = () => {
+    setIsAssistantOpen(prev => !prev);
+  };
 
   const analyzeRecipe = async (recipeData: RecipeData): Promise<BreadAnalysisResult> => {
     setIsAnalyzing(true);
@@ -419,7 +426,9 @@ export function BreadAssistantProvider({ children }: { children: ReactNode }) {
       analyzeRecipe,
       askQuestion,
       findRecipe,
-      clearHistory
+      clearHistory,
+      isAssistantOpen,
+      toggleAssistant
     }}>
       {children}
     </BreadAssistantContext.Provider>
