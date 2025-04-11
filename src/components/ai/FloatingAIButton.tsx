@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import './floating-button.css';
 
 const FloatingAIButton = () => {
-  const { toggleAssistant } = useBreadAssistant();
+  const { toggleAssistant, isAssistantOpen } = useBreadAssistant();
   const [isGlowing, setIsGlowing] = useState(false);
   
   // Add glowing effect every 30 seconds to draw attention
@@ -31,15 +31,20 @@ const FloatingAIButton = () => {
     };
   }, []);
 
+  const handleButtonClick = () => {
+    console.log("AI Button clicked, toggling assistant");
+    toggleAssistant();
+  };
+
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
           <button
-            onClick={toggleAssistant}
-            className={`fixed bottom-6 right-6 z-40 p-1 rounded-full bg-bread-700 hover:bg-bread-800 text-white shadow-lg transition-all duration-300 transform hover:scale-110 ${
+            onClick={handleButtonClick}
+            className={`fixed bottom-6 right-6 z-40 p-1 rounded-full bg-bread-700 hover:bg-bread-800 text-white shadow-lg transition-all duration-300 transform hover:scale-110 floating-ai-button ${
               isGlowing ? 'animate-glow' : ''
-            }`}
+            } ${isAssistantOpen ? 'ring-2 ring-bread-400' : ''}`}
             aria-label="Bread Assistant"
           >
             <img 

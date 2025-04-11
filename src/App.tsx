@@ -11,6 +11,7 @@ import HoverNavbar from '@/components/navigation/HoverNavbar';
 import NotFound from '@/pages/NotFound';
 import { OnboardingComponents } from '@/components/onboarding';
 import FloatingAIButton from '@/components/ai/FloatingAIButton';
+import AIBreadAssistantPanel from '@/components/ai/AIBreadAssistantPanel';
 import HelpCenter from '@/components/onboarding/HelpCenter';
 
 // Eagerly load critical components
@@ -113,6 +114,7 @@ const App: React.FC = () => {
             {/* Help Center button and Floating AI Button - order matters for z-index */}
             <HelpCenter />
             <FloatingAIButton />
+            <AIBreadAssistantPanel />
             
             <Toaster />
             <ErrorToast />
