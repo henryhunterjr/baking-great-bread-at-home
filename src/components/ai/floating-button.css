@@ -1,116 +1,16 @@
 
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 15px 5px rgba(229, 168, 95, 0.7);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 25px 8px rgba(229, 168, 95, 0.9);
-    transform: scale(1.05);
-  }
-}
-
-@keyframes gradient-spin {
+@keyframes glow {
   0% {
-    background-position: 0% 50%;
-    transform: rotate(0deg);
+    box-shadow: 0 0 5px rgba(234, 179, 8, 0.5);
   }
   50% {
-    background-position: 100% 50%;
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.8), 0 0 30px rgba(234, 179, 8, 0.5);
   }
   100% {
-    background-position: 0% 50%;
-    transform: rotate(360deg);
+    box-shadow: 0 0 5px rgba(234, 179, 8, 0.5);
   }
 }
 
-.animate-pulse-glow {
-  animation: pulse-glow 30s infinite;
-  transition: all 0.8s ease-out;
-}
-
-.animate-pulse-glow:hover {
-  animation: pulse-glow 2s infinite;
-}
-
-.animate-gradient-spin {
-  animation: gradient-spin 3s linear infinite;
-  background-size: 200% 200%;
-  transition: all 0.8s ease-out;
-}
-
-/* Add transition for the AI panel */
-.ai-panel-transition {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.ai-panel-enter {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.ai-panel-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.ai-panel-exit {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.ai-panel-exit-active {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-/* Mobile optimization classes */
-.mobile-touch-target {
-  min-height: 44px;
-  min-width: 44px;
-}
-
-/* Improve touch areas for mobile */
-@media (max-width: 768px) {
-  button, 
-  a.button,
-  .nav-link,
-  [role="button"] {
-    @apply px-3 py-2 touch-manipulation;
-  }
-  
-  /* Reduce unneeded spacing on mobile */
-  .container {
-    @apply px-3;
-  }
-  
-  section {
-    @apply py-6;
-  }
-  
-  /* Fix for mobile menu text legibility */
-  .fixed.bg-background\/95 {
-    @apply bg-background;
-  }
-  
-  /* Ensure touch targets are accessible */
-  .nav-link, button, a {
-    @apply min-h-[36px] min-w-[36px];
-  }
-}
-
-/* Fix for smaller screens text overlap */
-@media (max-width: 480px) {
-  .font-serif.text-lg {
-    @apply text-base;
-  }
-  
-  h1.font-serif {
-    @apply text-2xl leading-snug;
-  }
-  
-  /* Ensure mobile elements don't run into each other */
-  .flex.items-center.gap-2 {
-    @apply gap-3;
-  }
+.animate-glow {
+  animation: glow 1.5s ease-in-out infinite;
 }

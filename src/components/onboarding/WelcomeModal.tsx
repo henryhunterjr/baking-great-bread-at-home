@@ -1,20 +1,26 @@
 
 import React, { useState, useEffect } from 'react';
 import { useOnboarding } from '@/contexts/OnboardingContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Search, BookOpen, MessageSquare, ArrowRight, Upload } from 'lucide-react';
 
 const WelcomeModal = () => {
   const { hasSeenWelcomeModal, setHasSeenWelcomeModal, setShowTour } = useOnboarding();
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   
   useEffect(() => {
-    // Show welcome modal if the user hasn't seen it yet
-    if (!hasSeenWelcomeModal) {
+    // Show welcome modal only if the user hasn't seen it yet
+    // AND the user is not already signed in
+    if (!hasSeenWelcomeModal && !user) {
       setIsOpen(true);
+    } else if (user) {
+      // If user is already signed in, mark welcome modal as seen automatically
+      setHasSeenWelcomeModal(true);
     }
-  }, [hasSeenWelcomeModal]);
+  }, [hasSeenWelcomeModal, user, setHasSeenWelcomeModal]);
   
   const handleStartTour = () => {
     setIsOpen(false);

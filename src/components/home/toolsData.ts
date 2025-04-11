@@ -12,10 +12,10 @@ export const toolsData: Tool[] = [
   },
   {
     id: 2,
-    title: "Loaf Logic",
-    image: "/lovable-uploads/52620bca-626b-437f-b87c-fbaf76026a26.png",
-    description: "A comprehensive bread calculator and recipe manager for the serious home baker.",
-    link: "https://loaflogic.lovable.app/",
+    title: "YeastWise - Yeast Calculator",
+    image: "/lovable-uploads/b67e2b91-a93b-466a-aa1d-4e506050d524.png",
+    description: "Calculate precise yeast water ratios for consistent, perfectly risen dough every time.",
+    link: "https://yeast-helper-101.vercel.app",
     isExternalLink: true
   },
   {

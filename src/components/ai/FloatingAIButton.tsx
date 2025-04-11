@@ -1,155 +1,59 @@
+
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Sparkles, X } from 'lucide-react';
-import AIAssistant from './AIAssistant';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { MessageSquare } from 'lucide-react';
+import { useBreadAssistant } from '@/contexts/BreadAssistantContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import './floating-button.css';
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 const FloatingAIButton = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [pulseAnimation, setPulseAnimation] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
-  const [position, setPosition] = useState({ right: 20, bottom: 90 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const isMobile = useIsMobile();
-
+  const { toggleAssistant } = useBreadAssistant();
+  const [isGlowing, setIsGlowing] = useState(false);
+  
+  // Add glowing effect every 30 seconds to draw attention
   useEffect(() => {
-    setPulseAnimation(true);
-    
-    const pulseInterval = setInterval(() => {
-      setPulseAnimation(true);
+    const glowInterval = setInterval(() => {
+      setIsGlowing(true);
       
+      // Turn off the glow after 3 seconds
       setTimeout(() => {
-        if (!isHovered) {
-          setPulseAnimation(false);
-        }
-      }, 2000);
+        setIsGlowing(false);
+      }, 3000);
     }, 30000);
     
+    // Initial glow after 5 seconds
+    const initialGlow = setTimeout(() => {
+      setIsGlowing(true);
+      setTimeout(() => setIsGlowing(false), 3000);
+    }, 5000);
+    
     return () => {
-      clearInterval(pulseInterval);
+      clearInterval(glowInterval);
+      clearTimeout(initialGlow);
     };
-  }, [isHovered]);
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    setPulseAnimation(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    setPulseAnimation(false);
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-    setDragOffset({
-      x: e.clientX - position.right,
-      y: e.clientY - position.bottom
-    });
-  };
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        
-        const newRight = viewportWidth - e.clientX - dragOffset.x;
-        const newBottom = viewportHeight - e.clientY - dragOffset.y;
-        
-        setPosition({
-          right: Math.max(10, Math.min(viewportWidth - 70, newRight)),
-          bottom: Math.max(10, Math.min(viewportHeight - 70, newBottom))
-        });
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, dragOffset]);
+  }, []);
 
   return (
-    <>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              className={`fixed rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shadow-lg z-40 bg-bread-800 hover:bg-bread-700 transition-all
-                ${pulseAnimation ? 'animate-pulse-glow' : ''}
-                ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-              style={{ 
-                right: `${position.right}px`, 
-                bottom: `${position.bottom}px`,
-                boxShadow: '0 0 15px 5px rgba(229, 168, 95, 0.7)',
-                transition: 'background-color 0.3s ease'
-              }}
-              onClick={() => setIsOpen(true)}
-              onMouseDown={handleMouseDown}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-              aria-label="Open AI Baking Assistant"
-            >
-              <div className="absolute inset-0 rounded-full overflow-hidden">
-                <div className="w-full h-full bg-gradient-to-br from-bread-600 to-bread-900 animate-gradient-spin"></div>
-              </div>
-              <Sparkles className="h-6 w-6 md:h-7 md:w-7 text-white z-10" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Open Baking Assistant</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-
-      {isMobile !== null && (
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetContent 
-            side={isMobile ? "bottom" : "right"}
-            className={`
-              ${isMobile ? 'h-[90vh] rounded-t-xl' : 'w-[85vw] sm:w-[500px] md:w-[600px] lg:w-[800px]'} 
-              p-0 border-l-2 border-bread-600/30
-            `}
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={toggleAssistant}
+            className={`fixed bottom-6 right-6 z-40 p-4 rounded-full bg-bread-700 hover:bg-bread-800 text-white shadow-lg transition-all duration-300 transform hover:scale-110 ${
+              isGlowing ? 'animate-glow' : ''
+            }`}
+            aria-label="Bread Assistant"
           >
-            <SheetHeader className="p-4 border-b flex flex-row items-center justify-between">
-              <SheetTitle>Baking Assistant</SheetTitle>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => setIsOpen(false)} 
-                className="rounded-full h-8 w-8 p-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </SheetHeader>
-            <div className={`${isMobile ? 'h-[calc(90vh-5rem)]' : 'h-[calc(100vh-6rem)]'} overflow-hidden`}>
-              <AIAssistant />
-            </div>
-          </SheetContent>
-        </Sheet>
-      )}
-    </>
+            <MessageSquare className="w-6 h-6" />
+            {isGlowing && (
+              <span className="absolute inset-0 rounded-full animate-ping bg-bread-500 opacity-50"></span>
+            )}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="top">
+          <p>Ask the Bread Assistant for baking help</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
