@@ -58,6 +58,11 @@ export const getPlaceholderImage = (id: number): string => {
     'https://images.unsplash.com/photo-1555507036-ab1f4038808a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
     'https://images.unsplash.com/photo-1603379016822-e6d5e2770ece?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
     'https://images.unsplash.com/photo-1574085733277-851d9d856a3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1606884285898-277317a7bf12?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1605286978633-2dec93ff88a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1619173564606-0064c586452a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+    'https://images.unsplash.com/photo-1574087093774-8204801c0e4b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+    '/lovable-uploads/da5b9006-4aad-4bf1-89a8-83c3b3ebf7e0.png',
   ];
   
   // Use the id to select a placeholder image deterministically

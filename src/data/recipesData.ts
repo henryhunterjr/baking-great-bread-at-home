@@ -34,7 +34,6 @@ export const recipesData: Recipe[] = [
     id: '4',
     title: 'Sourdough Discard Coffee Cake',
     description: 'A moist and flavorful coffee cake that uses up your sourdough discard.',
-    // Using a known stable external image URL
     imageUrl: 'https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?q=80&w=1000&auto=format&fit=crop',
     date: 'January 29, 2024',
     link: 'https://bakinggreatbread.blog/2024/01/29/sourdough-discard-coffee-cake/',
@@ -44,7 +43,6 @@ export const recipesData: Recipe[] = [
     id: '5',
     title: 'Baking Science Behind Crusty Breads',
     description: 'An in-depth look at the science behind achieving perfectly crusty bread.',
-    // Using a known stable external image URL
     imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=1000&auto=format&fit=crop',
     date: 'January 22, 2024',
     link: 'https://bakinggreatbread.blog/2024/01/22/baking-science-behind-crusty-breads/',
@@ -81,7 +79,6 @@ export const recipesData: Recipe[] = [
     id: '9',
     title: 'Cardamom-Infused Cinnamon Knots',
     description: 'Soft and subtly spiced, these cinnamon knots have a delightful cardamom flavor.',
-    // Using a known stable external image URL
     imageUrl: 'https://images.unsplash.com/photo-1568254183919-f9b136cc5710?q=80&w=1000&auto=format&fit=crop',
     date: 'December 12, 2023',
     link: 'https://bakinggreatbread.blog/2023/12/12/cardamom-infused-cinnamon-knots/',
@@ -91,7 +88,6 @@ export const recipesData: Recipe[] = [
     id: '10',
     title: 'Homemade White Sandwich Bread',
     description: 'A classic recipe for soft, fluffy white sandwich bread that\'s perfect for everyday use.',
-    // Using a known stable external image URL
     imageUrl: 'https://images.unsplash.com/photo-1586444248879-bc604cbd555a?q=80&w=1000&auto=format&fit=crop',
     date: 'November 28, 2023',
     link: 'https://bakinggreatbread.blog/2023/11/28/homemade-white-sandwich-bread/',
@@ -101,7 +97,6 @@ export const recipesData: Recipe[] = [
     id: '11',
     title: 'Hermes Crusty White Bread',
     description: 'A detailed walkthrough of creating a rustic, crusty white bread with incredible flavor.',
-    // Using a known stable external image URL
     imageUrl: 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7c?q=80&w=1000&auto=format&fit=crop',
     date: 'November 21, 2023',
     link: 'https://bakinggreatbread.blog/2023/11/21/hermes-crusty-white-bread/',
@@ -111,10 +106,63 @@ export const recipesData: Recipe[] = [
     id: '12',
     title: 'Homemade Hoagie Rolls',
     description: 'Soft and sturdy hoagie rolls perfect for sandwiches and subs.',
-    // Using a known stable external image URL
     imageUrl: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?q=80&w=1000&auto=format&fit=crop',
     date: 'November 20, 2023',
     link: 'https://bakinggreatbread.blog/2023/11/20/homemade-hoagie-rolls-recipe/',
     tags: ['rolls', 'sandwich']
+  },
+  {
+    id: '13',
+    title: 'Classic Banana Bread',
+    description: 'A moist and flavorful banana bread that\'s perfect for using up overripe bananas.',
+    imageUrl: 'https://images.unsplash.com/photo-1574087093774-8204801c0e4b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+    date: 'November 15, 2023',
+    link: 'https://bakinggreatbread.blog/2023/11/15/classic-banana-bread/',
+    tags: ['banana', 'quick-bread']
+  },
+  {
+    id: '14',
+    title: 'Chocolate Chip Banana Bread',
+    description: 'The perfect combination of ripe bananas and chocolate chips in a moist, tender loaf.',
+    imageUrl: 'https://images.unsplash.com/photo-1606884285898-277317a7bf12?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+    date: 'November 10, 2023',
+    link: 'https://bakinggreatbread.blog/2023/11/10/chocolate-chip-banana-bread/',
+    tags: ['banana', 'chocolate', 'quick-bread']
+  },
+  {
+    id: '15',
+    title: 'Whole Wheat Banana Bread',
+    description: 'A healthier take on the classic, using whole wheat flour and less sugar while maintaining great taste.',
+    imageUrl: 'https://images.unsplash.com/photo-1619173564606-0064c586452a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+    date: 'November 5, 2023',
+    link: 'https://bakinggreatbread.blog/2023/11/05/whole-wheat-banana-bread/',
+    tags: ['banana', 'whole-wheat', 'quick-bread']
+  },
+  {
+    id: '16',
+    title: 'Banana Nut Bread',
+    description: 'Classic banana bread studded with walnuts for extra crunch and flavor.',
+    imageUrl: 'https://images.unsplash.com/photo-1605286978633-2dec93ff88a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+    date: 'November 1, 2023',
+    link: 'https://bakinggreatbread.blog/2023/11/01/banana-nut-bread/',
+    tags: ['banana', 'nuts', 'quick-bread']
+  },
+  {
+    id: '17',
+    title: 'Marbled Purple Artisan Bread',
+    description: 'Stunning marbled artisan bread with a blend of purple yam and white flour for a unique color and flavor.',
+    imageUrl: 'https://images.unsplash.com/photo-1600423115867-87356b734350?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+    date: 'October 25, 2023',
+    link: 'https://bakinggreatbread.blog/2023/10/25/marbled-purple-artisan-bread/',
+    tags: ['artisan', 'specialty']
+  },
+  {
+    id: '18',
+    title: 'Honey Whole Wheat Bread',
+    description: 'A nutritious whole wheat sandwich bread with a touch of honey. Perfect for everyday sandwiches.',
+    imageUrl: 'https://images.unsplash.com/photo-1598373182133-52452f7691ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+    date: 'October 20, 2023',
+    link: 'https://bakinggreatbread.blog/2023/10/20/honey-whole-wheat-bread/',
+    tags: ['whole-wheat', 'honey', 'sandwich']
   },
 ];
