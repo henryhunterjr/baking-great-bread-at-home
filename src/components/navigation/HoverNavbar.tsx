@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,15 +17,13 @@ const HoverNavbar: React.FC = () => {
     const handleMouseMove = (e: MouseEvent) => {
       if (e.clientY <= 50) {
         setVisible(true);
-      } else if (e.clientY > 100) {
-        setVisible(false);
       }
     };
 
     const handleScroll = () => {
       if (window.scrollY < 50) {
         setVisible(true);
-      } else if (!visible && window.scrollY > 100) {
+      } else if (visible && window.scrollY > 100) {
         setVisible(false);
       }
     };
@@ -34,15 +31,15 @@ const HoverNavbar: React.FC = () => {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('scroll', handleScroll);
     
-    // Initial check - always show navbar first
+    // Always show navbar when the component mounts
     setVisible(true);
     
-    // Hide after initial display if not at top
+    // Keep visible for 5 seconds then hide if not at top
     const initialTimeout = setTimeout(() => {
       if (window.scrollY > 50) {
         setVisible(false);
       }
-    }, 5000); // Increased from 2000 to 5000ms
+    }, 5000);
     
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);

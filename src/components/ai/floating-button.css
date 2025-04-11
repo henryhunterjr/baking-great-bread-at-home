@@ -14,3 +14,9 @@
 .animate-glow {
   animation: glow 1.5s ease-in-out infinite;
 }
+
+/* Ensure the AI button image is properly styled */
+.floating-ai-button img {
+  object-fit: cover;
+  border: 2px solid white;
+}

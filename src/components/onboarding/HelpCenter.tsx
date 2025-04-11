@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import {
@@ -15,7 +14,6 @@ import {
   RefreshCcw,
   Bookmark
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -37,7 +35,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import { TOUR_STEPS } from './TourSteps';
 
 interface HelpSectionProps {
   title: string;
@@ -95,7 +92,7 @@ const HelpCenter: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="fixed bottom-5 right-5 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg z-20"
+              className="fixed bottom-6 left-6 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg z-20"
               onClick={() => setIsOpen(true)}
             >
               <HelpCircle className="h-5 w-5" />

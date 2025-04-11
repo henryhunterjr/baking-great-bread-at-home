@@ -1,7 +1,6 @@
 
 import React, { useEffect } from 'react';
 import { useRecipeConverter } from '@/hooks/use-recipe-converter';
-import Navbar from '@/components/Navbar';
 import RecipeConverterHeader from '@/components/recipe-converter/RecipeConverterHeader';
 import RecipeConverterContent from '@/components/recipe-converter/RecipeConverterContent';
 import RecipeConverterSidebar from '@/components/recipe-converter/RecipeConverterSidebar';
@@ -68,8 +67,6 @@ const RecipeConverter: React.FC = () => {
   
   return (
     <div className="min-h-screen pb-12">
-      <Navbar />
-
       <div className="container max-w-6xl mt-24 md:mt-28">
         <RecipeConverterHeader />
         <RecipeConverterNav />
