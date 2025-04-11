@@ -127,3 +127,58 @@ export const safelyInitializeFirebase = async (): Promise<any> => {
     return null;
   }
 };
+
+/**
+ * Initialize workers for PDF.js and other services
+ * This should be called early in the application lifecycle
+ */
+export const initializeWorkers = (): void => {
+  try {
+    // Set up PDF.js worker
+    setupPDFWorker();
+    
+    logInfo('Workers initialized successfully');
+  } catch (error) {
+    logError('Error initializing workers', { error });
+  }
+};
+
+/**
+ * Preload workers to improve initial performance
+ */
+export const preloadWorkers = async (): Promise<void> => {
+  try {
+    // Preload PDF.js
+    const pdfjs = await initializePdfLib();
+    if (pdfjs) {
+      logInfo('PDF.js library preloaded successfully');
+    }
+  } catch (error) {
+    logError('Error preloading workers', { error });
+  }
+};
+
+/**
+ * Set up the PDF.js worker
+ */
+const setupPDFWorker = (): void => {
+  try {
+    // Add fallback for PDF.js worker
+    // This makes the worker available globally so PDF.js can find it
+    if (typeof window !== 'undefined') {
+      // Try to use local worker first
+      (window as any).pdfjsWorkerSrc = '/pdf.worker.min.js';
+      
+      // Add a fallback to CDN in case local worker fails
+      window.addEventListener('error', (event) => {
+        // Check if error is related to PDF.js worker
+        if (event.filename?.includes('pdf.worker.min.js')) {
+          logInfo('PDF worker load failed, using CDN fallback');
+          (window as any).pdfjsWorkerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+      }, { once: true });
+    }
+  } catch (error) {
+    logError('Error setting up PDF worker', { error });
+  }
+};

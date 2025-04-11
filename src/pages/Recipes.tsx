@@ -39,7 +39,11 @@ const Recipes = () => {
     if (error) {
       logError('Error in Recipes page', { error });
       setHasError(true);
-      setErrorMessage(error.message || 'Failed to load recipes. Please try again.');
+      // Check if error is a string or an Error object
+      const errorMsg = typeof error === 'string' 
+        ? error 
+        : (error instanceof Error ? error.message : 'Failed to load recipes. Please try again.');
+      setErrorMessage(errorMsg);
     } else {
       setHasError(false);
       setErrorMessage('');
