@@ -6,6 +6,13 @@ async function prepareForVercel() {
   try {
     console.log('Preparing project for Vercel deployment...');
     
+    // Ensure we're in the right directory
+    const packageJsonExists = await fs.pathExists(path.resolve(process.cwd(), 'package.json'));
+    if (!packageJsonExists) {
+      console.error('Error: package.json not found. Make sure you are in the project root directory.');
+      process.exit(1);
+    }
+    
     // Ensure public directory exists
     const publicDir = path.resolve(process.cwd(), 'public');
     await fs.ensureDir(publicDir);
@@ -58,6 +65,20 @@ async function prepareForVercel() {
     );
     console.log('✅ Created _redirects file for Netlify compatibility');
     
+    // Create .vercel directory if it doesn't exist
+    const vercelDir = path.resolve(process.cwd(), '.vercel');
+    await fs.ensureDir(vercelDir);
+    
+    // Create project.json if it doesn't exist
+    const projectJsonPath = path.resolve(vercelDir, 'project.json');
+    if (!await fs.pathExists(projectJsonPath)) {
+      await fs.writeJson(projectJsonPath, {
+        "projectId": "baking-great-bread-at-home",
+        "orgId": "henryhunterjr"
+      }, { spaces: 2 });
+      console.log('✅ Created Vercel project configuration');
+    }
+    
     // Update package.json if needed
     const packageJsonPath = path.resolve(process.cwd(), 'package.json');
     const packageJson = await fs.readJson(packageJsonPath);
@@ -75,7 +96,7 @@ async function prepareForVercel() {
     // Add deploy script
     if (!packageJson.scripts || !packageJson.scripts.deploy) {
       packageJson.scripts = packageJson.scripts || {};
-      packageJson.scripts.deploy = "node scripts/verify-deployment.js && vercel";
+      packageJson.scripts.deploy = "node scripts/prepare-for-vercel.js && vercel";
       modified = true;
       console.log('✅ Added deploy script to package.json');
     }
