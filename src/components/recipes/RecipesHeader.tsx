@@ -47,9 +47,9 @@ const RecipesHeader = ({
           <div className="max-w-md mx-auto mt-6 mb-8">
             <AspectRatio ratio={3/1} className="bg-muted rounded-md overflow-hidden">
               <img 
-                src="/lovable-uploads/8d2c0e57-1ea7-49b7-862c-3a2e056b5f05.png" 
-                alt="Recipe Revue - Your recipes beautifully transformed" 
-                className="w-full h-full object-cover object-center object-[center_top]"
+                src="/lovable-uploads/77d45fd7-1b83-40ba-a929-5b311d18a9ad.png" 
+                alt="Rustic baking scene with wooden mixing bowl, flour, and recipe book" 
+                className="w-full h-full object-cover object-center"
                 loading="lazy"
                 width="600"
                 height="200"
@@ -116,3 +116,4 @@ const RecipesHeader = ({
 };
 
 export default RecipesHeader;
+
