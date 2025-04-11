@@ -1,6 +1,7 @@
 
 import { Recipe } from '@/components/recipes/types';
 import { getChallahRecipes } from './challah-recipes';
+import { getBananaRecipes } from './banana-recipes';
 
 /**
  * Maps of related terms to improve search functionality
@@ -47,22 +48,26 @@ export function handleChallahSearch(allPosts: Recipe[]): Recipe[] {
  * Handle special search for banana bread recipes
  */
 export function handleBananaBreadSearch(allPosts: Recipe[]): Recipe[] {
-  const bananaBreadRecipes = allPosts.filter(recipe => {
+  // Get dedicated banana bread recipes
+  const bananaRecipes = getBananaRecipes();
+  
+  // Combine with any matching recipes from allPosts
+  const allMatchingRecipes = [...bananaRecipes];
+  
+  // Add any other banana bread recipes from the main collection that aren't duplicates
+  allPosts.forEach(recipe => {
     const fullText = (recipe.title + ' ' + recipe.description).toLowerCase();
-    return fullText.includes('banana bread') || 
-           fullText.includes('banana loaf') || 
-           (fullText.includes('banana') && fullText.includes('bread'));
+    if (
+      (fullText.includes('banana bread') || 
+        fullText.includes('banana loaf') || 
+        (fullText.includes('banana') && fullText.includes('bread'))) &&
+      !allMatchingRecipes.some(r => r.id === recipe.id)
+    ) {
+      allMatchingRecipes.push(recipe);
+    }
   });
   
-  // If none found specifically, fallback to recipes with just "banana" in them
-  if (bananaBreadRecipes.length === 0) {
-    return allPosts.filter(recipe => {
-      const fullText = (recipe.title + ' ' + recipe.description).toLowerCase();
-      return fullText.includes('banana');
-    });
-  }
-  
-  return bananaBreadRecipes;
+  return allMatchingRecipes;
 }
 
 /**
