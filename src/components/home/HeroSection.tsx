@@ -55,7 +55,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ heroRef }) => {
                 alt="Cross-section of artisan sourdough bread showing open crumb structure" 
                 className="hero-image rounded-lg shadow-xl"
                 loading="eager"
-                fetchPriority="high"
+                fetchpriority="high"
                 decoding="async"
                 width="600" 
                 height="400"

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
-import { Search, BookOpen, MessageSquare, ArrowRight } from 'lucide-react';
+import { Search, BookOpen, MessageSquare, ArrowRight, Upload } from 'lucide-react';
 
 const WelcomeModal = () => {
   const { hasSeenWelcomeModal, setHasSeenWelcomeModal, setShowTour } = useOnboarding();
@@ -29,7 +29,7 @@ const WelcomeModal = () => {
   
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden">
         <div className="h-40 bg-gradient-to-r from-bread-800 to-bread-600 relative">
           <div className="absolute inset-0 flex items-center justify-center">
             <img
@@ -60,7 +60,19 @@ const WelcomeModal = () => {
             <div>
               <h3 className="font-medium mb-1">Search for Recipes</h3>
               <p className="text-sm text-muted-foreground">
-                Type a recipe name like "banana bread" in the search bar, then press Enter or click the search button to find matching recipes.
+                Search for recipes like "challah bread" or "banana bread" by typing in the search field and pressing Enter or the search button. Try specific bread types or ingredients!
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-start space-x-3">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <Upload className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-medium mb-1">Convert Your Recipes</h3>
+              <p className="text-sm text-muted-foreground">
+                Upload recipe images, PDFs, or paste text to convert your favorite recipes into a structured format using our Recipe Converter tool.
               </p>
             </div>
           </div>
@@ -72,7 +84,7 @@ const WelcomeModal = () => {
             <div>
               <h3 className="font-medium mb-1">Browse Recipe Collection</h3>
               <p className="text-sm text-muted-foreground">
-                Explore our curated collection of bread recipes, filter by type, or browse through categories.
+                Explore our curated collection of bread recipes, filter by type, or browse through categories to find your next baking project.
               </p>
             </div>
           </div>
@@ -84,7 +96,7 @@ const WelcomeModal = () => {
             <div>
               <h3 className="font-medium mb-1">Ask the Baking Assistant</h3>
               <p className="text-sm text-muted-foreground">
-                Click the glowing button in the bottom-right corner to ask questions about bread baking or get recipe help.
+                Click the glowing button in the bottom-right corner to ask questions about bread baking or get recipe help from our AI assistant.
               </p>
             </div>
           </div>
