@@ -10,6 +10,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import HoverNavbar from '@/components/navigation/HoverNavbar';
 import NotFound from '@/pages/NotFound';
 import { OnboardingComponents } from '@/components/onboarding';
+import FloatingAIButton from '@/components/ai/FloatingAIButton';
 
 // Eagerly load critical components
 import HomePage from '@/pages/HomePage';
@@ -17,6 +18,9 @@ import RecipeConverter from '@/pages/RecipeConverter';
 import Recipes from '@/pages/Recipes';
 import AuthPage from '@/pages/AuthPage';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import Challenges from '@/pages/Challenges';
+import PastChallenges from '@/pages/PastChallenges';
+import Guides from '@/pages/Guides';
 
 // Lazily load non-critical components
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
@@ -68,6 +72,13 @@ const App: React.FC = () => {
                 {/* Recipes page */}
                 <Route path="/recipes" element={<Recipes />} />
                 
+                {/* Guides page */}
+                <Route path="/guides" element={<Guides />} />
+                
+                {/* Challenges pages */}
+                <Route path="/challenges" element={<Challenges />} />
+                <Route path="/challenges/past" element={<PastChallenges />} />
+                
                 {/* Protected routes */}
                 <Route path="/profile" element={
                   <ProtectedRoute>
@@ -91,18 +102,13 @@ const App: React.FC = () => {
                   </ProtectedRoute>
                 } />
                 
-                {/* Content pages */}
-                <Route path="/guides" element={<RecipeConverter />} />
-                <Route path="/challenges" element={<RecipeConverter />} />
-                
                 {/* 404 route */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
             
-            <Suspense fallback={null}>
-              <AIBreadAssistant />
-            </Suspense>
+            {/* Floating AI Button */}
+            <FloatingAIButton />
             
             <Toaster />
             <ErrorToast />

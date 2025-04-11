@@ -6,6 +6,12 @@ import { Sparkles, X } from 'lucide-react';
 import AIAssistant from './AIAssistant';
 import { useIsMobile } from '@/hooks/use-mobile';
 import './floating-button.css';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const FloatingAIButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,16 +23,31 @@ const FloatingAIButton = () => {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    // Always keep animation on to maintain visibility
     setPulseAnimation(true);
-  }, []);
+    
+    const pulseInterval = setInterval(() => {
+      setPulseAnimation(true);
+      
+      setTimeout(() => {
+        if (!isHovered) {
+          setPulseAnimation(false);
+        }
+      }, 2000);
+    }, 30000);
+    
+    return () => {
+      clearInterval(pulseInterval);
+    };
+  }, [isHovered]);
 
   const handleMouseEnter = () => {
     setIsHovered(true);
+    setPulseAnimation(true);
   };
 
   const handleMouseLeave = () => {
     setIsHovered(false);
+    setPulseAnimation(false);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -71,27 +92,36 @@ const FloatingAIButton = () => {
 
   return (
     <>
-      <Button
-        className={`fixed rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shadow-lg z-40 bg-bread-800 hover:bg-bread-700 transition-all
-          ${pulseAnimation ? 'animate-pulse-glow' : ''}
-          ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        style={{ 
-          right: `${position.right}px`, 
-          bottom: `${position.bottom}px`,
-          boxShadow: '0 0 15px 5px rgba(229, 168, 95, 0.7)',
-          transition: 'background-color 0.3s ease'
-        }}
-        onClick={() => setIsOpen(true)}
-        onMouseDown={handleMouseDown}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        aria-label="Open AI Baking Assistant"
-      >
-        <div className="absolute inset-0 rounded-full overflow-hidden">
-          <div className="w-full h-full bg-gradient-to-br from-bread-600 to-bread-900 animate-gradient-spin"></div>
-        </div>
-        <Sparkles className="h-6 w-6 md:h-7 md:w-7 text-white z-10" />
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              className={`fixed rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shadow-lg z-40 bg-bread-800 hover:bg-bread-700 transition-all
+                ${pulseAnimation ? 'animate-pulse-glow' : ''}
+                ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+              style={{ 
+                right: `${position.right}px`, 
+                bottom: `${position.bottom}px`,
+                boxShadow: '0 0 15px 5px rgba(229, 168, 95, 0.7)',
+                transition: 'background-color 0.3s ease'
+              }}
+              onClick={() => setIsOpen(true)}
+              onMouseDown={handleMouseDown}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              aria-label="Open AI Baking Assistant"
+            >
+              <div className="absolute inset-0 rounded-full overflow-hidden">
+                <div className="w-full h-full bg-gradient-to-br from-bread-600 to-bread-900 animate-gradient-spin"></div>
+              </div>
+              <Sparkles className="h-6 w-6 md:h-7 md:w-7 text-white z-10" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Open Baking Assistant</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       {isMobile !== null && (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>

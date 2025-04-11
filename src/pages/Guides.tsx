@@ -2,152 +2,102 @@
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Book, BookOpen, Coffee, ArrowRight } from 'lucide-react';
+import { useScrollToTop } from '@/hooks/use-scroll-to-top';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
-import RecipeConverterNav from '@/components/recipe-converter/RecipeConverterNav';
-import { HelpButton } from '@/components/onboarding';
+import { Button } from '@/components/ui/button';
+import { ExternalLink, BookOpen, Book, FileText } from 'lucide-react';
 
-const Guides = () => {
+// Sample guides data
+const guidesData = [
+  {
+    id: 1,
+    title: "Sourdough Starter Guide",
+    description: "How to create and maintain your sourdough starter for perfect bread every time.",
+    image: "https://images.unsplash.com/photo-1600453265914-0bfec7551fbd?q=80&w=400&auto=format&fit=crop",
+    category: "Beginner",
+    readTime: "10 min"
+  },
+  {
+    id: 2,
+    title: "Understanding Hydration Levels",
+    description: "Learn how different hydration levels affect your bread and how to work with them.",
+    image: "https://images.unsplash.com/photo-1568599965972-8a181a563621?q=80&w=400&auto=format&fit=crop",
+    category: "Intermediate",
+    readTime: "15 min"
+  },
+  {
+    id: 3,
+    title: "Bread Shaping Techniques",
+    description: "Master essential shaping techniques from basic boules to complex braids.",
+    image: "https://images.unsplash.com/photo-1583338917451-face2751d8d5?q=80&w=400&auto=format&fit=crop",
+    category: "All Levels",
+    readTime: "20 min"
+  },
+  {
+    id: 4,
+    title: "Troubleshooting Common Bread Problems",
+    description: "Solutions for dense crumb, poor rise, and other common baking issues.",
+    image: "https://images.unsplash.com/photo-1559736322-525b756431cd?q=80&w=400&auto=format&fit=crop",
+    category: "All Levels",
+    readTime: "25 min"
+  }
+];
+
+const Guides: React.FC = () => {
+  useScrollToTop();
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <div className="container mx-auto px-4 pt-32 pb-16 flex-1">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <RecipeConverterNav />
-          </div>
-          
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-serif font-medium mb-4">Bread Baking Guides</h1>
-            <p className="text-xl text-muted-foreground">
-              Master the art of bread baking with our comprehensive guides
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-            <Card className="overflow-hidden hover:shadow-md transition-shadow">
-              <div className="aspect-video relative bg-muted">
-                <img 
-                  src="https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?w=800&auto=format&fit=crop&q=80" 
-                  alt="Sourdough Starter Guide" 
-                  className="w-full h-full object-cover"
+      <main className="flex-grow container max-w-6xl px-4 pt-24 pb-16 md:pt-28">
+        <h1 className="text-3xl font-serif font-bold mb-2">Bread Baking Guides</h1>
+        <p className="text-muted-foreground mb-8">
+          Learn essential techniques and troubleshoot common problems with our comprehensive baking guides.
+        </p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {guidesData.map((guide) => (
+            <Card key={guide.id} className="overflow-hidden">
+              <div className="aspect-[16/9] overflow-hidden">
+                <img
+                  src={guide.image}
+                  alt={guide.title}
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                 />
               </div>
-              <CardContent className="p-6">
-                <div className="flex items-center text-muted-foreground mb-2">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Beginner's Guide</span>
+              
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <CardTitle className="font-serif">{guide.title}</CardTitle>
                 </div>
-                <h3 className="text-2xl font-serif mb-2">Creating Your First Sourdough Starter</h3>
-                <p className="text-muted-foreground mb-4">
-                  Learn how to create and maintain a healthy sourdough starter from scratch with this step-by-step guide.
-                </p>
-                <Button asChild variant="default">
-                  <Link to="/guides/sourdough-starter">
-                    Read Guide
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card className="overflow-hidden hover:shadow-md transition-shadow">
-              <div className="aspect-video relative bg-muted">
-                <img 
-                  src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&auto=format&fit=crop&q=80" 
-                  alt="Bread Scoring Guide" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <CardContent className="p-6">
-                <div className="flex items-center text-muted-foreground mb-2">
-                  <Book className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Technique Guide</span>
+                <CardDescription>{guide.description}</CardDescription>
+              </CardHeader>
+              
+              <CardContent className="space-y-2">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <span className="flex items-center">
+                    <Book className="h-4 w-4 mr-1" />
+                    {guide.category}
+                  </span>
+                  <span className="flex items-center">
+                    <FileText className="h-4 w-4 mr-1" />
+                    {guide.readTime} read
+                  </span>
                 </div>
-                <h3 className="text-2xl font-serif mb-2">The Art of Bread Scoring</h3>
-                <p className="text-muted-foreground mb-4">
-                  Discover the secrets to beautiful bread scoring patterns and techniques that will elevate your bread's appearance.
-                </p>
-                <Button asChild variant="default">
-                  <Link to="/guides/bread-scoring">
-                    Read Guide
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
               </CardContent>
-            </Card>
-            
-            <Card className="overflow-hidden hover:shadow-md transition-shadow">
-              <div className="aspect-video relative bg-muted">
-                <img 
-                  src="https://images.unsplash.com/photo-1594086385051-a72d28c7b99a?w=800&auto=format&fit=crop&q=80" 
-                  alt="Hydration Guide" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <CardContent className="p-6">
-                <div className="flex items-center text-muted-foreground mb-2">
-                  <Coffee className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Master Class</span>
-                </div>
-                <h3 className="text-2xl font-serif mb-2">Understanding Dough Hydration</h3>
-                <p className="text-muted-foreground mb-4">
-                  Learn how different hydration levels affect your bread and how to master high-hydration doughs.
-                </p>
-                <Button asChild variant="default">
-                  <Link to="/guides/dough-hydration">
-                    Read Guide
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+              
+              <CardFooter>
+                <Button variant="outline" className="w-full">
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Read Guide
                 </Button>
-              </CardContent>
+              </CardFooter>
             </Card>
-            
-            <Card className="overflow-hidden hover:shadow-md transition-shadow">
-              <div className="aspect-video relative bg-muted">
-                <img 
-                  src="/lovable-uploads/a815213f-9e06-4587-b2a7-a12b1317b262.png" 
-                  alt="Recipe Conversion Guide" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <CardContent className="p-6">
-                <div className="flex items-center text-muted-foreground mb-2">
-                  <Book className="h-4 w-4 mr-2" />
-                  <span className="text-sm">How-To Guide</span>
-                </div>
-                <h3 className="text-2xl font-serif mb-2">Recipe Conversion Mastery</h3>
-                <p className="text-muted-foreground mb-4">
-                  Learn how to convert any recipe to bakers' percentages and adapt recipes to your needs.
-                </p>
-                <Button asChild variant="default">
-                  <Link to="/recipe-converter">
-                    Try Recipe Converter
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <div className="text-center">
-            <Button asChild variant="outline" size="lg">
-              <Link to="/recipes">
-                Browse Our Recipes
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
+          ))}
         </div>
-      </div>
-      
-      {/* Help Button for easy tour access */}
-      <div className="fixed top-20 right-5 z-30">
-        <HelpButton className="bg-background/50 backdrop-blur-sm hover:bg-background/80" />
-      </div>
+      </main>
       
       <Footer />
     </div>

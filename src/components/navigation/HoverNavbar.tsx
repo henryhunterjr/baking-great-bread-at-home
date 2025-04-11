@@ -84,6 +84,10 @@ const HoverNavbar: React.FC = () => {
               <Coffee size={18} />
               <span>Recipes</span>
             </Link>
+            <Link to="/recipe-converter" className="nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300 hover:text-bread-600 dark:hover:text-bread-200">
+              <Book size={18} />
+              <span>Recipe Converter</span>
+            </Link>
             <Link to="/guides" className="nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300 hover:text-bread-600 dark:hover:text-bread-200">
               <Book size={18} />
               <span>Guides</span>

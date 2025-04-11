@@ -17,7 +17,7 @@ const MobileMenu: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="mobile-nav-menu">
+        <div className="mobile-nav-menu fixed top-16 left-0 right-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-md z-50 p-4 space-y-4">
           <Link 
             to="/"
             onClick={() => setIsOpen(false)}
@@ -33,6 +33,14 @@ const MobileMenu: React.FC = () => {
           >
             <Coffee size={18} />
             <span>Recipes</span>
+          </Link>
+          <Link 
+            to="/recipe-converter"
+            onClick={() => setIsOpen(false)}
+            className="mobile-nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300"
+          >
+            <Book size={18} />
+            <span>Recipe Converter</span>
           </Link>
           <Link 
             to="/guides"
