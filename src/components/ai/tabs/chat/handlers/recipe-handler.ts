@@ -7,6 +7,7 @@ import {
   isAIConfigured 
 } from '@/lib/ai-services';
 import { RecipeData } from '@/types/recipeTypes';
+import { isRecipeQuestion } from '@/utils/blogSearch';
 
 // This file is for handling recipe search requests in the chat
 
@@ -30,52 +31,62 @@ export const handleRecipeRequest = async (
   setMessages(prev => [...prev, searchingMessage]);
   
   try {
-    // First, try local search which has been improved
+    // First, try searching for recipes using our improved searchRecipes function
     const searchResults = await searchRecipes(query);
     
-    if (searchResults.length > 0) {
-      const recipe = searchResults[0]; // Use the top matching recipe
+    // Special handling for Henry's Foolproof Sourdough
+    const isHenryQuery = query.toLowerCase().includes('henry') || 
+                           query.toLowerCase().includes('foolproof');
+    
+    if (searchResults.length > 0 || isHenryQuery) {
+      // Use the Henry's Foolproof Sourdough recipe if the query is for it
+      const recipe = isHenryQuery 
+        ? {
+            title: "Henry's Foolproof Sourdough Loaf",
+            description: "A reliable and easy sourdough recipe that produces consistent results every time, ideal for both beginners and experienced bakers.",
+            imageUrl: "/lovable-uploads/a815213f-9e06-4587-b2a7-a12b1317b262.png",
+            link: "/recipes/henry-foolproof-sourdough"
+          } 
+        : searchResults[0]; // Use the top matching recipe otherwise
       
       // Create a complete recipe with all necessary fields for display
       const fullRecipeData: RecipeData = {
         title: recipe.title,
         introduction: recipe.description || "A delicious recipe to try!",
         ingredients: [
-          "2-3 ripe bananas, mashed",
-          "1/3 cup melted butter",
-          "1 teaspoon baking soda",
-          "Pinch of salt",
-          "3/4 cup sugar",
-          "1 large egg, beaten",
-          "1 teaspoon vanilla extract",
-          "1 1/2 cups all-purpose flour"
+          "500g bread flour",
+          "350g water",
+          "10g salt",
+          "100g active sourdough starter",
+          "Rice flour for dusting"
         ],
         instructions: [
-          "Preheat the oven to 350°F (175°C) and butter a 4x8-inch loaf pan.",
-          "In a mixing bowl, mash the ripe bananas with a fork until smooth.",
-          "Stir the melted butter into the mashed bananas.",
-          "Mix in the baking soda and salt.",
-          "Stir in the sugar, beaten egg, and vanilla extract.",
-          "Mix in the flour.",
-          "Pour the batter into the prepared loaf pan and bake for 50-60 minutes.",
-          "Remove from oven and let cool in the pan for a few minutes. Then remove from the pan and let cool completely before slicing."
+          "Mix flour, water, and starter in a large bowl. Let rest for 30 minutes (autolyse).",
+          "Add salt and mix until fully incorporated.",
+          "Perform 3-4 sets of stretch and folds at 30-minute intervals.",
+          "Let the dough bulk ferment for 4-5 hours at room temperature until doubled in size.",
+          "Shape the dough and place in a floured banneton or bowl.",
+          "Cover and refrigerate overnight (8-12 hours).",
+          "Preheat oven with Dutch oven to 500°F (260°C).",
+          "Score the dough and bake covered for 20 minutes, then uncovered for 20-25 minutes until golden brown.",
+          "Cool completely on a wire rack before slicing."
         ],
-        notes: ["You can add 1/2 cup of chopped nuts or chocolate chips for extra flavor."],
-        tips: ["For extra moist banana bread, use very ripe bananas with lots of brown spots."],
-        imageUrl: recipe.imageUrl || "",
-        servings: "1 loaf (8-10 slices)",
+        notes: ["For best results, use a kitchen scale to measure ingredients by weight."],
+        tips: ["The dough should pass the window pane test after stretch and folds."],
+        imageUrl: recipe.imageUrl || "/lovable-uploads/a815213f-9e06-4587-b2a7-a12b1317b262.png",
+        servings: "1 loaf",
         isConverted: true
       };
       
       // Create a more natural response based on the original query
       const responseMessage: ChatMessage = {
         role: 'assistant',
-        content: `Here's a recipe for ${recipe.title}. I've displayed the full recipe details on the left panel for easier reading.`,
+        content: `Here's the recipe for ${recipe.title}. I've displayed the full recipe details on the left panel for easier reading.`,
         timestamp: new Date(),
         attachedRecipe: {
           title: recipe.title,
           description: recipe.description || "A delicious recipe to try!",
-          imageUrl: recipe.imageUrl || "",
+          imageUrl: recipe.imageUrl || "/lovable-uploads/a815213f-9e06-4587-b2a7-a12b1317b262.png",
           link: recipe.link || "",
           fullRecipe: fullRecipeData,
           isGenerated: true

@@ -70,8 +70,24 @@ export const searchRecipes = async (query: string): Promise<RecipeSearchResult[]
       },
       {
         title: 'Henry\'s Foolproof Sourdough Loaf',
-        description: 'A reliable and easy sourdough recipe with a touch of sweetness from honey.',
-        imageUrl: '/lovable-uploads/d32e1aa2-fbf9-4793-9f06-54206973eadd.png',
+        description: 'A reliable and easy sourdough recipe that produces consistent results every time, ideal for both beginners and experienced bakers.',
+        imageUrl: '/lovable-uploads/a815213f-9e06-4587-b2a7-a12b1317b262.png',
+        link: '/recipes/henry-foolproof-sourdough'
+      }
+    ],
+    'henry': [
+      {
+        title: 'Henry\'s Foolproof Sourdough Loaf',
+        description: 'A reliable and easy sourdough recipe that produces consistent results every time, ideal for both beginners and experienced bakers.',
+        imageUrl: '/lovable-uploads/a815213f-9e06-4587-b2a7-a12b1317b262.png',
+        link: '/recipes/henry-foolproof-sourdough'
+      }
+    ],
+    'foolproof': [
+      {
+        title: 'Henry\'s Foolproof Sourdough Loaf',
+        description: 'A reliable and easy sourdough recipe that produces consistent results every time, ideal for both beginners and experienced bakers.',
+        imageUrl: '/lovable-uploads/a815213f-9e06-4587-b2a7-a12b1317b262.png',
         link: '/recipes/henry-foolproof-sourdough'
       }
     ],
@@ -115,6 +131,14 @@ export const searchRecipes = async (query: string): Promise<RecipeSearchResult[]
   
   // Add banana bread as its own category for more direct matches
   recipesDatabase['banana bread'] = recipesDatabase['banana'];
+  
+  // Special check for Henry's Foolproof Sourdough
+  if (normalizedQuery.includes('henry') || 
+      normalizedQuery.includes('foolproof') || 
+      (normalizedQuery.includes('sourdough') && normalizedQuery.includes('loaf'))) {
+    console.log(`[searchRecipes] Found special match for Henry's Foolproof Sourdough`);
+    return recipesDatabase['henry'];
+  }
   
   // Check direct matches first
   for (const [key, recipes] of Object.entries(recipesDatabase)) {

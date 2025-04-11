@@ -16,6 +16,7 @@ const TourHighlight = ({ targetElement }: TourHighlightProps) => {
         left: targetElement.getBoundingClientRect().left,
         width: targetElement.getBoundingClientRect().width,
         height: targetElement.getBoundingClientRect().height,
+        boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.4)'
       }}
     />
   );

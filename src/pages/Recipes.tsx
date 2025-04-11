@@ -6,7 +6,6 @@ import RecipesHeader from '@/components/recipes/RecipesHeader';
 import RecipeGrid from '@/components/recipes/RecipeGrid';
 import { useRecipes } from '@/hooks/use-recipes';
 import RecipeAnimationWrapper from '@/components/recipes/RecipeAnimationWrapper';
-import FloatingAIButton from '@/components/ai/FloatingAIButton';
 import ErrorAlert from '@/components/common/ErrorAlert';
 import { logError, logInfo } from '@/utils/logger';
 import { initializeWorkers, preloadWorkers } from '@/utils/workerUtils';
@@ -126,7 +125,7 @@ const Recipes = () => {
       
       <div className="flex-grow"></div>
       <Footer />
-      <FloatingAIButton />
+      {/* Removed the redundant FloatingAIButton from here */}
     </div>
   );
 };

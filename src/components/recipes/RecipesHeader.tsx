@@ -61,16 +61,16 @@ const RecipesHeader = ({
           </div>
         </div>
         
-        {/* Search and Filter */}
-        <div className="max-w-2xl mx-auto mb-16 recipe-converter-panel">
-          <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-3">
+        {/* Search and Filter - Fixed the centering and alignment */}
+        <div className="max-w-3xl mx-auto mb-16 recipe-converter-panel">
+          <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-3 justify-center">
             <FeatureTooltip
               id="recipe-search-tooltip"
               content="Search for recipes by name, ingredient, or type. Press Enter or click Search to find matching recipes."
               side="bottom"
               showIcon={false}
             >
-              <div className="relative flex-grow">
+              <div className="relative flex-grow max-w-lg">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" aria-hidden="true" />
                 <Input
                   type="search"
@@ -116,4 +116,3 @@ const RecipesHeader = ({
 };
 
 export default RecipesHeader;
-
