@@ -21,14 +21,14 @@ const RecipeAssistant: React.FC<RecipeAssistantProps> = ({ recipe, onHelp }) => 
   // Add welcome message when component mounts or recipe changes
   useEffect(() => {
     if (recipe?.title) {
-      const welcomeMessage = {
+      const welcomeMessage: ChatMessage = {
         role: 'assistant',
         content: `I see you're working with "${recipe.title}". I can help with any questions about this recipe, suggest modifications, or assist with techniques mentioned in it. Just ask!`,
         timestamp: new Date()
       };
       setMessages([welcomeMessage]);
     } else {
-      const introMessage = {
+      const introMessage: ChatMessage = {
         role: 'assistant',
         content: 'Hello! I\'m your bread baking assistant. I can help with recipes, techniques, troubleshooting, or answer any baking questions you might have. What would you like to know?',
         timestamp: new Date()
