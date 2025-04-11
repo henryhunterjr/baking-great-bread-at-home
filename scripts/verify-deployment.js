@@ -1,6 +1,7 @@
 
 const fs = require('fs-extra');
 const path = require('path');
+const { execSync } = require('child_process');
 
 async function verifyDeployment() {
   console.log('Verifying deployment requirements...');
@@ -77,6 +78,16 @@ async function verifyDeployment() {
       console.warn(`⚠️ Environment variable not found: ${envVar}`);
       console.warn(`   Remember to add this in your Vercel dashboard`);
     }
+  }
+  
+  // Check Vercel login status
+  try {
+    console.log('\nChecking Vercel login status...');
+    const result = execSync('vercel whoami', { stdio: 'pipe' }).toString().trim();
+    console.log(`✅ Logged in to Vercel as: ${result}`);
+  } catch (error) {
+    console.warn('⚠️ Not logged in to Vercel. You will be prompted to login during deployment.');
+    console.warn('   You can login manually by running: vercel login');
   }
   
   console.log('\nVerification complete.');
