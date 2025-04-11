@@ -1,4 +1,3 @@
-
 import { Recipe } from '@/components/recipes/types';
 import { getChallahRecipes } from './challah-recipes';
 import { getBananaRecipes } from './banana-recipes';
@@ -15,6 +14,9 @@ export const relatedTermsMap: Record<string, string[]> = {
   'rye': ['pumpernickel', 'deli', 'caraway'],
   'ciabatta': ['italian', 'holes', 'rustic'],
   'banana bread': ['banana', 'quick bread', 'banana loaf', 'fruit bread'],
+  'sourdough': ['artisan', 'starter', 'levain', 'boule', 'fermented', 'tangy'],
+  'dinner roll': ['soft roll', 'pull-apart', 'dinner rolls', 'fluffy', 'yeast roll'],
+  'cinnamon roll': ['cinnamon bun', 'sweet roll', 'sticky bun', 'morning roll', 'cardamom'],
 };
 
 /**
@@ -71,38 +73,85 @@ export function handleBananaBreadSearch(allPosts: Recipe[]): Recipe[] {
 }
 
 /**
+ * Normalize search query for better matching
+ */
+export function normalizeSearchQuery(query: string): string {
+  // Clean up the query to improve matching
+  return query.toLowerCase()
+    .replace(/do you have a recipe for/i, '')
+    .replace(/do you have/i, '')
+    .replace(/find me/i, '')
+    .replace(/can you find/i, '')
+    .replace(/are there/i, '')
+    .replace(/recipes for/i, '')
+    .replace(/from the blog/i, '')
+    .replace(/on the blog/i, '')
+    .replace(/can you search for/i, '')
+    .replace(/please/i, '')
+    .trim();
+}
+
+/**
  * Perform enhanced search based on query and related terms
  */
 export function performEnhancedSearch(query: string, allPosts: Recipe[]): Recipe[] {
+  // Normalize the query first
+  const normalizedQuery = normalizeSearchQuery(query);
+  
   // Special case for challah
-  if (query === 'challah') {
+  if (normalizedQuery.includes('challah')) {
     return handleChallahSearch(allPosts);
   }
   
   // Special case for banana bread
-  if (query.includes('banana bread') || 
-      query.includes('banana loaf') ||
-      (query.includes('banana') && query.includes('bread'))) {
+  if (normalizedQuery.includes('banana bread') || 
+      normalizedQuery.includes('banana loaf') ||
+      (normalizedQuery.includes('banana') && normalizedQuery.includes('bread'))) {
     return handleBananaBreadSearch(allPosts);
   }
   
   // Enhanced search for other terms
-  return allPosts.filter(recipe => {
-    const fullText = (recipe.title + ' ' + recipe.description + ' ' + recipe.link).toLowerCase();
+  const matchingRecipes = allPosts.filter(recipe => {
+    const fullText = (recipe.title + ' ' + recipe.description + ' ' + (recipe.link || '')).toLowerCase();
     
-    // Direct match
-    if (fullText.includes(query)) {
+    // Direct match with normalized query
+    if (fullText.includes(normalizedQuery)) {
+      return true;
+    }
+    
+    // Split query into keywords for better matching
+    const queryWords = normalizedQuery.split(' ').filter(word => word.length > 2);
+    if (queryWords.some(word => fullText.includes(word))) {
       return true;
     }
     
     // Related terms matching
     for (const [key, relatedTerms] of Object.entries(relatedTermsMap)) {
-      if (query.includes(key) || key.includes(query)) {
+      if (normalizedQuery.includes(key) || key.includes(normalizedQuery)) {
         // Check if recipe contains any related terms
-        return relatedTerms.some(term => fullText.includes(term));
+        if (relatedTerms.some(term => fullText.includes(term))) {
+          return true;
+        }
       }
     }
     
     return false;
   });
+  
+  // If no results, try a more lenient search with partial word matching
+  if (matchingRecipes.length === 0) {
+    return allPosts.filter(recipe => {
+      const fullText = (recipe.title + ' ' + recipe.description).toLowerCase();
+      const queryWords = normalizedQuery.split(' ').filter(word => word.length > 2);
+      
+      // Look for partial matches (e.g., "sour" would match "sourdough")
+      return queryWords.some(word => 
+        Array.from(Object.keys(relatedTermsMap)).some(key => 
+          key.includes(word) || relatedTermsMap[key].some(term => term.includes(word))
+        ) && fullText.length > 0
+      );
+    });
+  }
+  
+  return matchingRecipes;
 }
