@@ -47,7 +47,19 @@ export class FirebaseStorageProvider implements IStorageProvider {
         };
         
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
+        let app;
+        try {
+          app = firebase.initializeApp(firebaseConfig);
+        } catch (initError) {
+          // If app already exists, get the existing one
+          if (initError.code === 'app/duplicate-app') {
+            app = firebase.getApp();
+            logInfo('Using existing Firebase app');
+          } else {
+            throw initError;
+          }
+        }
+        
         this.firestore = firestoreModule.getFirestore(app);
         this.isInitialized = true;
         
@@ -55,7 +67,7 @@ export class FirebaseStorageProvider implements IStorageProvider {
         resolve();
       } catch (error) {
         this.isInitialized = false;
-        logError('Firebase initialization error', { error });
+        logError('Firebase initialization error, using local storage fallback', { error });
         resolve(); // Resolve anyway, we'll fall back to local storage
       }
     });
@@ -109,7 +121,7 @@ export class FirebaseStorageProvider implements IStorageProvider {
       
       return true;
     } catch (error) {
-      logError('Firebase storage error:', { error });
+      logError('Firebase storage error, using local storage fallback:', { error });
       return this.localStorageFallback.saveRecipe(recipeData);
     }
   }
@@ -143,7 +155,7 @@ export class FirebaseStorageProvider implements IStorageProvider {
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
     } catch (error) {
-      logError('Firebase retrieval error:', { error });
+      logError('Firebase retrieval error, using local storage fallback:', { error });
       return this.localStorageFallback.getAllRecipes();
     }
   }
@@ -171,7 +183,7 @@ export class FirebaseStorageProvider implements IStorageProvider {
       
       return null;
     } catch (error) {
-      logError('Firebase recipe retrieval error:', { error });
+      logError('Firebase recipe retrieval error, using local storage fallback:', { error });
       return this.localStorageFallback.getRecipe(id);
     }
   }
@@ -196,7 +208,7 @@ export class FirebaseStorageProvider implements IStorageProvider {
       
       return true;
     } catch (error) {
-      logError('Firebase deletion error:', { error });
+      logError('Firebase deletion error, using local storage fallback:', { error });
       return this.localStorageFallback.deleteRecipe(id);
     }
   }

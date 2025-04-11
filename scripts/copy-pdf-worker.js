@@ -11,18 +11,11 @@ const path = require('path');
 const workerSrc = path.resolve(__dirname, '../node_modules/pdfjs-dist/build/pdf.worker.min.js');
 const cmapsSrc = path.resolve(__dirname, '../node_modules/pdfjs-dist/cmaps');
 
-// Tesseract source paths
-const tesseractCoreSrc = path.resolve(__dirname, '../node_modules/tesseract.js-core/tesseract-core.wasm.js');
-const tesseractWorkerSrc = path.resolve(__dirname, '../node_modules/tesseract.js/dist/worker.min.js');
-const tesseractLangSrc = path.resolve(__dirname, '../node_modules/tesseract.js/lang');
-
 // Destination paths (in public folder)
 const workerDest = path.resolve(__dirname, '../public/pdf.worker.min.js');
 const assetsDirDest = path.resolve(__dirname, '../public/assets');
 const assetsWorkerDest = path.resolve(__dirname, '../public/assets/pdf.worker.min.js');
 const cmapsDest = path.resolve(__dirname, '../public/cmaps');
-const tesseractDest = path.resolve(__dirname, '../public/tesseract');
-const tesseractLangDest = path.resolve(__dirname, '../public/tesseract/lang-data');
 
 console.log('PDF.js worker source path:', workerSrc);
 console.log('PDF.js worker destination path:', workerDest);
@@ -37,8 +30,6 @@ const ensureDirectoryExists = (dir) => {
 
 // Create required directories
 ensureDirectoryExists(cmapsDest);
-ensureDirectoryExists(tesseractDest);
-ensureDirectoryExists(tesseractLangDest);
 ensureDirectoryExists(assetsDirDest);
 
 // Copy worker file
@@ -86,47 +77,6 @@ try {
   }
 } catch (error) {
   console.error('Error copying cmap files:', error);
-}
-
-// Copy Tesseract files
-try {
-  // Copy Tesseract worker
-  if (fs.existsSync(tesseractWorkerSrc)) {
-    fs.copyFileSync(tesseractWorkerSrc, path.join(tesseractDest, 'worker.min.js'));
-    console.log('Tesseract worker file copied to public folder');
-  } else {
-    console.warn('Tesseract worker file not found at', tesseractWorkerSrc);
-  }
-  
-  // Copy Tesseract core
-  if (fs.existsSync(tesseractCoreSrc)) {
-    fs.copyFileSync(tesseractCoreSrc, path.join(tesseractDest, 'tesseract-core.wasm.js'));
-    console.log('Tesseract core file copied to public folder');
-  } else {
-    console.warn('Tesseract core file not found at', tesseractCoreSrc);
-  }
-  
-  // Copy language data if available
-  if (fs.existsSync(tesseractLangSrc)) {
-    const langFiles = fs.readdirSync(tesseractLangSrc);
-    let copiedCount = 0;
-    
-    langFiles.forEach(file => {
-      const srcFile = path.join(tesseractLangSrc, file);
-      const destFile = path.join(tesseractLangDest, file);
-      
-      if (fs.statSync(srcFile).isFile()) {
-        fs.copyFileSync(srcFile, destFile);
-        copiedCount++;
-      }
-    });
-    
-    console.log(`${copiedCount} Tesseract language files copied to public folder`);
-  } else {
-    console.warn('Tesseract language files not found');
-  }
-} catch (error) {
-  console.error('Error copying Tesseract files:', error);
 }
 
 // Create a worker-ready.js file that confirms workers are available
