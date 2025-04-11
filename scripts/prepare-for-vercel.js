@@ -96,7 +96,7 @@ async function prepareForVercel() {
     // Add deploy script
     if (!packageJson.scripts || !packageJson.scripts.deploy) {
       packageJson.scripts = packageJson.scripts || {};
-      packageJson.scripts.deploy = "node scripts/prepare-for-vercel.js && vercel";
+      packageJson.scripts.deploy = "node scripts/deploy.js";
       modified = true;
       console.log('✅ Added deploy script to package.json');
     }
@@ -124,7 +124,7 @@ async function prepareForVercel() {
     }
     
     console.log('\nPreparation complete. You can now deploy to Vercel with confidence.');
-    console.log('Run `npm run deploy` to verify and deploy your application.');
+    console.log('Run `node scripts/deploy.js` to verify and deploy your application.');
   } catch (error) {
     console.error('Preparation failed:', error);
     process.exit(1);

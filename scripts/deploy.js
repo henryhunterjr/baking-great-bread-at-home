@@ -22,9 +22,18 @@ async function deploy() {
     console.log('Verifying deployment readiness...');
     execSync('node scripts/verify-deployment.js', { stdio: 'inherit' });
     
-    // Deploy with Vercel CLI using --cwd flag to ensure correct directory
+    // Deploy with Vercel CLI with explicit path handling
     console.log('Deploying to Vercel...');
-    execSync('vercel --confirm --prod --cwd .', { stdio: 'inherit' });
+    
+    // Use process.cwd() to ensure we're using the absolute path
+    const projectDir = process.cwd();
+    console.log(`Using project directory: ${projectDir}`);
+    
+    // Run vercel command with explicit directory
+    execSync(`vercel --confirm --prod ${projectDir}`, { 
+      stdio: 'inherit',
+      cwd: projectDir
+    });
     
     console.log('Deployment complete!');
   } catch (error) {
