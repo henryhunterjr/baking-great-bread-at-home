@@ -10,6 +10,7 @@ import FloatingAIButton from '@/components/ai/FloatingAIButton';
 import ErrorAlert from '@/components/common/ErrorAlert';
 import { logError, logInfo } from '@/utils/logger';
 import { initializeWorkers, preloadWorkers } from '@/utils/workerUtils';
+import { HelpButton } from '@/components/onboarding';
 
 const Recipes = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -116,6 +117,11 @@ const Recipes = () => {
           selectedType={selectedType}
           setSelectedType={setSelectedType}
         />
+
+        {/* Help Button for easy tour access */}
+        <div className="fixed top-20 right-5 z-30">
+          <HelpButton className="bg-background/50 backdrop-blur-sm hover:bg-background/80" />
+        </div>
       </RecipeAnimationWrapper>
       
       <div className="flex-grow"></div>

@@ -59,13 +59,16 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     localStorage.setItem('hasSeenWelcomeModal', hasSeenWelcomeModal.toString());
   }, [hasSeenWelcomeModal]);
 
-  // Initialize tour for new users
+  // Reset tour state when tour is shown
   useEffect(() => {
-    if (!hasCompletedTour && !hasSeenWelcomeModal) {
-      // Don't automatically show tour, wait for welcome modal interaction
-      setShowTour(false);
+    if (showTour) {
+      // Reset to first step when tour is started
+      setCurrentStep(0);
+      
+      // Log for debugging
+      console.log("Tour started, reset to step 0");
     }
-  }, [hasCompletedTour, hasSeenWelcomeModal]);
+  }, [showTour]);
 
   return (
     <OnboardingContext.Provider

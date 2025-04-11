@@ -19,7 +19,10 @@ const WelcomeModal = () => {
   const handleStartTour = () => {
     setIsOpen(false);
     setHasSeenWelcomeModal(true);
-    setShowTour(true);
+    // Add a small delay before starting the tour to ensure DOM is ready
+    setTimeout(() => {
+      setShowTour(true);
+    }, 300);
   };
   
   const handleSkipTour = () => {

@@ -25,9 +25,11 @@ const GuidedTour = () => {
         const tooltipHeight = tooltipRef.current?.offsetHeight || 150;
         const tooltipWidth = tooltipRef.current?.offsetWidth || 300;
         
+        // Calculate position based on placement
         let top = 0;
         let left = 0;
         
+        // Adjust position based on specified placement
         switch (step.placement) {
           case 'top':
             top = rect.top - tooltipHeight - 12;
@@ -50,38 +52,39 @@ const GuidedTour = () => {
             left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
         }
         
-        // Ensure tooltip stays within viewport
+        // Ensure tooltip stays within viewport boundaries
         if (left < 20) left = 20;
         if (left + tooltipWidth > window.innerWidth - 20) {
           left = window.innerWidth - tooltipWidth - 20;
         }
+        
+        // Fix for tooltips appearing below the viewport
         if (top < 20) top = 20;
         if (top + tooltipHeight > window.innerHeight - 20) {
-          top = window.innerHeight - tooltipHeight - 20;
+          // Instead of pushing it down, try to reposition above the element if there's room
+          if (rect.top > tooltipHeight + 20) {
+            top = rect.top - tooltipHeight - 12;
+          } else {
+            // If not enough room above, put it at a visible position in the viewport
+            top = window.innerHeight - tooltipHeight - 20;
+          }
         }
         
         setPosition({ top, left });
         
-        // Scroll element into view if needed
-        if (
-          rect.top < 0 ||
-          rect.left < 0 ||
-          rect.bottom > window.innerHeight ||
-          rect.right > window.innerWidth
-        ) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-            inline: 'center'
-          });
-        }
+        // Always scroll the target element into view with better positioning
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'center'
+        });
       }
     };
     
     // Initial positioning
     handlePositioning();
     
-    // Reposition on window resize
+    // Reposition on window resize and scroll events
     window.addEventListener('resize', handlePositioning);
     window.addEventListener('scroll', handlePositioning);
     
@@ -93,10 +96,16 @@ const GuidedTour = () => {
       attributes: true 
     });
     
+    // Set a small delay to ensure proper positioning after initial render
+    const positionTimer = setTimeout(() => {
+      handlePositioning();
+    }, 200);
+    
     return () => {
       window.removeEventListener('resize', handlePositioning);
       window.removeEventListener('scroll', handlePositioning);
       observer.disconnect();
+      clearTimeout(positionTimer);
     };
   }, [showTour, currentStep]);
   
@@ -137,8 +146,8 @@ const GuidedTour = () => {
         <div
           className="fixed z-[70] rounded-lg ring-4 ring-primary animate-pulse pointer-events-none"
           style={{
-            top: targetElement.getBoundingClientRect().top + window.scrollY,
-            left: targetElement.getBoundingClientRect().left + window.scrollX,
+            top: targetElement.getBoundingClientRect().top,
+            left: targetElement.getBoundingClientRect().left,
             width: targetElement.getBoundingClientRect().width,
             height: targetElement.getBoundingClientRect().height,
           }}
@@ -150,8 +159,8 @@ const GuidedTour = () => {
         ref={tooltipRef}
         className="fixed z-[80] w-[300px] bg-card rounded-lg shadow-lg overflow-hidden"
         style={{
-          top: position.top + window.scrollY,
-          left: position.left,
+          top: `${position.top}px`,
+          left: `${position.left}px`,
         }}
       >
         <div className="bg-muted p-3 flex items-center justify-between">
