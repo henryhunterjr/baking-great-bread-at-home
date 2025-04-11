@@ -17,10 +17,11 @@ export function useRecipes(searchQuery: string) {
   const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [allPosts, setAllPosts] = useState<Recipe[]>([]);
+  const [error, setError] = useState<Error | string | null>(null);
   const prevSearchQuery = useRef('');
   
   // Fetch blog posts using the service
-  const { posts, loading, error } = useBlogPosts(searchQuery);
+  const { posts, loading, error: blogError } = useBlogPosts(searchQuery);
   
   // Fetch all posts directly using the service instance to ensure we get everything
   useEffect(() => {
@@ -42,8 +43,11 @@ export function useRecipes(searchQuery: string) {
         setAllPosts(uniqueRecipes);
         setFilteredRecipes(uniqueRecipes);
         setIsLoading(false);
+        setError(null);
       } catch (err) {
         console.error("Error fetching all blog posts:", err);
+        setError(err instanceof Error ? err : String(err));
+        
         // Fallback to the static recipes data, bread recipes, and posts from the hook
         const recipesFromPosts = convertBlogPostsToRecipes(posts);
         
@@ -55,7 +59,14 @@ export function useRecipes(searchQuery: string) {
     };
     
     fetchAllPosts();
-  }, []);
+  }, [posts]);
+  
+  // Handle blog API errors
+  useEffect(() => {
+    if (blogError) {
+      setError(blogError);
+    }
+  }, [blogError]);
   
   // Filter recipes based on search query with improved search logic
   useEffect(() => {

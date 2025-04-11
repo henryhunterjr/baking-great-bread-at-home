@@ -9,6 +9,7 @@ import RecipeAnimationWrapper from '@/components/recipes/RecipeAnimationWrapper'
 import FloatingAIButton from '@/components/ai/FloatingAIButton';
 import ErrorAlert from '@/components/common/ErrorAlert';
 import { logError, logInfo } from '@/utils/logger';
+import { initializeWorkers, preloadWorkers } from '@/utils/workerUtils';
 
 const Recipes = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -39,10 +40,12 @@ const Recipes = () => {
     if (error) {
       logError('Error in Recipes page', { error });
       setHasError(true);
-      // Check if error is a string or an Error object
+      // Fix the TypeScript error by safely handling different error types
       const errorMsg = typeof error === 'string' 
         ? error 
-        : (error instanceof Error ? error.message : 'Failed to load recipes. Please try again.');
+        : (error && typeof error === 'object' && 'message' in error 
+            ? error.message 
+            : 'Failed to load recipes. Please try again.');
       setErrorMessage(errorMsg);
     } else {
       setHasError(false);
