@@ -43,7 +43,7 @@ const FloatingAIButton = () => {
             aria-label="Bread Assistant"
           >
             <img 
-              src="/lovable-uploads/da8559fc-760e-4ec7-9b33-f5f4a8d2ec89.png" 
+              src="/lovable-uploads/ff068c44-2bb2-450c-8583-fb7072a4850e.png" 
               alt="Chef Assistant" 
               className="w-12 h-12 rounded-full"
             />

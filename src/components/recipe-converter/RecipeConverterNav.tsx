@@ -25,9 +25,9 @@ const RecipeConverterNav = () => {
         </Button>
         
         <Button variant="ghost" size="sm" asChild>
-          <Link to="/guides">
+          <Link to="/books">
             <Book className="mr-2 h-4 w-4" />
-            Guides
+            Books & Guides
           </Link>
         </Button>
         

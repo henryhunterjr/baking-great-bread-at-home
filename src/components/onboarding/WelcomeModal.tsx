@@ -12,12 +12,16 @@ const WelcomeModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   
   useEffect(() => {
-    // Show welcome modal only if the user hasn't seen it yet
-    // AND the user is not already signed in
+    // Show welcome modal only if:
+    // 1. User hasn't seen it yet
+    // 2. AND user is not authenticated (logged in users shouldn't see it again)
     if (!hasSeenWelcomeModal && !user) {
       setIsOpen(true);
-    } else if (user) {
-      // If user is already signed in, mark welcome modal as seen automatically
+    }
+    
+    // If user is already signed in, mark welcome modal as seen automatically
+    // This prevents the modal from appearing again for signed-in users
+    if (user) {
       setHasSeenWelcomeModal(true);
     }
   }, [hasSeenWelcomeModal, user, setHasSeenWelcomeModal]);
@@ -35,6 +39,11 @@ const WelcomeModal = () => {
     setIsOpen(false);
     setHasSeenWelcomeModal(true);
   };
+  
+  // Don't render anything if we're not showing the modal
+  if (!isOpen) {
+    return null;
+  }
   
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

@@ -22,6 +22,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Challenges from '@/pages/Challenges';
 import PastChallenges from '@/pages/PastChallenges';
 import Guides from '@/pages/Guides';
+import Books from '@/pages/Books';
 
 // Lazily load non-critical components
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
@@ -73,8 +74,9 @@ const App: React.FC = () => {
                 {/* Recipes page */}
                 <Route path="/recipes" element={<Recipes />} />
                 
-                {/* Guides page */}
+                {/* Books and Guides pages */}
                 <Route path="/guides" element={<Guides />} />
+                <Route path="/books" element={<Books />} />
                 
                 {/* Challenges pages */}
                 <Route path="/challenges" element={<Challenges />} />

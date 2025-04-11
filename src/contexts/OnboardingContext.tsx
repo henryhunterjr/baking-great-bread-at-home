@@ -45,7 +45,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     if (savedHasSeenWelcomeModal) {
       setHasSeenWelcomeModal(savedHasSeenWelcomeModal === 'true');
     } else {
-      // If this is the first visit, show the welcome modal
+      // If this is the first visit, welcome modal should be shown
       setHasSeenWelcomeModal(false);
     }
   }, []);

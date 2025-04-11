@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -85,9 +86,9 @@ const HoverNavbar: React.FC = () => {
               <Book size={18} />
               <span>Recipe Converter</span>
             </Link>
-            <Link to="/guides" className="nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300 hover:text-bread-600 dark:hover:text-bread-200">
+            <Link to="/books" className="nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300 hover:text-bread-600 dark:hover:text-bread-200">
               <Book size={18} />
-              <span>Guides</span>
+              <span>Books & Guides</span>
             </Link>
             <Link to="/challenges" className="nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300 hover:text-bread-600 dark:hover:text-bread-200">
               <Calendar size={18} />
