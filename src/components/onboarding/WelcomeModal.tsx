@@ -1,88 +1,102 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOnboarding } from '@/contexts/OnboardingContext';
-import { X, Coffee, BookOpen, Award } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Search, BookOpen, MessageSquare, ArrowRight } from 'lucide-react';
 
-const WelcomeModal: React.FC = () => {
-  const { 
-    hasSeenWelcomeModal, 
-    setHasSeenWelcomeModal, 
-    setShowTour 
-  } = useOnboarding();
-
-  const handleClose = () => {
-    setHasSeenWelcomeModal(true);
-  };
-
-  const startTour = () => {
+const WelcomeModal = () => {
+  const { hasSeenWelcomeModal, setHasSeenWelcomeModal, setShowTour } = useOnboarding();
+  const [isOpen, setIsOpen] = useState(false);
+  
+  useEffect(() => {
+    // Show welcome modal if the user hasn't seen it yet
+    if (!hasSeenWelcomeModal) {
+      setIsOpen(true);
+    }
+  }, [hasSeenWelcomeModal]);
+  
+  const handleStartTour = () => {
+    setIsOpen(false);
     setHasSeenWelcomeModal(true);
     setShowTour(true);
   };
-
-  const features = [
-    {
-      icon: <Coffee className="h-5 w-5 text-primary" />,
-      title: 'Recipe Converter',
-      description: 'Transform any recipe into a structured, easy-to-follow format.',
-    },
-    {
-      icon: <BookOpen className="h-5 w-5 text-primary" />,
-      title: 'Recipe Library',
-      description: 'Save and organize all your favorite bread recipes in one place.',
-    },
-    {
-      icon: <Award className="h-5 w-5 text-primary" />,
-      title: 'Bread Assistant',
-      description: 'Get expert advice and answers to all your bread baking questions.',
-    },
-  ];
-
+  
+  const handleSkipTour = () => {
+    setIsOpen(false);
+    setHasSeenWelcomeModal(true);
+  };
+  
   return (
-    <Dialog open={!hasSeenWelcomeModal} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-serif">Welcome to Baking Great Bread at Home</DialogTitle>
-          <DialogDescription>
-            Your personal bread baking companion
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="py-4">
-          <p className="text-sm text-muted-foreground mb-6">
-            This app helps you convert, organize, and perfect your bread recipes. Take a quick tour to get started!
-          </p>
-          
-          <div className="space-y-4">
-            {features.map((feature, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <div className="mt-0.5 bg-primary/10 p-2 rounded-full">
-                  {feature.icon}
-                </div>
-                <div>
-                  <h3 className="font-medium text-sm">{feature.title}</h3>
-                  <p className="text-xs text-muted-foreground">{feature.description}</p>
-                </div>
-              </div>
-            ))}
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
+        <div className="h-40 bg-gradient-to-r from-bread-800 to-bread-600 relative">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <img
+              src="/lovable-uploads/ab5456bd-6df2-4257-95de-65053717099f.png"
+              alt="Bread illustration"
+              className="w-full h-full object-cover mix-blend-overlay opacity-20"
+            />
+            <h2 className="text-white text-2xl font-serif absolute">
+              Welcome to Bread Recipes
+            </h2>
           </div>
         </div>
         
-        <DialogFooter className="sm:justify-between gap-3">
-          <Button variant="outline" onClick={handleClose}>
+        <DialogHeader className="px-6 pt-4">
+          <DialogTitle className="text-xl text-center">
+            Discover, Convert & Create Amazing Bread Recipes
+          </DialogTitle>
+          <DialogDescription className="text-center">
+            Let's help you get started with the key features of our app.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="px-6 py-4 space-y-4">
+          <div className="flex items-start space-x-3">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <Search className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-medium mb-1">Search for Recipes</h3>
+              <p className="text-sm text-muted-foreground">
+                Type a recipe name like "banana bread" in the search bar, then press Enter or click the search button to find matching recipes.
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-start space-x-3">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <BookOpen className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-medium mb-1">Browse Recipe Collection</h3>
+              <p className="text-sm text-muted-foreground">
+                Explore our curated collection of bread recipes, filter by type, or browse through categories.
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-start space-x-3">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <MessageSquare className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-medium mb-1">Ask the Baking Assistant</h3>
+              <p className="text-sm text-muted-foreground">
+                Click the glowing button in the bottom-right corner to ask questions about bread baking or get recipe help.
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <DialogFooter className="bg-muted p-4 flex flex-col sm:flex-row gap-2 sm:justify-between">
+          <Button variant="outline" onClick={handleSkipTour} className="sm:mr-auto">
             Skip Tour
           </Button>
-          <Button onClick={startTour}>
-            Take the Tour
+          <Button onClick={handleStartTour} className="sm:ml-auto gap-2">
+            Take a Quick Tour
+            <ArrowRight className="h-4 w-4" />
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,216 +1,216 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useOnboarding } from '@/contexts/OnboardingContext';
-import { TOUR_STEPS } from './TourSteps';
-import { X, ArrowRight, ArrowLeft } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { TOUR_STEPS, TourStep } from './TourSteps';
 
-const GuidedTour: React.FC = () => {
-  const { 
-    showTour, 
-    setShowTour, 
-    currentStep, 
-    setCurrentStep,
-    setHasCompletedTour 
-  } = useOnboarding();
-  
+const GuidedTour = () => {
+  const { showTour, setShowTour, setHasCompletedTour, currentStep, setCurrentStep } = useOnboarding();
   const [targetElement, setTargetElement] = useState<Element | null>(null);
-  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
-  const [highlightPosition, setHighlightPosition] = useState({
-    top: 0,
-    left: 0,
-    width: 0,
-    height: 0
-  });
-
-  // Find and position the highlight and tooltip based on the current step
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  
+  // Handle positioning and visibility of the tooltip
   useEffect(() => {
     if (!showTour) return;
     
-    const currentTourStep = TOUR_STEPS[currentStep];
-    
-    // Give the DOM a chance to render
-    const timeoutId = setTimeout(() => {
-      const element = document.querySelector(currentTourStep.target);
-      setTargetElement(element);
+    const handlePositioning = () => {
+      const step = TOUR_STEPS[currentStep];
+      const target = document.querySelector(step.target);
       
-      if (element) {
-        const rect = element.getBoundingClientRect();
-        const scrollTop = window.scrollY || document.documentElement.scrollTop;
-        const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+      if (target) {
+        setTargetElement(target);
+        const rect = target.getBoundingClientRect();
+        const tooltipHeight = tooltipRef.current?.offsetHeight || 150;
+        const tooltipWidth = tooltipRef.current?.offsetWidth || 300;
         
-        // Position highlight
-        setHighlightPosition({
-          top: rect.top + scrollTop,
-          left: rect.left + scrollLeft,
-          width: rect.width,
-          height: rect.height
-        });
+        let top = 0;
+        let left = 0;
         
-        // Position tooltip based on placement
-        const placement = currentTourStep.placement || 'bottom';
-        let tooltipTop = 0;
-        let tooltipLeft = 0;
-        
-        switch (placement) {
+        switch (step.placement) {
           case 'top':
-            tooltipTop = rect.top + scrollTop - 110;
-            tooltipLeft = rect.left + scrollLeft + (rect.width / 2) - 150;
+            top = rect.top - tooltipHeight - 12;
+            left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
             break;
           case 'bottom':
-            tooltipTop = rect.bottom + scrollTop + 10;
-            tooltipLeft = rect.left + scrollLeft + (rect.width / 2) - 150;
+            top = rect.bottom + 12;
+            left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
             break;
           case 'left':
-            tooltipTop = rect.top + scrollTop + (rect.height / 2) - 50;
-            tooltipLeft = rect.left + scrollLeft - 310;
+            top = rect.top + (rect.height / 2) - (tooltipHeight / 2);
+            left = rect.left - tooltipWidth - 12;
             break;
           case 'right':
-            tooltipTop = rect.top + scrollTop + (rect.height / 2) - 50;
-            tooltipLeft = rect.right + scrollLeft + 10;
+            top = rect.top + (rect.height / 2) - (tooltipHeight / 2);
+            left = rect.right + 12;
             break;
+          default:
+            top = rect.bottom + 12;
+            left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
         }
         
         // Ensure tooltip stays within viewport
-        tooltipTop = Math.max(10, tooltipTop);
-        tooltipLeft = Math.max(10, tooltipLeft);
-        tooltipLeft = Math.min(tooltipLeft, window.innerWidth - 310);
+        if (left < 20) left = 20;
+        if (left + tooltipWidth > window.innerWidth - 20) {
+          left = window.innerWidth - tooltipWidth - 20;
+        }
+        if (top < 20) top = 20;
+        if (top + tooltipHeight > window.innerHeight - 20) {
+          top = window.innerHeight - tooltipHeight - 20;
+        }
         
-        setTooltipPosition({ top: tooltipTop, left: tooltipLeft });
+        setPosition({ top, left });
         
         // Scroll element into view if needed
-        if (rect.top < 0 || rect.bottom > window.innerHeight) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      } else {
-        // Target element not found, try to move to next step
-        if (currentStep < TOUR_STEPS.length - 1) {
-          setCurrentStep(currentStep + 1);
-        } else {
-          handleFinishTour();
+        if (
+          rect.top < 0 ||
+          rect.left < 0 ||
+          rect.bottom > window.innerHeight ||
+          rect.right > window.innerWidth
+        ) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center'
+          });
         }
       }
-    }, 300);
+    };
     
-    return () => clearTimeout(timeoutId);
-  }, [showTour, currentStep, setCurrentStep]);
-
-  const handleNextStep = () => {
+    // Initial positioning
+    handlePositioning();
+    
+    // Reposition on window resize
+    window.addEventListener('resize', handlePositioning);
+    window.addEventListener('scroll', handlePositioning);
+    
+    // Add mutation observer to detect DOM changes
+    const observer = new MutationObserver(handlePositioning);
+    observer.observe(document.body, { 
+      childList: true, 
+      subtree: true,
+      attributes: true 
+    });
+    
+    return () => {
+      window.removeEventListener('resize', handlePositioning);
+      window.removeEventListener('scroll', handlePositioning);
+      observer.disconnect();
+    };
+  }, [showTour, currentStep]);
+  
+  const handleNext = () => {
     if (currentStep < TOUR_STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      handleFinishTour();
+      handleFinish();
     }
   };
-
-  const handlePrevStep = () => {
+  
+  const handlePrevious = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
   };
-
-  const handleFinishTour = () => {
+  
+  const handleFinish = () => {
     setShowTour(false);
     setHasCompletedTour(true);
-    toast.success("Tour completed! You can restart it anytime from the help menu.");
   };
-
+  
   if (!showTour) return null;
-
+  
   const currentTourStep = TOUR_STEPS[currentStep];
-
+  
   return (
     <>
-      {/* Overlay */}
+      {/* Semi-transparent overlay */}
       <div 
-        className="fixed inset-0 bg-black/50 z-50 transition-opacity" 
-        onClick={handleFinishTour}
+        className="fixed inset-0 bg-black/50 z-[60]"
+        onClick={handleFinish}
+        aria-hidden="true"
       />
       
-      {/* Highlight */}
+      {/* Highlighted target element */}
       {targetElement && (
         <div
-          className="absolute z-[60] rounded-md ring-2 ring-primary ring-offset-2 transition-all duration-200"
+          className="fixed z-[70] rounded-lg ring-4 ring-primary animate-pulse pointer-events-none"
           style={{
-            top: `${highlightPosition.top}px`,
-            left: `${highlightPosition.left}px`,
-            width: `${highlightPosition.width}px`,
-            height: `${highlightPosition.height}px`,
+            top: targetElement.getBoundingClientRect().top + window.scrollY,
+            left: targetElement.getBoundingClientRect().left + window.scrollX,
+            width: targetElement.getBoundingClientRect().width,
+            height: targetElement.getBoundingClientRect().height,
           }}
         />
       )}
       
       {/* Tooltip */}
       <div
-        className="fixed z-[70] w-[300px] bg-card shadow-lg rounded-lg p-4 transition-all duration-300"
+        ref={tooltipRef}
+        className="fixed z-[80] w-[300px] bg-card rounded-lg shadow-lg overflow-hidden"
         style={{
-          top: `${tooltipPosition.top}px`,
-          left: `${tooltipPosition.left}px`,
+          top: position.top + window.scrollY,
+          left: position.left,
         }}
       >
-        {/* Close button */}
-        <button 
-          onClick={handleFinishTour}
-          className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"
-          aria-label="Close tour"
-        >
-          <X size={16} />
-        </button>
-        
-        {/* Icon and title */}
-        <div className="flex items-center gap-2 mb-2">
-          <div className="text-primary">
+        <div className="bg-muted p-3 flex items-center justify-between">
+          <span className="font-medium text-sm flex items-center gap-2">
             {currentTourStep.icon}
-          </div>
-          <h3 className="font-medium">{currentTourStep.title}</h3>
+            {currentTourStep.title}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 rounded-full"
+            onClick={handleFinish}
+          >
+            <X className="h-3 w-3" />
+            <span className="sr-only">Close tour</span>
+          </Button>
         </div>
         
-        {/* Content */}
-        <p className="text-sm text-muted-foreground mb-4">{currentTourStep.content}</p>
-        
-        {/* Navigation */}
-        <div className="flex items-center justify-between">
-          <div className="flex gap-2">
-            <button
-              onClick={handlePrevStep}
-              disabled={currentStep === 0}
-              className="flex items-center gap-1 px-2 py-1 text-xs rounded bg-muted hover:bg-muted/80 disabled:opacity-50"
-              aria-label="Previous step"
-            >
-              <ArrowLeft size={12} />
-              <span>Previous</span>
-            </button>
-            
-            <button
-              onClick={handleNextStep}
-              className="flex items-center gap-1 px-2 py-1 text-xs rounded bg-primary text-primary-foreground hover:bg-primary/90"
-              aria-label={currentStep < TOUR_STEPS.length - 1 ? "Next step" : "Finish tour"}
-            >
-              <span>{currentStep < TOUR_STEPS.length - 1 ? 'Next' : 'Finish'}</span>
-              <ArrowRight size={12} />
-            </button>
-          </div>
+        <div className="p-4">
+          <p className="text-sm mb-4">{currentTourStep.content}</p>
           
-          {/* Progress dots */}
-          <div className="flex gap-1">
-            {TOUR_STEPS.map((_, index) => (
-              <button
-                key={index}
-                className={cn(
-                  "w-2 h-2 rounded-full",
-                  index === currentStep ? "bg-primary" : "bg-muted"
-                )}
-                onClick={() => setCurrentStep(index)}
-                aria-label={`Go to step ${index + 1}`}
-              />
-            ))}
+          <div className="flex items-center justify-between">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePrevious}
+              disabled={currentStep === 0}
+              className="h-8 px-2"
+            >
+              <ChevronLeft className="mr-1 h-4 w-4" />
+              Previous
+            </Button>
+            
+            <div className="flex gap-1 items-center">
+              {TOUR_STEPS.map((_, index) => (
+                <div
+                  key={index}
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    index === currentStep ? 'bg-primary' : 'bg-muted-foreground/20'
+                  }`}
+                />
+              ))}
+            </div>
+            
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleNext}
+              className="h-8 px-2"
+            >
+              {currentStep < TOUR_STEPS.length - 1 ? (
+                <>
+                  Next
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </>
+              ) : (
+                'Finish'
+              )}
+            </Button>
           </div>
         </div>
       </div>

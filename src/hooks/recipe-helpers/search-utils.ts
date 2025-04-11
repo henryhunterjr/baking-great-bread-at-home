@@ -13,6 +13,7 @@ export const relatedTermsMap: Record<string, string[]> = {
   'focaccia': ['italian', 'flat', 'olive oil'],
   'rye': ['pumpernickel', 'deli', 'caraway'],
   'ciabatta': ['italian', 'holes', 'rustic'],
+  'banana bread': ['banana', 'quick bread', 'banana loaf', 'fruit bread'],
 };
 
 /**
@@ -43,12 +44,41 @@ export function handleChallahSearch(allPosts: Recipe[]): Recipe[] {
 }
 
 /**
+ * Handle special search for banana bread recipes
+ */
+export function handleBananaBreadSearch(allPosts: Recipe[]): Recipe[] {
+  const bananaBreadRecipes = allPosts.filter(recipe => {
+    const fullText = (recipe.title + ' ' + recipe.description).toLowerCase();
+    return fullText.includes('banana bread') || 
+           fullText.includes('banana loaf') || 
+           (fullText.includes('banana') && fullText.includes('bread'));
+  });
+  
+  // If none found specifically, fallback to recipes with just "banana" in them
+  if (bananaBreadRecipes.length === 0) {
+    return allPosts.filter(recipe => {
+      const fullText = (recipe.title + ' ' + recipe.description).toLowerCase();
+      return fullText.includes('banana');
+    });
+  }
+  
+  return bananaBreadRecipes;
+}
+
+/**
  * Perform enhanced search based on query and related terms
  */
 export function performEnhancedSearch(query: string, allPosts: Recipe[]): Recipe[] {
   // Special case for challah
   if (query === 'challah') {
     return handleChallahSearch(allPosts);
+  }
+  
+  // Special case for banana bread
+  if (query.includes('banana bread') || 
+      query.includes('banana loaf') ||
+      (query.includes('banana') && query.includes('bread'))) {
+    return handleBananaBreadSearch(allPosts);
   }
   
   // Enhanced search for other terms

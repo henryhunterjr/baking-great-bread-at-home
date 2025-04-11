@@ -17,42 +17,16 @@ const FloatingAIButton = () => {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!isHovered) {
-        setPulseAnimation(false);
-      }
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [isHovered]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!isHovered) {
-        setPulseAnimation(true);
-        setTimeout(() => {
-          if (!isHovered) {
-            setPulseAnimation(false);
-          }
-        }, 5000);
-      }
-    }, 30 * 1000);
-
-    return () => clearInterval(interval);
-  }, [isHovered]);
+    // Always keep animation on to maintain visibility
+    setPulseAnimation(true);
+  }, []);
 
   const handleMouseEnter = () => {
     setIsHovered(true);
-    setPulseAnimation(true);
   };
 
   const handleMouseLeave = () => {
     setIsHovered(false);
-    setTimeout(() => {
-      if (!isHovered) {
-        setPulseAnimation(false);
-      }
-    }, 1000);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -104,18 +78,19 @@ const FloatingAIButton = () => {
         style={{ 
           right: `${position.right}px`, 
           bottom: `${position.bottom}px`,
-          boxShadow: pulseAnimation ? '0 0 15px 5px rgba(229, 168, 95, 0.7)' : '0 4px 14px 0 rgba(0, 0, 0, 0.2)',
-          transition: 'box-shadow 0.8s ease-out, background-color 0.3s ease'
+          boxShadow: '0 0 15px 5px rgba(229, 168, 95, 0.7)',
+          transition: 'background-color 0.3s ease'
         }}
         onClick={() => setIsOpen(true)}
         onMouseDown={handleMouseDown}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        aria-label="Open AI Baking Assistant"
       >
         <div className="absolute inset-0 rounded-full overflow-hidden">
-          <div className={`w-full h-full bg-gradient-to-br from-bread-600 to-bread-900 ${pulseAnimation ? 'animate-gradient-spin' : ''}`}></div>
+          <div className="w-full h-full bg-gradient-to-br from-bread-600 to-bread-900 animate-gradient-spin"></div>
         </div>
-        <Sparkles className="h-5 w-5 md:h-7 md:w-7 text-white z-10" />
+        <Sparkles className="h-6 w-6 md:h-7 md:w-7 text-white z-10" />
       </Button>
 
       {isMobile !== null && (
