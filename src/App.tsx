@@ -9,10 +9,12 @@ import { ErrorProvider, ErrorToast } from '@/utils/ErrorHandling';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import HoverNavbar from '@/components/navigation/HoverNavbar';
 import NotFound from '@/pages/NotFound';
+import { OnboardingComponents } from '@/components/onboarding';
 
 // Eagerly load critical components
 import HomePage from '@/pages/HomePage';
 import RecipeConverter from '@/pages/RecipeConverter';
+import Recipes from '@/pages/Recipes';
 import AuthPage from '@/pages/AuthPage';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
@@ -47,61 +49,65 @@ const App: React.FC = () => {
   return (
     <ErrorProvider>
       <ErrorBoundary>
-        <BreadAssistantProvider>
-          {/* HoverNavbar component - always visible initially */}
-          <HoverNavbar />
-          
-          <main className="pt-16 pb-8">
-            <Routes>
-              {/* Home page */}
-              <Route path="/" element={<HomePage />} />
-              
-              {/* Authentication */}
-              <Route path="/auth/*" element={<AuthPage />} />
-              
-              {/* Recipe converter */}
-              <Route path="/recipes" element={<RecipeConverter />} />
-              <Route path="/recipe-converter" element={<Navigate to="/recipes" replace />} />
-              
-              {/* Protected routes */}
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback />}>
-                    <ProfilePage />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/favorites" element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback />}>
-                    <FavoritesPage />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              <Route path="/settings" element={
-                <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback />}>
-                    <Settings />
-                  </Suspense>
-                </ProtectedRoute>
-              } />
-              
-              {/* Content pages */}
-              <Route path="/guides" element={<RecipeConverter />} />
-              <Route path="/challenges" element={<RecipeConverter />} />
-              
-              {/* 404 route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          
-          <Suspense fallback={null}>
-            <AIBreadAssistant />
-          </Suspense>
-          
-          <Toaster />
-          <ErrorToast />
-        </BreadAssistantProvider>
+        <OnboardingComponents>
+          <BreadAssistantProvider>
+            {/* HoverNavbar component - always visible initially */}
+            <HoverNavbar />
+            
+            <main className="pt-16 pb-8">
+              <Routes>
+                {/* Home page */}
+                <Route path="/" element={<HomePage />} />
+                
+                {/* Authentication */}
+                <Route path="/auth/*" element={<AuthPage />} />
+                
+                {/* Recipe converter */}
+                <Route path="/recipe-converter" element={<RecipeConverter />} />
+                
+                {/* Recipes page */}
+                <Route path="/recipes" element={<Recipes />} />
+                
+                {/* Protected routes */}
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <ProfilePage />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                <Route path="/favorites" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <FavoritesPage />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                <Route path="/settings" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <Settings />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Content pages */}
+                <Route path="/guides" element={<RecipeConverter />} />
+                <Route path="/challenges" element={<RecipeConverter />} />
+                
+                {/* 404 route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+            
+            <Suspense fallback={null}>
+              <AIBreadAssistant />
+            </Suspense>
+            
+            <Toaster />
+            <ErrorToast />
+          </BreadAssistantProvider>
+        </OnboardingComponents>
       </ErrorBoundary>
     </ErrorProvider>
   );
