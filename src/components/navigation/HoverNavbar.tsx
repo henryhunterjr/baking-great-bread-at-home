@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import UserMenu from '@/components/auth/UserMenu';
 import { Home, Book, Calendar, Coffee, Moon, Sun } from 'lucide-react';
@@ -11,7 +11,6 @@ const HoverNavbar: React.FC = () => {
   const [visible, setVisible] = useState(true);
   const { user } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
 
   // Show navbar when mouse is near top of screen or on scroll to top
@@ -52,16 +51,6 @@ const HoverNavbar: React.FC = () => {
     };
   }, [visible]);
 
-  // Enhanced navigation handler to prevent getting stuck
-  const handleNavigation = (path: string) => {
-    // Force a full page refresh if already on the same page
-    if (location.pathname === path) {
-      window.location.href = path;
-    } else {
-      navigate(path);
-    }
-  };
-
   // Toggle theme between light and dark
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -77,32 +66,32 @@ const HoverNavbar: React.FC = () => {
       >
         <div className="container mx-auto px-4 flex justify-between items-center h-16 md:h-20">
           <div className="flex items-center space-x-2">
-            <button
-              onClick={() => handleNavigation("/")}
+            <Link
+              to="/"
               className="text-xl md:text-2xl font-bold font-serif text-bread-900 dark:text-bread-200 cursor-pointer"
             >
               Baking Great Bread At Home
-            </button>
+            </Link>
           </div>
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            <button onClick={() => handleNavigation("/")} className="nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300 hover:text-bread-600 dark:hover:text-bread-200">
+            <Link to="/" className="nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300 hover:text-bread-600 dark:hover:text-bread-200">
               <Home size={18} />
               <span>Home</span>
-            </button>
-            <button onClick={() => handleNavigation("/recipes")} className="nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300 hover:text-bread-600 dark:hover:text-bread-200">
+            </Link>
+            <Link to="/recipes" className="nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300 hover:text-bread-600 dark:hover:text-bread-200">
               <Coffee size={18} />
               <span>Recipes</span>
-            </button>
-            <button onClick={() => handleNavigation("/guides")} className="nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300 hover:text-bread-600 dark:hover:text-bread-200">
+            </Link>
+            <Link to="/guides" className="nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300 hover:text-bread-600 dark:hover:text-bread-200">
               <Book size={18} />
               <span>Guides</span>
-            </button>
-            <button onClick={() => handleNavigation("/challenges")} className="nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300 hover:text-bread-600 dark:hover:text-bread-200">
+            </Link>
+            <Link to="/challenges" className="nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300 hover:text-bread-600 dark:hover:text-bread-200">
               <Calendar size={18} />
               <span>Challenges</span>
-            </button>
+            </Link>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -120,12 +109,12 @@ const HoverNavbar: React.FC = () => {
             {user ? (
               <UserMenu />
             ) : (
-              <button 
-                onClick={() => handleNavigation("/auth")}
+              <Link 
+                to="/auth"
                 className="px-4 py-2 bg-bread-700 dark:bg-bread-800 hover:bg-bread-800 dark:hover:bg-bread-700 text-white rounded-md transition-colors"
               >
                 Login / Signup
-              </button>
+              </Link>
             )}
           </div>
         </div>
