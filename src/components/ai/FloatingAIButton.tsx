@@ -49,7 +49,7 @@ const FloatingAIButton = () => {
           >
             <div className="w-14 h-14 overflow-hidden rounded-full flex items-center justify-center border-2 border-white">
               <img 
-                src="/lovable-uploads/ff068c44-2bb2-450c-8583-fb7072a4850e.png" 
+                src="/lovable-uploads/9337cd35-68a1-4a85-8af2-0f6e0b080a19.png" 
                 alt="Chef Assistant" 
                 className="w-full h-full object-cover"
               />
