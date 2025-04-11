@@ -1,10 +1,16 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, Home, Book, Calendar, Coffee } from 'lucide-react';
 
 const MobileMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setIsOpen(false);
+  };
 
   return (
     <div className="md:hidden">
@@ -43,12 +49,12 @@ const MobileMenu: React.FC = () => {
             <span>Recipe Converter</span>
           </Link>
           <Link 
-            to="/guides"
+            to="/books"
             onClick={() => setIsOpen(false)}
             className="mobile-nav-link flex items-center space-x-2 text-bread-800 dark:text-bread-300"
           >
             <Book size={18} />
-            <span>Guides</span>
+            <span>Books & Guides</span>
           </Link>
           <Link 
             to="/challenges"

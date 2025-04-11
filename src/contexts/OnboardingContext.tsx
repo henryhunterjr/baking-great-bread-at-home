@@ -31,7 +31,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [hasCompletedTour, setHasCompletedTour] = useState<boolean>(false);
   const [showTour, setShowTour] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(0);
-  const [hasSeenWelcomeModal, setHasSeenWelcomeModal] = useState<boolean>(false);
+  const [hasSeenWelcomeModal, setHasSeenWelcomeModal] = useState<boolean>(true); // Default to true to prevent showing on load
 
   // Load onboarding state from localStorage on mount
   useEffect(() => {
@@ -45,8 +45,9 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     if (savedHasSeenWelcomeModal) {
       setHasSeenWelcomeModal(savedHasSeenWelcomeModal === 'true');
     } else {
-      // If this is the first visit, welcome modal should be shown
+      // Only show welcome modal on very first visit
       setHasSeenWelcomeModal(false);
+      localStorage.setItem('hasSeenWelcomeModal', 'false');
     }
   }, []);
 
