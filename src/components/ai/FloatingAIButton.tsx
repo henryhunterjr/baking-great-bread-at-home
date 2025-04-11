@@ -38,7 +38,7 @@ const FloatingAIButton = () => {
         <TooltipTrigger asChild>
           <button
             onClick={toggleAssistant}
-            className={`fixed bottom-6 right-6 z-40 p-4 rounded-full bg-bread-700 hover:bg-bread-800 text-white shadow-lg transition-all duration-300 transform hover:scale-110 ${
+            className={`fixed bottom-6 right-20 z-40 p-4 rounded-full bg-bread-700 hover:bg-bread-800 text-white shadow-lg transition-all duration-300 transform hover:scale-110 ${
               isGlowing ? 'animate-glow' : ''
             }`}
             aria-label="Bread Assistant"
@@ -49,7 +49,7 @@ const FloatingAIButton = () => {
             )}
           </button>
         </TooltipTrigger>
-        <TooltipContent side="top">
+        <TooltipContent>
           <p>Ask the Bread Assistant for baking help</p>
         </TooltipContent>
       </Tooltip>
