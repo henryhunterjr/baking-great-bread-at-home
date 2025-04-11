@@ -15,8 +15,10 @@
   animation: glow 1.5s ease-in-out infinite;
 }
 
-/* Ensure the AI button image is properly styled */
-.floating-ai-button img {
-  object-fit: cover;
-  border: 2px solid white;
+/* Remove previous image styling that might be causing distortion */
+.floating-ai-button {
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

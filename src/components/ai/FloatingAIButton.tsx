@@ -42,16 +42,18 @@ const FloatingAIButton = () => {
         <TooltipTrigger asChild>
           <button
             onClick={handleButtonClick}
-            className={`fixed bottom-6 right-6 z-40 p-1 rounded-full bg-bread-700 hover:bg-bread-800 text-white shadow-lg transition-all duration-300 transform hover:scale-110 floating-ai-button ${
+            className={`fixed bottom-6 right-6 z-40 rounded-full bg-bread-700 hover:bg-bread-800 text-white shadow-lg transition-all duration-300 transform hover:scale-110 floating-ai-button ${
               isGlowing ? 'animate-glow' : ''
             } ${isAssistantOpen ? 'ring-2 ring-bread-400' : ''}`}
             aria-label="Bread Assistant"
           >
-            <img 
-              src="/lovable-uploads/ff068c44-2bb2-450c-8583-fb7072a4850e.png" 
-              alt="Chef Assistant" 
-              className="w-12 h-12 rounded-full"
-            />
+            <div className="w-14 h-14 overflow-hidden rounded-full flex items-center justify-center border-2 border-white">
+              <img 
+                src="/lovable-uploads/ff068c44-2bb2-450c-8583-fb7072a4850e.png" 
+                alt="Chef Assistant" 
+                className="w-full h-full object-cover"
+              />
+            </div>
             {isGlowing && (
               <span className="absolute inset-0 rounded-full animate-ping bg-bread-500 opacity-50"></span>
             )}
