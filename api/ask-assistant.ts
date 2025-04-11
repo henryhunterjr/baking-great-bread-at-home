@@ -2,6 +2,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { RecipeData } from '../src/types/recipeTypes';
 import { ChatMessage } from '../src/components/recipe-converter/types/chat';
+import { isRecipeQuestion, searchBlogForRecipes } from '../src/utils/blogSearch';
 
 interface AssistantRequest {
   message: string;
@@ -24,12 +25,44 @@ export default async function handler(
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Construct the prompt with context
-    let systemPrompt = 'You are a helpful cooking and recipe assistant. Provide concise, practical advice about cooking, baking, and recipes.';
+    // Create a more distinctive baker persona
+    let systemPrompt = `You are an experienced master baker with decades of knowledge about bread, pastry, and all aspects of baking.
+
+Style: Speak with warmth, patience and authority. Use proper baking terminology (hydration levels, fermentation, proofing, etc.) when appropriate, but explain these terms for beginners. Share insights from your wealth of experience, including common mistakes and troubleshooting tips.
+
+Knowledge: You have extensive expertise beyond just bread - including pastries, cakes, cookies, global baking traditions, ingredient substitutions, and dietary accommodations. You understand both traditional and modern baking techniques.
+
+Persona: Imagine yourself as a friendly bakery owner who has taught thousands of students. You're passionate about helping home bakers succeed and take pride in clear, practical advice that produces great results.
+
+Response Style: Answer questions thoroughly but conversationally. Use descriptive language that helps bakers visualize textures and processes. When appropriate, break instructions into clear steps. For complex techniques, provide both a quick answer and a more detailed explanation.`;
     
+    // Check if this is a recipe-related question
+    if (isRecipeQuestion(message)) {
+      // Search the blog for relevant recipes
+      const blogRecipes = await searchBlogForRecipes(message);
+      
+      // If blog recipes found, include them in the context
+      if (blogRecipes && blogRecipes.length > 0) {
+        let recipeContext = `\n\nI found the following recipes on our blog that might answer your question:\n\n`;
+        
+        blogRecipes.forEach((recipe, index) => {
+          recipeContext += `Recipe ${index + 1}: "${recipe.title}"\n`;
+          recipeContext += `Description: ${recipe.description || 'No description available'}\n`;
+          if (recipe.keyIngredients?.length) {
+            recipeContext += `Key ingredients: ${recipe.keyIngredients.join(', ')}\n\n`;
+          }
+        });
+        
+        recipeContext += `When answering, please reference these recipes from our blog first before generating your own recipes.`;
+        
+        // Add this to the system prompt
+        systemPrompt += recipeContext;
+      }
+    }
+
     // Add recipe context if available
     if (recipeContext?.title) {
-      systemPrompt += ` The user is currently working with a recipe for "${recipeContext.title}".`;
+      systemPrompt += `\n\nThe user is currently working with a recipe for "${recipeContext.title}".`;
       
       if (recipeContext.ingredients?.length > 0) {
         systemPrompt += ` The recipe ingredients include: ${recipeContext.ingredients.join(', ')}.`;
