@@ -1,5 +1,6 @@
 
 import { logError, logInfo } from '@/utils/logger';
+import { initializePdfLib } from '@/utils/workerUtils';
 import { executeWithTimeout } from './core/timeout-handler';
 import { processLargePDFInChunks } from './core/chunked-processor';
 import { processPDFText } from './core/text-processor';
@@ -11,7 +12,7 @@ import { extractTextFromPDF } from '@/lib/ai-services/pdf';
 export const processPDFWithTimeout = async (
   file: File,
   onProgress?: (progress: number) => void,
-  timeoutDuration: number = 600000 // 10 minutes default
+  timeoutDuration: number = 300000 // 5 minutes default (reduced from 10 minutes)
 ): Promise<string | { cancel: () => void } | null> => {
   try {
     // Basic file validation
@@ -68,6 +69,13 @@ export const processPDF = async (
     // Check file size
     if (file.size > 20 * 1024 * 1024) { // 20MB
       onError("PDF file is too large (max 20MB). Please try a smaller file or extract just the recipe section.");
+      return null;
+    }
+    
+    // Initialize the PDF library with our improved worker loading
+    const pdfLib = await initializePdfLib();
+    if (!pdfLib) {
+      onError("Failed to initialize PDF processing library. Please try again later.");
       return null;
     }
     

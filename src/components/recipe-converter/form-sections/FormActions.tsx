@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Save, X, AlertCircle } from 'lucide-react';
+import { Save, X, AlertCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { logInfo } from '@/utils/logger';
 
@@ -10,19 +10,32 @@ interface FormActionsProps {
   isDirty: boolean;
   isValid?: boolean;
   onSubmit?: () => void;
+  isProcessing?: boolean;
+  processingMessage?: string;
 }
 
 const FormActions: React.FC<FormActionsProps> = ({ 
   onCancel, 
   isDirty,
   isValid = true,
-  onSubmit
+  onSubmit,
+  isProcessing = false,
+  processingMessage = "Saving..."
 }) => {
   const { toast } = useToast();
-  const isSaveEnabled = isDirty && isValid;
+  const isSaveEnabled = isDirty && isValid && !isProcessing;
   
   const handleSave = () => {
     if (!isSaveEnabled) {
+      if (isProcessing) {
+        toast({
+          variant: "default",
+          title: "Processing in Progress",
+          description: "Please wait while the current operation completes.",
+        });
+        return;
+      }
+      
       toast({
         variant: "destructive",
         title: "Cannot Save",
@@ -44,6 +57,7 @@ const FormActions: React.FC<FormActionsProps> = ({
         type="button" 
         variant="outline" 
         onClick={onCancel}
+        disabled={isProcessing}
       >
         <X className="mr-2 h-4 w-4" />
         Cancel
@@ -54,8 +68,17 @@ const FormActions: React.FC<FormActionsProps> = ({
         disabled={!isSaveEnabled}
         onClick={handleSave}
       >
-        <Save className="mr-2 h-4 w-4" />
-        Save Recipe
+        {isProcessing ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            {processingMessage}
+          </>
+        ) : (
+          <>
+            <Save className="mr-2 h-4 w-4" />
+            Save Recipe
+          </>
+        )}
       </Button>
       {!isValid && isDirty && (
         <div className="text-destructive text-sm absolute -top-6 right-0 flex items-center">

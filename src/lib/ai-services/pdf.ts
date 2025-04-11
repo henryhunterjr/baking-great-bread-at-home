@@ -1,6 +1,7 @@
 
 import { logInfo, logError } from '@/utils/logger';
 import { cleanOCRText } from './text-cleaner';
+import { initializePdfLib } from '@/utils/workerUtils';
 
 /**
  * Extract text from a PDF file
@@ -12,12 +13,12 @@ export const extractTextFromPDF = async (
   try {
     logInfo(`Starting PDF extraction for: ${file.name} (${file.size} bytes)`);
     
-    // Dynamically import PDF.js to reduce initial load time
-    const pdfJS = await import('pdfjs-dist');
+    // Use our improved PDF.js initialization
+    const pdfJS = await initializePdfLib();
     
-    // Set up worker
-    const workerSrc = '/pdf.worker.min.js';
-    pdfJS.GlobalWorkerOptions.workerSrc = workerSrc;
+    if (!pdfJS) {
+      throw new Error("Failed to initialize PDF processing library. Please refresh the page and try again.");
+    }
     
     // Report initial progress
     if (onProgress) onProgress(0.1);
@@ -33,7 +34,23 @@ export const extractTextFromPDF = async (
     
     // Load document
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfJS.getDocument({ data: arrayBuffer }).promise;
+    
+    // Add better options for PDF parsing
+    const loadingTask = pdfJS.getDocument({ 
+      data: arrayBuffer,
+      cMapUrl: '/cmaps/',
+      cMapPacked: true,
+      disableAutoFetch: false
+    });
+    
+    // Set up progress tracking for loading
+    loadingTask.onProgress = (data: { loaded: number, total: number }) => {
+      const loadProgress = data.total ? data.loaded / data.total : 0;
+      // First 20% of progress is loading the PDF
+      if (onProgress) onProgress(0.1 + loadProgress * 0.1);
+    };
+    
+    const pdf = await loadingTask.promise;
     
     // Check page count
     const numPages = pdf.numPages;
@@ -75,6 +92,11 @@ export const extractTextFromPDF = async (
           const progress = 0.2 + 0.7 * (pageNum / numPages);
           onProgress(progress);
         }
+        
+        // Clean up page resources to avoid memory leaks
+        if (page.cleanup && typeof page.cleanup === 'function') {
+          page.cleanup();
+        }
       } catch (pageError) {
         logError(`Error processing page ${pageNum}`, { error: pageError });
         // Continue with other pages even if one fails
@@ -104,7 +126,8 @@ async function processInChunks(
   onProgress?: (progress: number) => void,
   isCancelled?: boolean
 ): Promise<string> {
-  const CHUNK_SIZE = 5; // Process 5 pages at a time
+  // Improved implementation with smaller chunks for better memory usage
+  const CHUNK_SIZE = 2; // Reduced from 5 to 2 pages at a time
   let fullText = '';
   const chunks = Math.ceil(numPages / CHUNK_SIZE);
   
@@ -135,8 +158,17 @@ async function processInChunks(
       onProgress(progress);
     }
     
-    // Small delay between chunks to allow for garbage collection
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // Larger delay between chunks to allow for better garbage collection
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    // Try to trigger garbage collection if available (in environments that support it)
+    if (typeof window !== 'undefined' && (window as any).gc) {
+      try {
+        (window as any).gc();
+      } catch (e) {
+        // Ignore if not available
+      }
+    }
   }
   
   // Clean the text
@@ -149,19 +181,39 @@ async function processInChunks(
 }
 
 /**
- * Extract text from a single PDF page
+ * Extract text from a single PDF page with improved error handling and retry logic
  */
 async function extractPageText(pdf: any, pageNum: number): Promise<string> {
-  try {
-    const page = await pdf.getPage(pageNum);
-    const textContent = await page.getTextContent();
-    
-    // Convert text items to strings
-    return textContent.items
-      .map((item: any) => item.str)
-      .join(' ');
-  } catch (error) {
-    logError(`Error extracting text from page ${pageNum}`, { error });
-    return ''; // Return empty string for failed pages
+  const MAX_RETRIES = 2;
+  
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const page = await pdf.getPage(pageNum);
+      const textContent = await page.getTextContent();
+      
+      // Convert text items to strings
+      const pageText = textContent.items
+        .map((item: any) => item.str)
+        .join(' ');
+      
+      // Clean up page resources to avoid memory leaks
+      if (page.cleanup && typeof page.cleanup === 'function') {
+        page.cleanup();
+      }
+      
+      return pageText;
+    } catch (error) {
+      logError(`Error extracting text from page ${pageNum}, attempt ${attempt + 1}`, { error });
+      
+      // Only retry if we haven't reached the max retries
+      if (attempt === MAX_RETRIES) {
+        return `[Error extracting text from page ${pageNum}]`;
+      }
+      
+      // Wait before retrying with exponential backoff
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 100));
+    }
   }
+  
+  return ''; // Fallback in case all retries fail
 }
