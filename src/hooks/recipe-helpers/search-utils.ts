@@ -1,3 +1,4 @@
+
 import { Recipe } from '@/components/recipes/types';
 import { getChallahRecipes } from './challah-recipes';
 import { getBananaRecipes } from './banana-recipes';
@@ -7,14 +8,13 @@ import { getBananaRecipes } from './banana-recipes';
  */
 export const relatedTermsMap: Record<string, string[]> = {
   'challah': ['braided', 'jewish', 'bread', 'egg bread', 'sabbath', 'shabbat', 'holiday', 'honey'],
-  'sourdough': ['starter', 'levain', 'fermented', 'wild yeast'],
+  'sourdough': ['starter', 'levain', 'fermented', 'wild yeast', 'artisan', 'boule', 'tangy'],
   'bagel': ['boiled', 'new york', 'jewish'],
   'brioche': ['french', 'rich', 'buttery', 'egg'],
   'focaccia': ['italian', 'flat', 'olive oil'],
   'rye': ['pumpernickel', 'deli', 'caraway'],
   'ciabatta': ['italian', 'holes', 'rustic'],
   'banana bread': ['banana', 'quick bread', 'banana loaf', 'fruit bread'],
-  'sourdough': ['artisan', 'starter', 'levain', 'boule', 'fermented', 'tangy'],
   'dinner roll': ['soft roll', 'pull-apart', 'dinner rolls', 'fluffy', 'yeast roll'],
   'cinnamon roll': ['cinnamon bun', 'sweet roll', 'sticky bun', 'morning roll', 'cardamom'],
 };
