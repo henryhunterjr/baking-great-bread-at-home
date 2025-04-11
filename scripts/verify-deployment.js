@@ -9,7 +9,8 @@ async function verifyDeployment() {
   const requiredFiles = [
     { path: 'vercel.json', name: 'Vercel configuration' },
     { path: 'scripts/copy-pdf-resources.js', name: 'PDF resources script' },
-    { path: 'public', name: 'Public directory', isDirectory: true }
+    { path: 'public', name: 'Public directory', isDirectory: true },
+    { path: '.vercel/project.json', name: 'Vercel project configuration' }
   ];
   
   for (const file of requiredFiles) {
@@ -45,10 +46,17 @@ async function verifyDeployment() {
       console.error('❌ prebuild script missing or incorrect. Should run copy-pdf-resources.js');
     }
     
+    // Check for deploy script
+    if (scripts.deploy && scripts.deploy.includes('scripts/deploy.js')) {
+      console.log('✅ deploy script configured correctly');
+    } else {
+      console.warn('⚠️ deploy script should use the deploy.js script for best results');
+    }
+    
     // Check for required dependencies
     const dependencies = { ...packageJson.dependencies, ...packageJson.devDependencies };
     
-    const requiredDeps = ['pdfjs-dist', 'fs-extra'];
+    const requiredDeps = ['pdfjs-dist', 'fs-extra', 'vercel'];
     for (const dep of requiredDeps) {
       if (dependencies[dep]) {
         console.log(`✅ Found required dependency: ${dep} (${dependencies[dep]})`);

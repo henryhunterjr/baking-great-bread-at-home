@@ -18,9 +18,13 @@ async function deploy() {
     console.log('Running preparation script...');
     execSync('node scripts/prepare-for-vercel.js', { stdio: 'inherit' });
     
-    // Deploy with Vercel CLI
+    // Verify deployment readiness
+    console.log('Verifying deployment readiness...');
+    execSync('node scripts/verify-deployment.js', { stdio: 'inherit' });
+    
+    // Deploy with Vercel CLI using --cwd flag to ensure correct directory
     console.log('Deploying to Vercel...');
-    execSync('vercel --confirm --prod', { stdio: 'inherit' });
+    execSync('vercel --confirm --prod --cwd .', { stdio: 'inherit' });
     
     console.log('Deployment complete!');
   } catch (error) {
