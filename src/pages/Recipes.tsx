@@ -125,7 +125,6 @@ const Recipes = () => {
       
       <div className="flex-grow"></div>
       <Footer />
-      {/* Removed the redundant FloatingAIButton from here */}
     </div>
   );
 };

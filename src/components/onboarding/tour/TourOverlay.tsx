@@ -8,7 +8,7 @@ interface TourOverlayProps {
 const TourOverlay = ({ onFinish }: TourOverlayProps) => {
   return (
     <div 
-      className="fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm"
+      className="fixed inset-0 bg-black/70 z-[60] backdrop-blur-sm"
       onClick={onFinish}
       aria-hidden="true"
       style={{ pointerEvents: 'auto' }}
