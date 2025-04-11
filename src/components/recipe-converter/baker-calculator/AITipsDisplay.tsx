@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { BreadTip } from '@/contexts/BreadAssistantContext';
+import { BreadTip } from '@/contexts/bread-assistant/types';
 
 interface AITipsDisplayProps {
   suggestions: BreadTip[];
