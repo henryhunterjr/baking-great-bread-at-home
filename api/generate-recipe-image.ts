@@ -1,5 +1,5 @@
 
-import { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 interface GenerateImageRequest {
   title: string;
@@ -21,6 +21,12 @@ export default async function handler(
     if (!title) {
       return res.status(400).json({ error: 'Recipe title is required' });
     }
+
+    console.log("Generating recipe image", {
+      title,
+      ingredientsCount: ingredients?.length || 0,
+      hasRecipeType: !!recipeType
+    });
 
     // Create a detailed prompt for the AI to generate a relevant food image
     let prompt = `A professional, appetizing food photography of ${title}.`;
@@ -46,6 +52,8 @@ export default async function handler(
 
     // Call the OpenAI API to generate an image
     try {
+      console.log("Calling OpenAI API for image generation", { prompt: prompt.substring(0, 100) + "..." });
+      
       const openaiResponse = await fetch('https://api.openai.com/v1/images/generations', {
         method: 'POST',
         headers: {
@@ -73,6 +81,8 @@ export default async function handler(
 
       const data = await openaiResponse.json();
       const imageUrl = data.data[0].url;
+      
+      console.log("Image generated successfully", { hasImageUrl: !!imageUrl });
 
       return res.status(200).json({ imageUrl });
     } catch (apiError) {

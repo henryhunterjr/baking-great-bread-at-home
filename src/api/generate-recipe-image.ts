@@ -1,5 +1,4 @@
 
-import { NextApiRequest, NextApiResponse } from 'next';
 import { logInfo, logError } from '@/utils/logger';
 
 interface GenerateImageRequest {
@@ -8,25 +7,24 @@ interface GenerateImageRequest {
   recipeType?: string;
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
+export async function generateRecipeImage(
+  requestData: GenerateImageRequest
+): Promise<{ imageUrl?: string; error?: string; details?: any }> {
   try {
-    const { title, ingredients, recipeType } = req.body as GenerateImageRequest;
+    const { title, ingredients, recipeType } = requestData;
 
     if (!title) {
-      return res.status(400).json({ error: 'Recipe title is required' });
+      const error = 'Recipe title is required';
+      logError(error, {});
+      return { error };
     }
 
     logInfo("Generating recipe image", {
-      title,
-      ingredientsCount: ingredients?.length || 0,
-      hasRecipeType: !!recipeType
+      data: {
+        title,
+        ingredientsCount: ingredients?.length || 0,
+        hasRecipeType: !!recipeType
+      }
     });
 
     // Create a detailed prompt for the AI to generate a relevant food image
@@ -44,16 +42,21 @@ export default async function handler(
     // Check if OpenAI API key is available
     const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
     if (!OPENAI_API_KEY) {
-      logError('OpenAI API key is not configured', {});
-      return res.status(500).json({ 
-        error: 'OpenAI API key is not configured',
-        message: 'Please add your OpenAI API key in the environment variables.'
-      });
+      const errorMessage = 'OpenAI API key is not configured';
+      logError(errorMessage, {});
+      return { 
+        error: errorMessage,
+        details: 'Please add your OpenAI API key in the environment variables.'
+      };
     }
 
     // Call the OpenAI API to generate an image
     try {
-      logInfo("Calling OpenAI API for image generation", { prompt: prompt.substring(0, 100) + "..." });
+      logInfo("Calling OpenAI API for image generation", { 
+        data: { 
+          promptPreview: prompt.substring(0, 100) + "..." 
+        }
+      });
       
       const openaiResponse = await fetch('https://api.openai.com/v1/images/generations', {
         method: 'POST',
@@ -73,31 +76,31 @@ export default async function handler(
 
       if (!openaiResponse.ok) {
         const errorData = await openaiResponse.json();
-        logError('OpenAI API error:', errorData);
-        return res.status(openaiResponse.status).json({ 
+        logError('OpenAI API error:', { data: errorData });
+        return { 
           error: 'Failed to generate image', 
           details: errorData 
-        });
+        };
       }
 
       const data = await openaiResponse.json();
       const imageUrl = data.data[0].url;
       
-      logInfo("Image generated successfully", { hasImageUrl: !!imageUrl });
+      logInfo("Image generated successfully", { data: { hasImageUrl: !!imageUrl } });
 
-      return res.status(200).json({ imageUrl });
+      return { imageUrl };
     } catch (apiError) {
-      logError('Error calling OpenAI API:', apiError);
-      return res.status(500).json({ 
+      logError('Error calling OpenAI API:', { error: apiError });
+      return { 
         error: 'Error calling OpenAI API',
         details: apiError instanceof Error ? apiError.message : 'Unknown error'
-      });
+      };
     }
   } catch (error) {
-    logError('Error generating image:', error);
-    return res.status(500).json({ 
+    logError('Error generating image:', { error });
+    return { 
       error: 'Failed to generate image',
       details: error instanceof Error ? error.message : 'Unknown error'
-    });
+    };
   }
 }
