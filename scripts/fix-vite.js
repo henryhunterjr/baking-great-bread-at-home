@@ -24,13 +24,17 @@ async function fixViteInstallation() {
   console.log('📝 Updating package.json scripts...');
   packageJson.scripts = packageJson.scripts || {};
   packageJson.scripts.dev = 'node scripts/start-dev.js';
+
+  // Also add a direct vite script as fallback
+  packageJson.scripts.vite = 'vite';
+  packageJson.scripts.vite_npx = 'npx vite';
   
   // Write updated package.json
   fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-  console.log('✅ Updated package.json dev script to use start-dev.js');
+  console.log('✅ Updated package.json scripts');
   
   // First, clean up any broken Vite installation
-  console.log('🧹 Cleaning up any broken Vite installations...');
+  console.log('🧹 Performing complete cleanup of Vite installations...');
   try {
     // Remove the vite folder from node_modules if it exists
     const vitePath = path.join(nodeModulesPath, 'vite');
@@ -45,6 +49,13 @@ async function fixViteInstallation() {
       console.log('✅ Removed existing Vite binary link');
     }
 
+    // Remove vite plugin react
+    const vitePluginReactPath = path.join(nodeModulesPath, '@vitejs', 'plugin-react');
+    if (fs.existsSync(vitePluginReactPath)) {
+      fs.removeSync(vitePluginReactPath);
+      console.log('✅ Removed Vite plugin React');
+    }
+
     // Remove node_modules/.vite
     const viteCache = path.join(nodeModulesPath, '.vite');
     if (fs.existsSync(viteCache)) {
@@ -52,81 +63,108 @@ async function fixViteInstallation() {
       console.log('✅ Removed Vite cache');
     }
     
-    // Clear npm cache completely (more thorough)
+    // Clear npm cache completely
     console.log('🧹 Clearing npm cache...');
     execSync('npm cache clean --force', { stdio: 'inherit', cwd: projectRoot });
     console.log('✅ Cleaned npm cache');
+
+    // Remove package-lock.json if it exists to ensure clean install
+    const packageLockPath = path.join(projectRoot, 'package-lock.json');
+    if (fs.existsSync(packageLockPath)) {
+      fs.removeSync(packageLockPath);
+      console.log('✅ Removed package-lock.json for clean install');
+    }
+
   } catch (error) {
     console.warn('⚠️ Error during cleanup:', error.message);
   }
   
-  // Now, force install vite and related packages directly
+  // Now, install vite and related packages directly
   console.log('📦 Installing Vite and related packages...');
   
   try {
-    // Try a clean reinstall of all dependencies first
-    console.log('Performing a clean reinstall of dependencies...');
-    execSync('npm install', { 
+    // First, install core dependencies
+    console.log('Installing core dependencies...');
+    execSync('npm install --no-package-lock', { 
       stdio: 'inherit',
-      cwd: projectRoot
+      cwd: projectRoot,
+      env: { ...process.env, NODE_ENV: 'development' }
     });
     
-    // Now install vite specifically
+    // Now install vite specifically with exact version
     console.log('Installing Vite specifically...');
-    execSync('npm install --save-dev vite@latest @vitejs/plugin-react@latest', { 
+    execSync('npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1 --no-package-lock', { 
       stdio: 'inherit',
-      cwd: projectRoot
+      cwd: projectRoot,
+      env: { ...process.env, NODE_ENV: 'development' }
     });
     
-    // If bin/vite still doesn't exist, try linking it manually
-    if (!fs.existsSync(viteBinPath)) {
-      console.log('Vite binary not found, attempting to create symlink manually...');
+    // Create a simple executable script as backup
+    console.log('Creating a backup Vite executable...');
+    const viteCliPath = path.join(nodeModulesPath, 'vite', 'bin', 'vite.js');
+    
+    if (fs.existsSync(viteCliPath)) {
+      // Create directory for the bin file if it doesn't exist
+      const binDir = path.dirname(viteBinPath);
+      fs.ensureDirSync(binDir);
+
       try {
-        // Ensure .bin directory exists
-        const binDir = path.dirname(viteBinPath);
-        fs.ensureDirSync(binDir);
+        // Create a simple executable script for Unix/Mac
+        fs.writeFileSync(viteBinPath, `#!/usr/bin/env node\nrequire('${viteCliPath.replace(/\\/g, '/')}');\n`, { mode: 0o755 });
+        console.log('✅ Created Vite executable script');
         
-        // Find the vite cli file
-        const viteCliPath = path.join(nodeModulesPath, 'vite', 'bin', 'vite.js');
-        if (fs.existsSync(viteCliPath)) {
-          // Create a simple executable script
-          fs.writeFileSync(viteBinPath, `#!/usr/bin/env node\nrequire('${viteCliPath.replace(/\\/g, '/')}');\n`, { mode: 0o755 });
-          console.log('✅ Created Vite executable script manually');
-        }
-      } catch (linkError) {
-        console.warn('⚠️ Error creating manual link:', linkError.message);
+        // Create a .cmd file for Windows
+        const viteBinCmdPath = viteBinPath + '.cmd';
+        fs.writeFileSync(viteBinCmdPath, `@node "${viteCliPath}" %*`);
+        console.log('✅ Created Vite Windows executable script');
+      } catch (writeError) {
+        console.warn('⚠️ Error creating manual script:', writeError.message);
       }
+    } else {
+      console.warn('⚠️ Vite CLI path not found at:', viteCliPath);
     }
     
-    // Try installing globally as last resort
+    // Install vite globally as fallback
     console.log('Installing Vite globally as fallback...');
-    execSync('npm install -g vite', {
-      stdio: 'inherit',
-      cwd: projectRoot
-    });
-    
-    console.log('✅ Global Vite installation completed');
+    try {
+      execSync('npm install -g vite@4.5.1', {
+        stdio: 'inherit',
+        cwd: projectRoot
+      });
+      console.log('✅ Global Vite installation completed');
+    } catch (globalError) {
+      console.warn('⚠️ Could not install globally, might need admin/sudo rights:', globalError.message);
+    }
     
     // Verify Vite is now accessible
     try {
-      const viteVersion = execSync('npx vite --version', { 
-        stdio: 'pipe',
-        cwd: projectRoot
-      }).toString().trim();
-      console.log(`✅ Vite is now accessible! Version: ${viteVersion}`);
+      // Check local vite first
+      if (fs.existsSync(viteBinPath)) {
+        const localResult = execSync(`"${viteBinPath}" --version`, { 
+          stdio: 'pipe',
+          cwd: projectRoot
+        }).toString().trim();
+        console.log(`✅ Local Vite is accessible! Version: ${localResult}`);
+      } else {
+        // Try with npx
+        const npxResult = execSync('npx vite --version', { 
+          stdio: 'pipe',
+          cwd: projectRoot
+        }).toString().trim();
+        console.log(`✅ Vite is accessible through npx! Version: ${npxResult}`);
+      }
     } catch (e) {
-      console.warn('⚠️ Vite still not accessible through npx, but installation completed.');
-      console.warn('Please try running "node scripts/start-dev.js" manually.');
+      console.warn('⚠️ Vite still not accessible through local or npx commands.');
+      console.warn('Please try running "npm run vite_npx" manually.');
     }
   } catch (error) {
     console.error('❌ Failed to install Vite:', error.message);
     
-    // Manual steps for the user
     console.log('\n📋 MANUAL FIX: Please try running the following commands:');
     console.log('1. npm cache clean --force');
     console.log('2. rm -rf node_modules');
     console.log('3. npm install');
-    console.log('4. npm install --save-dev vite@latest @vitejs/plugin-react@latest');
+    console.log('4. npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1');
   }
   
   console.log('\n🚀 Installation process completed. Try running "npm run dev" again.\n');

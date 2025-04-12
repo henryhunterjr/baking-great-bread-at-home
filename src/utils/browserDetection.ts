@@ -95,7 +95,7 @@ export function detectBrowser(): {
  * @returns Object with feature support information
  */
 export function checkFeatureSupport(): Record<string, boolean> {
-  // Key browser features to check
+  // Key browser features to check, but skip the problematic ones
   return {
     localStorage: typeof window.localStorage !== 'undefined',
     sessionStorage: typeof window.sessionStorage !== 'undefined',
@@ -105,7 +105,7 @@ export function checkFeatureSupport(): Record<string, boolean> {
     webp: hasWebP(),
     webgl: hasWebGL(),
     canvas: hasCanvas(),
-    // Ignore VR, ambient-light-sensor, and battery API checks as they trigger warnings
+    // Removed these features that cause warnings in the console
     // vr: 'getVRDisplays' in navigator,
     // ambientLightSensor: 'AmbientLightSensor' in window,
     // battery: 'getBattery' in navigator,
