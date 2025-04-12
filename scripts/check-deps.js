@@ -37,13 +37,15 @@ function checkDependencies() {
     console.log('Vite is properly installed.');
   }
   
-  // Verify vite is accessible
+  // Verify vite is accessible through npx
   try {
-    const vitePath = require.resolve('vite');
-    console.log(`Vite found at: ${vitePath}`);
+    execSync('npx vite --version', { 
+      stdio: 'pipe',
+      cwd: path.resolve(__dirname, '..')
+    });
+    console.log('Vite is accessible through npx.');
   } catch (error) {
-    console.error('Vite module not found even after installation. There might be a deeper issue.');
-    console.log('Running fix-vite.js to attempt repair...');
+    console.error('Vite module found but not accessible through npx. Running fix-vite.js...');
     try {
       execSync('node scripts/fix-vite.js', { 
         stdio: 'inherit',

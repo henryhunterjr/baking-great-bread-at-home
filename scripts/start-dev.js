@@ -10,8 +10,8 @@ try {
     cwd: path.resolve(__dirname, '..')
   });
   
-  // Then run the development server with npx to make sure we use the locally installed vite
-  console.log('Starting development server...');
+  // Then run the development server with npx to make sure we use the correct vite version
+  console.log('Starting development server with npx vite...');
   execSync('npx vite', {
     stdio: 'inherit',
     cwd: path.resolve(__dirname, '..')
@@ -21,9 +21,16 @@ try {
   console.log('Trying to start with alternative method...');
   
   try {
-    // Try with full path
-    const viteExecutable = path.resolve(__dirname, '../node_modules/.bin/vite');
-    execSync(`"${viteExecutable}"`, {
+    // Try running fix-vite script
+    console.log('Running fix-vite.js to repair Vite installation...');
+    execSync('node scripts/fix-vite.js', {
+      stdio: 'inherit',
+      cwd: path.resolve(__dirname, '..')
+    });
+    
+    // Try with npx again
+    console.log('Retrying with npx vite...');
+    execSync('npx vite', {
       stdio: 'inherit',
       cwd: path.resolve(__dirname, '..')
     });
