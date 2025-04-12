@@ -5,6 +5,7 @@ import { executeWithTimeout } from './core/timeout-handler';
 import { processLargePDFInChunks } from './core/chunked-processor';
 import { processPDFText } from './core/text-processor';
 import { extractTextFromPDF } from '@/lib/ai-services/pdf';
+import { PDF_WORKER_CONFIG } from '@/config/pdf-worker-config';
 
 /**
  * Process PDF content with timeout handling

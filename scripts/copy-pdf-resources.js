@@ -20,6 +20,18 @@ async function copyPdfResources() {
     );
     
     console.log('PDF resources copied successfully');
+    
+    // Create worker-ready.js file that confirms workers are available
+    // instead of modifying package.json
+    const readyFileContent = `
+    // This file confirms that PDF.js workers are available
+    window.pdfWorkerReady = true;
+    console.log('PDF.js worker files ready to use');
+    `;
+
+    await fs.writeFile(path.join(__dirname, '../public/worker-ready.js'), readyFileContent);
+    
+    console.log('\n✅ Worker files setup complete!\n');
   } catch (error) {
     console.error('Error copying PDF resources:', error);
     process.exit(1);

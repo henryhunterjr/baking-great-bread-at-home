@@ -1,5 +1,5 @@
-
 import { logError, logInfo } from '@/utils/logger';
+import { PDF_WORKER_CONFIG } from '@/config/pdf-worker-config';
 
 /**
  * Process a large PDF in chunks to avoid memory issues
@@ -19,7 +19,7 @@ export const processLargePDFInChunks = async (
     
     // Set worker source if not already set
     if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+      pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER_CONFIG.workerSrc;
     }
     
     // Report initial progress
@@ -31,8 +31,8 @@ export const processLargePDFInChunks = async (
     // Load the document with explicit cMap options
     const pdf = await pdfjsLib.getDocument({
       data: arrayBuffer,
-      cMapUrl: '/cmaps/',
-      cMapPacked: true,
+      cMapUrl: PDF_WORKER_CONFIG.cmapsUrl,
+      cMapPacked: PDF_WORKER_CONFIG.cmapsPacked,
       disableAutoFetch: false
     }).promise;
     

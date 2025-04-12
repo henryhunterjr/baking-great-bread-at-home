@@ -1,5 +1,6 @@
 
 import { logInfo, logError } from './logger';
+import { PDF_WORKER_CONFIG } from '@/config/pdf-worker-config';
 
 /**
  * Initialize PDF.js library with proper worker configuration
@@ -21,13 +22,13 @@ export const initializePdfLib = async (): Promise<any> => {
       return null;
     }
     
-    // Set worker source using multiple fallbacks
+    // Set worker source using config
     try {
       // Try different paths for worker (in order of preference)
       const workerPaths = [
-        '/pdf.worker.min.js',
+        PDF_WORKER_CONFIG.workerSrc,
         '/assets/pdf.worker.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+        PDF_WORKER_CONFIG.fallbackWorkerSrc
       ];
       
       // Function to check if worker is available at path
@@ -53,14 +54,14 @@ export const initializePdfLib = async (): Promise<any> => {
       
       // If we couldn't find a worker, use CDN as last resort
       if (!pdfjs.GlobalWorkerOptions.workerSrc) {
-        pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_CONFIG.fallbackWorkerSrc;
         logInfo('Using CDN fallback for PDF worker');
       }
     } catch (workerError) {
       logError('Error setting worker source', { error: workerError });
       
       // Last resort fallback
-      pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_CONFIG.fallbackWorkerSrc;
       logInfo('Using CDN emergency fallback for PDF worker');
     }
     
@@ -167,14 +168,14 @@ const setupPDFWorker = (): void => {
     // This makes the worker available globally so PDF.js can find it
     if (typeof window !== 'undefined') {
       // Try to use local worker first
-      (window as any).pdfjsWorkerSrc = '/pdf.worker.min.js';
+      (window as any).pdfjsWorkerSrc = PDF_WORKER_CONFIG.workerSrc;
       
       // Add a fallback to CDN in case local worker fails
       window.addEventListener('error', (event) => {
         // Check if error is related to PDF.js worker
         if (event.filename?.includes('pdf.worker.min.js')) {
           logInfo('PDF worker load failed, using CDN fallback');
-          (window as any).pdfjsWorkerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          (window as any).pdfjsWorkerSrc = PDF_WORKER_CONFIG.fallbackWorkerSrc;
         }
       }, { once: true });
     }
