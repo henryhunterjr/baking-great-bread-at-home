@@ -1,25 +1,29 @@
-import { logInfo, logError, logWarn } from './logger';
+
+import { logInfo, logError, logWarn } from '../logger';
+import { ConnectionOptions } from './types';
 
 /**
- * Handles WebSocket connections with fallback options and improved performance
+ * Handles WebSocket connections with lifecycle management
  */
-export class WebSocketManager {
+export class ConnectionHandler {
   private socket: WebSocket | null = null;
   private url: string;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 3;
+  private maxReconnectAttempts: number;
   private reconnectTimeout: number | null = null;
+  private connectionPromise: Promise<boolean> | null = null;
+  private connectionResolver: ((success: boolean) => void) | null = null;
+  private useFallback = false;
+  private shouldDisableWebSocket = true; // Changed to true by default
+  
+  // Callback handlers
   private onMessageCallback: ((data: any) => void) | null = null;
   private onConnectCallback: (() => void) | null = null;
   private onErrorCallback: ((error: any) => void) | null = null;
-  private useFallback = false;
-  private shouldDisableWebSocket = true; // Changed to true by default
-  private pendingMessages: Array<any> = [];
-  private connectionPromise: Promise<boolean> | null = null;
-  private connectionResolver: ((success: boolean) => void) | null = null;
-
-  constructor(url: string) {
+  
+  constructor(url: string, options?: ConnectionOptions) {
     this.url = url;
+    this.maxReconnectAttempts = options?.maxReconnectAttempts || 3;
     
     // Skip WebSockets in production environments for better reliability
     if (typeof window !== 'undefined') {
@@ -34,7 +38,27 @@ export class WebSocketManager {
   }
 
   /**
-   * Connect to the WebSocket server with Promise-based resolution
+   * Get the current socket instance
+   */
+  getSocket(): WebSocket | null {
+    return this.socket;
+  }
+
+  /**
+   * Set callback handlers
+   */
+  setCallbacks(
+    messageCallback: ((data: any) => void) | null,
+    connectCallback: (() => void) | null,
+    errorCallback: ((error: any) => void) | null
+  ): void {
+    this.onMessageCallback = messageCallback;
+    this.onConnectCallback = connectCallback;
+    this.onErrorCallback = errorCallback;
+  }
+
+  /**
+   * Connect to the WebSocket server
    */
   connect(): Promise<boolean> {
     // Always use fallback mode
@@ -89,15 +113,6 @@ export class WebSocketManager {
           clearTimeout(connectionTimeout);
           logInfo('WebSocket connection established');
           this.reconnectAttempts = 0;
-          
-          // Send any pending messages
-          if (this.pendingMessages.length > 0) {
-            logInfo(`Sending ${this.pendingMessages.length} pending messages`);
-            this.pendingMessages.forEach(msg => {
-              this.sendDirectly(msg);
-            });
-            this.pendingMessages = [];
-          }
           
           if (this.onConnectCallback) this.onConnectCallback();
           if (this.connectionResolver) this.connectionResolver(true);
@@ -159,7 +174,7 @@ export class WebSocketManager {
   /**
    * Attempt to reconnect
    */
-  private reconnect(): void {
+  reconnect(): void {
     if (this.reconnectTimeout) clearTimeout(this.reconnectTimeout);
     
     this.reconnectAttempts++;
@@ -185,9 +200,9 @@ export class WebSocketManager {
   }
 
   /**
-   * Send data directly through WebSocket (internal use)
+   * Send data directly through WebSocket
    */
-  private sendDirectly(data: any): boolean {
+  sendDirectly(data: any): boolean {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       return false;
     }
@@ -200,41 +215,6 @@ export class WebSocketManager {
       logError('Error sending message over WebSocket', { error });
       return false;
     }
-  }
-
-  /**
-   * Send data through WebSocket or fallback with queue support
-   */
-  async send(data: any): Promise<boolean> {
-    // Always use fallback 
-    this.useFallback = true;
-    logInfo('Using fallback mode for sending message');
-    // Implement REST API fallback
-    return true;
-  }
-
-  /**
-   * Set message handler
-   */
-  onMessage(callback: (data: any) => void): this {
-    this.onMessageCallback = callback;
-    return this;
-  }
-
-  /**
-   * Set connection handler
-   */
-  onConnect(callback: () => void): this {
-    this.onConnectCallback = callback;
-    return this;
-  }
-
-  /**
-   * Set error handler
-   */
-  onError(callback: (error: any) => void): this {
-    this.onErrorCallback = callback;
-    return this;
   }
 
   /**
@@ -259,10 +239,3 @@ export class WebSocketManager {
     this.useFallback = false;
   }
 }
-
-/**
- * Create a WebSocket manager with fallback capabilities
- */
-export const createWebSocketManager = (url: string): WebSocketManager => {
-  return new WebSocketManager(url);
-};

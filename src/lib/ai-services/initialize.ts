@@ -1,3 +1,4 @@
+
 import { logInfo, logError, logWarn } from '@/utils/logger';
 import { 
   isOpenAIConfigured, 
@@ -10,7 +11,7 @@ import { initializeContentIndexer } from './content-indexing/content-indexer';
 import { initializeContextAwareAI } from './context-aware-ai';
 import { ensurePDFWorkerFiles, configurePDFWorkerCORS } from './pdf/pdf-worker-service';
 import { verifyOCRAvailability } from './pdf/ocr/ocr-processor';
-import { createWebSocketManager } from '@/utils/websocket-manager';
+import { createWebSocketManager } from '@/utils/websocket';
 
 // WebSocket connection if needed
 let websocketManager: ReturnType<typeof createWebSocketManager> | null = null;
