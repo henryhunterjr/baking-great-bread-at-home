@@ -31,4 +31,9 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
+  // Add optimizeDeps to ensure vite properly processes dependencies
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom'],
+    exclude: [],
+  },
 }))
