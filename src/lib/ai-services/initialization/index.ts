@@ -1,98 +1,79 @@
 
 import { logInfo, logError } from '@/utils/logger';
-import { initializeAPIKey } from './api-key';
-import { initializePDFServices } from './pdf-services';
 import { initializeContentServices } from './content-services';
-import { initializeWebSockets, getWebSocketManager } from './websocket';
-import { registerAccessibilityFixes } from './accessibility';
+import { initializePDFServices } from './pdf-services';
+import { initializeWebSockets } from './websocket';
+import { verifyAPIKey } from '../key-management';
+import { fixAriaAccessibility } from './accessibility';
 
 /**
- * Initialize AI service and content indexing with enhanced reliability
+ * Initialize all AI services
+ * This is the main entry point for initializing all AI-related services
  */
-export const initializeAIService = async (): Promise<void> => {
-  try {
-    logInfo('Initializing AI service');
-    
-    // Initialize API key
-    const apiKeyStatus = await initializeAPIKey();
-    
-    // Initialize PDF services
-    const pdfStatus = await initializePDFServices();
-    
-    // Initialize content services
-    const contentStatus = await initializeContentServices();
-    
-    // Initialize WebSockets
-    initializeWebSockets();
-    
-    // Register accessibility fixes
-    registerAccessibilityFixes();
-    
-    logInfo('AI service initialization complete', {
-      apiConfigured: apiKeyStatus.isConfigured,
-      apiValid: apiKeyStatus.isValid,
-      pdfWorker: pdfStatus.pdfWorkerAvailable,
-      ocr: pdfStatus.ocrAvailable,
-      contentIndexing: contentStatus.contentIndexingAvailable,
-      contextAware: contentStatus.contextAwareAvailable
-    });
-  } catch (error) {
-    logError('Failed to initialize AI service', { error });
-  }
-};
-
-/**
- * Verify AI service status with comprehensive diagnostics
- */
-export const verifyAIServiceStatus = async (): Promise<{
-  apiKeyValid: boolean;
+export const initializeAIService = async (): Promise<{
+  contentIndexingAvailable: boolean;
+  contextAwareAvailable: boolean;
   pdfWorkerAvailable: boolean;
   ocrAvailable: boolean;
-  contentIndexingAvailable: boolean;
-  websocketConnected: boolean;
-  overallStatus: boolean;
+  apiKeyConfigured: boolean;
 }> => {
+  logInfo('Initializing AI services...');
+
+  // Initialize WebSockets first for real-time capabilities
   try {
-    // Initialize API key
-    const apiKeyStatus = await initializeAPIKey();
-    
-    // Initialize PDF services
-    const pdfStatus = await initializePDFServices();
-    
-    // Initialize content services
-    const contentStatus = await initializeContentServices();
-    
-    // Check WebSocket connection
-    const websocketManager = getWebSocketManager();
-    const websocketConnected = !!websocketManager && !websocketManager.isFallbackMode();
-    
-    // Determine overall status (API key not required for overall status)
-    const overallStatus = pdfStatus.pdfWorkerAvailable && 
-      (pdfStatus.ocrAvailable || contentStatus.contentIndexingAvailable);
-    
-    const statusReport = {
-      apiKeyValid: !!apiKeyStatus.isValid,
-      pdfWorkerAvailable: pdfStatus.pdfWorkerAvailable,
-      ocrAvailable: pdfStatus.ocrAvailable,
-      contentIndexingAvailable: contentStatus.contentIndexingAvailable,
-      websocketConnected,
-      overallStatus
-    };
-    
-    logInfo('AI service status verification complete', statusReport);
-    return statusReport;
+    initializeWebSockets();
+    logInfo('✅ WebSockets initialized');
   } catch (error) {
-    logError('Error verifying AI service status', { error });
-    return {
-      apiKeyValid: false,
-      pdfWorkerAvailable: false,
-      ocrAvailable: false,
-      contentIndexingAvailable: false,
-      websocketConnected: false,
-      overallStatus: false
-    };
+    logError('WebSockets initialization failed', { error });
   }
+
+  // Initialize content services
+  const { contentIndexingAvailable, contextAwareAvailable } = 
+    await initializeContentServices().catch(error => {
+      logError('Content services initialization failed', { error });
+      return { contentIndexingAvailable: false, contextAwareAvailable: false };
+    });
+
+  // Initialize PDF services
+  const { pdfWorkerAvailable, ocrAvailable } = 
+    await initializePDFServices().catch(error => {
+      logError('PDF services initialization failed', { error });
+      return { pdfWorkerAvailable: false, ocrAvailable: false };
+    });
+
+  // Verify API key configuration
+  const apiKeyConfigured = await verifyAPIKey().catch(() => false);
+
+  // Fix accessibility issues
+  try {
+    fixAriaAccessibility();
+    logInfo('✅ Accessibility fixes applied');
+  } catch (error) {
+    logError('Accessibility fixes failed', { error });
+  }
+  
+  // Log initialization status
+  const status = {
+    contentIndexingAvailable,
+    contextAwareAvailable,
+    pdfWorkerAvailable,
+    ocrAvailable,
+    apiKeyConfigured
+  };
+  
+  logInfo('AI service initialization complete', status);
+  
+  return status;
 };
 
-// Re-export accessibility functions
+/**
+ * Verify the status of AI services
+ * This can be used to check if services are available after initialization
+ */
+export const verifyAIServiceStatus = async () => {
+  return await initializeAIService();
+};
+
+// Re-export accessibility function
 export { fixAriaAccessibility } from './accessibility';
+

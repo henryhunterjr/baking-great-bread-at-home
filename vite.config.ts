@@ -19,7 +19,13 @@ export default defineConfig(({ mode }) => ({
   server: {
     port: 8080,
     strictPort: true,
-    host: "::",
+    host: true, // listen on all addresses
+    open: true, // auto-open browser window
+    hmr: {
+      // Ensure HMR works with fallback mechanisms
+      clientPort: 8080,
+      overlay: true,
+    },
   },
   build: {
     outDir: 'dist',
