@@ -15,13 +15,13 @@ try {
   console.log('Starting development server with npx vite...');
   
   try {
-    // Try with explicit npx path
+    // Try with npx first
     execSync('npx vite', {
       stdio: 'inherit',
       cwd: path.resolve(__dirname, '..')
     });
   } catch (error) {
-    console.error('Failed to start with npx vite, trying alternative method...');
+    console.error('Failed to start with npx vite, trying direct path...');
     
     // Try using direct path to vite executable
     const viteExecutable = path.join(__dirname, '..', 'node_modules', '.bin', 'vite');
@@ -42,7 +42,6 @@ try {
   
   try {
     // Run fix-vite script
-    console.log('Running fix-vite.js to repair Vite installation...');
     execSync('node scripts/fix-vite.js', {
       stdio: 'inherit',
       cwd: path.resolve(__dirname, '..')

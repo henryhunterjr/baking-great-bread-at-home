@@ -21,15 +21,13 @@ async function fixViteInstallation() {
   const packageJson = require(packageJsonPath);
   
   // Update our dev script to use node scripts/start-dev.js
-  if (!packageJson.scripts || packageJson.scripts.dev !== 'node scripts/start-dev.js') {
-    console.log('📝 Updating package.json scripts...');
-    packageJson.scripts = packageJson.scripts || {};
-    packageJson.scripts.dev = 'node scripts/start-dev.js';
-    
-    // Write updated package.json
-    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-    console.log('✅ Updated package.json dev script to use start-dev.js');
-  }
+  console.log('📝 Updating package.json scripts...');
+  packageJson.scripts = packageJson.scripts || {};
+  packageJson.scripts.dev = 'node scripts/start-dev.js';
+  
+  // Write updated package.json
+  fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+  console.log('✅ Updated package.json dev script to use start-dev.js');
   
   // First, clean up any broken Vite installation
   console.log('🧹 Cleaning up any broken Vite installations...');
@@ -53,33 +51,28 @@ async function fixViteInstallation() {
       fs.removeSync(viteCache);
       console.log('✅ Removed Vite cache');
     }
+    
+    // Clear npm cache completely (more thorough)
+    console.log('🧹 Clearing npm cache...');
+    execSync('npm cache clean --force', { stdio: 'inherit', cwd: projectRoot });
+    console.log('✅ Cleaned npm cache');
   } catch (error) {
     console.warn('⚠️ Error during cleanup:', error.message);
-  }
-
-  // Clear npm cache for vite
-  console.log('🧹 Clearing npm cache for Vite...');
-  try {
-    execSync('npm cache clean --force vite', { stdio: 'inherit', cwd: projectRoot });
-    console.log('✅ Cleaned npm cache for Vite');
-  } catch (error) {
-    console.warn('⚠️ Error clearing npm cache:', error.message);
   }
   
   // Now, force install vite and related packages directly
   console.log('📦 Installing Vite and related packages...');
   
   try {
-    // Install vite and plugin-react directly to the project with --no-save first
-    // This helps bypass any package lock issues
-    console.log('Installing Vite without saving to package.json first...');
-    execSync('npm install --no-save vite@latest @vitejs/plugin-react@latest', { 
+    // Try a clean reinstall of all dependencies first
+    console.log('Performing a clean reinstall of dependencies...');
+    execSync('npm install', { 
       stdio: 'inherit',
       cwd: projectRoot
     });
     
-    // Now install properly to save to package.json
-    console.log('Installing Vite properly to save in package.json...');
+    // Now install vite specifically
+    console.log('Installing Vite specifically...');
     execSync('npm install --save-dev vite@latest @vitejs/plugin-react@latest', { 
       stdio: 'inherit',
       cwd: projectRoot
@@ -105,7 +98,7 @@ async function fixViteInstallation() {
       }
     }
     
-    // Try installing globally as fallback
+    // Try installing globally as last resort
     console.log('Installing Vite globally as fallback...');
     execSync('npm install -g vite', {
       stdio: 'inherit',
