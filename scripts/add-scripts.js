@@ -26,9 +26,9 @@ const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
 
 // Define the scripts we want to add/update
 const updatedScripts = {
-  dev: 'node scripts/start-dev.js',
-  'dev:direct': 'vite',
-  'dev:fix': 'node scripts/fix-vite.js && node scripts/start-dev.js',
+  dev: 'node scripts/dev.js',
+  'dev:direct': 'node scripts/direct-vite.js',
+  'dev:fix': 'node scripts/fix-vite.js && npx vite',
   'dev:shell': 'bash scripts/run-dev.sh',
   'pdf:setup': 'node scripts/copy-pdf-resources.js',
   'check:deps': 'node scripts/check-deps.js'
@@ -40,17 +40,31 @@ packageJson.scripts = { ...packageJson.scripts, ...updatedScripts };
 console.log('Scripts updated in package.json:');
 console.log(JSON.stringify(updatedScripts, null, 2));
 console.log('\nTo manually add these scripts to package.json, run:');
-console.log('npm set-script dev "node scripts/start-dev.js"');
-console.log('npm set-script dev:direct "vite"');
-console.log('npm set-script dev:fix "node scripts/fix-vite.js && node scripts/start-dev.js"');
+console.log('npm set-script dev "node scripts/dev.js"');
+console.log('npm set-script dev:direct "node scripts/direct-vite.js"');
+console.log('npm set-script dev:fix "node scripts/fix-vite.js && npx vite"');
 console.log('npm set-script dev:shell "bash scripts/run-dev.sh"');
 console.log('npm set-script pdf:setup "node scripts/copy-pdf-resources.js"');
 console.log('npm set-script check:deps "node scripts/check-deps.js"');
 
 // Output information about manually running the scripts
 console.log('\n✅ For development, you can now run:');
-console.log('node scripts/start-dev.js');
+console.log('node scripts/dev.js');
 console.log('\n🛠 If you encounter issues with Vite, first try:');
 console.log('node scripts/fix-vite.js');
 console.log('\n📚 For PDF functionality, ensure resources are set up:');
 console.log('node scripts/copy-pdf-resources.js');
+
+// Write the updated package.json if executed directly
+if (require.main === module) {
+  try {
+    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    console.log('\n✅ Successfully updated package.json!');
+  } catch (error) {
+    console.error('\n❌ Failed to update package.json:', error.message);
+    console.error('You can update the scripts manually using the npm set-script commands above.');
+  }
+}
+
+// Export the scripts for other modules to use
+module.exports = { updatedScripts };
