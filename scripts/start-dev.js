@@ -10,7 +10,7 @@ try {
     cwd: path.resolve(__dirname, '..')
   });
   
-  // Then run the development server
+  // Then run the development server with npx to make sure we use the locally installed vite
   console.log('Starting development server...');
   execSync('npx vite', {
     stdio: 'inherit',
@@ -18,5 +18,17 @@ try {
   });
 } catch (error) {
   console.error('Failed to start development server:', error);
-  process.exit(1);
+  console.log('Trying to start with alternative method...');
+  
+  try {
+    // Try with full path
+    const viteExecutable = path.resolve(__dirname, '../node_modules/.bin/vite');
+    execSync(`"${viteExecutable}"`, {
+      stdio: 'inherit',
+      cwd: path.resolve(__dirname, '..')
+    });
+  } catch (altError) {
+    console.error('All attempts to start Vite failed:', altError);
+    process.exit(1);
+  }
 }
