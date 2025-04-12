@@ -1,3 +1,4 @@
+
 /**
  * Enhanced logging utility with structured logging and performance tracking
  */
@@ -104,7 +105,7 @@ export function endPerformanceTimer(markerId: string, operationName: string, con
   
   // Log the performance information
   const entry: LogEntry = {
-    timestamp: new Date().toISOString(),
+    timestamp: Date.now(), // Fix: Changed from string to number timestamp
     level: LogLevel.PERF,
     message: operationName,
     context,
@@ -140,7 +141,7 @@ export function clearLogs(): void {
  * Initialize dev error handler (for local development)
  */
 export function initLogging(): void {
-  logInfo('Logging system initialized', { timestamp: new Date().toISOString() });
+  logInfo('Logging system initialized', { timestamp: Date.now() });
   
   // Set up global error handling
   if (typeof window !== 'undefined') {
