@@ -1,95 +1,72 @@
 
-const { execSync } = require('child_process');
+const { execSync, spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs-extra');
 
-// First run the dependency checker
-try {
-  console.log('Running dependency check...');
-  execSync('node scripts/check-deps.js', {
-    stdio: 'inherit',
-    cwd: path.resolve(__dirname, '..')
-  });
+async function startDevServer() {
+  console.log('Starting development server...');
   
-  // Try multiple methods to start vite
-  console.log('Starting development server with Vite...');
-  
-  const methods = [
-    { name: 'npx vite', cmd: 'npx vite' },
-    { name: 'local vite binary', cmd: `"${path.join(__dirname, '..', 'node_modules', '.bin', 'vite')}"` },
-    { name: 'global vite', cmd: 'vite' },
-    { name: 'node vite module', cmd: `node "${path.join(__dirname, '..', 'node_modules', 'vite', 'bin', 'vite.js')}"` }
+  const projectRoot = path.resolve(__dirname, '..');
+  const nodeModulesPath = path.resolve(projectRoot, 'node_modules');
+  const viteBinPath = path.resolve(nodeModulesPath, '.bin', 'vite');
+  const viteModulePath = path.resolve(nodeModulesPath, 'vite');
+  const viteCliPath = path.resolve(viteModulePath, 'bin', 'vite.js');
+
+  const startMethods = [
+    { 
+      name: 'Local Vite Binary', 
+      command: `"${viteBinPath}"`,
+      cwd: projectRoot
+    },
+    { 
+      name: 'NPX Vite', 
+      command: 'npx vite',
+      cwd: projectRoot
+    },
+    { 
+      name: 'Node Vite CLI', 
+      command: `node "${viteCliPath}"`,
+      cwd: projectRoot
+    },
+    { 
+      name: 'Global Vite', 
+      command: 'vite',
+      cwd: projectRoot
+    }
   ];
-  
-  // Try each method in sequence
-  let started = false;
-  
-  for (const method of methods) {
-    if (started) break;
-    
+
+  for (const method of startMethods) {
     try {
-      console.log(`Trying to start with ${method.name}...`);
-      execSync(method.cmd, {
-        stdio: 'inherit',
-        cwd: path.resolve(__dirname, '..')
-      });
-      started = true;
-      break;
-    } catch (error) {
-      console.warn(`Failed to start with ${method.name}, trying next method...`);
-    }
-  }
-  
-  // If all methods failed, try fixing vite
-  if (!started) {
-    throw new Error('All standard methods to start Vite failed');
-  }
-} catch (error) {
-  console.error('Failed to start development server:', error.message);
-  console.log('Trying to fix Vite installation and restart...');
-  
-  try {
-    // Run fix-vite script
-    execSync('node scripts/fix-vite.js', {
-      stdio: 'inherit',
-      cwd: path.resolve(__dirname, '..')
-    });
-    
-    // Try one more time with each method after fixing
-    let restarted = false;
-    
-    const fallbackMethods = [
-      { name: 'npx vite (after fix)', cmd: 'npx vite' },
-      { name: 'local vite binary (after fix)', cmd: `"${path.join(__dirname, '..', 'node_modules', '.bin', 'vite')}"` },
-      { name: 'node vite module (after fix)', cmd: `node "${path.join(__dirname, '..', 'node_modules', 'vite', 'bin', 'vite.js')}"` },
-      { name: 'global vite (after fix)', cmd: 'vite' }
-    ];
-    
-    for (const method of fallbackMethods) {
-      if (restarted) break;
+      console.log(`Attempting to start dev server with ${method.name}...`);
       
-      try {
-        console.log(`Trying to restart with ${method.name}...`);
-        execSync(method.cmd, {
-          stdio: 'inherit',
-          cwd: path.resolve(__dirname, '..')
-        });
-        restarted = true;
-        break;
-      } catch (methodError) {
-        console.warn(`Failed to restart with ${method.name}...`);
-      }
+      const child = spawn(method.command, [], {
+        stdio: 'inherit',
+        shell: true,
+        cwd: method.cwd
+      });
+
+      child.on('error', (err) => {
+        console.error(`Error with ${method.name}:`, err);
+      });
+
+      child.on('close', (code) => {
+        if (code !== 0) {
+          console.warn(`${method.name} exited with code ${code}`);
+        }
+      });
+
+      return; // Exit if successfully started
+    } catch (error) {
+      console.warn(`Failed to start with ${method.name}:`, error.message);
     }
-    
-    if (!restarted) {
-      throw new Error('All attempts to start Vite failed, even after fixing.');
-    }
-  } catch (fixError) {
-    console.error('All attempts to start Vite failed.');
-    console.error('Please run the following commands manually:');
-    console.error('1. node scripts/fix-vite.js');
-    console.error('2. npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1');
-    console.error('3. npx vite');
-    process.exit(1);
   }
+
+  console.error('All attempts to start the development server failed.');
+  console.error('Please try:');
+  console.error('1. Reinstalling Vite: npm install --save-dev vite@latest');
+  console.error('2. Checking your Node.js installation');
+  console.error('3. Running node scripts/fix-vite.js');
+  process.exit(1);
 }
+
+startDevServer();

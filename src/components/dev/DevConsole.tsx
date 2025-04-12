@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { restoreConsole, initDevErrorHandler } from '@/utils/devErrorHandler';
-import { getRecentLogs, clearLogs, LogLevel } from '@/utils/logger';
+import { getRecentLogs, clearLogs, LogLevel, LogEntry } from '@/utils/logger';
 import { AlertTriangle, Bug, RefreshCw, X, WifiOff } from 'lucide-react';
 import LogsPanel from './LogsPanel';
 
@@ -14,7 +14,7 @@ interface DevConsoleProps {
 }
 
 const DevConsole: React.FC<DevConsoleProps> = ({ onClose }) => {
-  const [logs, setLogs] = useState(getRecentLogs());
+  const [logs, setLogs] = useState<LogEntry[]>(getRecentLogs());
   const [errorFiltering, setErrorFiltering] = useState(true);
   const [hideWebSocketErrors, setHideWebSocketErrors] = useState(true);
   

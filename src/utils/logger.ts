@@ -1,4 +1,3 @@
-
 /**
  * Enhanced logging utility with structured logging and performance tracking
  */
@@ -13,8 +12,8 @@ export enum LogLevel {
 }
 
 // Interface for structured logs
-interface LogEntry {
-  timestamp: string;
+export interface LogEntry {
+  timestamp: number; // Changed from string to number
   level: LogLevel;
   message: string;
   context?: Record<string, any>;
@@ -33,7 +32,7 @@ const performanceMarkers: Record<string, number> = {};
  */
 export function log(level: LogLevel, message: string, context?: Record<string, any>): void {
   const entry: LogEntry = {
-    timestamp: new Date().toISOString(),
+    timestamp: Date.now(), // Use numeric timestamp
     level,
     message,
     context
