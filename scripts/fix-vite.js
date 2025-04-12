@@ -20,15 +20,15 @@ async function fixViteInstallation() {
   // Read package.json
   const packageJson = require(packageJsonPath);
   
-  // Add/update our dev script to directly use npx vite
-  if (!packageJson.scripts || packageJson.scripts.dev !== 'npx vite') {
+  // Update our dev script to use node scripts/start-dev.js
+  if (!packageJson.scripts || packageJson.scripts.dev !== 'node scripts/start-dev.js') {
     console.log('📝 Updating package.json scripts...');
     packageJson.scripts = packageJson.scripts || {};
-    packageJson.scripts.dev = 'npx vite';
+    packageJson.scripts.dev = 'node scripts/start-dev.js';
     
     // Write updated package.json
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-    console.log('✅ Updated package.json dev script to use npx vite');
+    console.log('✅ Updated package.json dev script to use start-dev.js');
   }
   
   // First, clean up any broken Vite installation
@@ -70,38 +70,60 @@ async function fixViteInstallation() {
   console.log('📦 Installing Vite and related packages...');
   
   try {
-    // Install vite and plugin-react directly to the project
-    console.log('Installing Vite locally...');
+    // Install vite and plugin-react directly to the project with --no-save first
+    // This helps bypass any package lock issues
+    console.log('Installing Vite without saving to package.json first...');
+    execSync('npm install --no-save vite@latest @vitejs/plugin-react@latest', { 
+      stdio: 'inherit',
+      cwd: projectRoot
+    });
+    
+    // Now install properly to save to package.json
+    console.log('Installing Vite properly to save in package.json...');
     execSync('npm install --save-dev vite@latest @vitejs/plugin-react@latest', { 
       stdio: 'inherit',
       cwd: projectRoot
     });
     
-    // Check if installation was successful
-    if (fs.existsSync(viteBinPath)) {
-      console.log('✅ Vite successfully installed!');
-    } else {
-      throw new Error('Vite binary not found after installation');
+    // If bin/vite still doesn't exist, try linking it manually
+    if (!fs.existsSync(viteBinPath)) {
+      console.log('Vite binary not found, attempting to create symlink manually...');
+      try {
+        // Ensure .bin directory exists
+        const binDir = path.dirname(viteBinPath);
+        fs.ensureDirSync(binDir);
+        
+        // Find the vite cli file
+        const viteCliPath = path.join(nodeModulesPath, 'vite', 'bin', 'vite.js');
+        if (fs.existsSync(viteCliPath)) {
+          // Create a simple executable script
+          fs.writeFileSync(viteBinPath, `#!/usr/bin/env node\nrequire('${viteCliPath.replace(/\\/g, '/')}');\n`, { mode: 0o755 });
+          console.log('✅ Created Vite executable script manually');
+        }
+      } catch (linkError) {
+        console.warn('⚠️ Error creating manual link:', linkError.message);
+      }
     }
     
-    // Verify Vite is now accessible using npx
+    // Try installing globally as fallback
+    console.log('Installing Vite globally as fallback...');
+    execSync('npm install -g vite', {
+      stdio: 'inherit',
+      cwd: projectRoot
+    });
+    
+    console.log('✅ Global Vite installation completed');
+    
+    // Verify Vite is now accessible
     try {
-      execSync('npx vite --version', { 
+      const viteVersion = execSync('npx vite --version', { 
         stdio: 'pipe',
         cwd: projectRoot
-      });
-      console.log('✅ Vite is accessible through npx!');
+      }).toString().trim();
+      console.log(`✅ Vite is now accessible! Version: ${viteVersion}`);
     } catch (e) {
-      console.warn('⚠️ Cannot run vite through npx, trying global installation...');
-      
-      // Try installing globally
-      console.log('Installing Vite globally...');
-      execSync('npm install -g vite', {
-        stdio: 'inherit',
-        cwd: projectRoot
-      });
-      
-      console.log('✅ Global Vite installation completed');
+      console.warn('⚠️ Vite still not accessible through npx, but installation completed.');
+      console.warn('Please try running "node scripts/start-dev.js" manually.');
     }
   } catch (error) {
     console.error('❌ Failed to install Vite:', error.message);
