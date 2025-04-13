@@ -69,18 +69,6 @@ async function setup() {
     }
   }
   
-  // Copy PDF resources
-  log.step('Setting up PDF resources');
-  try {
-    execSync('node scripts/copy-pdf-resources.js', {
-      stdio: 'inherit',
-      cwd: projectRoot
-    });
-    log.success('PDF resources set up');
-  } catch (error) {
-    log.warn('Failed to set up PDF resources, continuing anyway');
-  }
-  
   // Start the development server using direct methods
   log.step('Starting development server');
   

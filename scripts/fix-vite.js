@@ -17,22 +17,6 @@ async function fixViteInstallation() {
     process.exit(1);
   }
   
-  // Read package.json
-  const packageJson = require(packageJsonPath);
-  
-  // Update our dev script to use node scripts/start-dev.js
-  console.log('📝 Updating package.json scripts...');
-  packageJson.scripts = packageJson.scripts || {};
-  packageJson.scripts.dev = 'node scripts/start-dev.js';
-
-  // Also add a direct vite script as fallback
-  packageJson.scripts.vite = 'vite';
-  packageJson.scripts.vite_npx = 'npx vite';
-  
-  // Write updated package.json
-  fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-  console.log('✅ Updated package.json scripts');
-  
   // First, clean up any broken Vite installation
   console.log('🧹 Performing complete cleanup of Vite installations...');
   try {
@@ -62,19 +46,6 @@ async function fixViteInstallation() {
       fs.removeSync(viteCache);
       console.log('✅ Removed Vite cache');
     }
-    
-    // Clear npm cache completely
-    console.log('🧹 Clearing npm cache...');
-    execSync('npm cache clean --force', { stdio: 'inherit', cwd: projectRoot });
-    console.log('✅ Cleaned npm cache');
-
-    // Remove package-lock.json if it exists to ensure clean install
-    const packageLockPath = path.join(projectRoot, 'package-lock.json');
-    if (fs.existsSync(packageLockPath)) {
-      fs.removeSync(packageLockPath);
-      console.log('✅ Removed package-lock.json for clean install');
-    }
-
   } catch (error) {
     console.warn('⚠️ Error during cleanup:', error.message);
   }
@@ -83,17 +54,9 @@ async function fixViteInstallation() {
   console.log('📦 Installing Vite and related packages...');
   
   try {
-    // First, install core dependencies
-    console.log('Installing core dependencies...');
-    execSync('npm install --no-package-lock', { 
-      stdio: 'inherit',
-      cwd: projectRoot,
-      env: { ...process.env, NODE_ENV: 'development' }
-    });
-    
-    // Now install vite specifically with exact version
+    // Install vite specifically with exact version
     console.log('Installing Vite specifically...');
-    execSync('npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1 --no-package-lock', { 
+    execSync('npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1', { 
       stdio: 'inherit',
       cwd: projectRoot,
       env: { ...process.env, NODE_ENV: 'development' }
@@ -167,7 +130,7 @@ async function fixViteInstallation() {
     console.log('4. npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1');
   }
   
-  console.log('\n🚀 Installation process completed. Try running "npm run dev" again.\n');
+  console.log('\n🚀 Installation process completed. Try running "node scripts/dev.js" again.\n');
 }
 
 fixViteInstallation().catch(err => {

@@ -66,20 +66,6 @@ function checkDependencies() {
     }
   }
   
-  // Try directly running the CLI file with node
-  if (!viteAccessible && viteCliExists) {
-    try {
-      const versionOutput = execSync(`node "${viteCliPath}" --version`, { 
-        stdio: 'pipe',
-        cwd: path.resolve(__dirname, '..')
-      }).toString().trim();
-      console.log(`Vite is accessible through node CLI. Version: ${versionOutput}`);
-      viteAccessible = true;
-    } catch (e) {
-      console.warn('Vite CLI exists but is not accessible');
-    }
-  }
-  
   // If not vite is not properly installed or not accessible, run fix-vite.js
   if (!nodeModulesExists || !viteModuleExists || !viteAccessible) {
     console.log('Vite not properly installed or not accessible. Running fix-vite script...');
