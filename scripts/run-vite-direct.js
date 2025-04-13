@@ -1,15 +1,25 @@
+
 #!/usr/bin/env node
 
 /**
- * Direct Vite runner script
- * This script tries multiple methods to run Vite without modifying package.json
+ * Direct Vite runner script with intelligent fallbacks
+ * This script tries multiple methods to run Vite and installs it if needed
  */
 
 const { spawn, execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-console.log('🚀 Attempting to start Vite development server...');
+// ANSI colors for better console output
+const colors = {
+  reset: '\x1b[0m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  red: '\x1b[31m',
+};
+
+console.log(`${colors.blue}🚀 Attempting to start Vite development server...${colors.reset}`);
 
 // Define paths
 const projectRoot = process.cwd();
@@ -35,53 +45,67 @@ async function runVite() {
     {
       name: 'Local Vite binary',
       check: () => fs.existsSync(viteBinPath),
-      run: () => spawn(viteBinPath, [], { stdio: 'inherit', shell: true })
+      run: () => {
+        console.log(`${colors.green}Using local Vite binary...${colors.reset}`);
+        return spawn(viteBinPath, [], { stdio: 'inherit', shell: true });
+      }
     },
     {
       name: 'Vite CLI module',
       check: () => fs.existsSync(viteCliPath),
-      run: () => spawn('node', [viteCliPath], { stdio: 'inherit', shell: true })
+      run: () => {
+        console.log(`${colors.green}Using Vite CLI module...${colors.reset}`);
+        return spawn('node', [viteCliPath], { stdio: 'inherit', shell: true });
+      }
     },
     {
       name: 'NPX Vite',
       check: () => commandExists('npx'),
-      run: () => spawn('npx', ['vite'], { stdio: 'inherit', shell: true })
+      run: () => {
+        console.log(`${colors.green}Using NPX Vite...${colors.reset}`);
+        return spawn('npx', ['vite'], { stdio: 'inherit', shell: true });
+      }
     },
     {
       name: 'Global Vite',
       check: () => commandExists('vite'),
-      run: () => spawn('vite', [], { stdio: 'inherit', shell: true })
+      run: () => {
+        console.log(`${colors.green}Using global Vite...${colors.reset}`);
+        return spawn('vite', [], { stdio: 'inherit', shell: true });
+      }
     }
   ];
 
   // Try each method in order
   for (const method of methods) {
-    console.log(`Trying to start Vite using: ${method.name}`);
-    
     if (method.check()) {
+      console.log(`Trying to start Vite with ${method.name}...`);
+      
       try {
         const process = method.run();
         
-        process.on('error', (err) => {
-          console.error(`Error running Vite with ${method.name}:`, err.message);
-        });
-        
-        // Wait to see if the process stays running
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        if (process.exitCode === null) {
-          console.log(`✅ Successfully started Vite with ${method.name}`);
-          
-          // Keep the process running until it exits
-          process.on('close', (code) => {
-            console.log(`Vite process exited with code ${code}`);
-            process.exit(code);
+        return new Promise((resolve) => {
+          process.on('error', (err) => {
+            console.log(`${colors.yellow}Error starting with ${method.name}: ${err.message}${colors.reset}`);
+            resolve(false);
           });
           
-          return true;
-        }
+          // Wait a moment to see if the process starts successfully
+          setTimeout(() => {
+            if (process.exitCode === null) {
+              // Process is still running
+              process.on('close', (code) => {
+                console.log(`\nVite process exited with code ${code}`);
+              });
+              resolve(true);
+            } else {
+              console.log(`${colors.yellow}Failed to start with ${method.name}${colors.reset}`);
+              resolve(false);
+            }
+          }, 1000);
+        });
       } catch (error) {
-        console.error(`Failed with ${method.name}:`, error.message);
+        console.log(`${colors.yellow}Failed to start with ${method.name}: ${error.message}${colors.reset}`);
       }
     }
   }
@@ -91,19 +115,38 @@ async function runVite() {
 
 // Install Vite if needed and retry
 async function installAndRunVite() {
-  console.log('⚙️ Vite not found. Installing Vite...');
+  console.log(`${colors.yellow}⚙️ Vite not found. Installing Vite...${colors.reset}`);
   
   try {
     console.log('Installing Vite and React plugin...');
+    
+    // Create a temporary package.json if it doesn't exist
+    const packageJsonPath = path.join(projectRoot, 'package.json');
+    let packageExists = false;
+    let originalPackage = null;
+    
+    if (!fs.existsSync(packageJsonPath)) {
+      console.log('Creating temporary package.json...');
+      fs.writeFileSync(packageJsonPath, JSON.stringify({ name: "vite-temp", private: true }, null, 2));
+    } else {
+      packageExists = true;
+      originalPackage = fs.readFileSync(packageJsonPath, 'utf8');
+    }
+    
     execSync('npm install --no-save vite@4.5.1 @vitejs/plugin-react@4.2.1', { 
       stdio: 'inherit',
       cwd: projectRoot
     });
     
-    console.log('✅ Vite installed successfully. Retrying...');
+    // Restore original package.json if we created a temporary one
+    if (!packageExists) {
+      fs.unlinkSync(packageJsonPath);
+    }
+    
+    console.log(`${colors.green}✅ Vite installed successfully. Retrying...${colors.reset}`);
     return await runVite();
   } catch (error) {
-    console.error('Failed to install Vite:', error.message);
+    console.error(`${colors.red}Failed to install Vite: ${error.message}${colors.reset}`);
     return false;
   }
 }
@@ -111,18 +154,19 @@ async function installAndRunVite() {
 // Main function
 async function main() {
   // First try running Vite directly
-  const success = await runVite();
+  let success = await runVite();
   
   // If direct run failed, try installing and running
   if (!success) {
-    const installed = await installAndRunVite();
+    success = await installAndRunVite();
     
-    if (!installed) {
-      console.error('❌ All attempts to run Vite failed.');
+    if (!success) {
+      console.error(`${colors.red}❌ All attempts to run Vite failed.${colors.reset}`);
       console.log('\nTroubleshooting tips:');
-      console.log('1. Try running: node scripts/run-vite-direct.js');
-      console.log('2. Try installing Vite manually: npm install --save-dev vite@4.5.1 @vitejs/plugin-react');
-      console.log('3. Try running: npx vite');
+      console.log('1. Try running: npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1');
+      console.log('2. Try running: npx vite');
+      console.log('3. Try running the batch script: scripts\\start-dev.bat (on Windows)');
+      console.log('4. Try running the shell script: bash scripts/start-dev.sh (on Unix/Mac)');
       process.exit(1);
     }
   }
@@ -130,6 +174,6 @@ async function main() {
 
 // Run the main function
 main().catch(error => {
-  console.error('Fatal error:', error);
+  console.error(`Fatal error: ${error.message}`);
   process.exit(1);
 });

@@ -2,59 +2,93 @@
 @echo off
 echo Starting development server...
 
+:: Set ANSI color codes for Windows
+set RESET=[0m
+set GREEN=[32m
+set YELLOW=[33m
+set BLUE=[34m
+set RED=[31m
+
 :: Project root directory
 set ROOT_DIR=%~dp0..
 set NODE_MODULES=%ROOT_DIR%\node_modules
 set VITE_BIN=%NODE_MODULES%\.bin\vite.cmd
 set VITE_CLI=%NODE_MODULES%\vite\bin\vite.js
 
+:: Enable delayed expansion
+setlocal enabledelayedexpansion
+
+echo %BLUE%Checking for Vite installation...%RESET%
+
 :: Check if vite exists in node_modules
 if exist "%VITE_BIN%" (
-  echo Using local Vite binary...
+  echo %GREEN%Using local Vite binary...%RESET%
   call "%VITE_BIN%"
-  exit /b %errorlevel%
+  if !errorlevel! equ 0 (
+    echo %GREEN%Vite completed successfully!%RESET%
+    exit /b 0
+  )
+  echo %YELLOW%Local Vite binary failed with exit code !errorlevel!. Trying next method...%RESET%
 )
 
 :: Check if vite module exists
 if exist "%VITE_CLI%" (
-  echo Using Vite CLI module...
+  echo %GREEN%Using Vite CLI module...%RESET%
   node "%VITE_CLI%"
-  exit /b %errorlevel%
+  if !errorlevel! equ 0 (
+    echo %GREEN%Vite completed successfully!%RESET%
+    exit /b 0
+  )
+  echo %YELLOW%Vite CLI module failed with exit code !errorlevel!. Trying next method...%RESET%
 )
 
 :: Try with npx
+echo %BLUE%Trying with npx...%RESET%
 where npx >nul 2>&1
 if %errorlevel% equ 0 (
-  echo Using npx Vite...
+  echo %GREEN%Using npx Vite...%RESET%
   npx vite
-  if %errorlevel% equ 0 exit /b 0
-  echo npx vite failed with exit code %errorlevel%
+  if !errorlevel! equ 0 (
+    echo %GREEN%Vite completed successfully!%RESET%
+    exit /b 0
+  )
+  echo %YELLOW%npx vite failed with exit code !errorlevel!. Trying next method...%RESET%
 )
 
 :: Try with global vite
+echo %BLUE%Trying with global Vite...%RESET%
 where vite >nul 2>&1
 if %errorlevel% equ 0 (
-  echo Using global Vite...
+  echo %GREEN%Using global Vite...%RESET%
   vite
-  if %errorlevel% equ 0 exit /b 0
-  echo Global vite failed with exit code %errorlevel%
+  if !errorlevel! equ 0 (
+    echo %GREEN%Vite completed successfully!%RESET%
+    exit /b 0
+  )
+  echo %YELLOW%Global vite failed with exit code !errorlevel!%RESET%
 )
 
 :: If we got here, none of the methods worked, so install vite
-echo Vite not found. Installing Vite...
+echo %YELLOW%Vite not found or not working. Installing Vite...%RESET%
 call npm install --no-save vite@4.5.1 @vitejs/plugin-react@4.2.1
 
 :: Try again with the installed version
 if exist "%VITE_BIN%" (
-  echo Using newly installed Vite...
+  echo %GREEN%Using newly installed Vite...%RESET%
   call "%VITE_BIN%"
-  exit /b %errorlevel%
+  if !errorlevel! equ 0 (
+    echo %GREEN%Vite completed successfully!%RESET%
+    exit /b 0
+  )
 ) else if exist "%VITE_CLI%" (
-  echo Using newly installed Vite CLI...
+  echo %GREEN%Using newly installed Vite CLI...%RESET%
   node "%VITE_CLI%"
-  exit /b %errorlevel%
+  if !errorlevel! equ 0 (
+    echo %GREEN%Vite completed successfully!%RESET%
+    exit /b 0
+  )
 ) else (
-  echo Failed to find Vite after installation.
+  echo %RED%Failed to find Vite after installation.%RESET%
   echo Try running one of these commands:
   echo 1. node scripts/run-vite-direct.js
   echo 2. npx vite
