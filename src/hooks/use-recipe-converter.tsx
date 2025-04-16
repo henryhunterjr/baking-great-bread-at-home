@@ -8,7 +8,6 @@ import { RecipeData } from '@/types/recipeTypes';
 import { logInfo } from '@/utils/logger';
 
 export const useRecipeConverter = () => {
-  // Use the smaller, focused hooks
   const {
     recipe,
     setRecipe,
@@ -37,101 +36,63 @@ export const useRecipeConverter = () => {
     setIsEditing
   );
 
-  // Use the conversion success hook
   useConversionSuccess(recipe, isEditing, setShowConversionSuccess);
-  
-  // Enhanced recipe setter with proper logging and isConverted flag enforcement
-  const setRecipeWithLogging = (newRecipe: RecipeData) => {
-    if (!newRecipe) {
-      logInfo("Attempt to set null or undefined recipe prevented");
-      return recipe; // Return existing recipe to prevent nullifying the state
-    }
-    
+
+  const setRecipeWithConversion = (incoming: RecipeData) => {
+    const verified = {
+      ...incoming,
+      isConverted: true
+    };
+
     logInfo("Setting recipe in useRecipeConverter", {
-      hasTitle: !!newRecipe.title,
-      hasIngredients: Array.isArray(newRecipe.ingredients) && newRecipe.ingredients.length > 0,
-      hasInstructions: Array.isArray(newRecipe.instructions) && newRecipe.instructions.length > 0,
-      isConverted: newRecipe.isConverted === true
+      hasTitle: !!verified.title,
+      ingredients: verified.ingredients?.length,
+      instructions: verified.instructions?.length,
+      isConverted: verified.isConverted
     });
-    
-    // Ensure key properties exist and are in correct format
-    const updatedRecipe = {
-      ...newRecipe,
-      // Always ensure these core properties exist and are in the correct format
-      title: newRecipe.title || 'Untitled Recipe',
-      ingredients: Array.isArray(newRecipe.ingredients) ? newRecipe.ingredients : [],
-      instructions: Array.isArray(newRecipe.instructions) ? newRecipe.instructions : [],
-      isConverted: true // Always force this to true for any recipe being set
-    };
-    
-    setRecipe(updatedRecipe);
-    return updatedRecipe;
+
+    setRecipe(verified);
+    return verified;
   };
 
-  // Auto-switch to favorites tab after saving with enhanced error handling
-  const handleSaveWithTabSwitch = async (updatedRecipe: RecipeData = recipe): Promise<boolean> => {
-    if (!updatedRecipe || !updatedRecipe.title) {
-      logInfo("Prevented save attempt for invalid recipe", { 
-        hasRecipe: !!updatedRecipe,
-        hasTitle: updatedRecipe?.title 
-      });
-      setConversionError("Cannot save recipe: missing title or recipe data");
-      return false;
-    }
-    
-    // Ensure isConverted is true and other required fields are present before saving
-    const recipeToSave = {
-      ...updatedRecipe,
-      title: updatedRecipe.title || 'Untitled Recipe',
-      ingredients: Array.isArray(updatedRecipe.ingredients) ? updatedRecipe.ingredients : [],
-      instructions: Array.isArray(updatedRecipe.instructions) ? updatedRecipe.instructions : [],
-      isConverted: true,
-      updatedAt: new Date().toISOString()
+  const handleSaveWithSwitch = async (incoming: RecipeData = recipe): Promise<boolean> => {
+    const saveReady = {
+      ...incoming,
+      isConverted: true
     };
-    
-    logInfo("Saving recipe in handleSaveWithTabSwitch", {
-      hasId: !!recipeToSave.id,
-      title: recipeToSave.title,
-      isConverted: recipeToSave.isConverted === true
+
+    logInfo("Saving recipe", {
+      id: saveReady.id,
+      title: saveReady.title,
+      converted: saveReady.isConverted
     });
-    
-    const success = await handleSaveRecipe(recipeToSave);
-    if (success) {
-      // Auto-switch to favorites tab after saving
-      setActiveTab("favorites");
-      // Clear any previous errors
-      setConversionError(null);
-    }
-    return success;
+
+    const ok = await handleSaveRecipe(saveReady);
+    if (ok) setActiveTab("favorites");
+    return ok;
   };
 
-  // Handle selection with error clearing and isConverted enforcement
-  const handleSelectWithErrorClearing = (savedRecipe: RecipeData) => {
-    if (!savedRecipe) return;
-    
-    // Ensure isConverted is true when selecting a recipe
-    const recipeWithConversion = {
-      ...savedRecipe,
-      isConverted: true,
-      ingredients: Array.isArray(savedRecipe.ingredients) ? savedRecipe.ingredients : [],
-      instructions: Array.isArray(savedRecipe.instructions) ? savedRecipe.instructions : []
+  const handleSelectWithClear = (chosen: RecipeData) => {
+    const flagged = {
+      ...chosen,
+      isConverted: true
     };
-    
-    handleSelectSavedRecipe(recipeWithConversion);
+
+    handleSelectSavedRecipe(flagged);
     setConversionError(null);
   };
 
   return {
     recipe,
-    setRecipe: setRecipeWithLogging,
+    setRecipe: setRecipeWithConversion,
     isEditing,
     setIsEditing,
     showConversionSuccess,
     activeTab,
     setActiveTab,
     handleConversionComplete,
-    handleSaveRecipe: handleSaveWithTabSwitch,
-    handleSelectSavedRecipe: handleSelectWithErrorClearing,
+    handleSaveRecipe: handleSaveWithSwitch,
+    handleSelectSavedRecipe: handleSelectWithClear,
     resetRecipe,
     conversionError,
     setConversionError
