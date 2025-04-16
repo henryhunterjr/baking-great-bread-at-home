@@ -39,6 +39,19 @@ async function setup() {
   
   log.step('Starting development setup');
   
+  // Copy PDF resources
+  log.info('Setting up PDF resources...');
+  try {
+    execSync('node scripts/copy-pdf-resources.js', {
+      stdio: 'inherit',
+      cwd: projectRoot
+    });
+    log.success('PDF resources installed successfully');
+  } catch (error) {
+    log.warn('Failed to copy PDF resources, some PDF features may not work correctly');
+    // Continue anyway, as this isn't fatal for non-PDF functionality
+  }
+  
   // Check if vite is installed
   const nodeModulesPath = path.resolve(projectRoot, 'node_modules');
   const viteBinPath = path.resolve(nodeModulesPath, '.bin', 'vite');

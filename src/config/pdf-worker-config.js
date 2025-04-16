@@ -1,7 +1,7 @@
 
 /**
  * PDF Worker configuration
- * This file replaces the need to modify package.json for PDF worker settings
+ * This file centralizes PDF worker settings
  */
 
 export const PDF_WORKER_CONFIG = {
