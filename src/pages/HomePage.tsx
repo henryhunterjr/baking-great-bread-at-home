@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Footer from '@/components/Footer';
@@ -6,6 +5,7 @@ import HeroSection from '@/components/home/HeroSection';
 import AboutSection from '@/components/home/AboutSection';
 import BooksSection from '@/components/home/BooksSection';
 import ToolsSection from '@/components/home/ToolsSection';
+import FlipbookSection from '@/components/home/FlipbookSection';
 import CTASection from '@/components/home/CTASection';
 import BlogPreviewSection from '@/components/home/BlogPreviewSection';
 import CareCenterPreview from '@/components/home/CareCenterPreview';
@@ -18,8 +18,9 @@ const HomePage = () => {
   // Refs for animation elements
   const heroRef = React.useRef<HTMLDivElement>(null);
   const aboutRef = React.useRef<HTMLElement>(null);
-  const booksRef = React.useRef<HTMLElement>(null);
   const toolsRef = React.useRef<HTMLElement>(null);
+  const flipbookRef = React.useRef<HTMLElement>(null);
+  const booksRef = React.useRef<HTMLElement>(null);
   const careCenterRef = React.useRef<HTMLElement>(null);
   const challengeRef = React.useRef<HTMLElement>(null);
   const blogRef = React.useRef<HTMLElement>(null);
@@ -54,7 +55,8 @@ const HomePage = () => {
       careCenterRef.current, 
       challengeRef.current, 
       blogRef.current, 
-      ctaRef.current
+      ctaRef.current,
+      flipbookRef.current
     ].filter(Boolean); // Filter out any null refs
     
     // Observe elements
@@ -71,31 +73,32 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Remove Navbar from here - it's now being rendered by App.tsx */}
-      
       <main className="flex-grow">
         <HeroSection heroRef={heroRef} />
         
-        {/* Section divider - using a more performant approach */}
         <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
              role="presentation" 
              aria-hidden="true" />
         
         <AboutSection sectionRef={aboutRef} />
         
-        {/* Section divider */}
-        <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
-             role="presentation" 
-             aria-hidden="true" />
-        
-        <BooksSection sectionRef={booksRef} />
-        
-        {/* Section divider */}
         <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
              role="presentation" 
              aria-hidden="true" />
         
         <ToolsSection sectionRef={toolsRef} />
+        
+        <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
+             role="presentation" 
+             aria-hidden="true" />
+             
+        <FlipbookSection sectionRef={flipbookRef} />
+        
+        <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
+             role="presentation" 
+             aria-hidden="true" />
+        
+        <BooksSection sectionRef={booksRef} />
         
         {/* Section divider */}
         <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
