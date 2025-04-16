@@ -4,6 +4,7 @@
 # Colors for better readability
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo -e "${GREEN}Starting development server...${NC}"
@@ -11,22 +12,30 @@ echo -e "${GREEN}Starting development server...${NC}"
 # Make the script executable
 chmod +x start-dev.sh
 
-# Try our robust development script first
-echo "Running robust development script..."
-node scripts/robust-dev.js
+# Check if we need to install dependencies
+if [ ! -d "node_modules" ] || [ ! -d "node_modules/vite" ]; then
+  echo -e "${YELLOW}Vite not found. Installing dependencies...${NC}"
+  npm install
+fi
 
-# If that fails, try direct methods
+# Try using npx to run vite directly
+echo "Trying to start with npx vite..."
+npx vite
+
+# If npx vite fails, try with node
 if [ $? -ne 0 ]; then
-  echo -e "${YELLOW}Robust script failed. Trying direct methods...${NC}"
+  echo -e "${YELLOW}npx vite failed. Trying with node...${NC}"
   
-  # Try npx vite
-  echo "Trying npx vite..."
-  npx vite
-  
-  # If that fails too, try installing and running
-  if [ $? -ne 0 ]; then
-    echo -e "${YELLOW}Installing vite and trying again...${NC}"
-    npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1
+  # Check if vite exists in node_modules
+  if [ -f "node_modules/vite/bin/vite.js" ]; then
+    echo "Running vite directly from node_modules..."
+    node node_modules/vite/bin/vite.js
+  else
+    echo -e "${RED}Vite not found in node_modules. Installing vite...${NC}"
+    npm install --save-dev vite@latest @vitejs/plugin-react@latest
+    
+    # Try again after installation
+    echo "Trying with npx vite after installation..."
     npx vite
   fi
 fi

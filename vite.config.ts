@@ -18,12 +18,11 @@ export default defineConfig(({ mode }) => ({
   // Set server port to 8080 as required
   server: {
     port: 8080,
-    strictPort: true,
+    strictPort: false, // Allow fallback to another port if 8080 is in use
     host: true, // listen on all addresses
     open: true, // auto-open browser window
     hmr: {
       // Ensure HMR works with fallback mechanisms
-      clientPort: 8080,
       overlay: true,
     },
   },
