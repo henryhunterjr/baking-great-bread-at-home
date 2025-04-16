@@ -5,6 +5,7 @@ export enum ConversionErrorType {
   FORMAT_DETECTION = 'format_detection',
   UNIT_CONVERSION = 'unit_conversion',
   PARSING_ERROR = 'parsing_error',
+  EMPTY_INPUT = 'empty_input',
   UNKNOWN = 'unknown'
 }
 
