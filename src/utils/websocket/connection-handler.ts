@@ -1,3 +1,4 @@
+
 import { logInfo, logError, logWarn } from '../logger';
 import { ConnectionOptions } from './types';
 
@@ -12,7 +13,7 @@ export class ConnectionHandler {
   private reconnectTimeout: number | null = null;
   private connectionPromise: Promise<boolean> | null = null;
   private connectionResolver: ((success: boolean) => void) | null = null;
-  private useFallback = false;
+  private useFallback = true; // Always use fallback mode
   private shouldDisableWebSocket = true; // Always disable WebSockets for now
   
   // Callback handlers
@@ -93,25 +94,15 @@ export class ConnectionHandler {
    * Send data directly through WebSocket
    */
   sendDirectly(data: any): boolean {
-    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-      return false;
-    }
-    
-    try {
-      const message = typeof data === 'string' ? data : JSON.stringify(data);
-      this.socket.send(message);
-      return true;
-    } catch (error) {
-      logError('Error sending message over WebSocket', { error });
-      return false;
-    }
+    // Always use fallback mode - don't try to send via WebSocket
+    return false;
   }
 
   /**
    * Check if using fallback mode
    */
   isFallbackMode(): boolean {
-    return this.useFallback;
+    return true; // Always return true for fallback mode
   }
 
   /**
@@ -126,6 +117,5 @@ export class ConnectionHandler {
     }
     
     this.reconnectAttempts = 0;
-    this.useFallback = false;
   }
 }
