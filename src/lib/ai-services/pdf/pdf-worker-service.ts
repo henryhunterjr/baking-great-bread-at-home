@@ -1,5 +1,35 @@
 
 import { logInfo, logError, logWarn } from '@/utils/logger';
+import { PDF_WORKER_CONFIG } from '@/config/pdf-worker-config';
+
+/**
+ * Configure CORS settings for PDF worker
+ */
+export const configurePDFWorkerCORS = (): void => {
+  try {
+    logInfo('Configuring CORS for PDF worker');
+    
+    // Add CORS headers to worker requests if in browser environment
+    if (typeof window !== 'undefined') {
+      // Set up a handler to add CORS headers for PDF worker requests
+      const originalFetch = window.fetch;
+      window.fetch = function(input, init) {
+        // Only modify requests that might be for PDF worker resources
+        if (typeof input === 'string' && 
+            (input.includes('pdf.worker') || input.includes('cmaps'))) {
+          init = init || {};
+          init.mode = 'cors';
+          if (!init.headers) init.headers = {};
+        }
+        return originalFetch.call(this, input, init);
+      };
+      
+      logInfo('CORS configuration for PDF worker completed');
+    }
+  } catch (error) {
+    logError('Error configuring CORS for PDF worker', { error });
+  }
+};
 
 /**
  * Ensures the PDF.js worker files are accessible and properly configured
