@@ -7,7 +7,7 @@
  */
 
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, spawn } = require('child_process');
 const fs = require('fs');
 
 console.log('🚀 Starting development server...');
@@ -20,7 +20,7 @@ if (!viteExists) {
   console.log('📦 Vite not found. Installing Vite and React plugin...');
   try {
     // Install Vite and the React plugin directly
-    execSync('npm install --no-save vite@4.5.1 @vitejs/plugin-react@4.2.1', {
+    execSync('npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1', {
       stdio: 'inherit',
       cwd: __dirname
     });
@@ -34,10 +34,23 @@ if (!viteExists) {
 }
 
 try {
-  // Run the fix-and-run script
-  execSync('node scripts/fix-and-run.js', {
+  // Try running vite directly with npx
+  console.log('🚀 Starting Vite with npx...');
+  const viteProcess = spawn('npx', ['vite'], {
     stdio: 'inherit',
-    cwd: path.resolve(__dirname)
+    cwd: __dirname,
+    shell: true
+  });
+
+  viteProcess.on('error', (error) => {
+    console.error('❌ Failed to start with npx vite:', error.message);
+    
+    // If direct npx fails, try the fix script as a fallback
+    console.log('Trying fallback method...');
+    execSync('node scripts/fix-and-run.js', {
+      stdio: 'inherit',
+      cwd: path.resolve(__dirname)
+    });
   });
 } catch (error) {
   console.error('❌ Failed to start development server:', error.message);
