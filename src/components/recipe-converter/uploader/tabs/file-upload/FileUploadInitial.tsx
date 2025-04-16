@@ -5,7 +5,7 @@ import UploadInstructions from '../../file-upload/UploadInstructions';
 import SupportedFormats from '../../file-upload/SupportedFormats';
 
 interface FileUploadInitialProps {
-  onSelectFile: () => void;
+  onSelectFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
   fileInputRef: React.RefObject<HTMLInputElement>;
 }
 

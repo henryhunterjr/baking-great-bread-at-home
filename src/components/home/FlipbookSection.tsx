@@ -11,7 +11,7 @@ interface FlipbookSectionProps {
 const FlipbookSection: React.FC<FlipbookSectionProps> = ({ sectionRef }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [flipbookUrl] = useState("https://heyzine.com/flip-book/b821d79d0c.html");
+  const [flipbookUrl] = useState("https://heyzine.com/flip-book/4f7bec29f9.html");
   
   // Handle iframe loading state
   const handleIframeLoad = () => {

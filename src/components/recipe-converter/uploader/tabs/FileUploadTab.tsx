@@ -47,7 +47,7 @@ const FileUploadTab: React.FC<FileUploadTabProps> = ({
     <div className="space-y-6">
       {!selectedFileName ? (
         <FileUploadInitial
-          onSelectFile={handleFileChange}
+          onSelectFile={(e) => handleFileChange(e)}
           fileInputRef={fileInputRef}
         />
       ) : (
