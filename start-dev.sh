@@ -18,8 +18,8 @@ if [ ! -d "node_modules" ] || [ ! -d "node_modules/vite" ]; then
   npm install
 fi
 
-# Try using npx to run vite directly
-echo "Trying to start with npx vite..."
+# Try running vite directly with npx
+echo "Starting Vite development server..."
 npx vite
 
 # If npx vite fails, try with node
