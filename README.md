@@ -1,70 +1,63 @@
 
-# Baking Great Bread with Henry
+# Development Server Setup
 
-## Project info
+This project contains several scripts to help start the development server across different environments.
 
-**URL**: https://lovable.dev/projects/5f4bc309-8393-496d-814c-2639f650b295
+## For Windows Users
 
-## How can I edit this code?
+If you're on Windows, use one of these methods to start the development server:
 
-There are several ways of editing your application.
+### Method 1: Using the batch file
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/5f4bc309-8393-496d-814c-2639f650b295) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd baking-great-bread-with-henry
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+start-windows.bat
 ```
 
-**Edit a file directly in GitHub**
+### Method 2: Using the Windows-specific Node script
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+node run-dev-windows.js
+```
 
-**Use GitHub Codespaces**
+### Method 3: Direct NPX command
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+npx vite
+```
 
-## What technologies are used for this project?
+## For Mac/Linux Users
 
-This project is built with .
+If you're on Mac or Linux, use one of these methods:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Method 1: Make scripts executable and run
 
-## How can I deploy this project?
+```
+bash make-executable.sh
+node run-dev.js
+```
 
-Simply open [Lovable](https://lovable.dev/projects/5f4bc309-8393-496d-814c-2639f650b295) and click on Share -> Publish.
+### Method 2: Direct NPX command
 
-## I want to use a custom domain - is that possible?
+```
+npx vite
+```
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## Troubleshooting
+
+If you encounter issues starting the development server:
+
+1. Try installing Vite globally:
+   ```
+   npm install -g vite
+   vite
+   ```
+
+2. Make sure Node.js is properly installed and up to date.
+
+3. Try installing dependencies directly:
+   ```
+   npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1
+   npx vite
+   ```
+
+4. Check if there are any permission issues that might prevent script execution.
