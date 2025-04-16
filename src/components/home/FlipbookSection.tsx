@@ -18,8 +18,8 @@ const FlipbookSection: React.FC<FlipbookSectionProps> = ({ sectionRef }) => {
               <div className="w-full md:w-1/2">
                 <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-xl">
                   <img 
-                    src="/lovable-uploads/f0ad0c4f-e5f5-4e6a-90b0-9bc1d341874b.png"
-                    alt="Flipbook Preview" 
+                    src="/lovable-uploads/30b3084a-0b08-41e0-ad8d-a160bedbf123.png"
+                    alt="Baking Essentials Flipbook" 
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -29,28 +29,30 @@ const FlipbookSection: React.FC<FlipbookSectionProps> = ({ sectionRef }) => {
               {/* Right side - Content */}
               <div className="w-full md:w-1/2 text-center md:text-left">
                 <h2 className="text-3xl md:text-4xl font-serif mb-4 text-bread-900 dark:text-bread-50">
-                  Interactive Bread Guide
+                  Baking Essentials Guide
                 </h2>
                 <p className="text-lg mb-6 text-bread-700 dark:text-bread-200">
-                  Explore our comprehensive bread baking guide in an interactive flipbook format. Learn techniques, discover recipes, and master the art of bread making through this engaging digital experience.
+                  New to bread baking? This comprehensive guide covers everything you need to know to get started. 
+                  Discover the must-have tools, learn essential techniques, and understand what equipment you really need 
+                  – and what can wait until later.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                   <Button
                     size="lg"
                     className="bg-bread-700 hover:bg-bread-800 text-white"
-                    onClick={() => window.open('https://heyzine.com/flip-book/4f7bec29f9.html', '_blank')}
+                    onClick={() => window.open('https://heyzine.com/flip-book/b821d79d0c.html', '_blank')}
                   >
                     <Book className="mr-2 h-5 w-5" />
-                    Open Flipbook
+                    Open Guide
                   </Button>
                   <Button
                     variant="outline"
                     size="lg"
                     className="border-bread-200 text-bread-700 hover:bg-bread-50 dark:border-bread-700 dark:text-bread-200 dark:hover:bg-bread-800/50"
-                    onClick={() => window.open('https://heyzine.com/flip-book/4f7bec29f9.html', '_blank')}
+                    onClick={() => window.open('https://heyzine.com/flip-book/b821d79d0c.html', '_blank')}
                   >
                     <ExternalLink className="mr-2 h-5 w-5" />
-                    View Full Screen
+                    Full Screen View
                   </Button>
                 </div>
               </div>
@@ -63,3 +65,4 @@ const FlipbookSection: React.FC<FlipbookSectionProps> = ({ sectionRef }) => {
 };
 
 export default FlipbookSection;
+
