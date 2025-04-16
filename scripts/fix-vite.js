@@ -1,7 +1,7 @@
 
 #!/usr/bin/env node
 
-const { execSync, spawn } = require('child_process');
+const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs-extra');
 
@@ -18,21 +18,33 @@ try {
     console.log('✅ Vite packages installed successfully');
   } catch (installError) {
     console.error('Failed to install Vite:', installError.message);
-    process.exit(1);
+    
+    // Try with alternate methods (global install as fallback)
+    try {
+      console.log('Trying global installation...');
+      execSync('npm install -g vite', { 
+        stdio: 'inherit' 
+      });
+      console.log('✅ Globally installed Vite');
+    } catch (globalError) {
+      console.error('Failed to install globally:', globalError.message);
+      process.exit(1);
+    }
   }
 
-  // Try to start Vite
-  console.log('Starting Vite development server...');
-  const viteProcess = spawn('npx', ['vite'], {
-    stdio: 'inherit',
-    cwd: path.resolve(__dirname, '..'),
-    shell: true
-  });
-
-  viteProcess.on('error', (error) => {
-    console.error('Failed to start Vite:', error.message);
+  // Try to start Vite to verify it works
+  console.log('Verifying Vite installation...');
+  try {
+    execSync('npx vite --version', { 
+      stdio: 'pipe',
+      cwd: path.resolve(__dirname, '..')
+    });
+    console.log('✅ Vite is properly installed and accessible');
+  } catch (verifyError) {
+    console.error('Vite installation verified but may not be executable:', verifyError.message);
+    console.log('Please try running: npx vite');
     process.exit(1);
-  });
+  }
 
 } catch (error) {
   console.error('Error in fix-vite script:', error.message);

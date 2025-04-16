@@ -29,3 +29,9 @@ echo "If you encounter issues, try running:"
 echo "  npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1"
 echo "  then"
 echo "  npx vite"
+
+# Try to directly fix the most common issue
+echo "Attempting to install Vite directly..."
+npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1
+
+echo "Installation complete. Run 'node run-dev.js' to start the application."

@@ -26,6 +26,16 @@ try {
       console.log('✅ Vite installed successfully!');
     } catch (installError) {
       console.error('⚠️ Failed to install Vite with npm:', installError.message);
+      
+      // Try a global installation
+      console.log('Trying with global installation...');
+      try {
+        execSync('npm install -g vite', { stdio: 'inherit' });
+        console.log('✅ Vite installed globally!');
+      } catch (globalError) {
+        console.error('⚠️ Failed to install Vite globally:', globalError.message);
+      }
+      
       console.error('Trying with alternative installation method...');
       
       try {
@@ -104,7 +114,9 @@ try {
   }
 
   if (!started) {
-    throw new Error('All startup methods failed');
+    // Direct desperate approach - try using npx directly
+    console.log('All standard methods failed. Trying direct execution...');
+    execSync('npx vite', { stdio: 'inherit', cwd: projectRoot });
   }
 
 } catch (error) {

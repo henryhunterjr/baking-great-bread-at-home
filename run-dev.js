@@ -28,8 +28,15 @@ if (!viteExists) {
     console.log('✅ Vite installed successfully!');
   } catch (installError) {
     console.error('❌ Failed to install Vite:', installError.message);
-    console.error('Please try running: npm install --save-dev vite@4.5.1 @vitejs/plugin-react');
-    process.exit(1);
+    console.error('Trying with global install...');
+    try {
+      execSync('npm install -g vite', { stdio: 'inherit' });
+      console.log('✅ Global Vite installed successfully!');
+    } catch (globalError) {
+      console.error('❌ Failed to install Vite globally:', globalError.message);
+      console.error('Please try running: npm install --save-dev vite@4.5.1 @vitejs/plugin-react');
+      process.exit(1);
+    }
   }
 }
 
@@ -54,6 +61,11 @@ const methods = [
     name: 'Fix and Run Script',
     cmd: 'node',
     args: [path.join(__dirname, 'scripts', 'fix-and-run.js')]
+  },
+  {
+    name: 'Global Vite',
+    cmd: 'vite',
+    args: []
   }
 ];
 
@@ -113,16 +125,16 @@ const methods = [
     }
   }
   
-  // If all methods failed, run the fix script as a last resort
-  console.error('All startup methods failed. Trying fallback method...');
+  // If all methods failed, try a direct install command as a last resort
+  console.error('All startup methods failed. Trying direct installation...');
   try {
-    execSync('node scripts/fix-and-run.js', {
+    execSync('npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1 && npx vite', {
       stdio: 'inherit',
       cwd: __dirname
     });
   } catch (error) {
     console.error('Failed to start development server:', error.message);
-    console.error('Please try running: node scripts/fix-vite.js');
+    console.error('Please try running manually: npx vite');
     process.exit(1);
   }
 })();
