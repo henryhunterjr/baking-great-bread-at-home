@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { logInfo } from '@/utils/logger';
+import { logInfo, logError } from '@/utils/logger';
 import { useImageHandler } from '../../../hooks/file-handlers/useImageHandler';
 import { usePDFHandler } from '../../../hooks/file-handlers/usePDFHandler';
 import { useTextHandler } from '../../../hooks/file-handlers/useTextHandler';
@@ -17,12 +17,17 @@ export const useFileHandlers = ({ setRecipeText, onError }: UseFileHandlersProps
   const [isProcessing, setIsProcessing] = useState(false);
   
   // Import specialized hooks
-  const { handleImageFile, cancelImageProcessing } = useImageHandler();
-  const { handlePDFFile, cancelPDFProcessing } = usePDFHandler();
-  const { handleTextFile } = useTextHandler();
+  const { handleImageFile, cancelImageProcessing, isProcessing: isImageProcessing } = useImageHandler();
+  const { handlePDFFile, cancelPDFProcessing, isProcessing: isPDFProcessing } = usePDFHandler();
+  const { handleTextFile, isProcessing: isTextProcessing } = useTextHandler();
   const { handlePasteFromClipboard } = useClipboard();
   
+  // Consolidated processing state
+  const combinedProcessingState = isProcessing || isImageProcessing || isPDFProcessing || isTextProcessing;
+  
   const handleError = (error: string) => {
+    logError('File handling error', { error });
+    
     if (onError) onError(error);
     
     toast({
@@ -59,8 +64,19 @@ export const useFileHandlers = ({ setRecipeText, onError }: UseFileHandlersProps
       logInfo(`Processing file: ${file.name} (${file.type})`);
       
       const onSuccess = (text: string) => {
+        // Validate extracted text
+        if (!text || text.trim() === '') {
+          handleError('The extracted text is empty. Please try another file or format.');
+          return;
+        }
+        
         setRecipeText(text);
         setIsProcessing(false);
+        
+        toast({
+          title: "Text Extracted",
+          description: `Successfully extracted text from ${file.name}`,
+        });
       };
       
       if (file.type.includes('image/')) {
@@ -91,7 +107,18 @@ export const useFileHandlers = ({ setRecipeText, onError }: UseFileHandlersProps
     if (onError) onError(null);
     
     await handlePasteFromClipboard({
-      onSuccess: (text) => setRecipeText(text),
+      onSuccess: (text) => {
+        if (text && text.trim() !== '') {
+          setRecipeText(text);
+          
+          toast({
+            title: "Clipboard Content Pasted",
+            description: "Text successfully pasted from clipboard.",
+          });
+        } else {
+          handleError('No usable text found in clipboard.');
+        }
+      },
       onError: handleError
     });
   };
@@ -107,7 +134,7 @@ export const useFileHandlers = ({ setRecipeText, onError }: UseFileHandlersProps
   };
 
   return {
-    isProcessing,
+    isProcessing: combinedProcessingState,
     handleFileSelect,
     handlePasteFromClipboard: pasteFromClipboard,
     clearText,

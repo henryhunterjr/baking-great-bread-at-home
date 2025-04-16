@@ -21,3 +21,11 @@ export const checkWorkerAvailability = async (url) => {
     return false;
   }
 };
+
+// Get the effective worker URL, trying local first then fallback
+export const getEffectiveWorkerUrl = async () => {
+  const localWorkerAvailable = await checkWorkerAvailability(PDF_WORKER_CONFIG.workerSrc);
+  return localWorkerAvailable ? 
+    PDF_WORKER_CONFIG.workerSrc : 
+    PDF_WORKER_CONFIG.fallbackWorkerSrc;
+};

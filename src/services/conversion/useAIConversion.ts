@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { logError } from '@/utils/logger';
+import { logError, logInfo } from '@/utils/logger';
 import { AIConversionService, ConversionErrorType, ConversionResult } from './AIConversionService';
 
 /**
@@ -14,10 +14,23 @@ export function useAIConversion() {
    * Process recipe text and handle state
    */
   const processRecipe = async (text: string, options = { detailed: false }): Promise<ConversionResult> => {
+    if (!text || text.trim() === '') {
+      return {
+        success: false,
+        error: {
+          type: ConversionErrorType.EMPTY_INPUT,
+          message: 'No recipe text provided for processing.'
+        }
+      };
+    }
+    
     setIsProcessing(true);
+    logInfo('Starting AI recipe processing', { textLength: text.length });
     
     try {
-      return await service.processRecipeText(text, options);
+      const result = await service.processRecipeText(text, options);
+      logInfo('AI processing completed', { success: result.success });
+      return result;
     } catch (error) {
       logError('AI conversion failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -28,7 +41,9 @@ export function useAIConversion() {
         success: false,
         error: {
           type: ConversionErrorType.UNKNOWN,
-          message: 'An unexpected error occurred during recipe processing.'
+          message: error instanceof Error 
+            ? `AI processing error: ${error.message}` 
+            : 'An unexpected error occurred during recipe processing.'
         }
       };
     } finally {
@@ -43,10 +58,23 @@ export function useAIConversion() {
     errorType: ConversionErrorType, 
     originalText: string
   ): Promise<ConversionResult> => {
+    if (!originalText || originalText.trim() === '') {
+      return {
+        success: false,
+        error: {
+          type: ConversionErrorType.EMPTY_INPUT,
+          message: 'No recipe text provided for error recovery.'
+        }
+      };
+    }
+    
     setIsProcessing(true);
+    logInfo('Attempting AI error recovery', { errorType, textLength: originalText.length });
     
     try {
-      return await service.handleConversionError(errorType, originalText);
+      const result = await service.handleConversionError(errorType, originalText);
+      logInfo('AI error recovery completed', { success: result.success });
+      return result;
     } catch (error) {
       logError('Error recovery failed', {
         error: error instanceof Error ? error.message : 'Unknown error'
@@ -56,7 +84,9 @@ export function useAIConversion() {
         success: false,
         error: {
           type: errorType,
-          message: 'Unable to recover from conversion error.'
+          message: error instanceof Error 
+            ? `Recovery failed: ${error.message}` 
+            : 'Unable to recover from conversion error.'
         }
       };
     } finally {

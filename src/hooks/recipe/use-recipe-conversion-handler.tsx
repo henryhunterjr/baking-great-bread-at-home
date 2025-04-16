@@ -16,6 +16,10 @@ export function useRecipeConversionHandler(
   const handleConversionComplete = useCallback(
     async (recipe: RecipeData) => {
       try {
+        if (!recipe) {
+          throw new Error('Recipe data is empty or invalid');
+        }
+        
         // Set minimal required fields if they're missing
         const completedRecipe: RecipeData = {
           ...recipe,
@@ -29,8 +33,8 @@ export function useRecipeConversionHandler(
         // Log state for debugging
         logInfo('Recipe in conversion handler before processing:', { 
           hasTitle: !!completedRecipe.title,
-          ingredientsCount: completedRecipe.ingredients.length,
-          instructionsCount: completedRecipe.instructions.length,
+          ingredientsCount: completedRecipe.ingredients?.length || 0,
+          instructionsCount: completedRecipe.instructions?.length || 0,
           isConverted: completedRecipe.isConverted === true
         });
 
@@ -39,6 +43,13 @@ export function useRecipeConversionHandler(
           ...processRecipe(completedRecipe),
           isConverted: true // Ensure isConverted flag stays true even after processing
         };
+        
+        // Additional validation after processing
+        if (!processedRecipe.title || 
+            !Array.isArray(processedRecipe.ingredients) || 
+            !Array.isArray(processedRecipe.instructions)) {
+          throw new Error('Recipe processing resulted in invalid data structure');
+        }
         
         // Log after processing
         logInfo('Recipe in conversion handler after processing:', { 
@@ -61,6 +72,8 @@ export function useRecipeConversionHandler(
           title: "Recipe Converted",
           description: "Your recipe has been successfully converted. You can now edit and save it.",
         });
+        
+        return processedRecipe;
       } catch (error) {
         // Log the error
         const errorMessage = 
@@ -75,6 +88,8 @@ export function useRecipeConversionHandler(
           title: "Conversion Error",
           description: errorMessage,
         });
+        
+        return null;
       }
     },
     [setRecipe, processRecipe, setIsEditing, setConversionError, toast]

@@ -1,6 +1,6 @@
 
 import { logInfo, logError, logWarn } from '@/utils/logger';
-import { PDF_WORKER_CONFIG } from '@/config/pdf-worker-config';
+import { PDF_WORKER_CONFIG, getEffectiveWorkerUrl } from '@/config/pdf-worker-config';
 
 /**
  * Configure CORS settings for PDF worker
@@ -38,15 +38,18 @@ export const ensurePDFWorkerFiles = async (): Promise<boolean> => {
   try {
     logInfo('Attempting to access PDF worker file');
     
-    // Check if the main worker file is accessible
-    const workerResponse = await fetch('/pdf.worker.min.js', { method: 'HEAD' });
+    // Get effective worker URL (with fallback)
+    const effectiveWorkerUrl = await getEffectiveWorkerUrl();
+    
+    // Check if the worker file is accessible
+    const workerResponse = await fetch(effectiveWorkerUrl, { method: 'HEAD' });
     
     if (!workerResponse.ok) {
       logError('PDF worker file is not accessible', { status: workerResponse.status });
       return false;
     }
     
-    logInfo('PDF worker file is accessible');
+    logInfo('PDF worker file is accessible at: ' + effectiveWorkerUrl);
     
     // Check if the cMaps directory is accessible - this is not critical
     // Missing cMaps only affects PDFs with special character sets
@@ -77,7 +80,7 @@ export const ensurePDFWorkerFiles = async (): Promise<boolean> => {
  */
 export const fixPDFWorkerIssues = async (): Promise<boolean> => {
   try {
-    // First check if files are accessible
+    // First check if files are accessible with fallback
     const filesAvailable = await ensurePDFWorkerFiles();
     
     if (filesAvailable) {
