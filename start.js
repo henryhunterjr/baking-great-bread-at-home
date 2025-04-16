@@ -18,8 +18,22 @@ const isWindows = os.platform() === 'win32';
 const projectRoot = path.resolve(__dirname);
 
 try {
-  // First check if we have vite directly available
+  // Use the robust script as the primary method
+  console.log('🔄 Using robust startup script...');
+  
+  if (isWindows) {
+    console.log('💻 Windows detected. Using Node.js script...');
+    execSync('node scripts\\robust-dev.js', { stdio: 'inherit', cwd: projectRoot });
+  } else {
+    console.log('🐧 Unix-like OS detected. Using Node.js script...');
+    execSync('node scripts/robust-dev.js', { stdio: 'inherit', cwd: projectRoot });
+  }
+} catch (error) {
+  console.error('❌ Robust script failed:', error.message);
+  
+  // Fallback to other methods
   try {
+    // First check if we have vite directly available
     console.log('🧪 Checking for Vite...');
     
     // Try to find vite
@@ -34,25 +48,12 @@ try {
       execSync(command, { stdio: 'inherit', cwd: projectRoot });
       process.exit(0);
     }
-  } catch (error) {
-    console.log('❌ Local Vite not accessible. Trying alternative methods...');
+  } catch (viteError) {
+    console.log('❌ Local Vite not accessible. Trying final methods...');
   }
-  
-  // If that fails, use the robust scripts
-  console.log('🔄 Using robust startup scripts...');
-  
-  if (isWindows) {
-    console.log('💻 Windows detected. Using batch script...');
-    execSync('node scripts\\dev.js', { stdio: 'inherit', cwd: projectRoot });
-  } else {
-    console.log('🐧 Unix-like OS detected. Using shell script...');
-    execSync('bash start-dev.sh', { stdio: 'inherit', cwd: projectRoot });
-  }
-} catch (error) {
-  console.error('❌ Failed to start the application:', error.message);
-  console.log('⚙️ Trying direct Vite execution...');
   
   try {
+    console.log('⚙️ Trying direct Vite execution...');
     execSync('node scripts/run-vite-direct.js', { stdio: 'inherit', cwd: projectRoot });
   } catch (finalError) {
     console.error('❌ All startup methods failed.');

@@ -15,29 +15,33 @@ echo -e "${BLUE}================================${NC}"
 # Make the script executable
 chmod +x start-dev.sh
 
-# Check if we need to install dependencies
-if [ ! -d "node_modules" ] || [ ! -d "node_modules/vite" ]; then
-  echo -e "${YELLOW}Vite not found. Installing dependencies...${NC}"
-  npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1
-  
-  if [ $? -ne 0 ]; then
-    echo -e "${RED}Failed to install via npm. Trying with node scripts...${NC}"
-    node scripts/fix-vite.js
-  fi
-fi
+# Try different methods to start Vite, in order of preference
 
-# First try with node scripts/dev.js (the most robust option)
-echo -e "${GREEN}Starting with robust dev script...${NC}"
-node scripts/dev.js
+# First try with our robust script
+echo -e "${GREEN}Starting with robust script...${NC}"
+node scripts/robust-dev.js
+
+# If that fails, try with legacy script
+if [ $? -ne 0 ]; then
+  echo -e "${YELLOW}Robust script failed. Trying with node scripts...${NC}"
+  node scripts/dev.js
+fi
 
 # If that fails, try direct methods
 if [ $? -ne 0 ]; then
-  echo -e "${YELLOW}First method failed. Trying direct Vite execution...${NC}"
+  echo -e "${YELLOW}Legacy script failed. Trying direct Vite execution...${NC}"
   node scripts/run-vite-direct.js
 fi
 
 # If that also fails, try npx directly
 if [ $? -ne 0 ]; then
-  echo -e "${YELLOW}Second method failed. Trying with npx vite...${NC}"
+  echo -e "${YELLOW}Direct execution failed. Trying with npx vite...${NC}"
+  npx vite
+fi
+
+# If all methods fail, try installing vite first
+if [ $? -ne 0 ]; then
+  echo -e "${RED}All methods failed. Attempting to install Vite and try again...${NC}"
+  npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1
   npx vite
 fi
