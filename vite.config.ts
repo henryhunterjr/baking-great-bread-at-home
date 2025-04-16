@@ -1,5 +1,4 @@
 
-
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
@@ -43,4 +42,6 @@ export default defineConfig(({ mode }) => ({
     include: ['react', 'react-dom', 'react-router-dom'],
     exclude: [],
   },
+  // Add error handling for more descriptive build errors
+  logLevel: 'info',
 }))
