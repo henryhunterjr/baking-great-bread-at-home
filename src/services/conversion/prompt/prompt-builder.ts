@@ -1,20 +1,93 @@
 
-export function getErrorSpecificPrompt(errorType: string, text: string): string {
-  switch (errorType) {
-    case 'pdf_extraction':
-      return `This text was extracted from a PDF but may be poorly formatted. Please identify any recipe content and structure it properly:\n\n${text}`;
-    case 'image_processing':
-      return `This text came from OCR and may have errors. Please extract and correct recipe content:\n\n${text}`;
-    case 'format_detection':
-      return `The standard parser failed with this text. Please extract recipe data in a structured format:\n\n${text}`;
-    default:
-      return `Please try to parse this text into a recipe format with ingredients and instructions:\n\n${text}`;
-  }
-}
+import { logInfo } from '@/utils/logger';
 
-export function buildRecipePrompt(text: string, options = { detailed: false }): string {
-  const basePrompt = 'Structure this recipe with quantities, instructions, and any special techniques:';
-  const detailedPrompt = 'Convert this recipe text into a highly detailed structured format with precise quantities, detailed steps, and any special techniques or notes:';
+/**
+ * Build a prompt for recipe conversion
+ */
+export const buildRecipePrompt = (
+  recipeText: string, 
+  options: { detailed: boolean } = { detailed: false }
+): string => {
+  logInfo('Building recipe prompt', { 
+    textLength: recipeText.length, 
+    detailed: options.detailed 
+  });
   
-  return `${options.detailed ? detailedPrompt : basePrompt}\n\n${text}`;
-}
+  const basePrompt = `
+You are an AI assistant that extracts structured recipe information from user input.
+
+Please analyze the following recipe text and extract the structured information:
+
+${recipeText}
+
+Return a structured recipe with the following information (if available):
+- Title
+- Description/introduction
+- Ingredients list with quantities and units
+- Step-by-step instructions
+- Preparation time
+- Cooking/baking time
+- Rest/rise time (if applicable)
+- Total time
+- Servings
+- Any tips or notes
+
+Format your response as a JSON object with these fields. Make sure your JSON is valid and properly structured.
+`.trim();
+
+  // Add more detailed instructions if requested
+  if (options.detailed) {
+    return `
+${basePrompt}
+
+Additionally, please extract the following detailed information when present:
+- Equipment needed
+- Nutritional information
+- Dietary tags or categories (e.g., vegetarian, gluten-free)
+- Difficulty level
+- Source or author
+- Storage instructions
+- Variations or substitutions
+
+Ensure all text is properly cleaned and formatted. For ingredients, ensure quantities, units, and ingredient names are clearly distinguished.
+`.trim();
+  }
+
+  return basePrompt;
+};
+
+/**
+ * Get error-specific prompts for recovery attempts
+ */
+export const getErrorSpecificPrompt = (errorType: string, recipeText: string): string => {
+  switch (errorType) {
+    case 'parsing_error':
+      return `
+I'm having trouble parsing this recipe text. Please format it as a valid JSON object with clear structure.
+
+Recipe text:
+${recipeText}
+
+Return ONLY a valid JSON object with at minimum: title, ingredients (as array), and instructions (as array).
+`.trim();
+      
+    case 'formatting_error':
+      return `
+This recipe text needs better formatting. Convert it to a clear JSON structure.
+
+Recipe text:
+${recipeText}
+
+Return ONLY a valid JSON with fields: title, ingredients (array), instructions (array).
+`.trim();
+      
+    default:
+      return `
+Please convert this recipe text to a structured JSON format:
+
+${recipeText}
+
+Return ONLY a valid JSON object with fields: title, ingredients (array), instructions (array).
+`.trim();
+  }
+};
