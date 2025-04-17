@@ -40,7 +40,7 @@ Format as valid JSON with these fields at minimum: title, ingredients, instructi
           }
         };
         
-      case ConversionErrorType.FORMATTING_ERROR:
+      case ConversionErrorType.CONVERSION_ERROR: // Changed from FORMATTING_ERROR
         recoveryPrompt = `
 This recipe text needs to be properly formatted.
 Convert it into a valid JSON object with these fields: title, ingredients (array), instructions (array).

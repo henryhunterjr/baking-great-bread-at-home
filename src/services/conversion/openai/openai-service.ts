@@ -1,13 +1,13 @@
 
 import { logInfo, logError } from '@/utils/logger';
-import { isOpenAIConfigured, getOpenAIKey } from '@/lib/ai-services/ai-config';
+import { isOpenAIConfigured, getOpenAIApiKey } from '@/lib/ai-services/ai-config';
 
 /**
  * Make a request to the OpenAI API for recipe conversion
  */
 export const makeOpenAIRequest = async (prompt: string): Promise<any> => {
   try {
-    const apiKey = getOpenAIKey();
+    const apiKey = getOpenAIApiKey(); // Changed from getOpenAIKey
     
     if (!apiKey || !isOpenAIConfigured()) {
       throw new Error('OpenAI API key not configured');
