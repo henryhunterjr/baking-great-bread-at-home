@@ -12,6 +12,7 @@ import CareCenterPreview from '@/components/home/CareCenterPreview';
 import ChallengePreviewSection from '@/components/home/ChallengePreviewSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 import BewitchingBreadPodcastSection from '@/components/home/BewitchingBreadPodcastSection';
+import PodcastLibrarySection from '@/components/home/BewitchingBreadPodcastSection';
 
 const HomePage = () => {
   const isMobile = useIsMobile();
@@ -107,7 +108,7 @@ const HomePage = () => {
           aria-hidden="true" />
 
         {/* New: Bewitching Bread Podcast Section */}
-        <BewitchingBreadPodcastSection />
+        <PodcastLibrarySection />
 
         {/* Section divider */}
         <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 

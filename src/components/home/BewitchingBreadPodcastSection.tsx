@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Headphones, Play } from "lucide-react";
 
+// NOTE: When you have a custom thumbnail, replace the string in "thumbnail" for that podcast.
 const podcastLinks = [
   {
     id: 1,
@@ -54,17 +55,18 @@ const podcastLinks = [
     url: "https://drive.google.com/file/d/1IfipjgIGC9rjbGp_1tNi-z6hov6MkvG1/view?usp=sharing",
     type: "podcast",
     external: true
+    // Add thumbnail here if you have one for this episode!
   }
 ];
 
-const BewitchingBreadPodcastSection: React.FC = () => {
+const PodcastLibrarySection: React.FC = () => {
   return (
     <section className="py-16 md:py-24 bg-[#fadfd5] dark:bg-bread-950/40" id="podcast-section">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto mb-8 text-center">
-          <h2 className="font-serif text-3xl md:text-4xl font-medium mb-3">The Bewitching Bread Podcast</h2>
+          <h2 className="font-serif text-3xl md:text-4xl font-medium mb-3">Bread Podcasts & Interviews</h2>
           <p className="text-muted-foreground dark:text-gray-300 text-lg">
-            Halloween breads, haunting stories, and more! Enjoy episodes featuring Henry Hunter and friends.
+            Explore baking podcasts, book discussions, and spooky specials with Henry Hunter and friends.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -83,7 +85,7 @@ const BewitchingBreadPodcastSection: React.FC = () => {
                   <img
                     src={
                       pod.thumbnail ||
-                      "https://images.unsplash.com/photo-1514517604298-cf80e0fb7f1e?q=80&w=600"
+                      "https://images.unsplash.com/photo-1582562124811-c09040d0a901?q=80&w=600"
                     }
                     alt={pod.title}
                     className="w-full h-full object-cover"
@@ -120,4 +122,4 @@ const BewitchingBreadPodcastSection: React.FC = () => {
   );
 };
 
-export default BewitchingBreadPodcastSection;
+export default PodcastLibrarySection;
