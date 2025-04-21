@@ -1,7 +1,17 @@
-
 import { logInfo, logError } from '@/utils/logger';
 import { cleanOCRText } from './text-cleaner';
 import { initializePdfLib } from '@/utils/workerUtils';
+
+// --- PDF.js Initialization Fixes ---
+// Explicitly configure worker and cMap paths to resolve silent initialization errors.
+import * as pdfjsLib from 'pdfjs-dist';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
+
+// Use imported worker for browser bundlers.
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+// Set cMap path. Be sure to host cMaps in /public/pdfjs-dist/cmaps/
+pdfjsLib.GlobalWorkerOptions.cMapUrl = '/pdfjs-dist/cmaps/';
+pdfjsLib.GlobalWorkerOptions.cMapPacked = true;
 
 /**
  * Extract text from a PDF file
