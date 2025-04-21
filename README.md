@@ -8,16 +8,24 @@ This project contains several scripts to help start the development server acros
 The easiest way to start the development server is by running:
 
 ```
+node run-dev.js
+```
+
+This new script is the most robust option and will try multiple methods to start the server.
+
+Alternatively, you can use:
+
+```
 node start.js
 ```
 
-If that doesn't work, try our alternate installation script:
+or 
 
 ```
 node install-and-run.js
 ```
 
-This script will automatically:
+These scripts will automatically:
 1. Check if Vite is installed
 2. Install it if needed
 3. Start the development server using the best available method for your system
@@ -33,7 +41,7 @@ npx vite
 
 ### Using our robust script
 ```
-node scripts/run-vite-direct.js
+node scripts/fix-and-run.js
 ```
 
 ### Manual installation
@@ -50,3 +58,4 @@ If you continue to encounter issues:
 2. Try installing Vite globally: `npm install -g vite`
 3. Check if there are any permission issues preventing script execution
 4. Clear your npm cache: `npm cache clean --force` and try again
+
