@@ -1,17 +1,24 @@
 
 import { OpenAI } from "openai";
+import { getOpenAIApiKey, isOpenAIConfigured } from "@/lib/ai-services/key-management";
+import { logError } from "@/utils/logger";
 
 /**
  * OpenAI integration for converting prompts to structured recipe JSON.
- * Uses Vercel-injected environment variable: VITE_OPENAI_API_KEY.
- * 
- * For local dev, see: https://vitejs.dev/guide/env-and-mode.html
- * WARNING: Using OpenAI API in the browser requires an exposed public key. For production, proxy calls through a backend for true secret protection.
+ * Uses the API key from local storage or environment variables.
  */
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true, // This exposes your API key in the client bundle!
-});
+const createOpenAIClient = () => {
+  const apiKey = getOpenAIApiKey();
+  
+  if (!apiKey) {
+    throw new Error('OpenAI API key not configured. Please add your API key in settings.');
+  }
+  
+  return new OpenAI({
+    apiKey,
+    dangerouslyAllowBrowser: true, // Required for client-side usage
+  });
+};
 
 /**
  * Makes a request to OpenAI API for structured information
@@ -20,20 +27,27 @@ const openai = new OpenAI({
  */
 export async function makeOpenAIRequest(prompt: string) {
   try {
+    // Check if API is configured before attempting to create client
+    if (!isOpenAIConfigured()) {
+      throw new Error('OpenAI API key not configured. Please add your API key in settings.');
+    }
+    
+    const openai = createOpenAIClient();
+    
     const res = await openai.chat.completions.create({
       messages: [
         { role: "system", content: "You are a helpful assistant that returns recipes ONLY as JSON, no markdown or extra text." },
         { role: "user", content: prompt }
       ],
       // Use GPT-4; fallback to gpt-4o-mini if your key does not have gpt-4 access.
-      model: "gpt-4",
+      model: "gpt-4o-mini",
       temperature: 0.7,
       max_tokens: 2000,
     });
     
     return res;
   } catch (error) {
-    console.error("OpenAI request failed:", error);
+    logError("OpenAI request failed:", { error });
     throw new Error("AI conversion failed. Check API key, response format, and OpenAI status.");
   }
 }
@@ -53,12 +67,12 @@ export async function getStructuredRecipe(prompt: string) {
       return JSON.parse(jsonText);
     } catch (parseError) {
       // Log for debugging
-      console.error("Failed to parse OpenAI JSON:", jsonText);
+      logError("Failed to parse OpenAI JSON:", { jsonText });
       // Optionally surface partial/raw response
       throw new Error("AI did not return valid JSON. Raw response: " + content);
     }
   } catch (error) {
-    console.error("OpenAI request failed:", error);
+    logError("OpenAI request failed:", { error });
     throw new Error("AI conversion failed. Check API key, response format, and OpenAI status.");
   }
 }
