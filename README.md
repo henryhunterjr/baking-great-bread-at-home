@@ -11,6 +11,12 @@ The easiest way to start the development server is by running:
 node start.js
 ```
 
+If that doesn't work, try our alternate installation script:
+
+```
+node install-and-run.js
+```
+
 This script will automatically:
 1. Check if Vite is installed
 2. Install it if needed
@@ -18,7 +24,7 @@ This script will automatically:
 
 ## Alternative Methods
 
-If you encounter issues with the main script, you can try these alternatives:
+If you encounter issues with the main scripts, you can try these alternatives:
 
 ### Direct NPX method
 ```

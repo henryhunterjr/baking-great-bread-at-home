@@ -12,8 +12,12 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true, // This exposes your API key in the client bundle!
 });
 
-// Main function to get a structured recipe from OpenAI
-export async function getStructuredRecipe(prompt: string) {
+/**
+ * Makes a request to OpenAI API for structured information
+ * @param prompt The text prompt to send to OpenAI
+ * @returns The API response data
+ */
+export async function makeOpenAIRequest(prompt: string) {
   try {
     const res = await openai.chat.completions.create({
       messages: [
@@ -25,7 +29,18 @@ export async function getStructuredRecipe(prompt: string) {
       temperature: 0.7,
       max_tokens: 2000,
     });
+    
+    return res;
+  } catch (error) {
+    console.error("OpenAI request failed:", error);
+    throw new Error("AI conversion failed. Check API key, response format, and OpenAI status.");
+  }
+}
 
+// Main function to get a structured recipe from OpenAI
+export async function getStructuredRecipe(prompt: string) {
+  try {
+    const res = await makeOpenAIRequest(prompt);
     const content = res.choices[0]?.message?.content || "";
 
     // Try to extract JSON from codeblock or raw string
@@ -48,4 +63,4 @@ export async function getStructuredRecipe(prompt: string) {
 }
 
 // Optionally keep compat export for system
-export default { getStructuredRecipe };
+export default { getStructuredRecipe, makeOpenAIRequest };
