@@ -75,8 +75,7 @@ export abstract class BaseConverter {
     const hydration = calculateHydration(ingredientObjects);
     
     return {
-      success: true, // Add the required success property
-      original: recipeData,
+      success: true,
       converted,
       bakersPercentages,
       hydration,

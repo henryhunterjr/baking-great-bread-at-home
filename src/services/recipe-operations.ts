@@ -1,4 +1,3 @@
-
 import { AIConversionService } from './conversion/AIConversionService';
 import { Recipe } from '@/types/recipe';
 import { RecipeData } from '@/types/recipeTypes';
@@ -31,8 +30,15 @@ export async function convertRecipeInput(input: RawRecipeInput): Promise<RecipeD
     }
 
     return {
-      ...result.data,
+      title: result.data.title || result.data.name, // Use either title or name
       id: uuidv4(),
+      ingredients: result.data.ingredients.map(ing => `${ing.quantity} ${ing.unit} ${ing.name}`.trim()),
+      instructions: result.data.instructions,
+      prepTime: result.data.prepTime,
+      cookTime: result.data.cookTime,
+      totalTime: result.data.totalTime,
+      servings: result.data.servings,
+      notes: result.data.notes,
       isConverted: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

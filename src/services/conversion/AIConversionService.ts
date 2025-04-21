@@ -42,11 +42,41 @@ class AIConversionService {
     try {
       const prompt = buildRecipePrompt(text, options);
       const response = await makeOpenAIRequest(prompt);
-      const recipe = parseRecipeFromText(response.choices[0].message.content) as ConvertedRecipe;
+      // Fix the type conversion by adapting the recipe format
+      const parsedContent = parseRecipeFromText(response.choices[0].message.content);
       
-      if (!recipe) {
+      if (!parsedContent) {
         throw new Error('Failed to parse recipe from AI response');
       }
+      
+      // Convert to proper ConvertedRecipe format
+      const recipe: ConvertedRecipe = {
+        name: parsedContent.title || "Untitled Recipe",
+        ingredients: Array.isArray(parsedContent.ingredients) ? 
+          parsedContent.ingredients.map(ing => {
+            if (typeof ing === 'string') {
+              const parts = ing.split(' ');
+              const quantity = parts[0];
+              const unit = parts.length > 2 ? parts[1] : '';
+              const name = parts.length > 2 ? parts.slice(2).join(' ') : parts.slice(1).join(' ');
+              return { quantity, unit, name };
+            } else if (typeof ing === 'object') {
+              return {
+                quantity: String(ing.quantity || ''),
+                unit: String(ing.unit || ''),
+                name: String(ing.name || '')
+              };
+            }
+            return { quantity: '', unit: '', name: 'Ingredient' };
+          }) : [],
+        instructions: Array.isArray(parsedContent.instructions) ? parsedContent.instructions : [],
+        prepTime: parsedContent.prepTime,
+        cookTime: parsedContent.cookTime,
+        totalTime: parsedContent.totalTime,
+        servings: String(parsedContent.servings || ''),
+        notes: Array.isArray(parsedContent.notes) ? parsedContent.notes : [],
+        title: parsedContent.title // Ensure title is also present
+      };
       
       const suggestions = await generateSuggestions(recipe);
       

@@ -3,6 +3,7 @@ import { ConversionErrorType, ConversionResult } from '../types';
 import { makeOpenAIRequest } from '../openai/openai-service';
 import { parseRecipeFromText } from '../utils/recipe-parser';
 import { logError, logInfo } from '@/utils/logger';
+import { ConvertedRecipe } from '@/types/Recipe';
 
 /**
  * Handle different types of conversion errors with specific recovery strategies
@@ -40,7 +41,7 @@ Format as valid JSON with these fields at minimum: title, ingredients, instructi
           }
         };
         
-      case ConversionErrorType.CONVERSION_ERROR: // Changed from FORMATTING_ERROR
+      case ConversionErrorType.CONVERSION_ERROR:
         recoveryPrompt = `
 This recipe text needs to be properly formatted.
 Convert it into a valid JSON object with these fields: title, ingredients (array), instructions (array).
@@ -75,13 +76,42 @@ Return ONLY a valid JSON object with the structured recipe data.
     
     // Parse the AI response
     const content = response.choices[0].message.content;
-    const recipe = parseRecipeFromText(content);
+    const parsedRecipe = parseRecipeFromText(content);
     
-    if (!recipe) {
+    if (!parsedRecipe) {
       throw new Error('Failed to parse recipe from AI recovery response');
     }
     
-    logInfo('Error recovery successful', { recipeTitle: recipe.title });
+    // Convert to the correct ConvertedRecipe format
+    const recipe: ConvertedRecipe = {
+      name: parsedRecipe.title || "Recovered Recipe",
+      title: parsedRecipe.title, // Keep title for compatibility
+      ingredients: Array.isArray(parsedRecipe.ingredients) ? 
+        parsedRecipe.ingredients.map(ing => {
+          if (typeof ing === 'string') {
+            const parts = ing.split(' ');
+            const quantity = parts[0];
+            const unit = parts.length > 2 ? parts[1] : '';
+            const name = parts.length > 2 ? parts.slice(2).join(' ') : parts.slice(1).join(' ');
+            return { quantity, unit, name };
+          } else if (typeof ing === 'object') {
+            return {
+              quantity: String(ing.quantity || ''),
+              unit: String(ing.unit || ''),
+              name: String(ing.name || '')
+            };
+          }
+          return { quantity: '', unit: '', name: 'Ingredient' };
+        }) : [],
+      instructions: Array.isArray(parsedRecipe.instructions) ? parsedRecipe.instructions : [],
+      prepTime: parsedRecipe.prepTime,
+      cookTime: parsedRecipe.cookTime,
+      totalTime: parsedRecipe.totalTime,
+      servings: String(parsedRecipe.servings || ''),
+      notes: Array.isArray(parsedRecipe.notes) ? parsedRecipe.notes : []
+    };
+    
+    logInfo('Error recovery successful', { recipeTitle: recipe.name });
     
     return {
       success: true,

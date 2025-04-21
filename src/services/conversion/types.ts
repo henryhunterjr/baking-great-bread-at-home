@@ -5,7 +5,9 @@ export enum ConversionErrorType {
   PARSING_ERROR = 'PARSING_ERROR',
   API_ERROR = 'API_ERROR',
   VALIDATION_ERROR = 'VALIDATION_ERROR',
-  UNKNOWN = 'UNKNOWN'
+  UNKNOWN = 'UNKNOWN',
+  EMPTY_INPUT = 'EMPTY_INPUT', // Added missing type
+  CONVERSION_ERROR = 'CONVERSION_ERROR' // Added missing type
 }
 
 export interface ConversionError {
@@ -19,6 +21,12 @@ export interface ConversionResult {
   data?: ConvertedRecipe;
   error?: ConversionError;
   aiSuggestions?: AISuggestions;
+  original?: RecipeData; // Added for base-converter.ts
+  converted?: RecipeData; // Added for converter files
+  bakersPercentages?: Record<string, number>; // Added for converter files
+  hydration?: number; // Added for converter files
+  recipeType?: RecipeType; // Added for converter files
+  timings?: Record<string, string>; // Added for converter files
 }
 
 export interface AISuggestions {
@@ -54,4 +62,10 @@ export interface RecipeData {
   imageUrl?: string;
   isConverted?: boolean;
   recipeType?: RecipeType;
+  name?: string; // Added for compatibility with ConvertedRecipe
+}
+
+// Add the IRecipeConverter interface that was missing
+export interface IRecipeConverter {
+  convert(recipeData: RecipeData, targetSystem: MeasurementSystem): Promise<ConversionResult>;
 }

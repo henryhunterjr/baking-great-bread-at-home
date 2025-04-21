@@ -18,7 +18,7 @@ export function useAIConversion() {
       return {
         success: false,
         error: {
-          type: ConversionErrorType.EMPTY_INPUT,
+          type: ConversionErrorType.UNKNOWN,
           message: 'No recipe text provided for processing.'
         }
       };
@@ -62,7 +62,7 @@ export function useAIConversion() {
       return {
         success: false,
         error: {
-          type: ConversionErrorType.EMPTY_INPUT,
+          type: ConversionErrorType.UNKNOWN,
           message: 'No recipe text provided for error recovery.'
         }
       };

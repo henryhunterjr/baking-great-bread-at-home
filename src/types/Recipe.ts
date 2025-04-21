@@ -8,6 +8,7 @@ export interface ConvertedRecipe {
   totalTime?: string;
   servings?: string;
   notes?: string[];
+  title?: string; // Added for compatibility with RecipeData
 }
 
 export interface Ingredient {
