@@ -10,8 +10,10 @@ export interface Book {
   title: string;
   image: string;
   description: string;
-  link: string;
+  link: string; // primary link (for legacy/books with one link)
   isExternalLink: boolean;
+  pdfLink?: string;
+  flipBookLink?: string;
 }
 
 interface BookCardProps {
@@ -36,24 +38,56 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
       <CardContent className="p-6">
         <h3 className="font-serif text-xl font-medium mb-2">{book.title}</h3>
         <p className="text-muted-foreground text-sm mb-4">{book.description}</p>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full border-bread-200 text-bread-800 hover:bg-bread-50"
-          asChild
-        >
-          {book.isExternalLink ? (
-            <a href={book.link} target="_blank" rel="noopener noreferrer">
-              View Book
-              <ArrowRight className="ml-2 h-3 w-3" />
-            </a>
-          ) : (
-            <Link to={book.link}>
-              View Book
-              <ArrowRight className="ml-2 h-3 w-3" />
-            </Link>
-          )}
-        </Button>
+        {/* Special handling if both pdf and flipbook are present */}
+        {book.pdfLink || book.flipBookLink ? (
+          <div className="flex flex-col gap-2">
+            {book.flipBookLink && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full border-bread-200 text-bread-800 hover:bg-bread-50"
+                asChild
+              >
+                <a href={book.flipBookLink} target="_blank" rel="noopener noreferrer">
+                  View Flip Book
+                  <ArrowRight className="ml-2 h-3 w-3" />
+                </a>
+              </Button>
+            )}
+            {book.pdfLink && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full border-bread-200 text-bread-800 hover:bg-bread-50"
+                asChild
+              >
+                <a href={book.pdfLink} target="_blank" rel="noopener noreferrer">
+                  View PDF
+                  <ArrowRight className="ml-2 h-3 w-3" />
+                </a>
+              </Button>
+            )}
+          </div>
+        ) : (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full border-bread-200 text-bread-800 hover:bg-bread-50"
+            asChild
+          >
+            {book.isExternalLink ? (
+              <a href={book.link} target="_blank" rel="noopener noreferrer">
+                View Book
+                <ArrowRight className="ml-2 h-3 w-3" />
+              </a>
+            ) : (
+              <Link to={book.link}>
+                View Book
+                <ArrowRight className="ml-2 h-3 w-3" />
+              </Link>
+            )}
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

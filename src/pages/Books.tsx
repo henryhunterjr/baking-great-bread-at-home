@@ -57,6 +57,17 @@ const Books = () => {
       description: "Perfection Not Required - A free guide to get you started with sourdough baking.",
       link: "https://sourdough-simplified-gift.vercel.app/",
       isExternalLink: true
+    },
+    // --- New Book Entry ---
+    {
+      id: 7,
+      title: "The Loaf and the Lie",
+      image: "/lovable-uploads/4475b57a-8ff3-4c99-ac6d-24d1e49f0ad1.png",
+      description: "Read 'The Loaf and the Lie' as a beautiful flip book or download the full PDF.",
+      link: "https://heyzine.com/flip-book/4f7bec29f9.html",
+      isExternalLink: true,
+      pdfLink: "https://acrobat.adobe.com/id/urn:aaid:sc:US:f4f4315e-0e5d-4eb7-9496-a130a51ee0ce",
+      flipBookLink: "https://heyzine.com/flip-book/4f7bec29f9.html"
     }
   ];
 
@@ -106,7 +117,7 @@ const Books = () => {
         
         {/* Second row - adjusted for mobile and responsive grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-8 md:mb-12">
-          {books.slice(3, 6).map((book) => (
+          {books.slice(3, books.length).map((book) => (
             <BookCard key={book.id} book={book} />
           ))}
         </div>

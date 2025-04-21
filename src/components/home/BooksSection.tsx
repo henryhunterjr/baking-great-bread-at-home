@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
@@ -61,6 +60,16 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
       description: "Perfection Not Required - A free guide to get you started with sourdough baking.",
       link: "https://sourdough-simplified-gift.vercel.app/",
       isExternalLink: true
+    },
+    {
+      id: 7,
+      title: "The Loaf and the Lie",
+      image: "/lovable-uploads/4475b57a-8ff3-4c99-ac6d-24d1e49f0ad1.png",
+      description: "Read 'The Loaf and the Lie' as a beautiful flip book or download the full PDF.",
+      link: "https://heyzine.com/flip-book/4f7bec29f9.html",
+      isExternalLink: true,
+      pdfLink: "https://acrobat.adobe.com/id/urn:aaid:sc:US:f4f4315e-0e5d-4eb7-9496-a130a51ee0ce",
+      flipBookLink: "https://heyzine.com/flip-book/4f7bec29f9.html"
     }
   ];
 
@@ -82,7 +91,7 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
           </div>
           
           <div className={`grid grid-cols-1 ${isMobile ? '' : 'sm:grid-cols-3'} gap-4 md:gap-6 mb-8 md:mb-10`}>
-            {books.slice(isMobile ? 2 : 3, 6).map((book) => (
+            {books.slice(isMobile ? 2 : 3, books.length).map((book) => (
               <BookCard key={book.id} book={book} />
             ))}
           </div>
