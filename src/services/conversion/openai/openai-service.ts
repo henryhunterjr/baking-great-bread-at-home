@@ -1,6 +1,6 @@
 
 import { OpenAI } from "openai";
-import { getOpenAIApiKey, isOpenAIConfigured } from "@/lib/ai-services/key-management";
+import { getOpenAIApiKey, isAIConfigured } from "@/lib/ai-services/key-management";
 import { logError } from "@/utils/logger";
 
 /**
@@ -28,7 +28,7 @@ const createOpenAIClient = () => {
 export async function makeOpenAIRequest(prompt: string) {
   try {
     // Check if API is configured before attempting to create client
-    if (!isOpenAIConfigured()) {
+    if (!isAIConfigured()) {
       throw new Error('OpenAI API key not configured. Please add your API key in settings.');
     }
     

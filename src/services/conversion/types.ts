@@ -1,35 +1,24 @@
 
+import { ConvertedRecipe } from '@/types/Recipe';
+
 export enum ConversionErrorType {
-  PDF_EXTRACTION = 'pdf_extraction',
-  IMAGE_PROCESSING = 'image_processing',
-  FORMAT_DETECTION = 'format_detection',
-  UNIT_CONVERSION = 'unit_conversion',
-  PARSING_ERROR = 'parsing_error',
-  EMPTY_INPUT = 'empty_input',
-  CONVERSION_ERROR = 'conversion_error', // Added this entry
-  UNKNOWN = 'unknown'
+  PARSING_ERROR = 'PARSING_ERROR',
+  API_ERROR = 'API_ERROR',
+  VALIDATION_ERROR = 'VALIDATION_ERROR',
+  UNKNOWN = 'UNKNOWN'
+}
+
+export interface ConversionError {
+  type: ConversionErrorType;
+  message: string;
+  details?: any;
 }
 
 export interface ConversionResult {
   success: boolean;
-  data?: any;
-  error?: {
-    type: ConversionErrorType;
-    message: string;
-    details?: any;
-  };
-  aiSuggestions?: {
-    tips: string[];
-    improvements: string[];
-    alternativeMethods?: string[];
-  };
-  // Add these properties for the converters
-  original?: RecipeData;
-  converted?: RecipeData;
-  bakersPercentages?: Record<string, number>;
-  hydration?: number;
-  recipeType?: RecipeType;
-  timings?: Record<string, string>;
+  data?: ConvertedRecipe;
+  error?: ConversionError;
+  aiSuggestions?: AISuggestions;
 }
 
 export interface AISuggestions {
@@ -38,39 +27,31 @@ export interface AISuggestions {
   alternativeMethods?: string[];
 }
 
-// Add the missing type definitions
-export type RecipeType = 'sourdough' | 'yeasted' | 'enriched' | 'quickbread' | 'standard';
-
 export type MeasurementSystem = 'metric' | 'imperial';
+export type RecipeType = 'standard' | 'sourdough' | 'quickbread' | 'yeasted' | 'enriched';
 
 export interface RecipeIngredient {
   name: string;
   quantity: number;
   unit: string;
-  isFlour?: boolean;
-  isLiquid?: boolean;
 }
 
 export interface RecipeData {
   id?: string;
   title: string;
-  ingredients: (RecipeIngredient | string)[];
+  description?: string;
+  ingredients: (string | RecipeIngredient)[];
   instructions: string[];
-  notes?: string[];
-  prepTime?: string;
-  cookTime?: string;
-  totalTime?: string;
+  prepTime?: number;
+  cookTime?: number;
+  totalTime?: number;
+  servings?: number;
   yield?: string;
-  author?: string;
-  source?: string;
+  notes?: string[];
   tags?: string[];
-  isConverted?: boolean;
-  updatedAt?: string;
+  author?: string;
+  url?: string;
   imageUrl?: string;
-  hydration?: number;
-}
-
-// Add the missing interface for recipe converters
-export interface IRecipeConverter {
-  convert(recipeData: RecipeData, targetSystem: MeasurementSystem): Promise<ConversionResult>;
+  isConverted?: boolean;
+  recipeType?: RecipeType;
 }

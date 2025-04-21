@@ -1,5 +1,5 @@
 
-import { isOpenAIConfigured } from '@/lib/ai-services/ai-config';
+import { isAIConfigured } from '@/lib/ai-services/key-management';
 import { logError, logInfo } from '@/utils/logger';
 import { makeOpenAIRequest } from './openai/openai-service';
 import { buildRecipePrompt } from './prompt/prompt-builder';
@@ -7,6 +7,7 @@ import { handleConversionError } from './error/error-handler';
 import { parseRecipeFromText } from './utils/recipe-parser';
 import { ConversionResult, ConversionErrorType } from './types';
 import { generateSuggestions } from './AIRecommendationService';
+import { ConvertedRecipe } from '@/types/Recipe';
 
 class AIConversionService {
   private static instance: AIConversionService;
@@ -21,7 +22,7 @@ class AIConversionService {
   }
   
   public hasApiKey(): boolean {
-    return isOpenAIConfigured();
+    return isAIConfigured();
   }
   
   public async processRecipeText(
@@ -41,7 +42,7 @@ class AIConversionService {
     try {
       const prompt = buildRecipePrompt(text, options);
       const response = await makeOpenAIRequest(prompt);
-      const recipe = parseRecipeFromText(response.choices[0].message.content);
+      const recipe = parseRecipeFromText(response.choices[0].message.content) as ConvertedRecipe;
       
       if (!recipe) {
         throw new Error('Failed to parse recipe from AI response');
