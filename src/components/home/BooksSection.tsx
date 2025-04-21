@@ -64,12 +64,12 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
     {
       id: 7,
       title: "The Loaf and the Lie",
-      image: "/lovable-uploads/4475b57a-8ff3-4c99-ac6d-24d1e49f0ad1.png",
+      image: "/lovable-uploads/f90c57a7-e5be-4b96-829e-6ddfc9f68290.png",
       description: "Read 'The Loaf and the Lie' as a beautiful flip book or download the full PDF.",
-      link: "https://heyzine.com/flip-book/4f7bec29f9.html",
+      link: "https://heyzine.com/flip-book/fcb520a9fd.html",
       isExternalLink: true,
       pdfLink: "https://acrobat.adobe.com/id/urn:aaid:sc:US:f4f4315e-0e5d-4eb7-9496-a130a51ee0ce",
-      flipBookLink: "https://heyzine.com/flip-book/4f7bec29f9.html"
+      flipBookLink: "https://heyzine.com/flip-book/fcb520a9fd.html"
     }
   ];
 
