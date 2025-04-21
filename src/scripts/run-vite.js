@@ -1,3 +1,4 @@
+
 #!/usr/bin/env node
 
 const { execSync, spawn } = require('child_process');
@@ -25,6 +26,28 @@ try {
       cwd: path.resolve(__dirname, '..')
     });
     console.log('Vite installation completed.');
+  }
+  
+  // Check if PDF resources exist, if not run the copy script
+  const pdfWorkerPath = path.resolve(__dirname, '../../public/pdf.worker.min.js');
+  const cmapsDir = path.resolve(__dirname, '../../public/cmaps');
+  
+  if (!fs.existsSync(pdfWorkerPath) || !fs.existsSync(cmapsDir)) {
+    console.log('PDF resources missing. Copying them now...');
+    try {
+      // If the copy-pdf-resources.js script exists, run it
+      const copyScriptPath = path.resolve(__dirname, '../../scripts/copy-pdf-resources.js');
+      if (fs.existsSync(copyScriptPath)) {
+        execSync('node ' + copyScriptPath, {
+          stdio: 'inherit',
+          cwd: path.resolve(__dirname, '../..')
+        });
+      } else {
+        console.warn('PDF resource copy script not found. Some PDF features may not work correctly.');
+      }
+    } catch (copyError) {
+      console.warn('Failed to copy PDF resources:', copyError.message);
+    }
   }
   
   // Try multiple methods to start vite
@@ -133,7 +156,7 @@ try {
     } catch (error) {
       console.error('All methods to start Vite have failed.');
       console.error('Please run: npm install --save-dev vite@4.5.1 @vitejs/plugin-react');
-      console.error('Then try running: node scripts/fix-vite.js');
+      console.error('Then try running: node scripts/copy-pdf-resources.js');
       process.exit(1);
     }
   }
