@@ -1,4 +1,3 @@
-
 #!/usr/bin/env node
 
 const { execSync, spawn } = require('child_process');
@@ -18,9 +17,6 @@ try {
   const viteModulePath = path.join(nodeModulesPath, 'vite');
   const viteCliPath = path.join(viteModulePath, 'bin', 'vite.js');
   
-  // Try multiple methods to start vite
-  let started = false;
-  
   // First ensure vite is installed
   if (!fs.existsSync(viteBinPath) && !fs.existsSync(viteCliPath)) {
     console.log('Vite not found. Installing it now...');
@@ -30,6 +26,9 @@ try {
     });
     console.log('Vite installation completed.');
   }
+  
+  // Try multiple methods to start vite
+  let started = false;
   
   // Method 1: Use local vite binary
   if (!started && fs.existsSync(viteBinPath)) {
