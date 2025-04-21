@@ -1,59 +1,51 @@
-
-import { logInfo, logError } from '@/utils/logger';
-import { isOpenAIConfigured, getOpenAIApiKey } from '@/lib/ai-services/ai-config';
+import { OpenAI } from "openai";
 
 /**
- * Make a request to the OpenAI API for recipe conversion
+ * OpenAI integration for converting prompts to structured recipe JSON.
+ * Uses Vercel-injected environment variable: VITE_OPENAI_API_KEY.
+ * 
+ * For local dev, see: https://vitejs.dev/guide/env-and-mode.html
+ * WARNING: Using OpenAI API in the browser requires an exposed public key. For production, proxy calls through a backend for true secret protection.
  */
-export const makeOpenAIRequest = async (prompt: string): Promise<any> => {
+const openai = new OpenAI({
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true, // This exposes your API key in the client bundle!
+});
+
+// Main function to get a structured recipe from OpenAI
+export async function getStructuredRecipe(prompt: string) {
   try {
-    const apiKey = getOpenAIApiKey(); // Changed from getOpenAIKey
-    
-    if (!apiKey || !isOpenAIConfigured()) {
-      throw new Error('OpenAI API key not configured');
-    }
-    
-    logInfo('Making OpenAI request', { promptLength: prompt.length });
-    
-    // Create a prompt that explicitly includes the word "json" for response format compatibility
-    const enhancedPrompt = `${prompt}\n\nPlease format your response as valid JSON.`;
-    
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          { 
-            role: 'system', 
-            content: 'You are a helpful assistant that converts recipe text into structured JSON format.' 
-          },
-          { 
-            role: 'user', 
-            content: enhancedPrompt 
-          }
-        ],
-        temperature: 0.3,
-        response_format: { type: 'json_object' },
-        max_tokens: 2000
-      })
+    const res = await openai.chat.completions.create({
+      messages: [
+        { role: "system", content: "You are a helpful assistant that returns recipes ONLY as JSON, no markdown or extra text." },
+        { role: "user", content: prompt }
+      ],
+      // Use GPT-4; fallback to gpt-4o-mini if your key does not have gpt-4 access.
+      model: "gpt-4",
+      temperature: 0.7,
+      max_tokens: 2000,
     });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      logError('OpenAI API error', { status: response.status, error: errorData });
-      throw new Error(`API error: ${errorData.error?.message || response.statusText}`);
+
+    const content = res.choices[0]?.message?.content || "";
+
+    // Try to extract JSON from codeblock or raw string
+    const jsonMatch = content.match(/```json\s*([\s\S]*?)```/i)
+      || content.match(/```([\s\S]*?)```/i);
+    const jsonText = jsonMatch ? jsonMatch[1] : content;
+
+    try {
+      return JSON.parse(jsonText);
+    } catch (parseError) {
+      // Log for debugging
+      console.error("Failed to parse OpenAI JSON:", jsonText);
+      // Optionally surface partial/raw response
+      throw new Error("AI did not return valid JSON. Raw response: " + content);
     }
-    
-    const data = await response.json();
-    return data;
   } catch (error) {
-    logError('Error in OpenAI request', { 
-      error: error instanceof Error ? error.message : 'Unknown error' 
-    });
-    throw error;
+    console.error("OpenAI request failed:", error);
+    throw new Error("AI conversion failed. Check API key, response format, and OpenAI status.");
   }
-};
+}
+
+// Optionally keep compat export for system
+export default { getStructuredRecipe };
