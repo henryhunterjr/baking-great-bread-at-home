@@ -1,3 +1,4 @@
+
 #!/usr/bin/env node
 
 const { execSync, spawn } = require('child_process');
@@ -19,6 +20,16 @@ try {
   
   // Try multiple methods to start vite
   let started = false;
+  
+  // First ensure vite is installed
+  if (!fs.existsSync(viteBinPath) && !fs.existsSync(viteCliPath)) {
+    console.log('Vite not found. Installing it now...');
+    execSync('npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1', {
+      stdio: 'inherit',
+      cwd: path.resolve(__dirname, '..')
+    });
+    console.log('Vite installation completed.');
+  }
   
   // Method 1: Use local vite binary
   if (!started && fs.existsSync(viteBinPath)) {

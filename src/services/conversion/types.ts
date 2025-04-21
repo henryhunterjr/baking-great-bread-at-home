@@ -6,6 +6,7 @@ export enum ConversionErrorType {
   UNIT_CONVERSION = 'unit_conversion',
   PARSING_ERROR = 'parsing_error',
   EMPTY_INPUT = 'empty_input',
+  CONVERSION_ERROR = 'conversion_error', // Added this entry
   UNKNOWN = 'unknown'
 }
 
