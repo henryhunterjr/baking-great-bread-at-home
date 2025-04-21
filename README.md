@@ -8,7 +8,7 @@ This project contains several scripts to help start the development server acros
 The easiest way to start the development server is by running:
 
 ```
-node run-dev.js
+node install-and-run.js
 ```
 
 This new script is the most robust option and will try multiple methods to start the server.
@@ -65,4 +65,3 @@ node ./node_modules/vite/bin/vite.js
 ## WebSocket Connection Errors
 
 The WebSocket connection errors in the console are normal during development and don't affect core functionality. These connections have been disabled to reduce console noise.
-
