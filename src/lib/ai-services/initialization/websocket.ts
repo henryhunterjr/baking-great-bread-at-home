@@ -8,17 +8,16 @@ let websocketManager: ReturnType<typeof createWebSocketManager> | null = null;
 /**
  * Initialize WebSocket connections
  * 
- * WebSocket connections are disabled in production to avoid CORS/connection issues
+ * WebSocket connections are disabled in production and development to avoid CORS/connection issues
  */
 export const initializeWebSockets = (): void => {
-  if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
-    logInfo('WebSocket initialization skipped in production - using fallback mode');
-  }
+  logInfo('WebSocket initialization skipped - using fallback mode');
+  // We're explicitly not initializing websockets to avoid connection errors
 };
 
 /**
  * Get WebSocket manager instance
  */
 export const getWebSocketManager = (): ReturnType<typeof createWebSocketManager> | null => {
-  return websocketManager;
+  return null; // Always return null to disable websocket usage
 };

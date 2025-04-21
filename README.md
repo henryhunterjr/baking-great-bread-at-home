@@ -59,3 +59,6 @@ If you continue to encounter issues:
 3. Check if there are any permission issues preventing script execution
 4. Clear your npm cache: `npm cache clean --force` and try again
 
+## WebSocket Connection Errors
+
+The WebSocket connection errors in the console are normal during development and don't affect core functionality. These connections have been disabled to reduce console noise.

@@ -1,3 +1,4 @@
+
 import { OpenAI } from "openai";
 
 /**
@@ -62,5 +63,5 @@ export async function getStructuredRecipe(prompt: string) {
   }
 }
 
-// Optionally keep compat export for system
+// Export both named and default exports for compatibility
 export default { getStructuredRecipe, makeOpenAIRequest };
