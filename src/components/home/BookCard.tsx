@@ -67,6 +67,20 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
                 </a>
               </Button>
             )}
+            {/* If this is Sourdough for the Rest of Us (ID: 6) and has both a main link and a flipBookLink, show both */}
+            {(book.id === 6 && book.link && book.isExternalLink) && (
+              <Button 
+                variant="outline"
+                size="sm"
+                className="w-full border-bread-200 text-bread-800 hover:bg-bread-50"
+                asChild
+              >
+                <a href={book.link} target="_blank" rel="noopener noreferrer">
+                  View Book
+                  <ArrowRight className="ml-2 h-3 w-3" />
+                </a>
+              </Button>
+            )}
           </div>
         ) : (
           <Button 

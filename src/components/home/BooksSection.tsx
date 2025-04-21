@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
@@ -59,12 +60,14 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
       image: "/lovable-uploads/147235a4-ba60-4748-8b66-0f589298ffe0.png",
       description: "Perfection Not Required - A free guide to get you started with sourdough baking.",
       link: "https://sourdough-simplified-gift.vercel.app/",
-      isExternalLink: true
+      isExternalLink: true,
+      // Add flip book link for this book as requested:
+      flipBookLink: "https://designrr.page/?id=417933&token=252850456&type=FP&h=2418"
     },
     {
       id: 7,
       title: "The Loaf and the Lie",
-      image: "/lovable-uploads/f90c57a7-e5be-4b96-829e-6ddfc9f68290.png",
+      image: "/lovable-uploads/57301cd2-6a04-47f6-a28f-9af5057075ff.png",
       description: "Read 'The Loaf and the Lie' as a beautiful flip book or download the full PDF.",
       link: "https://heyzine.com/flip-book/fcb520a9fd.html",
       isExternalLink: true,
