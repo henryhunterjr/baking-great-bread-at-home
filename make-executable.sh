@@ -3,35 +3,14 @@
 
 echo "Making scripts executable..."
 
-# Make shell scripts executable
-chmod +x run-dev.js
-chmod +x scripts/fix-and-run.js
-chmod +x scripts/fix-vite.js
-chmod +x scripts/run-vite-direct.js
-chmod +x scripts/robust-dev.js
-chmod +x scripts/start-dev.js
-chmod +x scripts/direct-vite.js
+# Make scripts executable
 chmod +x start.js
-chmod +x start-dev.sh
-chmod +x scripts/start-dev.sh
-chmod +x scripts/run-dev.sh
-chmod +x scripts/start-direct.sh
-
-# Make sure npm has the right permissions
-npm config set unsafe-perm true
+chmod +x scripts/run-vite-direct.js
 
 echo "Scripts are now executable. You can run the application with:"
-echo "  node run-dev.js"
-echo "  or"
-echo "  node scripts/fix-and-run.js"
+echo "  node start.js"
 echo ""
 echo "If you encounter issues, try running:"
 echo "  npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1"
 echo "  then"
 echo "  npx vite"
-
-# Try to directly fix the most common issue
-echo "Attempting to install Vite directly..."
-npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1
-
-echo "Installation complete. Run 'node run-dev.js' to start the application."

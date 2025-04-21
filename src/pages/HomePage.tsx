@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Footer from '@/components/Footer';
@@ -11,7 +12,6 @@ import BlogPreviewSection from '@/components/home/BlogPreviewSection';
 import CareCenterPreview from '@/components/home/CareCenterPreview';
 import ChallengePreviewSection from '@/components/home/ChallengePreviewSection';
 import { useIsMobile } from '@/hooks/use-mobile';
-import BewitchingBreadPodcastSection from '@/components/home/BewitchingBreadPodcastSection';
 import PodcastLibrarySection from '@/components/home/BewitchingBreadPodcastSection';
 
 const HomePage = () => {
@@ -107,7 +107,7 @@ const HomePage = () => {
           role="presentation"
           aria-hidden="true" />
 
-        {/* New: Bewitching Bread Podcast Section */}
+        {/* New: Podcast Library Section */}
         <PodcastLibrarySection />
 
         {/* Section divider */}

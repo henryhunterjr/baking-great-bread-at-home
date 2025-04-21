@@ -3,61 +3,44 @@
 
 This project contains several scripts to help start the development server across different environments.
 
-## For Windows Users
+## Quick Start
 
-If you're on Windows, use one of these methods to start the development server:
-
-### Method 1: Using the batch file
+The easiest way to start the development server is by running:
 
 ```
-start-windows.bat
+node start.js
 ```
 
-### Method 2: Using the Windows-specific Node script
+This script will automatically:
+1. Check if Vite is installed
+2. Install it if needed
+3. Start the development server using the best available method for your system
 
-```
-node run-dev-windows.js
-```
+## Alternative Methods
 
-### Method 3: Direct NPX command
+If you encounter issues with the main script, you can try these alternatives:
 
+### Direct NPX method
 ```
 npx vite
 ```
 
-## For Mac/Linux Users
-
-If you're on Mac or Linux, use one of these methods:
-
-### Method 1: Make scripts executable and run
-
+### Using our robust script
 ```
-bash make-executable.sh
-node run-dev.js
+node scripts/run-vite-direct.js
 ```
 
-### Method 2: Direct NPX command
-
+### Manual installation
 ```
+npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1
 npx vite
 ```
 
 ## Troubleshooting
 
-If you encounter issues starting the development server:
+If you continue to encounter issues:
 
-1. Try installing Vite globally:
-   ```
-   npm install -g vite
-   vite
-   ```
-
-2. Make sure Node.js is properly installed and up to date.
-
-3. Try installing dependencies directly:
-   ```
-   npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1
-   npx vite
-   ```
-
-4. Check if there are any permission issues that might prevent script execution.
+1. Make sure Node.js is properly installed and up to date
+2. Try installing Vite globally: `npm install -g vite`
+3. Check if there are any permission issues preventing script execution
+4. Clear your npm cache: `npm cache clean --force` and try again

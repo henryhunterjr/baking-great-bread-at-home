@@ -2,62 +2,144 @@
 #!/usr/bin/env node
 
 /**
- * Simple starter script that chooses the best method to run the app
- * based on the current platform.
+ * Unified start script that works across platforms
  */
 
-const { execSync } = require('child_process');
-const os = require('os');
-const fs = require('fs');
+const { execSync, spawn } = require('child_process');
 const path = require('path');
+const fs = require('fs');
+const os = require('os');
 
-console.log('📦 Starting application...');
+console.log('🚀 Starting development server...');
 
-// Determine platform
+// Detect platform
 const isWindows = os.platform() === 'win32';
 const projectRoot = path.resolve(__dirname);
 
 try {
-  // Use the robust script as the primary method
-  console.log('🔄 Using robust startup script...');
+  // First try the most direct approach - running our robust script
+  const scriptPath = path.join(projectRoot, 'scripts', 'run-vite-direct.js');
   
-  if (isWindows) {
-    console.log('💻 Windows detected. Using Node.js script...');
-    execSync('node scripts\\robust-dev.js', { stdio: 'inherit', cwd: projectRoot });
-  } else {
-    console.log('🐧 Unix-like OS detected. Using Node.js script...');
-    execSync('node scripts/robust-dev.js', { stdio: 'inherit', cwd: projectRoot });
-  }
-} catch (error) {
-  console.error('❌ Robust script failed:', error.message);
-  
-  // Fallback to other methods
-  try {
-    // First check if we have vite directly available
-    console.log('🧪 Checking for Vite...');
-    
-    // Try to find vite
-    const viteBinExists = fs.existsSync(path.join(projectRoot, 'node_modules', '.bin', 'vite'));
-    
-    if (viteBinExists) {
-      console.log('✅ Found Vite in node_modules. Starting...');
-      const command = isWindows ? 
-        'node_modules\\.bin\\vite' : 
-        './node_modules/.bin/vite';
-      
-      execSync(command, { stdio: 'inherit', cwd: projectRoot });
-      process.exit(0);
+  // Make sure the script has execute permissions
+  if (!isWindows) {
+    try {
+      execSync(`chmod +x "${scriptPath}"`, { stdio: 'pipe' });
+    } catch (e) {
+      // Ignore chmod errors
     }
-  } catch (viteError) {
-    console.log('❌ Local Vite not accessible. Trying final methods...');
   }
   
-  try {
-    console.log('⚙️ Trying direct Vite execution...');
-    execSync('node scripts/run-vite-direct.js', { stdio: 'inherit', cwd: projectRoot });
-  } catch (finalError) {
-    console.error('❌ All startup methods failed.');
-    console.error('Please try manually running: npm install --save-dev vite@4.5.1 @vitejs/plugin-react && npx vite');
+  console.log('Running enhanced Vite startup script...');
+  
+  // Run the script directly
+  const child = spawn('node', [scriptPath], {
+    stdio: 'inherit',
+    shell: true,
+    cwd: projectRoot
+  });
+  
+  child.on('error', (error) => {
+    console.error('Failed to start with enhanced script:', error.message);
+    fallbackStart();
+  });
+  
+  child.on('exit', (code) => {
+    if (code !== 0) {
+      console.log(`Enhanced script exited with code ${code}`);
+      fallbackStart();
+    }
+  });
+  
+} catch (error) {
+  console.error('Error starting enhanced script:', error.message);
+  fallbackStart();
+}
+
+// Fallback methods if the main script fails
+function fallbackStart() {
+  console.log('Trying fallback methods...');
+  
+  const methods = [
+    // Just try running npx vite directly
+    () => {
+      console.log('Trying npx vite...');
+      const child = spawn('npx', ['vite'], {
+        stdio: 'inherit',
+        shell: true,
+        cwd: projectRoot
+      });
+      return child;
+    },
+    
+    // Try installing and running
+    () => {
+      console.log('Trying installation and direct run...');
+      execSync('npm install --no-save vite@4.5.1 @vitejs/plugin-react@4.2.1', {
+        stdio: 'inherit',
+        cwd: projectRoot
+      });
+      const child = spawn('npx', ['vite'], {
+        stdio: 'inherit',
+        shell: true,
+        cwd: projectRoot
+      });
+      return child;
+    },
+    
+    // Final direct attempt
+    () => {
+      console.log('Final attempt with global vite...');
+      try {
+        execSync('npm install -g vite', { stdio: 'inherit' });
+      } catch (e) {
+        // Ignore global install errors
+      }
+      const child = spawn('vite', [], {
+        stdio: 'inherit',
+        shell: true,
+        cwd: projectRoot
+      });
+      return child;
+    }
+  ];
+  
+  // Try each fallback method
+  let fallbackStarted = false;
+  for (const method of methods) {
+    if (fallbackStarted) break;
+    
+    try {
+      const childProcess = method();
+      
+      childProcess.on('error', (err) => {
+        console.error('Error with this fallback method:', err.message);
+        // We'll continue to the next method in the next iteration
+      });
+      
+      childProcess.on('exit', (code) => {
+        if (code !== 0) {
+          console.log(`Fallback exited with code ${code}.`);
+        }
+      });
+      
+      // We'll only reach this point if the process didn't immediately throw an error
+      console.log('Fallback method appears to be working...');
+      fallbackStarted = true;
+      
+    } catch (error) {
+      console.warn('Fallback method failed:', error.message);
+    }
+    
+    if (!fallbackStarted) {
+      console.log('Continuing to next fallback method...');
+    }
+  }
+  
+  if (!fallbackStarted) {
+    console.error('All methods to start Vite have failed.');
+    console.error('Please try these manual steps:');
+    console.error('1. npm install --save-dev vite@4.5.1 @vitejs/plugin-react@4.2.1');
+    console.error('2. npx vite');
     process.exit(1);
   }
 }
