@@ -1,5 +1,5 @@
-
-import { logError, logInfo, startPerformanceTimer, endPerformanceTimer } from '@/utils/logger';
+import { startPerformanceTimer, endPerformanceTimer } from '@/utils/logger';
+import { logError, logInfo } from '@/utils/logger';
 import { cleanPDFText } from '@/lib/ai-services/text-cleaner';
 import { ProcessingErrorType, ProcessingError, ProgressCallback } from './types';
 

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { AuthProvider } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { ThemeProvider, ThemeProviderProps } from './contexts/ThemeContext';
 import { AIAssistantProvider } from './contexts/AIAssistantContext';
 import HomePage from './pages/HomePage';
 import { initDevErrorHandler } from './utils/devErrorHandler';
@@ -15,7 +15,7 @@ if (typeof window !== 'undefined') {
 function App() {
   return (
     <AuthProvider>
-      <ThemeProvider defaultTheme="dark" storageKey="bread-theme">
+      <ThemeProvider defaultTheme="dark">
         <AIAssistantProvider>
           <HomePage />
           
