@@ -3,7 +3,7 @@ import { ConversionErrorType, ConversionResult } from '../types';
 import { makeOpenAIRequest } from '../openai/openai-service';
 import { parseRecipeFromText } from '../utils/recipe-parser';
 import { logError, logInfo } from '@/utils/logger';
-import { ConvertedRecipe } from '@/types/Recipe';
+import { ConvertedRecipe } from '@/types/recipe';
 
 /**
  * Handle different types of conversion errors with specific recovery strategies

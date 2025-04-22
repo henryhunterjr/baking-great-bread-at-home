@@ -1,4 +1,3 @@
-
 import { isAIConfigured } from '@/lib/ai-services/key-management';
 import { logError, logInfo } from '@/utils/logger';
 import { makeOpenAIRequest } from './openai/openai-service';
@@ -7,7 +6,7 @@ import { handleConversionError } from './error/error-handler';
 import { parseRecipeFromText } from './utils/recipe-parser';
 import { ConversionResult, ConversionErrorType } from './types';
 import { generateSuggestions } from './AIRecommendationService';
-import { ConvertedRecipe } from '@/types/Recipe';
+import { ConvertedRecipe } from '@/types/recipe';
 
 class AIConversionService {
   private static instance: AIConversionService;
