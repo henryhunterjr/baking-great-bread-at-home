@@ -11,12 +11,12 @@ const HeroSection: React.FC = () => {
         <div className="grid items-center gap-8 md:grid-cols-2">
           <div className="order-2 sm:order-1">
             <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl">
-              Unlock Your Inner Baker <br className="hidden sm:block" />
-              With AI-Powered Recipes
+              Baking Great Bread <br className="hidden sm:block" />
+              At Home
             </h1>
             <p className="mt-4 text-lg text-muted-foreground">
-              Discover, create, and convert recipes effortlessly. Lovable is your AI-powered kitchen companion,
-              making cooking simpler and more enjoyable.
+              Learn to bake great bread at home with our recipes, tools, and techniques.
+              Join our community of home bakers and elevate your bread making skills.
             </p>
             <div className="mt-6 space-x-3">
               <Link to="/recipe-converter">
@@ -32,7 +32,7 @@ const HeroSection: React.FC = () => {
           <div className="relative mx-auto mt-8 max-w-3xl lg:mt-12">
             <div className="relative">
               <img
-                src="/lovable-uploads/hero-bread-baking.jpg"
+                src="/lovable-uploads/4d290c6b-8e01-448f-a736-f5b7989075ad.png"
                 alt="Fresh baked artisan bread on cooling rack"
                 fetchPriority="high" 
                 width={960}

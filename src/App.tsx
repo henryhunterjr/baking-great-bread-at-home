@@ -15,7 +15,7 @@ if (typeof window !== 'undefined') {
 function App() {
   return (
     <AuthProvider>
-      <ThemeProvider defaultTheme="dark" storageKey="bread-theme">
+      <ThemeProvider defaultTheme="dark">
         <AIAssistantProvider>
           <HomePage />
           
