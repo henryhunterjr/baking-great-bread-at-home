@@ -1,9 +1,8 @@
-
 import React from 'react';
-import { AuthProvider } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { AIAssistantProvider } from './contexts/AIAssistantContext';
-import HomePage from './pages/HomePage';
+import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { AIAssistantProvider } from './context/AIAssistantContext';
+import Home from './pages/Home';
 import { initDevErrorHandler } from './utils/devErrorHandler';
 import DevToolsToggle from './components/dev/DevToolsToggle';
 
@@ -15,9 +14,9 @@ if (typeof window !== 'undefined') {
 function App() {
   return (
     <AuthProvider>
-      <ThemeProvider defaultTheme="dark">
+      <ThemeProvider defaultTheme="dark" storageKey="bread-theme">
         <AIAssistantProvider>
-          <HomePage />
+          <Home />
           
           {/* Add DevToolsToggle at the bottom */}
           <DevToolsToggle />

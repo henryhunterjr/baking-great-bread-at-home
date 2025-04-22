@@ -13,7 +13,6 @@ import CareCenterPreview from '@/components/home/CareCenterPreview';
 import ChallengePreviewSection from '@/components/home/ChallengePreviewSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 import PodcastLibrarySection from '@/components/home/BewitchingBreadPodcastSection';
-import HoverNavbar from '@/components/navigation/HoverNavbar';
 
 const HomePage = () => {
   const isMobile = useIsMobile();
@@ -76,13 +75,8 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Add the navigation bar */}
-      <HoverNavbar />
-      
       <main className="flex-grow">
-        <div ref={heroRef}>
-          <HeroSection />
-        </div>
+        <HeroSection heroRef={heroRef} />
         
         <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
              role="presentation" 
