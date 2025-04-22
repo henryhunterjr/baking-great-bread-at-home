@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AIAssistantProvider } from '@/contexts/AIAssistantContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { AIAssistantProvider } from './contexts/AIAssistantContext';
 import HomePage from './pages/HomePage';
 import { initDevErrorHandler } from './utils/devErrorHandler';
 import DevToolsToggle from './components/dev/DevToolsToggle';

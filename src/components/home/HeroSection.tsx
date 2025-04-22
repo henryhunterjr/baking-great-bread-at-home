@@ -31,7 +31,6 @@ const HeroSection: React.FC = () => {
           </div>
           <div className="relative mx-auto mt-8 max-w-3xl lg:mt-12">
             <div className="relative">
-              {/* Fixed the fetchPriority attribute by making it use the correct casing */}
               <img
                 src="/lovable-uploads/hero-bread-baking.jpg"
                 alt="Fresh baked artisan bread on cooling rack"
