@@ -1,4 +1,5 @@
 
+// Make sure RecipeData is exported from recipe.ts
 export interface Ingredient {
   name: string;
   quantity: string;
@@ -26,6 +27,28 @@ export interface Recipe {
   createdAt?: Date;
   updatedAt?: Date;
   isPublic?: boolean;
+}
+
+// Export RecipeData interface that was missing
+export interface RecipeData {
+  id?: string;
+  title: string;
+  introduction?: string;
+  ingredients: string[];
+  prepTime?: string;
+  restTime?: string;
+  bakeTime?: string;
+  cookTime?: string;
+  totalTime?: string;
+  instructions: string[];
+  tips?: string[];
+  proTips?: string[];
+  equipmentNeeded?: EquipmentItem[];
+  imageUrl?: string;
+  tags?: string[];
+  isPublic?: boolean;
+  isConverted?: boolean;
+  notes?: string[];
 }
 
 // Add the ConvertedRecipe interface that was missing in the lowercase file

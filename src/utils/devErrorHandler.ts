@@ -33,7 +33,8 @@ export function initDevErrorHandler(suppressErrors = true): void {
     /wss:\/\//i,
     /Unexpected response code: 404/i,
     /Unexpected response code: 412/i,
-    /Error during WebSocket handshake/i
+    /Error during WebSocket handshake/i,
+    /React does not recognize the `fetchPriority` prop/i
   ];
 
   // Override console.error

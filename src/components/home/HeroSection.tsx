@@ -1,72 +1,52 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
-interface HeroSectionProps {
-  heroRef: React.RefObject<HTMLDivElement>;
-}
-
-const HeroSection: React.FC<HeroSectionProps> = ({ heroRef }) => {
+const HeroSection: React.FC = () => {
   return (
-    <section 
-      ref={heroRef} 
-      className="pt-16 pb-12 md:pt-24 md:pb-20 opacity-0"
-    >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-            <div className="space-y-4 md:space-y-6">
-              <span className="inline-block text-xs font-medium tracking-wider uppercase py-1 px-3 border border-bread-200 rounded-full text-bread-800 bg-bread-50 dark:bg-bread-800 dark:text-white dark:border-bread-700">
-                Artisanal Baking
-              </span>
-              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-medium leading-tight">
-                Master the Art of <br />
-                <span className="text-bread-800">Baking Great Bread</span>
-                <br /> at Home
-              </h1>
-              <p className="text-muted-foreground text-base md:text-lg max-w-md">
-                Join me in my community of passionate home bakers and discover the simple joy of creating artisanal bread with your own hands.
-              </p>
-              <div className="pt-2 flex flex-wrap gap-4">
-                <Button 
-                  size="lg" 
-                  className="bg-bread-800 hover:bg-bread-900 text-white"
-                  asChild
-                >
-                  <Link to="/recipes">
-                    Explore Recipes
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+    <section className="relative w-full overflow-hidden bg-muted pt-16 md:pt-20 lg:pt-24">
+      <div className="container relative z-10">
+        <div className="grid items-center gap-8 md:grid-cols-2">
+          <div className="order-2 sm:order-1">
+            <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl">
+              Unlock Your Inner Baker <br className="hidden sm:block" />
+              With AI-Powered Recipes
+            </h1>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Discover, create, and convert recipes effortlessly. Lovable is your AI-powered kitchen companion,
+              making cooking simpler and more enjoyable.
+            </p>
+            <div className="mt-6 space-x-3">
+              <Link href="/recipe-converter">
+                <Button size="lg">
+                  Get Started <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="border-bread-200 text-bread-800 hover:bg-bread-50 dark:border-bread-700 dark:text-gray-300 dark:hover:bg-bread-800"
-                >
-                  Join Community
-                </Button>
-              </div>
+              </Link>
+              <Button variant="outline" size="lg">
+                Learn More
+              </Button>
             </div>
-            <div className="hero-image-container mt-6 md:mt-0">
-              <img 
-                src="/lovable-uploads/ecf6ed85-89c2-44ae-97ef-35087b9b3b16.png" 
-                alt="Cross-section of artisan sourdough bread showing open crumb structure" 
-                className="hero-image rounded-lg shadow-xl"
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-                width="600" 
-                height="400"
-                onError={(e) => {
-                  e.currentTarget.src = "https://images.unsplash.com/photo-1549931319-a545dcf3bc7c?q=80&w=1000&auto=format&fit=crop";
-                }}
+          </div>
+          <div className="relative mx-auto mt-8 max-w-3xl lg:mt-12">
+            <div className="relative">
+              {/* Fix the fetchPriority attribute by making it lowercase */}
+              <img
+                src="/lovable-uploads/hero-bread-baking.jpg"
+                alt="Fresh baked artisan bread on cooling rack"
+                fetchpriority="high" 
+                width={960}
+                height={640}
+                className="h-auto w-full rounded-lg shadow-xl"
               />
+              <div className="absolute bottom-0 right-0 rounded-tl-lg bg-secondary px-4 py-2 text-sm text-secondary-foreground">
+                Photo by <a href="https://unsplash.com/@brookelark?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Brooke Lark</a> on <a href="https://unsplash.com/photos/W9OKrxqYVkI?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <div className="absolute bottom-0 left-0 right-0 top-0 bg-gradient-to-t from-background to-muted opacity-60 z-0"></div>
     </section>
   );
 };

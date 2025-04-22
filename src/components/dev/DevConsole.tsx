@@ -7,7 +7,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { restoreConsole, initDevErrorHandler } from '@/utils/devErrorHandler';
 import { getRecentLogs, clearLogs, LogLevel, LogEntry } from '@/utils/logger';
 import { AlertTriangle, Bug, RefreshCw, X, WifiOff } from 'lucide-react';
-import LogsPanel from './LogsPanel';
 
 interface DevConsoleProps {
   onClose: () => void;
@@ -106,25 +105,30 @@ const DevConsole: React.FC<DevConsoleProps> = ({ onClose }) => {
         </TabsList>
         
         <ScrollArea className="flex-1 p-2">
-          <TabsContent value="errors" className="mt-0">
-            <LogsPanel logs={filteredLogs} type="errors" />
-          </TabsContent>
-          
-          <TabsContent value="warnings" className="mt-0">
-            <LogsPanel logs={filteredLogs} type="warnings" />
-          </TabsContent>
-          
-          <TabsContent value="info" className="mt-0">
-            <LogsPanel logs={filteredLogs} type="info" />
-          </TabsContent>
-          
-          <TabsContent value="debug" className="mt-0">
-            <LogsPanel logs={filteredLogs} type="debug" />
-          </TabsContent>
-          
-          <TabsContent value="all" className="mt-0">
-            <LogsPanel logs={filteredLogs} type="all" />
-          </TabsContent>
+          <div className="space-y-2">
+            {filteredLogs.map((log, index) => (
+              <div 
+                key={`${log.timestamp}-${index}`}
+                className={`rounded p-2 text-xs ${
+                  log.level === LogLevel.ERROR ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400' : 
+                  log.level === LogLevel.WARN ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' : 
+                  log.level === LogLevel.INFO ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' :
+                  'bg-gray-50 dark:bg-gray-900/20 text-gray-600 dark:text-gray-400'
+                }`}
+              >
+                <div className="flex justify-between">
+                  <span className="font-medium">{new Date(log.timestamp).toLocaleTimeString()}</span>
+                  <span className="text-xs opacity-70">{log.level}</span>
+                </div>
+                <div className="mt-1 font-mono whitespace-pre-wrap">{log.message}</div>
+                {log.context && (
+                  <div className="mt-1 text-xs opacity-70">
+                    {JSON.stringify(log.context)}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </ScrollArea>
       </Tabs>
       

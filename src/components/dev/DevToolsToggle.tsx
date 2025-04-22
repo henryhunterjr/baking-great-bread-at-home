@@ -28,4 +28,3 @@ const DevToolsToggle: React.FC = () => {
 };
 
 export default DevToolsToggle;
-
