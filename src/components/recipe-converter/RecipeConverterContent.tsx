@@ -1,19 +1,19 @@
-import React, { useEffect } from 'react';
-import RecipeForm from './RecipeForm';
-import RecipeCard from './RecipeCard';
-import { RecipeData } from '@/types/recipeTypes';
+
+import React from 'react';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import ConversionService from './ConversionService';
-import ConversionSuccessAlert from './ConversionSuccessAlert';
-import ErrorAlert from '@/components/common/ErrorAlert';
-import { useToast } from '@/hooks/use-toast';
-import { logInfo } from '@/utils/logger';
+import RecipeForm from './RecipeForm';
+import RecipePreview from './RecipePreview';
+import RecipeSuccess from './RecipeSuccess';
+import RecipeAIHelper from './RecipeAIHelper';
+import { RecipeData } from '@/types/recipeTypes';
 
 interface RecipeConverterContentProps {
-  recipe: RecipeData;
+  recipe?: RecipeData;
   isEditing: boolean;
   showConversionSuccess: boolean;
   onSetIsEditing: (isEditing: boolean) => void;
-  onConversionComplete: (recipe: RecipeData) => void;
+  onConversionComplete: (text: string) => void;
   onSaveRecipe: (recipe?: RecipeData) => Promise<boolean>;
   onResetRecipe: () => void;
   updateRecipe: (recipe: RecipeData) => void;
@@ -31,140 +31,100 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
   updateRecipe,
   conversionError
 }) => {
-  const { toast } = useToast();
+  const [isConverting, setIsConverting] = React.useState(false);
+  const [activeView, setActiveView] = React.useState<'edit' | 'preview'>('edit');
   
-  // Ensure recipe always has the required fields
-  const hasRecipeData = recipe && recipe.title && 
-    Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0 && 
-    Array.isArray(recipe.instructions) && recipe.instructions.length > 0;
-    
-  // Force isConverted to be true whenever we're showing a recipe
-  const isConverted = hasRecipeData ? true : recipe.isConverted === true;
+  // Handle conversion process
+  const handleConvert = (text: string) => {
+    setIsConverting(true);
+    onConversionComplete(text);
+    setIsConverting(false);
+  };
   
-  // Log recipe data for debugging - fixed to use proper object format
-  useEffect(() => {
-    logInfo("Recipe in RecipeConverterContent:", {
-      recipe,
-      hasRecipeData,
-      isConverted
-    });
-  }, [recipe, hasRecipeData, isConverted]);
+  // Toggle between edit and preview modes
+  const toggleView = () => {
+    setActiveView(activeView === 'edit' ? 'preview' : 'edit');
+  };
   
-  const handleSave = async () => {
-    // Ensure the recipe is marked as converted before saving
-    const recipeToSave: RecipeData = {
-      ...recipe,
-      isConverted: true // Always force this to true when saving
-    };
-    
-    // Log the save attempt
-    logInfo("Attempting to save recipe:", {
-      hasId: !!recipeToSave.id,
-      title: recipeToSave.title,
-      ingredientsCount: recipeToSave.ingredients.length,
-      isConverted: recipeToSave.isConverted
-    });
-    
-    try {
-      const result = await onSaveRecipe(recipeToSave);
-      if (result) {
-        toast({
-          title: "Recipe Saved",
-          description: "Your recipe has been saved successfully.",
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Save Failed",
-          description: "There was a problem saving your recipe. Please try again.",
-        });
-      }
-      return result;
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Save Error",
-        description: "There was a problem saving your recipe. Please try again.",
-      });
-      return false;
+  // Render appropriate content based on state
+  const renderContent = () => {
+    // Show success screen when conversion is complete
+    if (showConversionSuccess && recipe) {
+      return <RecipeSuccess onContinue={() => onSetIsEditing(true)} />;
     }
+    
+    // Show editor when user is editing a recipe
+    if (isEditing && recipe) {
+      return (
+        <Tabs defaultValue={activeView} className="w-full">
+          <div className="flex justify-between items-center mb-4">
+            <div className="space-x-2">
+              <button 
+                className={`px-3 py-1 rounded-md ${activeView === 'edit' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
+                onClick={() => setActiveView('edit')}
+              >
+                Edit
+              </button>
+              <button 
+                className={`px-3 py-1 rounded-md ${activeView === 'preview' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
+                onClick={() => setActiveView('preview')}
+              >
+                Preview
+              </button>
+            </div>
+            <button
+              className="text-sm text-muted-foreground underline"
+              onClick={onResetRecipe}
+            >
+              Convert New Recipe
+            </button>
+          </div>
+          
+          <TabsContent value="edit">
+            <RecipeForm 
+              recipe={recipe} 
+              onSubmit={(data) => onSaveRecipe(data)} 
+              updateRecipe={updateRecipe}
+            />
+            
+            <RecipeAIHelper recipe={recipe} updateRecipe={updateRecipe} />
+          </TabsContent>
+          
+          <TabsContent value="preview">
+            <RecipePreview recipe={recipe} />
+            <div className="mt-4 flex justify-end space-x-2">
+              <button 
+                className="px-4 py-2 bg-muted rounded-md"
+                onClick={() => setActiveView('edit')}
+              >
+                Back to Editing
+              </button>
+              <button 
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
+                onClick={() => onSaveRecipe(recipe)}
+              >
+                Save Recipe
+              </button>
+            </div>
+          </TabsContent>
+        </Tabs>
+      );
+    }
+    
+    // Default to conversion service
+    return (
+      <ConversionService 
+        onConvertRecipe={handleConvert}
+        isConverting={isConverting} 
+        conversionError={conversionError}
+        onReset={onResetRecipe}
+        recipe={recipe}
+        onSaveRecipe={recipe ? () => onSaveRecipe(recipe) : undefined}
+      />
+    );
   };
   
-  const handleFormCancel = () => {
-    onSetIsEditing(false);
-  };
-
-  const handlePrint = () => {
-    // Print function is now implemented within the RecipeCard component
-    // We keep this method for compatibility but it's now a no-op
-  };
-
-  const handleConversion = (text: string) => {
-    try {
-      // Create a base recipe with required fields and ensure isConverted is true
-      const parsedRecipe: RecipeData = { 
-        ...recipe,
-        title: recipe.title || "New Recipe",
-        ingredients: Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0 
-          ? recipe.ingredients 
-          : ["Add ingredients"],
-        instructions: Array.isArray(recipe.instructions) && recipe.instructions.length > 0 
-          ? recipe.instructions 
-          : ["Add instructions"],
-        isConverted: true // Explicitly set to true
-      };
-      
-      logInfo("Handling conversion with recipe:", parsedRecipe);
-      onConversionComplete(parsedRecipe);
-    } catch (error) {
-      console.error("Error handling conversion:", error);
-      toast({
-        variant: "destructive",
-        title: "Conversion Error",
-        description: "There was a problem converting your recipe. Please try again.",
-      });
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      {showConversionSuccess && isConverted && !isEditing && (
-        <ConversionSuccessAlert show={showConversionSuccess} />
-      )}
-      
-      {conversionError && (
-        <ErrorAlert error={conversionError} title="Recipe Conversion Error" />
-      )}
-      
-      {hasRecipeData ? (
-        isEditing ? (
-          <RecipeForm 
-            initialRecipe={{...recipe, isConverted: true}} 
-            onSave={updateRecipe} 
-            onCancel={handleFormCancel} 
-          />
-        ) : (
-          <RecipeCard 
-            recipe={{...recipe, isConverted: true}}
-            onEdit={() => onSetIsEditing(true)}
-            onPrint={handlePrint}
-            onReset={onResetRecipe}
-            onSave={handleSave}
-            onUpdateRecipe={updateRecipe}
-          />
-        )
-      ) : (
-        <ConversionService 
-          onConvertRecipe={handleConversion}
-          isConverting={false}
-          conversionError={conversionError}
-          onReset={onResetRecipe}
-          recipe={hasRecipeData ? recipe : undefined}
-          onSaveRecipe={hasRecipeData ? handleSave : undefined}
-        />
-      )}
-    </div>
-  );
+  return <div className="space-y-8">{renderContent()}</div>;
 };
 
 export default RecipeConverterContent;

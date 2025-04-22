@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +12,7 @@ import TextInputTab from './uploader/tabs/TextInputTab';
 import FileUploadTab from './uploader/tabs/FileUploadTab';
 import CameraInputTab from './uploader/tabs/CameraInputTab';
 import ClipboardTab from './uploader/tabs/ClipboardTab';
+import SaveButton from './SaveButton'; // We'll create this component
 import { RecipeData } from '@/types/recipeTypes';
 import { useAIConversion, ConversionErrorType } from '@/services/AIConversionService';
 
@@ -36,7 +37,17 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
   const [activeTab, setActiveTab] = useState('text');
   const [recipeText, setRecipeText] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [processingComplete, setProcessingComplete] = useState(false);
   const form = useForm();
+  
+  // Reset processing complete state when recipe changes
+  useEffect(() => {
+    if (recipe) {
+      setProcessingComplete(true);
+    } else {
+      setProcessingComplete(false);
+    }
+  }, [recipe]);
   
   // Use the AI conversion service
   const { processRecipe, handleError, isProcessing } = useAIConversion();
@@ -48,6 +59,7 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
       return;
     }
     setError(null);
+    setProcessingComplete(false);
     
     // First try with AI processing if configured
     try {
@@ -80,6 +92,7 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
         
         // Continue with standard conversion
         onConvertRecipe(processedText);
+        setProcessingComplete(true);
         return;
       }
       
@@ -100,22 +113,26 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
           
           // Continue with standard conversion using original text
           onConvertRecipe(recipeText);
+          setProcessingComplete(true);
           return;
         }
       }
       
       // If AI processing wasn't successful, fall back to standard conversion
       onConvertRecipe(recipeText);
+      setProcessingComplete(true);
     } catch (err) {
       // Fallback to standard conversion on any error
       console.error("AI conversion error:", err);
       onConvertRecipe(recipeText);
+      setProcessingComplete(true);
     }
   };
   
   const handleTextExtracted = (extractedText: string) => {
     setRecipeText(extractedText);
     setActiveTab('text');
+    setProcessingComplete(false);
     
     toast({
       title: "Text Extracted Successfully",
@@ -163,6 +180,12 @@ const RecipeUploader: React.FC<RecipeUploaderProps> = ({
                 isConverting={isConverting || isProcessing}
                 error={displayError}
               />
+              
+              {processingComplete && recipe && onSaveRecipe && (
+                <div className="mt-4 flex justify-end">
+                  <SaveButton onClick={onSaveRecipe} />
+                </div>
+              )}
             </TabsContent>
             
             <TabsContent value="upload">
