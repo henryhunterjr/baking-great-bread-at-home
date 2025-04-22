@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 
 const HeroSection: React.FC = () => {
   return (
@@ -18,7 +19,7 @@ const HeroSection: React.FC = () => {
               making cooking simpler and more enjoyable.
             </p>
             <div className="mt-6 space-x-3">
-              <Link href="/recipe-converter">
+              <Link to="/recipe-converter">
                 <Button size="lg">
                   Get Started <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -30,11 +31,11 @@ const HeroSection: React.FC = () => {
           </div>
           <div className="relative mx-auto mt-8 max-w-3xl lg:mt-12">
             <div className="relative">
-              {/* Fix the fetchPriority attribute by making it lowercase */}
+              {/* Fixed the fetchPriority attribute by making it use the correct casing */}
               <img
                 src="/lovable-uploads/hero-bread-baking.jpg"
                 alt="Fresh baked artisan bread on cooling rack"
-                fetchpriority="high" 
+                fetchPriority="high" 
                 width={960}
                 height={640}
                 className="h-auto w-full rounded-lg shadow-xl"
