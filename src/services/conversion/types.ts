@@ -1,13 +1,13 @@
 
-import { ConvertedRecipe } from '@/types/Recipe';
+import { ConvertedRecipe } from '@/types/recipe';
 
 export enum ConversionErrorType {
   PARSING_ERROR = 'PARSING_ERROR',
   API_ERROR = 'API_ERROR',
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   UNKNOWN = 'UNKNOWN',
-  EMPTY_INPUT = 'EMPTY_INPUT', // Added missing type
-  CONVERSION_ERROR = 'CONVERSION_ERROR' // Added missing type
+  EMPTY_INPUT = 'EMPTY_INPUT', 
+  CONVERSION_ERROR = 'CONVERSION_ERROR' 
 }
 
 export interface ConversionError {
@@ -21,12 +21,12 @@ export interface ConversionResult {
   data?: ConvertedRecipe;
   error?: ConversionError;
   aiSuggestions?: AISuggestions;
-  original?: RecipeData; // Added for base-converter.ts
-  converted?: RecipeData; // Added for converter files
-  bakersPercentages?: Record<string, number>; // Added for converter files
-  hydration?: number; // Added for converter files
-  recipeType?: RecipeType; // Added for converter files
-  timings?: Record<string, string>; // Added for converter files
+  original?: RecipeData; 
+  converted?: RecipeData; 
+  bakersPercentages?: Record<string, number>; 
+  hydration?: number; 
+  recipeType?: RecipeType; 
+  timings?: Record<string, string>; 
 }
 
 export interface AISuggestions {
