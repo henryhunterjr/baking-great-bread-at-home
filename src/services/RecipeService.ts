@@ -1,6 +1,4 @@
-
-import { RecipeData } from '@/pages/RecipeConverter';
-import { Recipe, Ingredient } from '@/types/recipe';
+import { RecipeData, Recipe, Ingredient } from '@/types/recipe';
 import { v4 as uuidv4 } from 'uuid';
 
 type ProcessSource = File | string;
