@@ -29,6 +29,55 @@ const MAX_LOGS = 200;
 const performanceMarkers: Record<string, number> = {};
 
 /**
+ * Start performance timing for an operation
+ */
+export function startPerformanceTimer(markerId: string): void {
+  performanceMarkers[markerId] = Date.now();
+}
+
+/**
+ * End performance timing and log the result
+ */
+export function endPerformanceTimer(
+  markerId: string, 
+  operation: string,
+  context?: Record<string, any>
+): number {
+  const startTime = performanceMarkers[markerId];
+  if (!startTime) {
+    logWarn(`Performance marker ${markerId} not found`);
+    return 0;
+  }
+  
+  const endTime = Date.now();
+  const duration = endTime - startTime;
+  
+  // Log performance data
+  const entry: LogEntry = {
+    timestamp: endTime,
+    level: LogLevel.PERF,
+    message: `${operation} completed in ${duration}ms`,
+    context,
+    duration
+  };
+  
+  // Add to recent logs
+  recentLogs.push(entry);
+  if (recentLogs.length > MAX_LOGS) {
+    recentLogs.shift();
+  }
+  
+  console.info(
+    `[${entry.timestamp}] [PERF] ${entry.message}${context ? ' ' + JSON.stringify(context) : ''}`
+  );
+  
+  // Clean up
+  delete performanceMarkers[markerId];
+  
+  return duration;
+}
+
+/**
  * Log a message with context
  */
 export function log(level: LogLevel, message: string, context?: Record<string, any>): void {

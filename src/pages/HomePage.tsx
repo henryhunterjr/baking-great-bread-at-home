@@ -76,7 +76,9 @@ const HomePage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-grow">
-        <HeroSection heroRef={heroRef} />
+        <div ref={heroRef}>
+          <HeroSection />
+        </div>
         
         <div className="h-1 w-full bg-gradient-to-r from-bread-100 via-bread-200 to-bread-100 dark:from-bread-800 dark:via-bread-700 dark:to-bread-800" 
              role="presentation" 
