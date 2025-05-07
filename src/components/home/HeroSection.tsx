@@ -34,7 +34,7 @@ const HeroSection: React.FC = () => {
               <img
                 src="/lovable-uploads/hero-bread-baking.jpg"
                 alt="Fresh baked artisan bread on cooling rack"
-                fetchPriority="high" 
+                // Removed fetchPriority attribute that was causing a warning
                 width={960}
                 height={640}
                 className="h-auto w-full rounded-lg shadow-xl"
