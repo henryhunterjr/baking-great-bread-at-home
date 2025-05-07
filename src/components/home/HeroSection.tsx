@@ -38,7 +38,7 @@ const HeroSection: React.FC = () => {
           <div className="relative mx-auto order-1 md:order-2 max-w-xl lg:max-w-2xl">
             <div className="relative">
               <img
-                src="/lovable-uploads/bf63b3f9-60b6-441b-a0fb-fa932d3b2c6b.png"
+                src="/lovable-uploads/122acf95-4ca9-4e29-98dc-df74e18cdc84.png"
                 alt="Sliced artisan bread showing perfect crumb structure"
                 width={960}
                 height={640}
