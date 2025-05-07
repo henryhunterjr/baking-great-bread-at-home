@@ -1,101 +1,67 @@
 
-import { useCallback } from 'react';
 import { RecipeData } from '@/types/recipeTypes';
-import { processRecipe as processRecipeService } from '@/services/RecipeService';
 import { logError, logInfo } from '@/utils/logger';
-import { useToast } from '@/hooks/use-toast';
 
-export function useRecipeConversionHandler(
+export const useRecipeConversionHandler = (
   setRecipe: (recipe: RecipeData) => void,
   processRecipe: (recipe: RecipeData) => RecipeData,
-  setIsEditing: (editing: boolean) => void,
+  setIsEditing: (isEditing: boolean) => void,
   setConversionError: (error: string | null) => void
-) {
-  const { toast } = useToast();
-  
-  const handleConversionComplete = useCallback(
-    async (recipe: RecipeData) => {
-      try {
-        if (!recipe) {
-          throw new Error('Recipe data is empty or invalid');
-        }
-        
-        // Set minimal required fields if they're missing
-        const completedRecipe: RecipeData = {
-          ...recipe,
-          title: recipe.title || 'New Recipe',
-          ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
-          instructions: Array.isArray(recipe.instructions) ? recipe.instructions : [],
-          isConverted: true, // Explicitly ensure this is set to true
-          createdAt: recipe.createdAt || new Date().toISOString()
-        };
-
-        // Log state for debugging
-        logInfo('Recipe in conversion handler before processing:', { 
-          hasTitle: !!completedRecipe.title,
-          ingredientsCount: completedRecipe.ingredients?.length || 0,
-          instructionsCount: completedRecipe.instructions?.length || 0,
-          isConverted: completedRecipe.isConverted === true
-        });
-
-        // Process and validate the recipe
-        const processedRecipe = {
-          ...processRecipe(completedRecipe),
-          isConverted: true // Ensure isConverted flag stays true even after processing
-        };
-        
-        // Additional validation after processing
-        if (!processedRecipe.title || 
-            !Array.isArray(processedRecipe.ingredients) || 
-            !Array.isArray(processedRecipe.instructions)) {
-          throw new Error('Recipe processing resulted in invalid data structure');
-        }
-        
-        // Log after processing
-        logInfo('Recipe in conversion handler after processing:', { 
-          hasTitle: !!processedRecipe.title,
-          ingredientsCount: processedRecipe.ingredients.length,
-          instructionsCount: processedRecipe.instructions.length,
-          isConverted: processedRecipe.isConverted === true
-        });
-        
-        // Set the processed recipe to the state
-        setRecipe(processedRecipe);
-        
-        // Set editing mode (allow user to make changes if needed)
-        setIsEditing(true);
-        
-        // Clear any previous conversion errors
-        setConversionError(null);
-        
-        toast({
-          title: "Recipe Converted",
-          description: "Your recipe has been successfully converted. You can now edit and save it.",
-        });
-        
-        return processedRecipe;
-      } catch (error) {
-        // Log the error
-        const errorMessage = 
-          error instanceof Error ? error.message : 'Unknown error during recipe conversion';
-        logError('Error in handleConversionComplete:', { error });
-        
-        // Set the error message to display to the user
-        setConversionError(errorMessage);
-        
-        toast({
-          variant: "destructive", 
-          title: "Conversion Error",
-          description: errorMessage,
-        });
-        
-        return null;
-      }
-    },
-    [setRecipe, processRecipe, setIsEditing, setConversionError, toast]
-  );
+) => {
+  // This function accepts a string and processes it into a RecipeData object
+  const handleConversionComplete = async (text: string) => {
+    try {
+      logInfo("Processing conversion text", { textLength: text.length });
+      
+      // Simple example conversion (in a real app, this would be more sophisticated)
+      // Extract a title from the first line
+      const lines = text.split('\n').filter(line => line.trim() !== '');
+      const title = lines[0] || 'Converted Recipe';
+      
+      // Attempt to extract ingredients (lines with numbers, bullets, etc.)
+      const ingredients = lines
+        .filter(line => /^[\d•\-*]/.test(line.trim()) || line.toLowerCase().includes('ingredient'))
+        .map(line => line.trim());
+      
+      // The rest are likely instructions
+      const instructions = lines
+        .filter(line => !/^[\d•\-*]/.test(line.trim()) && 
+                        !line.toLowerCase().includes('ingredient') && 
+                        line !== title)
+        .map(line => line.trim());
+      
+      // Create a basic recipe structure
+      const newRecipe: RecipeData = {
+        title: title,
+        ingredients: ingredients.length > 0 ? ingredients : ['Add ingredients here'],
+        instructions: instructions.length > 0 ? instructions : ['Add instructions here'],
+        isConverted: true
+      };
+      
+      // Process the recipe to ensure all required fields exist
+      const processedRecipe = processRecipe(newRecipe);
+      
+      // Update state
+      setRecipe(processedRecipe);
+      setIsEditing(true);
+      setConversionError(null);
+      
+      logInfo("Recipe conversion complete", { 
+        title: processedRecipe.title,
+        ingredients: processedRecipe.ingredients.length,
+        instructions: processedRecipe.instructions.length
+      });
+      
+      return processedRecipe;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error during conversion';
+      logError("Recipe conversion failed", { error: errorMessage });
+      setConversionError(errorMessage);
+      return null;
+    }
+  };
 
   return {
-    handleConversionComplete
+    handleConversionComplete,
   };
-}
+};

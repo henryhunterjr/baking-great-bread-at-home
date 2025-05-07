@@ -65,9 +65,10 @@ const RecipeConverter: React.FC = () => {
     window.scrollTo(0, 0);
   };
   
-  // Create a wrapper function to handle the type conversion
+  // Create a wrapper function to handle the text conversion
   const handleConversion = (text: string) => {
-    // Pass the text to the conversion handler
+    // We need to call handleConversionComplete with a string parameter
+    // The actual conversion from text to RecipeData happens within the hook
     handleConversionComplete(text);
   };
   
