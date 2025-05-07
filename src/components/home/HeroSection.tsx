@@ -11,8 +11,8 @@ const HeroSection: React.FC = () => {
         <div className="grid items-center gap-8 md:grid-cols-2">
           <div className="order-2 sm:order-1">
             <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl">
-              Lovable Bread <br className="hidden sm:block" />
-              Baking Companion
+              Bake Your Best <br className="hidden sm:block" />
+              Bread Yet
             </h1>
             <p className="mt-4 text-lg text-muted-foreground">
               Discover, create, and perfect bread recipes with our easy-to-use tools.

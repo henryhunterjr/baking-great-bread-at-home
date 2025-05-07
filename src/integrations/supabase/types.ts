@@ -9,30 +9,7 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string | null
-          id: string
-          name: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          id: string
-          name?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          id?: string
-          name?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
@@ -44,13 +21,7 @@ export type Database = {
       [_ in never]: never
     }
     CompositeTypes: {
-      user_profile: {
-        id: string | null
-        name: string | null
-        avatar_url: string | null
-        created_at: string | null
-        updated_at: string | null
-      }
+      [_ in never]: never
     }
   }
 }

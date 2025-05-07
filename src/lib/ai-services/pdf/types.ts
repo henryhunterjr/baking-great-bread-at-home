@@ -1,47 +1,33 @@
 
-/**
- * Type definitions for PDF processing operations
- */
-
-// Callback for progress updates
-export type ProgressCallback = (progress: number) => void;
-
-// Cancellable task interface
-export interface CancellableTask {
-  cancel: () => void;
-}
-
-// Error types enum for better error handling
 export enum ProcessingErrorType {
-  NETWORK = 'network_error',
-  FILE_LOAD = 'file_load_error',
+  FILE_LOAD = 'file_load',
   EXTRACTION_FAILED = 'extraction_failed',
-  TIMEOUT = 'timeout_error',
-  USER_CANCELLED = 'user_cancelled',
-  UNSUPPORTED_FORMAT = 'unsupported_format',
-  UNKNOWN = 'unknown_error'
+  TIMEOUT = 'timeout',
+  NETWORK = 'network',
+  MEMORY = 'memory',
+  OCR_FAILED = 'ocr_failed',
+  FILE_TOO_LARGE = 'file_too_large'
 }
 
-// Custom error class for PDF processing
 export class ProcessingError extends Error {
   type: ProcessingErrorType;
   
-  constructor(message: string, type: ProcessingErrorType = ProcessingErrorType.UNKNOWN) {
+  constructor(message: string, type: ProcessingErrorType) {
     super(message);
-    this.name = 'ProcessingError';
     this.type = type;
+    this.name = 'ProcessingError';
   }
 }
 
-// Add the missing types for PDF text extraction
-export type ExtractTextResult = string | CancellableTask | null;
+export type ProgressCallback = (progress: number) => void;
 
-// Options for text extraction
+export type CancellableTask = {
+  cancel: () => void;
+};
+
+export type ExtractTextResult = string | CancellableTask;
+
 export interface TextExtractionOptions {
   timeout?: number;
-  signal?: AbortSignal;
-  maxPages?: number;
+  useOCRFallback?: boolean;
 }
-
-// Add throttled progress reporter function type
-export type ThrottledProgressReporter = (progress: number) => void;

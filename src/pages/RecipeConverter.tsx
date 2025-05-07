@@ -65,6 +65,11 @@ const RecipeConverter: React.FC = () => {
     window.scrollTo(0, 0);
   };
   
+  // Create a wrapper function to handle the type conversion
+  const handleConversion = (text: string) => {
+    handleConversionComplete(text);
+  };
+  
   return (
     <div className="min-h-screen pb-12">
       <div className="container max-w-6xl mt-24 md:mt-28">
@@ -78,7 +83,7 @@ const RecipeConverter: React.FC = () => {
               isEditing={isEditing}
               showConversionSuccess={showConversionSuccess}
               onSetIsEditing={setIsEditing}
-              onConversionComplete={handleConversionComplete}
+              onConversionComplete={handleConversion}
               onSaveRecipe={handleSaveRecipe}
               onResetRecipe={handleStartOver}
               updateRecipe={setRecipe}

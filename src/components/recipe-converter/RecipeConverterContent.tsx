@@ -82,7 +82,7 @@ const RecipeConverterContent: React.FC<RecipeConverterContentProps> = ({
           
           <TabsContent value="edit">
             <RecipeForm 
-              recipe={recipe} 
+              initialData={recipe} 
               onSubmit={(data) => onSaveRecipe(data)} 
               updateRecipe={updateRecipe}
             />
