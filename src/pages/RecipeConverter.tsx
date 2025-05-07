@@ -67,6 +67,7 @@ const RecipeConverter: React.FC = () => {
   
   // Create a wrapper function to handle the type conversion
   const handleConversion = (text: string) => {
+    // Pass the text to the conversion handler
     handleConversionComplete(text);
   };
   

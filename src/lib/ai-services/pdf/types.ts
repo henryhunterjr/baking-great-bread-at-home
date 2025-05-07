@@ -1,4 +1,3 @@
-
 export enum ProcessingErrorType {
   FILE_LOAD = 'file_load',
   EXTRACTION_FAILED = 'extraction_failed',
@@ -6,7 +5,9 @@ export enum ProcessingErrorType {
   NETWORK = 'network',
   MEMORY = 'memory',
   OCR_FAILED = 'ocr_failed',
-  FILE_TOO_LARGE = 'file_too_large'
+  FILE_TOO_LARGE = 'file_too_large',
+  UNSUPPORTED_FORMAT = 'unsupported_format',
+  USER_CANCELLED = 'user_cancelled'
 }
 
 export class ProcessingError extends Error {
