@@ -28,27 +28,23 @@ const OnboardingContext = createContext<OnboardingState>(defaultState);
 export const useOnboarding = () => useContext(OnboardingContext);
 
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [hasCompletedTour, setHasCompletedTour] = useState<boolean>(false);
+  const [hasCompletedTour, setHasCompletedTour] = useState<boolean>(true); // Default to true to disable tour
   const [showTour, setShowTour] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(0);
-  const [hasSeenWelcomeModal, setHasSeenWelcomeModal] = useState<boolean>(true); // Default to true to prevent showing on load
+  const [hasSeenWelcomeModal, setHasSeenWelcomeModal] = useState<boolean>(true); // Default to true to disable modal
 
   // Load onboarding state from localStorage on mount
   useEffect(() => {
     const savedHasCompletedTour = localStorage.getItem('hasCompletedTour');
     const savedHasSeenWelcomeModal = localStorage.getItem('hasSeenWelcomeModal');
     
-    if (savedHasCompletedTour) {
-      setHasCompletedTour(savedHasCompletedTour === 'true');
-    }
+    // Always consider the tour as completed and the modal as seen for now
+    setHasCompletedTour(true);
+    setHasSeenWelcomeModal(true);
     
-    if (savedHasSeenWelcomeModal) {
-      setHasSeenWelcomeModal(savedHasSeenWelcomeModal === 'true');
-    } else {
-      // Only show welcome modal on very first visit
-      setHasSeenWelcomeModal(false);
-      localStorage.setItem('hasSeenWelcomeModal', 'false');
-    }
+    // Save this state to localStorage
+    localStorage.setItem('hasCompletedTour', 'true');
+    localStorage.setItem('hasSeenWelcomeModal', 'true');
   }, []);
 
   // Save onboarding state to localStorage when it changes

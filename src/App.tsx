@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AIAssistantProvider } from './contexts/AIAssistantContext';
+import { OnboardingProvider } from './contexts/OnboardingContext';
 import HomePage from './pages/HomePage';
 import RecipeConverter from './pages/RecipeConverter';
 import Navbar from './components/Navbar';
@@ -21,20 +21,22 @@ function App() {
     <AuthProvider>
       <ThemeProvider defaultTheme="dark">
         <AIAssistantProvider>
-          <Navbar />
-          <div className="min-h-screen">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/recipe-converter" element={<RecipeConverter />} />
-              <Route path="/recipes" element={<ComingSoon title="Recipes" />} />
-              <Route path="/guides" element={<ComingSoon title="Guides" />} />
-              <Route path="/challenges" element={<ComingSoon title="Challenges" />} />
-              <Route path="/community" element={<ComingSoon title="Community" />} />
-              <Route path="/auth" element={<ComingSoon title="Login/Signup" />} />
-            </Routes>
-          </div>
-          <Footer />
-          <DevToolsToggle />
+          <OnboardingProvider>
+            <Navbar />
+            <div className="min-h-screen">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/recipe-converter" element={<RecipeConverter />} />
+                <Route path="/recipes" element={<ComingSoon title="Recipes" />} />
+                <Route path="/guides" element={<ComingSoon title="Guides" />} />
+                <Route path="/challenges" element={<ComingSoon title="Challenges" />} />
+                <Route path="/community" element={<ComingSoon title="Community" />} />
+                <Route path="/auth" element={<ComingSoon title="Login/Signup" />} />
+              </Routes>
+            </div>
+            <Footer />
+            <DevToolsToggle />
+          </OnboardingProvider>
         </AIAssistantProvider>
       </ThemeProvider>
     </AuthProvider>
