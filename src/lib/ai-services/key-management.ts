@@ -9,6 +9,8 @@ import { logInfo, logError } from '@/utils/logger';
 export const getOpenAIApiKey = (): string | null => {
   // First check environment variable (for development)
   const envApiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  
+  // Check if the key exists and isn't an empty string
   if (envApiKey && envApiKey.trim() !== '') {
     return envApiKey;
   }
