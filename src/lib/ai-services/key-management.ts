@@ -19,6 +19,7 @@ export const getOpenAIApiKey = (): string | null => {
     return localStorageKey;
   }
   
+  // Return null if no API key is found
   return null;
 };
 

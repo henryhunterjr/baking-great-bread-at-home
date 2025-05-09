@@ -9,7 +9,7 @@ import AlertMessages from './convert-tab/components/AlertMessages';
 import { useConvertTab } from './convert-tab/hooks/useConvertTab';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { useAIConversion } from '@/services/AIConversionService';
-import { AlertCircle, Lightbulb } from 'lucide-react';
+import { AlertCircle, Lightbulb, Ban } from 'lucide-react';
 import { useBreakpoint } from '@/hooks/use-media-query';
 
 interface ConvertTabProps {
@@ -46,23 +46,27 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
           isConverting={isConverting}
         />
         
+        {!hasApiKey && (
+          <div className="flex items-start p-3 bg-red-50 border border-red-200 rounded-md">
+            <Ban className="h-5 w-5 text-red-600 mt-0.5 mr-2" />
+            <div>
+              <p className="text-sm font-medium text-red-800">
+                Recipe Uploads Disabled
+              </p>
+              <p className="text-xs text-red-700 mt-1">
+                AI recipe processing is temporarily disabled in this preview version. 
+                Manual recipe entry is still available.
+              </p>
+            </div>
+          </div>
+        )}
+        
         {hasApiKey && (
           <div className="flex items-start p-3 bg-green-50 border border-green-100 rounded-md">
             <Lightbulb className="h-5 w-5 text-green-600 mt-0.5 mr-2" />
             <div>
               <p className="text-sm text-green-800">
                 AI recipe assistant enabled! Paste your recipe and we'll analyze it to provide bread-specific tips and improvements.
-              </p>
-            </div>
-          </div>
-        )}
-        
-        {!hasApiKey && (
-          <div className="flex items-start p-3 bg-amber-50 border border-amber-100 rounded-md">
-            <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5 mr-2" />
-            <div>
-              <p className="text-sm text-amber-800">
-                Add your OpenAI API key in Settings to enable AI-powered recipe analysis and get baking tips specific to your recipe.
               </p>
             </div>
           </div>
@@ -102,6 +106,7 @@ const ConvertTab: React.FC<ConvertTabProps> = ({
           recipeText={recipeText} 
           setRecipeText={setRecipeText} 
           isProcessing={isConverting}
+          uploadDisabled={!hasApiKey}
         />
         
         <ConvertButton 
