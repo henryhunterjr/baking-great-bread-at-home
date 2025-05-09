@@ -1,7 +1,5 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -20,9 +18,13 @@ class ErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null
     };
+    
+    // Log for debugging
+    console.log('ErrorBoundary initialized');
   }
 
   static getDerivedStateFromError(error: Error): State {
+    console.log('ErrorBoundary caught an error:', error.message);
     return {
       hasError: true,
       error
@@ -64,14 +66,12 @@ class ErrorBoundary extends Component<Props, State> {
                 : "We're sorry, but something unexpected happened."}
             </p>
             
-            <Button 
+            <button 
               onClick={this.handleReset}
-              variant="outline"
-              className="border-red-500 text-red-600 hover:bg-red-50"
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             >
-              <RefreshCw className="mr-2 h-4 w-4" />
               {isWorkerError ? "Reload page" : "Try again"}
-            </Button>
+            </button>
           </div>
         </div>
       );

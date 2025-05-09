@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -21,6 +21,11 @@ if (typeof window !== 'undefined') {
 }
 
 function App() {
+  useEffect(() => {
+    // Log when App component mounts
+    console.log('App component mounted');
+  }, []);
+
   return (
     <ErrorProvider>
       <AuthProvider>
