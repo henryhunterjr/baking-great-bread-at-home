@@ -3,13 +3,22 @@ import { Challenge } from '@/types/challengeTypes';
 export const challenges: Challenge[] = [
   // 2025 Challenges
   {
+    id: 'may-2025',
+    title: 'FOOLPROOF Challenge',
+    date: new Date(2025, 4, 1), // May 2025
+    description: 'Master Henry\'s foolproof technique for consistently great sourdough bread every time you bake.',
+    link: 'https://youtu.be/ma3lzqfV2dI?si=qjbuYgNfguR3eAvQ',
+    hashtag: '#FOOLPROOF',
+    isCurrent: true,
+  },
+  {
     id: 'april-2025',
     title: 'Score Big Challenge',
     date: new Date(2025, 3, 1), // April 2025
     description: 'Explore the art of scoring bread to create beautiful patterns that not only look impressive but also help control how your bread expands during baking.',
     link: 'https://scorebig-jp8784l.gamma.site/',
     hashtag: 'SCOREBIG',
-    isCurrent: true,
+    isCurrent: false,
   },
   {
     id: 'march-2025',

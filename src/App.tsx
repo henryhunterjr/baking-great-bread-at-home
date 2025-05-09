@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -10,6 +11,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import DevToolsToggle from './components/dev/DevToolsToggle';
 import { initDevErrorHandler } from './utils/devErrorHandler';
+import CareCenter from './pages/CareCenter';
 
 // Initialize error handler early to suppress development-related errors
 if (typeof window !== 'undefined') {
@@ -32,6 +34,7 @@ function App() {
                 <Route path="/challenges" element={<ComingSoon title="Challenges" />} />
                 <Route path="/community" element={<ComingSoon title="Community" />} />
                 <Route path="/auth" element={<ComingSoon title="Login/Signup" />} />
+                <Route path="/care-center" element={<CareCenter />} />
               </Routes>
             </div>
             <Footer />

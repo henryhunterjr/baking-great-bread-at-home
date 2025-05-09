@@ -7,6 +7,16 @@ import { ArrowRight, Headphones, Play } from "lucide-react";
 // NOTE: When you have a custom thumbnail, replace the string in "thumbnail" for that podcast.
 const podcastLinks = [
   {
+    id: 0,
+    title: "May #FOOLPROOF Challenge",
+    description:
+      "Join the May #FOOLPROOF Challenge and learn Henry's reliable technique for baking perfect sourdough every time.",
+    url: "https://youtu.be/ma3lzqfV2dI?si=qjbuYgNfguR3eAvQ",
+    type: "video",
+    external: true,
+    thumbnail: "https://img.youtube.com/vi/ma3lzqfV2dI/mqdefault.jpg"
+  },
+  {
     id: 1,
     title: "The Bewitching Bread Podcast (Halloween Breads Special)",
     description:

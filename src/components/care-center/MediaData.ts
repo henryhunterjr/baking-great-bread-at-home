@@ -1,7 +1,14 @@
-
 import { MediaItem } from './MediaCard';
 
 export const mediaItems: MediaItem[] = [
+  {
+    id: '11',
+    title: 'May #FOOLPROOF Challenge - Sourdough Mastery',
+    url: 'https://youtu.be/ma3lzqfV2dI?si=qjbuYgNfguR3eAvQ',
+    type: 'video',
+    source: 'YouTube',
+    description: 'Join the May #FOOLPROOF Challenge and learn Henry\'s reliable technique for baking perfect sourdough every time.'
+  },
   {
     id: '10',
     title: 'Henry Hunter on Life, the Universe, and Bread',
