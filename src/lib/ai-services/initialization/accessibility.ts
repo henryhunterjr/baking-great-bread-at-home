@@ -14,16 +14,29 @@ export const fixAriaAccessibility = (): void => {
       const focusableElements = el.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
       
       if (focusableElements.length > 0) {
-        // Just remove aria-hidden attribute to maintain clickability
-        // Don't add inert attribute as it fully blocks interaction
-        el.removeAttribute('aria-hidden');
-        
-        logInfo('Fixed ARIA accessibility issue', { 
-          element: el.tagName, 
-          focusableCount: focusableElements.length 
-        });
+        // Only remove aria-hidden if the element isn't part of a modal dialog
+        // This prevents removing aria-hidden where it's actually needed
+        const isPartOfDialog = el.closest('[role="dialog"]') || 
+                              el.closest('[role="alertdialog"]') ||
+                              el.closest('[data-radix-popper-content-wrapper]');
+                              
+        if (!isPartOfDialog) {
+          el.removeAttribute('aria-hidden');
+          logInfo('Fixed ARIA accessibility issue', { 
+            element: el.tagName, 
+            focusableCount: focusableElements.length 
+          });
+        }
       }
     });
+    
+    // Also check for scroll-locked body
+    const body = document.body;
+    if (body && body.hasAttribute('data-scroll-locked')) {
+      body.removeAttribute('data-scroll-locked');
+      logInfo('Removed scroll lock from body', {});
+    }
+    
   } catch (error) {
     logError('Error fixing ARIA accessibility', { error });
   }
@@ -34,5 +47,7 @@ export const registerAccessibilityFixes = (): void => {
   if (typeof window !== 'undefined') {
     window.addEventListener('DOMContentLoaded', fixAriaAccessibility);
     window.addEventListener('load', fixAriaAccessibility);
+    // Also run periodically to catch dynamically added elements
+    setInterval(fixAriaAccessibility, 2000);
   }
 };

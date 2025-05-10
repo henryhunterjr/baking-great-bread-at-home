@@ -95,7 +95,7 @@ export function useErrorHandling() {
   return context;
 }
 
-// Fix for ARIA accessibility issue
+// Fix for ARIA accessibility issue - modified to be safer
 export const fixAriaAccessibility = (): void => {
   try {
     // Find elements with aria-hidden="true" that might contain focusable elements
@@ -106,16 +106,29 @@ export const fixAriaAccessibility = (): void => {
       const focusableElements = el.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
       
       if (focusableElements.length > 0) {
-        // Instead of replacing with inert attribute which might block clicking,
-        // just remove the aria-hidden attribute
-        el.removeAttribute('aria-hidden');
-        
-        logError('Fixed ARIA accessibility issue', { 
-          element: el.tagName, 
-          focusableCount: focusableElements.length 
-        });
+        // Only remove aria-hidden if the element isn't part of a modal dialog or popover
+        // This check helps prevent removing aria-hidden from elements where it's needed
+        const isPartOfDialog = el.closest('[role="dialog"]') || 
+                              el.closest('[role="alertdialog"]') ||
+                              el.closest('[data-radix-popper-content-wrapper]');
+                              
+        if (!isPartOfDialog) {
+          el.removeAttribute('aria-hidden');
+          logError('Fixed ARIA accessibility issue', { 
+            element: el.tagName, 
+            focusableCount: focusableElements.length 
+          });
+        }
       }
     });
+    
+    // Also check for scroll-locked body
+    const body = document.body;
+    if (body && body.hasAttribute('data-scroll-locked')) {
+      body.removeAttribute('data-scroll-locked');
+      logError('Removed scroll lock from body', {});
+    }
+    
   } catch (error) {
     logError('Error fixing ARIA accessibility', { error });
   }
@@ -160,4 +173,6 @@ export const ErrorToast: React.FC = () => {
 if (typeof window !== 'undefined') {
   window.addEventListener('DOMContentLoaded', fixAriaAccessibility);
   window.addEventListener('load', fixAriaAccessibility);
+  // Also run periodically to catch dynamically added elements
+  setInterval(fixAriaAccessibility, 3000);
 }
