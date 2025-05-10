@@ -1,13 +1,14 @@
+
 import { Challenge } from '@/types/challengeTypes';
 
 export const challenges: Challenge[] = [
   // 2025 Challenges
   {
     id: 'may-2025',
-    title: 'FOOLPROOF Challenge',
+    title: 'May #FOOLPROOF Challenge',
     date: new Date(2025, 4, 1), // May 2025
-    description: 'Master Henry\'s foolproof technique for consistently great sourdough bread every time you bake.',
-    link: 'https://youtu.be/ma3lzqfV2dI?si=qjbuYgNfguR3eAvQ',
+    description: 'Join us this May for the #Foolproof Challenge, a journey designed to deepen your understanding of bread-making by focusing on the subtle cues your dough provides. Each week, we\'ll explore different aspects of fermentation, proofing, and shaping, helping you develop the intuition needed for consistent, delicious bakes.',
+    link: 'https://baking-great-bread-uq6ilex.gamma.site/untitled',
     hashtag: '#FOOLPROOF',
     isCurrent: true,
   },

@@ -6,16 +6,12 @@ import { ChallengeInfo } from '../types';
  * @returns The current baking challenge
  */
 export const getCurrentChallenge = (): ChallengeInfo => {
-  // Get the current month and year
-  const now = new Date();
-  const month = now.toLocaleString('en-US', { month: 'long' }).toLowerCase();
-  const year = now.getFullYear();
-  
+  // Hard-code the May 2025 Foolproof challenge as current
   return {
-    id: `${month}-${year}`,
-    title: `${month.charAt(0).toUpperCase() + month.slice(1)} Baking Challenge`,
-    description: `Join our community in this month's baking challenge focused on ${month} seasonal flavors and techniques.`,
-    dueDate: new Date(year, now.getMonth() + 1, 0).toISOString(), // Last day of the current month
-    link: `/challenges/${month}-${year}`
+    id: 'may-2025',
+    title: 'May #FOOLPROOF Challenge',
+    description: 'Mastering the Art of Reading Your Dough - Join us this May for the #Foolproof Challenge, a journey designed to deepen your understanding of bread-making by focusing on the subtle cues your dough provides.',
+    dueDate: new Date(2025, 5, 1).toISOString(), // Due June 1, 2025
+    link: 'https://baking-great-bread-uq6ilex.gamma.site/untitled'
   };
 };

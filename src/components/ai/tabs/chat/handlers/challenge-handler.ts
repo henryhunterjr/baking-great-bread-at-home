@@ -17,7 +17,7 @@ export const handleChallengeRequest = async (
   
   const challengeMessage: ChatMessage = {
     role: 'assistant',
-    content: "Here's the current baking challenge. Join in and share your creation!",
+    content: "Here's our current baking challenge. Join in and master the art of reading your dough!",
     timestamp: new Date(),
     attachedChallenge: {
       ...challenge,
