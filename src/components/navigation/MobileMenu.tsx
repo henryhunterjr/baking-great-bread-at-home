@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, Home, Book, Calendar, Coffee } from 'lucide-react';
 
 const MobileMenu: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // Changed default to false
   const navigate = useNavigate();
   
   const handleNavigation = (path: string) => {
