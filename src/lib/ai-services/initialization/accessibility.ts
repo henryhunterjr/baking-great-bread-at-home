@@ -30,11 +30,16 @@ export const fixAriaAccessibility = (): void => {
       }
     });
     
-    // Also check for scroll-locked body
+    // Always ensure body doesn't have data-scroll-locked when it shouldn't
     const body = document.body;
     if (body && body.hasAttribute('data-scroll-locked')) {
-      body.removeAttribute('data-scroll-locked');
-      logInfo('Removed scroll lock from body', {});
+      // Check if there are any open dialogs or sheets before removing
+      const openDialogs = document.querySelectorAll('[data-state="open"][role="dialog"]');
+      
+      if (openDialogs.length === 0) {
+        body.removeAttribute('data-scroll-locked');
+        logInfo('Removed scroll lock from body', {});
+      }
     }
     
   } catch (error) {
@@ -47,7 +52,12 @@ export const registerAccessibilityFixes = (): void => {
   if (typeof window !== 'undefined') {
     window.addEventListener('DOMContentLoaded', fixAriaAccessibility);
     window.addEventListener('load', fixAriaAccessibility);
-    // Also run periodically to catch dynamically added elements
-    setInterval(fixAriaAccessibility, 2000);
+    // Run more frequently to catch any scroll lock issues
+    setInterval(fixAriaAccessibility, 1000);
+    
+    // Also run on any state changes that might affect dialogs
+    document.addEventListener('click', () => {
+      setTimeout(fixAriaAccessibility, 100);
+    });
   }
 };
