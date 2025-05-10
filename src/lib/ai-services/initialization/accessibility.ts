@@ -14,8 +14,8 @@ export const fixAriaAccessibility = (): void => {
       const focusableElements = el.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
       
       if (focusableElements.length > 0) {
-        // Apply inert attribute instead of aria-hidden for better accessibility
-        el.setAttribute('inert', '');
+        // Just remove aria-hidden attribute to maintain clickability
+        // Don't add inert attribute as it fully blocks interaction
         el.removeAttribute('aria-hidden');
         
         logInfo('Fixed ARIA accessibility issue', { 

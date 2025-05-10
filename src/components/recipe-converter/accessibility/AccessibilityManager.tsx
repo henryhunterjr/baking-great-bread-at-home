@@ -179,6 +179,9 @@ const fixAriaAttributes = () => {
       });
     });
     
+    // IMPORTANT: DO NOT use aria-hidden or inert attribute as they can block clicks
+    // Instead, fix aria issues without breaking interactivity
+    
     logInfo('Accessibility: Fixed ARIA attributes');
   } catch (error) {
     logInfo('Accessibility: Error fixing ARIA attributes', { error });
