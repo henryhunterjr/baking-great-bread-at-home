@@ -28,16 +28,14 @@ const OnboardingContext = createContext<OnboardingState>(defaultState);
 export const useOnboarding = () => useContext(OnboardingContext);
 
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [hasCompletedTour, setHasCompletedTour] = useState<boolean>(true); // Default to true to disable tour
+  // Default these to true to disable both tour and welcome modal
+  const [hasCompletedTour, setHasCompletedTour] = useState<boolean>(true);
   const [showTour, setShowTour] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(0);
-  const [hasSeenWelcomeModal, setHasSeenWelcomeModal] = useState<boolean>(true); // Default to true to disable modal
+  const [hasSeenWelcomeModal, setHasSeenWelcomeModal] = useState<boolean>(true);
 
   // Load onboarding state from localStorage on mount
   useEffect(() => {
-    const savedHasCompletedTour = localStorage.getItem('hasCompletedTour');
-    const savedHasSeenWelcomeModal = localStorage.getItem('hasSeenWelcomeModal');
-    
     // Always consider the tour as completed and the modal as seen for now
     setHasCompletedTour(true);
     setHasSeenWelcomeModal(true);

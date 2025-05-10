@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
@@ -67,7 +66,7 @@ const BooksSection: React.FC<BooksSectionProps> = ({ sectionRef }) => {
     {
       id: 7,
       title: "The Loaf and the Lie",
-      image: "/lovable-uploads/57301cd2-6a04-47f6-a28f-9af5057075ff.png",
+      image: "/lovable-uploads/2c8eb1fc-667f-419d-9563-0e50a1fdb7ec.png",
       description: "Read 'The Loaf and the Lie' as a beautiful flip book or download the full PDF.",
       link: "https://heyzine.com/flip-book/fcb520a9fd.html",
       isExternalLink: true,

@@ -1,6 +1,5 @@
 
 import React from 'react';
-import GuidedTour from './GuidedTour';
 import HelpCenter from './HelpCenter';
 import { OnboardingProvider } from '@/contexts/OnboardingContext';
 
