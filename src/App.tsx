@@ -14,6 +14,7 @@ import { initDevErrorHandler } from './utils/devErrorHandler';
 import CareCenter from './pages/CareCenter';
 import ComingSoon from './pages/ComingSoon';
 import { ErrorProvider } from './utils/ErrorHandling';
+import UnderConstruction from './components/UnderConstruction';
 
 // Initialize error handler early to suppress development-related errors
 if (typeof window !== 'undefined') {
@@ -33,6 +34,7 @@ function App() {
           <AIAssistantProvider>
             <OnboardingProvider>
               <div className="min-h-screen flex flex-col">
+                <UnderConstruction />
                 <Navbar />
                 <div className="flex-grow">
                   <Routes>
