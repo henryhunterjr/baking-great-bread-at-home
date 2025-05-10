@@ -15,6 +15,7 @@ import CareCenter from './pages/CareCenter';
 import ComingSoon from './pages/ComingSoon';
 import { ErrorProvider } from './utils/ErrorHandling';
 import UnderConstruction from './components/UnderConstruction';
+import ChallengesArchive from './pages/ChallengesArchive';
 
 // Initialize error handler early to suppress development-related errors
 if (typeof window !== 'undefined') {
@@ -42,7 +43,7 @@ function App() {
                     <Route path="/recipe-converter" element={<RecipeConverter />} />
                     <Route path="/recipes" element={<ComingSoon title="Recipes" />} />
                     <Route path="/guides" element={<ComingSoon title="Guides" />} />
-                    <Route path="/challenges" element={<ComingSoon title="Challenges" />} />
+                    <Route path="/challenges" element={<ChallengesArchive />} />
                     <Route path="/community" element={<ComingSoon title="Community" />} />
                     <Route path="/auth" element={<ComingSoon title="Login/Signup" />} />
                     <Route path="/care-center" element={<CareCenter />} />
