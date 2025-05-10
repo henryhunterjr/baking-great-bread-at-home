@@ -11,7 +11,7 @@ interface FlipbookSectionProps {
 const FlipbookSection: React.FC<FlipbookSectionProps> = ({ sectionRef }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [flipbookUrl] = useState("https://heyzine.com/flip-book/4f7bec29f9.html");
+  const [flipbookUrl] = useState("https://heyzine.com/flip-book/fcb520a9fd.html");
   
   // Handle iframe loading state
   const handleIframeLoad = () => {
@@ -58,12 +58,15 @@ const FlipbookSection: React.FC<FlipbookSectionProps> = ({ sectionRef }) => {
               {/* Title and Description */}
               <div className="text-center">
                 <h2 className="text-3xl md:text-4xl font-serif mb-4 text-bread-900 dark:text-bread-50">
-                  Baking Essentials Guide
+                  The Loaf and the Lie
                 </h2>
                 <p className="text-lg mb-6 text-bread-700 dark:text-bread-200 max-w-3xl mx-auto">
-                  New to bread baking? This comprehensive guide covers everything you need to know to get started. 
-                  Discover the must-have tools, learn essential techniques, and understand what equipment you really need 
-                  – and what can wait until later.
+                  What if the bread we've known for generations isn't bread at all?
+                  The Loaf and the Lie pulls back the curtain on how industrial forces replaced real bread with something hollow—both nutritionally and culturally. 
+                  This visual essay tells the quiet story of how we lost our way… and what it means to reclaim it.
+                </p>
+                <p className="text-md mb-6 text-bread-600 dark:text-bread-300 max-w-3xl mx-auto italic">
+                  Blending history, marketing, and quiet resistance, this flipbook invites you to see bread not just as food, but as memory, meaning, and method.
                 </p>
               </div>
               
