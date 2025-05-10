@@ -33,7 +33,8 @@ const podcastLinks = [
       "Henry Hunter discusses bread and life on The Jar Podcast. Listen on Amazon Music.",
     url: "https://music.amazon.com/podcasts/f9fde8f1-bbf4-43d8-9b29-94a0110bf893/episodes/b23cc003-0252-475d-a20c-ec8f29389037/the-jar-196-breaking-and-baking-bread-with-henry-hunter",
     type: "podcast",
-    external: true
+    external: true,
+    thumbnail: "/lovable-uploads/aea66c15-a5dd-4764-8307-7cf7825fe868.png"
   },
   {
     id: 3,
@@ -64,8 +65,18 @@ const podcastLinks = [
       "Book review and thoughts on 'The Loaf and the Lie' by Henry Hunter.",
     url: "https://drive.google.com/file/d/1IfipjgIGC9rjbGp_1tNi-z6hov6MkvG1/view?usp=sharing",
     type: "podcast",
-    external: true
-    // Add thumbnail here if you have one for this episode!
+    external: true,
+    thumbnail: "/lovable-uploads/c9d4e40b-95a2-420d-b85e-90a415e9fdbc.png"
+  },
+  {
+    id: 6,
+    title: "Beyond the Crust: A Conversation with Henry Hunter",
+    description:
+      "In this episode of The Jar podcast, Henry Hunter shares his journey from the world of bread baking to deeper reflections on life, community, and personal growth. Dive into a heartfelt conversation that goes beyond the kitchen, exploring the stories and experiences that have shaped his path.",
+    url: "https://youtu.be/49XtxfMlBgo?si=8tQWLc0JeWP8lnId",
+    type: "podcast",
+    external: true,
+    thumbnail: "/lovable-uploads/5c3a2bce-54f1-443f-a5b6-17e30dbf9e4f.png"
   }
 ];
 
