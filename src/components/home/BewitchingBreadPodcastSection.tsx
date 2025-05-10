@@ -107,7 +107,7 @@ const PodcastLibrarySection: React.FC = () => {
     return videoId;
   };
 
-  // Function to determine the fallback image URL
+  // Function to determine the image URL with multiple fallback options
   const getImageUrl = (pod: typeof podcastLinks[0]): string => {
     // If thumbnail is already a valid URL or path, use it
     if (pod.thumbnail) {
