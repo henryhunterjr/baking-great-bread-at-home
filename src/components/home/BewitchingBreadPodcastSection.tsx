@@ -81,6 +81,54 @@ const podcastLinks = [
 ];
 
 const PodcastLibrarySection: React.FC = () => {
+  // Helper function to get YouTube video ID from various URL formats
+  const getYouTubeVideoId = (url: string): string | null => {
+    if (!url.includes('youtu')) return null;
+    
+    // Handle multiple YouTube URL formats
+    let videoId = null;
+    
+    // For youtu.be format
+    if (url.includes('youtu.be')) {
+      const parts = url.split('/');
+      videoId = parts[parts.length - 1].split('?')[0];
+    } 
+    // For youtube.com/embed format
+    else if (url.includes('youtube.com/embed')) {
+      const parts = url.split('/');
+      videoId = parts[parts.length - 1].split('?')[0];
+    }
+    // For youtube.com/watch?v= format
+    else if (url.includes('youtube.com/watch')) {
+      const urlObj = new URL(url);
+      videoId = urlObj.searchParams.get('v');
+    }
+    
+    return videoId;
+  };
+
+  // Function to determine the fallback image URL
+  const getImageUrl = (pod: typeof podcastLinks[0]): string => {
+    // If thumbnail is already a valid URL or path, use it
+    if (pod.thumbnail) {
+      // If it's already a full URL or an asset path, return it as is
+      if (pod.thumbnail.startsWith('http') || pod.thumbnail.startsWith('/')) {
+        return pod.thumbnail;
+      }
+    }
+    
+    // For YouTube videos, generate thumbnail URL
+    if (pod.url.includes('youtu')) {
+      const videoId = getYouTubeVideoId(pod.url);
+      if (videoId) {
+        return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+      }
+    }
+    
+    // Fallback to a default image
+    return "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=600&auto=format&fit=crop";
+  };
+
   return (
     <section className="py-16 md:py-24 bg-[#fadfd5] dark:bg-bread-950/40" id="podcast-section">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -95,21 +143,24 @@ const PodcastLibrarySection: React.FC = () => {
             <Card key={pod.id} className="overflow-hidden flex flex-col">
               <div className="relative aspect-video bg-bread-100 overflow-hidden">
                 {pod.type === "video" ? (
-                  <iframe
-                    src={pod.url.includes("youtube.com/embed") ? pod.url : `https://www.youtube.com/embed/${pod.url.split("youtu.be/")[1]?.split("?")[0]}`}
-                    title={pod.title}
+                  <img
+                    src={getImageUrl(pod)}
+                    alt={pod.title}
                     className="w-full h-full object-cover"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
+                    onError={(e) => {
+                      // Fallback image if loading fails
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=600&auto=format&fit=crop";
+                    }}
                   />
                 ) : (
                   <img
-                    src={
-                      pod.thumbnail ||
-                      "https://images.unsplash.com/photo-1582562124811-c09040d0a901?q=80&w=600"
-                    }
+                    src={getImageUrl(pod)}
                     alt={pod.title}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback image if loading fails
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=600&auto=format&fit=crop";
+                    }}
                   />
                 )}
                 <div className="absolute top-2 left-2 bg-white/90 rounded-full p-2 shadow">
@@ -144,4 +195,3 @@ const PodcastLibrarySection: React.FC = () => {
 };
 
 export default PodcastLibrarySection;
-
