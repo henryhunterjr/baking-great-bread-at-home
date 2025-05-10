@@ -68,11 +68,11 @@ const ChallengesArchive = () => {
       
       <main className="flex-grow pt-24 pb-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 bg-white/80 dark:bg-bread-900/60 p-8 rounded-lg shadow-sm">
-            <h1 className="font-serif text-4xl md:text-5xl font-medium mb-6 text-bread-900 dark:text-white">
+          <div className="text-center mb-16 bg-bread-800/90 dark:bg-bread-900 p-8 rounded-lg shadow-md">
+            <h1 className="font-serif text-4xl md:text-5xl font-medium mb-6 text-white">
               Baking Challenges
             </h1>
-            <p className="text-bread-900 dark:text-bread-200 text-lg max-w-3xl mx-auto">
+            <p className="text-bread-100 text-lg max-w-3xl mx-auto">
               Join our monthly bread baking challenges to improve your skills, try new techniques, and connect 
               with fellow bakers. Browse our archive of past challenges for timeless recipes and inspiration.
             </p>

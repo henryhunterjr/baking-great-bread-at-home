@@ -24,17 +24,17 @@ const ChallengeArchiveList = ({ groupedChallenges, years }: ChallengeArchiveList
         return (
           <div key={year} className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="font-serif text-2xl md:text-3xl font-medium text-bread-900 dark:text-white">
+              <h2 className="font-serif text-2xl md:text-3xl font-medium text-bread-800 dark:text-bread-50">
                 {year} Challenges
                 {isCurrentYear && (
-                  <span className="ml-3 text-sm bg-bread-100 text-bread-900 dark:bg-bread-700 dark:text-white px-3 py-1 rounded-full">
+                  <span className="ml-3 text-sm bg-bread-700 text-white dark:bg-bread-600 dark:text-white px-3 py-1 rounded-full">
                     Current
                   </span>
                 )}
               </h2>
             </div>
             
-            <Separator className="bg-bread-200 dark:bg-bread-700" />
+            <Separator className="bg-bread-300 dark:bg-bread-700" />
             
             {(is2025 || is2024) ? (
               // Modern grid layout for 2025 and 2024 challenges

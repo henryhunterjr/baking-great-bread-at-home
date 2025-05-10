@@ -28,8 +28,8 @@ const ChallengeCard = ({
   
   return (
     <div 
-      className={`group rounded-lg overflow-hidden border border-bread-200 dark:border-bread-800 
-      bg-white dark:bg-bread-900/50 shadow-sm hover:shadow-md transition-all ${
+      className={`group rounded-lg overflow-hidden border border-bread-300 dark:border-bread-700 
+      bg-white dark:bg-bread-800 shadow-sm hover:shadow-md transition-all ${
         isLarge ? 'md:grid md:grid-cols-2 gap-6' : ''
       }`}
     >
@@ -45,7 +45,7 @@ const ChallengeCard = ({
         
         {challenge.hashtag && (
           <div className="absolute top-3 left-3">
-            <Badge className="bg-bread-800/80 text-white hover:bg-bread-800 backdrop-blur-sm">
+            <Badge className="bg-bread-700 text-white hover:bg-bread-800 backdrop-blur-sm">
               #{challenge.hashtag}
             </Badge>
           </div>
@@ -53,7 +53,7 @@ const ChallengeCard = ({
         
         {challenge.isCurrent && (
           <div className="absolute top-3 right-3">
-            <Badge className="bg-green-600/90 text-white hover:bg-green-700 backdrop-blur-sm">
+            <Badge className="bg-green-600 text-white hover:bg-green-700 backdrop-blur-sm">
               Current Challenge
             </Badge>
           </div>
@@ -61,18 +61,18 @@ const ChallengeCard = ({
       </div>
       
       <div className="p-6">
-        <div className="text-bread-700 dark:text-bread-300 text-sm mb-2">
+        <div className="text-bread-600 dark:text-bread-300 text-sm mb-2">
           {formattedDate}
         </div>
         
-        <h3 className={`font-serif font-medium text-bread-900 dark:text-white mb-3 ${
+        <h3 className={`font-serif font-medium text-bread-800 dark:text-white mb-3 ${
           isLarge ? 'text-2xl md:text-3xl' : 'text-xl'
         }`}>
           {challenge.title}
         </h3>
         
         {challenge.description && (
-          <p className="text-bread-800 dark:text-bread-200 line-clamp-3 mb-4">
+          <p className="text-bread-700 dark:text-bread-200 line-clamp-3 mb-4">
             {challenge.description}
           </p>
         )}
@@ -82,7 +82,7 @@ const ChallengeCard = ({
             href={challenge.link} 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="flex items-center text-bread-800 dark:text-bread-300 hover:text-bread-600 dark:hover:text-bread-100 font-medium"
+            className="flex items-center text-bread-700 dark:text-bread-200 hover:text-bread-500 dark:hover:text-bread-50 font-medium"
           >
             View Challenge
             <ArrowUpRight className="ml-2 h-4 w-4" />
