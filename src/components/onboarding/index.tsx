@@ -7,9 +7,8 @@ export const OnboardingComponents: React.FC<{ children: React.ReactNode }> = ({ 
   return (
     <OnboardingProvider>
       {children}
-      {/* WelcomeModal commented out for now */}
+      {/* WelcomeModal and GuidedTour completely disabled */}
       {/* <WelcomeModal /> */}
-      {/* GuidedTour commented out for now */}
       {/* <GuidedTour /> */}
       <HelpCenter />
     </OnboardingProvider>

@@ -34,6 +34,7 @@ function App() {
       <AuthProvider>
         <ThemeProvider defaultTheme="dark">
           <AIAssistantProvider>
+            {/* OnboardingProvider remains, but WelcomeModal and GuidedTour are disabled in the provider */}
             <OnboardingProvider>
               <div className="min-h-screen flex flex-col">
                 <UnderConstruction />

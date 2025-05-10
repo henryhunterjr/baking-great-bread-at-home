@@ -28,15 +28,16 @@ const OnboardingContext = createContext<OnboardingState>(defaultState);
 export const useOnboarding = () => useContext(OnboardingContext);
 
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Default these to true to disable both tour and welcome modal
+  // Force these to true to ensure tour/modal never shows
   const [hasCompletedTour, setHasCompletedTour] = useState<boolean>(true);
   const [showTour, setShowTour] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [hasSeenWelcomeModal, setHasSeenWelcomeModal] = useState<boolean>(true);
 
-  // Load onboarding state from localStorage on mount
+  // Load onboarding state from localStorage on mount, but ensure values are always
+  // set to prevent the tour from showing
   useEffect(() => {
-    // Always consider the tour as completed and the modal as seen for now
+    // Force the tour to be completed and modal as seen
     setHasCompletedTour(true);
     setHasSeenWelcomeModal(true);
     
@@ -54,14 +55,12 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     localStorage.setItem('hasSeenWelcomeModal', hasSeenWelcomeModal.toString());
   }, [hasSeenWelcomeModal]);
 
-  // Reset tour state when tour is shown
+  // Override any attempt to show the tour
   useEffect(() => {
     if (showTour) {
-      // Reset to first step when tour is started
-      setCurrentStep(0);
-      
-      // Log for debugging
-      console.log("Tour started, reset to step 0");
+      // Immediately disable the tour if it somehow gets enabled
+      setShowTour(false);
+      console.log("Tour disabled by configuration");
     }
   }, [showTour]);
 
