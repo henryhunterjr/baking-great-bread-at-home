@@ -43,7 +43,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({ sectionRef }) => {
             </div>
           </div>
           
-          <p className="text-center text-bread-700 dark:text-bread-300 text-lg md:text-xl max-w-3xl mx-auto mb-10 italic">
+          <p className="text-center text-bread-700 dark:text-bread-300 text-lg md:text-xl max-w-3xl mx-auto mb-10 italic text-white dark:text-white">
             If I don't use it, I don't recommend it. These are the tools in my kitchen—and in my hands every week.
           </p>
           
