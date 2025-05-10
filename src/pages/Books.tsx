@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
@@ -67,6 +68,14 @@ const Books = () => {
       isExternalLink: true,
       pdfLink: "https://acrobat.adobe.com/id/urn:aaid:sc:US:f4f4315e-0e5d-4eb7-9496-a130a51ee0ce",
       flipBookLink: "https://heyzine.com/flip-book/fcb520a9fd.html"
+    },
+    {
+      id: 8,
+      title: "The Watchers' Descent: Echoes of Giants, and Forgotten Truths",
+      image: "/lovable-uploads/0ea30302-da5a-457a-b90d-fbdff8d98131.png",
+      description: "Embark on a journey through ancient texts and mythic legends in The Watchers' Descent. This book delves into the enigmatic tales of celestial beings known as the Watchers, their forbidden unions with humanity, and the resulting Nephilim giants.",
+      link: "https://a.co/d/5nuwZZV",
+      isExternalLink: true
     }
   ];
 
