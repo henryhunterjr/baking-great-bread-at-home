@@ -17,6 +17,8 @@ import { ErrorProvider } from './utils/ErrorHandling';
 import UnderConstruction from './components/UnderConstruction';
 import ChallengesArchive from './pages/ChallengesArchive';
 import Guides from './pages/Guides';
+import Tools from './pages/Tools';
+import AppStore from './pages/AppStore';
 
 // Initialize error handler early to suppress development-related errors
 if (typeof window !== 'undefined') {
@@ -49,6 +51,8 @@ function App() {
                     <Route path="/community" element={<ComingSoon title="Community" />} />
                     <Route path="/auth" element={<ComingSoon title="Login/Signup" />} />
                     <Route path="/care-center" element={<CareCenter />} />
+                    <Route path="/tools" element={<Tools />} />
+                    <Route path="/app-store" element={<AppStore />} />
                   </Routes>
                 </div>
                 <Footer />

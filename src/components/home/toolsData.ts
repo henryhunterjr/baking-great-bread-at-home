@@ -81,6 +81,15 @@ export const toolsData: Tool[] = [
     description: "You will be baking bread in 3-Days with Vitale Sourdough Starter.",
     link: "https://vitale-sourdough-co-jutermf.gamma.site/",
     isExternalLink: true
+  },
+  {
+    id: 11,
+    title: "Crumb Calculator",
+    image: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?q=80&w=1087&auto=format&fit=crop",
+    description: "Calculate the perfect crumb structure for your bread with our interactive crumb calculator.",
+    link: "https://crumb-calculator-bake-buddy.vercel.app/",
+    isExternalLink: true,
+    isFeatured: true
   }
 ];
 
