@@ -1,50 +1,52 @@
 
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Camera } from 'lucide-react';
 
 interface CameraButtonProps {
-  onImageCapture: (file: File) => Promise<void>;
+  onCapture: (text: string) => void;
   isDisabled: boolean;
   isProcessing: boolean;
 }
 
 const CameraButton: React.FC<CameraButtonProps> = ({
-  onImageCapture,
+  onCapture,
   isDisabled,
-  isProcessing
+  isProcessing,
 }) => {
-  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [isActive, setIsActive] = useState(false);
 
-  const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    await onImageCapture(file);
-    
-    // Reset the camera input to allow taking the same photo again
-    if (cameraInputRef.current) {
-      cameraInputRef.current.value = '';
+  const handleClick = () => {
+    // For now, just simulating camera capture with sample text
+    if (!isDisabled && !isProcessing) {
+      setIsActive(true);
+      setTimeout(() => {
+        onCapture("Sample recipe text captured from camera");
+        setIsActive(false);
+      }, 1500);
     }
   };
 
   return (
-    <Button 
-      variant="outline" 
+    <Button
+      variant="outline"
       className="flex flex-col items-center justify-center h-24 p-2"
-      onClick={() => cameraInputRef.current?.click()}
+      onClick={handleClick}
       disabled={isDisabled || isProcessing}
     >
-      <input
-        type="file"
-        ref={cameraInputRef}
-        className="hidden"
-        accept="image/*"
-        capture="environment"
-        onChange={handleCameraCapture}
-      />
-      <Camera className="h-8 w-8 mb-2 text-bread-800" />
-      <span className="text-xs text-center">Take Photo</span>
+      {isProcessing || isActive ? (
+        <>
+          <div className="h-8 w-8 mb-2 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-bread-800"></div>
+          </div>
+          <span className="text-xs text-center">Processing...</span>
+        </>
+      ) : (
+        <>
+          <Camera className="h-8 w-8 mb-2 text-bread-800" />
+          <span className="text-xs text-center">Take Photo</span>
+        </>
+      )}
     </Button>
   );
 };

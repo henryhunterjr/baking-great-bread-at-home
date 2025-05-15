@@ -9,18 +9,22 @@ export const useConvertTab = ({ recipeText }: UseConvertTabProps) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showHelpTip, setShowHelpTip] = useState(true);
   
+  // Reset the success state when recipeText changes
   useEffect(() => {
-    if (recipeText && recipeText.trim().length > 0) {
-      setShowSuccess(true);
-      setShowHelpTip(false);
-    } else {
+    if (recipeText) {
       setShowSuccess(false);
-      setShowHelpTip(true);
     }
+  }, [recipeText]);
+  
+  // Show help tip only if there's no recipe text
+  useEffect(() => {
+    setShowHelpTip(!recipeText);
   }, [recipeText]);
   
   return {
     showSuccess,
-    showHelpTip
+    setShowSuccess,
+    showHelpTip,
+    setShowHelpTip
   };
 };

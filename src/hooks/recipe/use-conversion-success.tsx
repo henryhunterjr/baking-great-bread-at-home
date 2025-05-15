@@ -1,20 +1,18 @@
 
 import { useEffect } from 'react';
-import { RecipeData } from '@/types/recipeTypes';
+import { RecipeData } from '@/types/unifiedRecipe';
 
 export const useConversionSuccess = (
-  recipe: RecipeData,
+  recipe: RecipeData | null,
   isEditing: boolean,
   setShowConversionSuccess: (show: boolean) => void
 ) => {
-  // Show success alert for 7 seconds after conversion
+  // Show success message when recipe is converted but not yet being edited
   useEffect(() => {
-    if (recipe.isConverted && !isEditing) {
+    if (recipe?.isConverted && !isEditing) {
       setShowConversionSuccess(true);
-      const timer = setTimeout(() => {
-        setShowConversionSuccess(false);
-      }, 7000);
-      return () => clearTimeout(timer);
+    } else {
+      setShowConversionSuccess(false);
     }
-  }, [recipe.isConverted, isEditing, setShowConversionSuccess]);
+  }, [recipe?.isConverted, isEditing, setShowConversionSuccess]);
 };

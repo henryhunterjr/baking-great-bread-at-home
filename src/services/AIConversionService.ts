@@ -1,17 +1,34 @@
 
-// Re-export from refactored modules
-import { AIConversionService, ConversionErrorType } from './conversion/AIConversionService';
-import { useAIConversion } from './conversion/useAIConversion';
-import type { ConversionResult } from './conversion/types';
+import { useState } from 'react';
+import { AIConversionService, ConversionErrorType, ConversionResult } from './conversion/AIConversionService';
 
-export {
-  AIConversionService,
-  ConversionErrorType,
-  useAIConversion
+export { ConversionErrorType };
+
+export const useAIConversion = () => {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const service = AIConversionService.getInstance();
+  
+  const processRecipe = async (text: string): Promise<ConversionResult> => {
+    setIsProcessing(true);
+    try {
+      const result = await service.processRecipeText(text);
+      return result;
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  
+  const handleError = async (
+    errorType: ConversionErrorType, 
+    text: string
+  ): Promise<ConversionResult> => {
+    return service.handleConversionError(errorType, text);
+  };
+  
+  return {
+    hasApiKey: service.hasApiKey(),
+    isProcessing,
+    processRecipe,
+    handleError
+  };
 };
-
-export type {
-  ConversionResult
-};
-
-export default AIConversionService;
