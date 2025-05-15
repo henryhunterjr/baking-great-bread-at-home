@@ -1,66 +1,96 @@
 
 import { useState, useEffect } from 'react';
 
-// Media query breakpoints
+// Define breakpoint sizes
 const breakpoints = {
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
-  '2xl': 1536,
+  xsDown: '(max-width: 575.98px)',
+  smDown: '(max-width: 767.98px)',
+  mdDown: '(max-width: 991.98px)',
+  lgDown: '(max-width: 1199.98px)',
+  xlDown: '(max-width: 1399.98px)',
+  smUp: '(min-width: 576px)',
+  mdUp: '(min-width: 768px)',
+  lgUp: '(min-width: 992px)',
+  xlUp: '(min-width: 1200px)',
+  xxlUp: '(min-width: 1400px)'
 };
 
-type Breakpoint = keyof typeof breakpoints;
-type BreakpointWithSuffix = `${Breakpoint}${'Up' | 'Down'}`;
+type BreakpointKey = keyof typeof breakpoints;
 
 /**
- * Hook to check if the current viewport matches a media query
+ * Hook to check if a media query matches
+ * @param query Media query string or breakpoint key
+ * @returns boolean indicating if the query matches
  */
-export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState<boolean>(false);
-
+export const useMediaQuery = (query: string): boolean => {
+  // Check if window is available (for SSR)
+  const isClient = typeof window !== 'undefined';
+  
+  const [matches, setMatches] = useState(
+    isClient ? window.matchMedia(query).matches : false
+  );
+  
   useEffect(() => {
-    const mediaQuery = window.matchMedia(query);
-    setMatches(mediaQuery.matches);
-
-    const handler = (event: MediaQueryListEvent) => {
-      setMatches(event.matches);
-    };
-
-    mediaQuery.addEventListener('change', handler);
+    if (!isClient) return;
     
-    return () => {
-      mediaQuery.removeEventListener('change', handler);
+    const mediaQuery = window.matchMedia(query);
+    
+    const updateMatches = () => {
+      setMatches(mediaQuery.matches);
     };
-  }, [query]);
-
+    
+    // Set initial value
+    updateMatches();
+    
+    // Add listener for changes
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', updateMatches);
+    } else {
+      // Fallback for older browsers
+      mediaQuery.addListener(updateMatches);
+    }
+    
+    // Clean up
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', updateMatches);
+      } else {
+        // Fallback for older browsers
+        mediaQuery.removeListener(updateMatches);
+      }
+    };
+  }, [query, isClient]);
+  
   return matches;
-}
+};
 
 /**
- * Hook to check if the viewport is at a specific breakpoint
+ * Hook to check if a specific breakpoint matches
+ * @param breakpoint The breakpoint key to check
+ * @returns boolean indicating if the breakpoint matches
  */
-export function useBreakpoint(breakpoint: BreakpointWithSuffix | Breakpoint): boolean {
-  // Handle 'smUp', 'mdDown', etc. format
-  if (breakpoint.endsWith('Up') || breakpoint.endsWith('Down')) {
-    const size = breakpoint.slice(0, -2) as Breakpoint;
-    const isUp = breakpoint.endsWith('Up');
-    const query = isUp 
-      ? `(min-width: ${breakpoints[size]}px)` 
-      : `(max-width: ${breakpoints[size] - 1}px)`;
-    
-    return useMediaQuery(query);
-  }
+export const useBreakpoint = (breakpoint: BreakpointKey): boolean => {
+  return useMediaQuery(breakpoints[breakpoint]);
+};
+
+/**
+ * Hook to determine the current active breakpoint
+ * @returns The current active breakpoint
+ */
+export const useActiveBreakpoint = (): string => {
+  const isXs = useMediaQuery(breakpoints.xsDown);
+  const isSm = useMediaQuery(breakpoints.smUp) && useMediaQuery(breakpoints.mdDown);
+  const isMd = useMediaQuery(breakpoints.mdUp) && useMediaQuery(breakpoints.lgDown);
+  const isLg = useMediaQuery(breakpoints.lgUp) && useMediaQuery(breakpoints.xlDown);
+  const isXl = useMediaQuery(breakpoints.xlUp) && useMediaQuery(breakpoints.xxlUp);
+  const isXxl = useMediaQuery(breakpoints.xxlUp);
   
-  // Handle direct breakpoint match (e.g., 'sm', 'md')
-  const minWidth = breakpoints[breakpoint as Breakpoint];
-  const maxWidth = breakpoints[
-    Object.keys(breakpoints)[Object.keys(breakpoints).indexOf(breakpoint as string) + 1]
-  ] as number;
-  
-  const query = maxWidth
-    ? `(min-width: ${minWidth}px) and (max-width: ${maxWidth - 1}px)`
-    : `(min-width: ${minWidth}px)`;
-  
-  return useMediaQuery(query);
-}
+  if (isXxl) return 'xxl';
+  if (isXl) return 'xl';
+  if (isLg) return 'lg';
+  if (isMd) return 'md';
+  if (isSm) return 'sm';
+  return 'xs';
+};
+
+export default useMediaQuery;

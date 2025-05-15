@@ -10,6 +10,13 @@ export interface Ingredient {
   name: string;
 }
 
+// Add RecipeIngredient type for compatibility
+export interface RecipeIngredient {
+  quantity: number | string;
+  unit: string;
+  name: string;
+}
+
 /**
  * Base recipe data structure
  */
@@ -17,12 +24,12 @@ export interface RecipeData {
   id?: string;
   title: string;
   description?: string;
-  ingredients: Array<string | Ingredient>;
+  ingredients: Array<string | Ingredient | RecipeIngredient>;
   instructions: string[];
   prepTime?: string;
   cookTime?: string;
   totalTime?: string;
-  servings?: string;
+  servings?: string | number;
   yields?: string;
   notes?: string[];
   tags?: string[];
@@ -44,6 +51,13 @@ export interface ConvertedRecipe extends RecipeData {
 }
 
 /**
+ * Recipe converter interface
+ */
+export interface IRecipeConverter {
+  convert(recipeData: RecipeData, targetSystem: MeasurementSystem): Promise<ConversionResult>;
+}
+
+/**
  * Available measurement systems
  */
 export enum MeasurementSystem {
@@ -59,6 +73,8 @@ export enum RecipeType {
   YEASTED = 'yeasted',
   QUICKBREAD = 'quickbread',
   PASTRY = 'pastry',
+  ENRICHED = 'enriched',
+  STANDARD = 'standard',
   OTHER = 'other'
 }
 
@@ -67,10 +83,13 @@ export enum RecipeType {
  */
 export enum ConversionErrorType {
   API_KEY_MISSING = 'api_key_missing',
-  INVALID_INPUT = 'invalid_input',
   PARSING_ERROR = 'parsing_error',
+  INVALID_INPUT = 'invalid_input',
   API_ERROR = 'api_error',
-  UNKNOWN = 'unknown'
+  VALIDATION_ERROR = 'validation_error',
+  UNKNOWN = 'unknown',
+  EMPTY_INPUT = 'empty_input',
+  CONVERSION_ERROR = 'conversion_error'
 }
 
 /**
@@ -87,5 +106,12 @@ export interface ConversionResult {
   aiSuggestions?: {
     tips: string[];
     improvements: string[];
+    alternativeMethods?: string[];
   };
+  original?: RecipeData; 
+  converted?: RecipeData; 
+  bakersPercentages?: Record<string, number>; 
+  hydration?: number; 
+  recipeType?: RecipeType; 
+  timings?: Record<string, string>;
 }

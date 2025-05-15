@@ -1,54 +1,73 @@
 
-import { RecipeData, RecipeType, RecipeIngredient } from './types';
+import { RecipeData, RecipeType } from '@/types/unifiedRecipe';
+import { logInfo } from '@/utils/logger';
 
 /**
- * Identifies the recipe type based on ingredients and instructions
+ * Identify recipe type based on ingredients and instructions
  */
-export function identifyRecipeType(recipeData: RecipeData): RecipeType {
-  const ingredientTexts: string[] = recipeData.ingredients.map(i => {
-    if (typeof i === 'string') {
-      return i.toLowerCase();
-    } else {
-      return i.name.toLowerCase();
-    }
-  });
+export const identifyRecipeType = (recipeData: RecipeData): RecipeType => {
+  logInfo("Classifying recipe type", { title: recipeData.title });
   
-  const instructionsText = recipeData.instructions.join(' ').toLowerCase();
+  // Convert ingredients to string for analysis
+  const ingredientText = recipeData.ingredients
+    .map(ing => typeof ing === 'string' ? ing : ing.name)
+    .join(' ')
+    .toLowerCase();
   
-  // Check for sourdough
-  if (ingredientTexts.some(name => 
-    name.includes('starter') || 
-    name.includes('levain') || 
-    name.includes('sourdough'))) {
-    return 'sourdough';
+  // Combine instructions for analysis
+  const instructionText = recipeData.instructions.join(' ').toLowerCase();
+  const allText = ingredientText + ' ' + instructionText;
+  
+  // Check for sourdough indicators
+  if (allText.includes('sourdough') || 
+      allText.includes('starter') || 
+      allText.includes('levain')) {
+    logInfo("Recipe classified as sourdough");
+    return RecipeType.SOURDOUGH;
+  } 
+  
+  // Check for yeasted bread indicators
+  else if ((allText.includes('yeast') || allText.includes('poolish')) &&
+           (allText.includes('flour') || allText.includes('bread'))) {
+    logInfo("Recipe classified as yeasted");
+    return RecipeType.YEASTED;
+  } 
+  
+  // Check for enriched dough indicators
+  else if ((allText.includes('butter') && allText.includes('sugar')) ||
+           allText.includes('brioche') || 
+           allText.includes('enriched')) {
+    logInfo("Recipe classified as enriched");
+    return RecipeType.ENRICHED;
+  } 
+  
+  // Check for quick bread indicators
+  else if (allText.includes('baking powder') || 
+           allText.includes('baking soda') || 
+           allText.includes('quick bread')) {
+    logInfo("Recipe classified as quickbread");
+    return RecipeType.QUICKBREAD;
   }
   
-  // Check for yeasted bread
-  if (ingredientTexts.some(name => 
-    name.includes('yeast') || 
-    name.includes('instant dry yeast') || 
-    name.includes('active dry'))) {
-    return 'yeasted';
-  }
+  // Default to standard
+  logInfo("Recipe classified as standard");
+  return RecipeType.STANDARD;
+};
+
+/**
+ * Get more detailed classification including hydration percentage
+ */
+export const getDetailedRecipeClassification = (
+  recipeData: RecipeData
+): { 
+  type: RecipeType; 
+  hydration?: number; 
+  fermentationTime?: number;
+} => {
+  const baseType = identifyRecipeType(recipeData);
   
-  // Check for enriched dough
-  const hasEnrichments = [
-    ingredientTexts.some(name => name.includes('butter') || name.includes('margarine')),
-    ingredientTexts.some(name => name.includes('egg')),
-    ingredientTexts.some(name => name.includes('milk'))
-  ];
-  
-  if (hasEnrichments.filter(Boolean).length >= 2) {
-    return 'enriched';
-  }
-  
-  // Check for quick bread
-  if (ingredientTexts.some(name => 
-    name.includes('baking powder') || 
-    name.includes('baking soda'))) {
-    return 'quickbread';
-  }
-  
-  // Default
-  return 'standard';
-}
+  // Default return value
+  return {
+    type: baseType
+  };
+};

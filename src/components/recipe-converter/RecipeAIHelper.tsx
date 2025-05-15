@@ -1,14 +1,20 @@
 
 import React from 'react';
-import { AIConversionService } from '@/services/AIConversionService';
 import { Button } from '@/components/ui/button';
 import { Lightbulb } from 'lucide-react';
+import { RecipeData } from '@/types/recipeTypes';
 
 interface RecipeAIHelperProps {
+  recipe?: RecipeData;
+  updateRecipe?: (recipe: RecipeData) => void;
   onApplySuggestion?: (suggestion: string) => void;
 }
 
-const RecipeAIHelper: React.FC<RecipeAIHelperProps> = ({ onApplySuggestion }) => {
+const RecipeAIHelper: React.FC<RecipeAIHelperProps> = ({ 
+  recipe,
+  updateRecipe,
+  onApplySuggestion 
+}) => {
   const [suggestions, setSuggestions] = React.useState<string[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
 
@@ -29,8 +35,11 @@ const RecipeAIHelper: React.FC<RecipeAIHelperProps> = ({ onApplySuggestion }) =>
     }
   };
 
+  // If no recipe is provided, don't render anything
+  if (!recipe) return null;
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mt-6">
       <div className="flex items-center gap-2">
         <Lightbulb className="h-4 w-4 text-amber-500" />
         <h3 className="text-sm font-medium">AI Recipe Helper</h3>
@@ -51,12 +60,23 @@ const RecipeAIHelper: React.FC<RecipeAIHelperProps> = ({ onApplySuggestion }) =>
           {suggestions.map((suggestion, index) => (
             <li key={index} className="p-2 border rounded-md bg-muted/50">
               <p>{suggestion}</p>
-              {onApplySuggestion && (
+              {(onApplySuggestion || updateRecipe) && (
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   className="mt-1" 
-                  onClick={() => onApplySuggestion(suggestion)}
+                  onClick={() => {
+                    if (onApplySuggestion) {
+                      onApplySuggestion(suggestion);
+                    } else if (updateRecipe && recipe) {
+                      // Add the suggestion to recipe notes
+                      const updatedRecipe = {
+                        ...recipe,
+                        notes: [...(recipe.notes || []), suggestion]
+                      };
+                      updateRecipe(updatedRecipe);
+                    }
+                  }}
                 >
                   Apply
                 </Button>

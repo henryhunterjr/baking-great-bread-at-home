@@ -1,16 +1,15 @@
-
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Textarea } from "@/components/ui/textarea";
 import ConvertButton from './convert-tab/components/ConvertButton';
 import FileUploadOptions from './convert-tab/FileUploadOptions';
 import RecipeHelp from './convert-tab/components/RecipeHelp';
-import AlertMessages from './convert-tab/components/AlertMessages';
 import { useConvertTab } from './convert-tab/hooks/useConvertTab';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { useAIConversion } from '@/services/AIConversionService';
 import { AlertCircle, Lightbulb, Ban } from 'lucide-react';
 import { useBreakpoint } from '@/hooks/use-media-query';
+import AlertMessages from './convert-tab/components/AlertMessages';
 
 interface ConvertTabProps {
   recipeText: string;

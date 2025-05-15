@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, CheckCircle, HelpCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { CheckCircle2, AlertCircle, HelpCircle } from 'lucide-react';
 
 interface AlertMessagesProps {
-  showSuccess: boolean;
+  showSuccess?: boolean;
   error?: string | null;
   showHelpTip?: boolean;
   isConverting?: boolean;
@@ -13,41 +13,54 @@ interface AlertMessagesProps {
 const AlertMessages: React.FC<AlertMessagesProps> = ({ 
   showSuccess, 
   error, 
-  showHelpTip = true, 
-  isConverting = false 
+  showHelpTip,
+  isConverting 
 }) => {
-  if (error) {
-    return (
-      <Alert variant="destructive" className="mb-4 animate-in fade-in-50">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
-    );
-  }
-  
-  if (showSuccess) {
-    return (
-      <Alert className="mb-4 bg-green-50 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800 animate-in fade-in-50">
-        <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-        <AlertDescription>
-          Text extracted successfully! You can now convert your recipe.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-  
-  if (showHelpTip && !isConverting) {
-    return (
-      <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800 animate-in fade-in-50">
-        <HelpCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-        <AlertDescription>
-          Type or paste your recipe text above, or use one of the upload options.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-  
-  return null;
+  return (
+    <>
+      {/* Success message */}
+      {showSuccess && !error && (
+        <Alert className="bg-green-50 border border-green-100">
+          <CheckCircle2 className="h-4 w-4 text-green-600" />
+          <AlertTitle className="text-green-800">Text Ready</AlertTitle>
+          <AlertDescription className="text-green-700">
+            We've detected recipe text. Press "Convert Recipe" to continue.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {/* Error message */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
+      {/* Help tip */}
+      {showHelpTip && !error && !isConverting && (
+        <Alert className="bg-blue-50 border-blue-100">
+          <HelpCircle className="h-4 w-4 text-blue-600" />
+          <AlertTitle className="text-blue-800">Tip</AlertTitle>
+          <AlertDescription className="text-blue-700">
+            Paste your recipe text above or use one of the upload options below.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {/* Processing indicator */}
+      {isConverting && (
+        <Alert className="bg-amber-50 border-amber-100">
+          <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
+          <AlertTitle className="text-amber-800">Processing Recipe</AlertTitle>
+          <AlertDescription className="text-amber-700">
+            Please wait while we convert your recipe...
+          </AlertDescription>
+        </Alert>
+      )}
+    </>
+  );
 };
 
 export default AlertMessages;

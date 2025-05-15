@@ -1,135 +1,148 @@
-import { ConversionErrorType, ConversionResult } from '../types';
-import { makeOpenAIRequest } from '../openai/openai-service';
-import { parseRecipeFromText } from '../utils/recipe-parser';
-import { logError, logInfo } from '@/utils/logger';
-import { ConvertedRecipe } from '@/types/recipe';
+
+import { logError } from '@/utils/logger';
+import { ConversionErrorType, ConversionResult } from '@/types/unifiedRecipe';
 
 /**
- * Handle different types of conversion errors with specific recovery strategies
+ * Handle conversion errors with appropriate recovery strategies
  */
-export async function handleConversionError(
-  errorType: ConversionErrorType, 
+export const handleConversionError = async (
+  errorType: ConversionErrorType,
   originalText: string
-): Promise<ConversionResult> {
+): Promise<ConversionResult> => {
+  // Log the error for analysis
+  logError('Handling conversion error', { 
+    errorType, 
+    textLength: originalText.length 
+  });
+  
+  switch (errorType) {
+    case ConversionErrorType.API_KEY_MISSING:
+      return {
+        success: false,
+        error: {
+          type: ConversionErrorType.API_KEY_MISSING,
+          message: 'API key is required for AI-powered recipe conversion. Please add your API key in settings.'
+        }
+      };
+      
+    case ConversionErrorType.PARSING_ERROR:
+      // Try basic parsing as fallback
+      return tryBasicParsing(originalText);
+      
+    case ConversionErrorType.INVALID_INPUT:
+      return {
+        success: false,
+        error: {
+          type: ConversionErrorType.INVALID_INPUT,
+          message: 'The provided text does not appear to be a recipe. Please check your input and try again.'
+        }
+      };
+      
+    case ConversionErrorType.API_ERROR:
+      return {
+        success: false,
+        error: {
+          type: ConversionErrorType.API_ERROR,
+          message: 'Error communicating with the AI service. Please try again later.'
+        }
+      };
+      
+    case ConversionErrorType.EMPTY_INPUT:
+      return {
+        success: false,
+        error: {
+          type: ConversionErrorType.EMPTY_INPUT,
+          message: 'Please enter or paste a recipe before converting.'
+        }
+      };
+      
+    default:
+      return {
+        success: false,
+        error: {
+          type: ConversionErrorType.UNKNOWN,
+          message: 'An unexpected error occurred during recipe conversion.'
+        }
+      };
+  }
+};
+
+/**
+ * Basic recipe parsing as a fallback
+ */
+const tryBasicParsing = (text: string): ConversionResult => {
   try {
-    logInfo('Attempting error recovery', { errorType, textLength: originalText.length });
+    // Basic parsing logic
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line);
     
-    let recoveryPrompt = '';
+    // Try to extract title from the first line
+    const title = lines[0] || 'Untitled Recipe';
     
-    // Build prompts based on error type
-    switch (errorType) {
-      case ConversionErrorType.PARSING_ERROR:
-        recoveryPrompt = `
-I'm having trouble parsing this recipe text into a structured format. 
-Please convert the following recipe text into a structured JSON format with title, ingredients (as array), 
-and instructions (as array). Include any other fields you can extract.
-
-Recipe text:
-${originalText}
-
-Format as valid JSON with these fields at minimum: title, ingredients, instructions.
-`.trim();
-        break;
-        
-      case ConversionErrorType.EMPTY_INPUT:
-        return {
-          success: false,
-          error: {
-            type: ConversionErrorType.EMPTY_INPUT,
-            message: 'Empty or invalid recipe text provided'
-          }
-        };
-        
-      case ConversionErrorType.CONVERSION_ERROR:
-        recoveryPrompt = `
-This recipe text needs to be properly formatted.
-Convert it into a valid JSON object with these fields: title, ingredients (array), instructions (array).
-Try to preserve all important recipe information.
-
-Recipe text:
-${originalText}
-
-Remember to output ONLY valid JSON.
-`.trim();
-        break;
-        
-      default: // Generic recovery for unknown errors
-        recoveryPrompt = `
-Please analyze this recipe text and convert it to a structured JSON format.
-Include fields for title, ingredients (as array), and instructions (as array).
-Extract any other useful information like prep time, cook time, etc.
-
-Recipe text:
-${originalText}
-
-Return ONLY a valid JSON object with the structured recipe data.
-`.trim();
+    // Look for ingredients and instructions sections
+    let currentSection = '';
+    const ingredients: string[] = [];
+    const instructions: string[] = [];
+    
+    for (const line of lines.slice(1)) {
+      const lowerLine = line.toLowerCase();
+      
+      if (lowerLine.includes('ingredient')) {
+        currentSection = 'ingredients';
+        continue;
+      } else if (lowerLine.includes('instruction') || lowerLine.includes('direction')) {
+        currentSection = 'instructions';
+        continue;
+      }
+      
+      if (currentSection === 'ingredients') {
+        ingredients.push(line);
+      } else if (currentSection === 'instructions') {
+        instructions.push(line);
+      }
     }
     
-    // Attempt recovery through AI
-    const response = await makeOpenAIRequest(recoveryPrompt);
-    
-    if (!response || !response.choices || !response.choices[0]) {
-      throw new Error('Invalid response from AI service during error recovery');
+    // If we couldn't identify sections, make a guess
+    if (ingredients.length === 0 && instructions.length === 0) {
+      let foundIngredients = false;
+      
+      for (const line of lines.slice(1)) {
+        // Ingredients often have measurements
+        const hasMeasurement = /[0-9]+\s*(g|oz|cup|cups|tbsp|tsp|ml|pound|lb|kg)/i.test(line);
+        
+        if (!foundIngredients && hasMeasurement) {
+          ingredients.push(line);
+          foundIngredients = true;
+        } else if (foundIngredients && !hasMeasurement && line.length > 20) {
+          instructions.push(line);
+        } else if (foundIngredients && hasMeasurement) {
+          ingredients.push(line);
+        }
+      }
     }
-    
-    // Parse the AI response
-    const content = response.choices[0].message.content;
-    const parsedRecipe = parseRecipeFromText(content);
-    
-    if (!parsedRecipe) {
-      throw new Error('Failed to parse recipe from AI recovery response');
-    }
-    
-    // Convert to the correct ConvertedRecipe format
-    const recipe: ConvertedRecipe = {
-      name: parsedRecipe.title || "Recovered Recipe",
-      title: parsedRecipe.title, // Keep title for compatibility
-      ingredients: Array.isArray(parsedRecipe.ingredients) ? 
-        parsedRecipe.ingredients.map(ing => {
-          if (typeof ing === 'string') {
-            const parts = ing.split(' ');
-            const quantity = parts[0];
-            const unit = parts.length > 2 ? parts[1] : '';
-            const name = parts.length > 2 ? parts.slice(2).join(' ') : parts.slice(1).join(' ');
-            return { quantity, unit, name };
-          } else if (typeof ing === 'object') {
-            return {
-              quantity: String(ing.quantity || ''),
-              unit: String(ing.unit || ''),
-              name: String(ing.name || '')
-            };
-          }
-          return { quantity: '', unit: '', name: 'Ingredient' };
-        }) : [],
-      instructions: Array.isArray(parsedRecipe.instructions) ? parsedRecipe.instructions : [],
-      prepTime: parsedRecipe.prepTime,
-      cookTime: parsedRecipe.cookTime,
-      totalTime: parsedRecipe.totalTime,
-      servings: String(parsedRecipe.servings || ''),
-      notes: Array.isArray(parsedRecipe.notes) ? parsedRecipe.notes : []
-    };
-    
-    logInfo('Error recovery successful', { recipeTitle: recipe.name });
     
     return {
       success: true,
-      data: recipe
+      data: {
+        name: title,
+        title: title,
+        ingredients: ingredients.map(ing => ({ quantity: '', unit: '', name: ing })),
+        instructions: instructions,
+        prepTime: '',
+        cookTime: '',
+        totalTime: '',
+        servings: '',
+        notes: []
+      }
     };
   } catch (error) {
-    logError('Error recovery failed', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      errorType
-    });
+    logError('Basic parsing fallback failed', { error });
     
     return {
       success: false,
       error: {
-        type: errorType,
-        message: error instanceof Error 
-          ? error.message 
-          : 'Failed to recover from conversion error'
+        type: ConversionErrorType.PARSING_ERROR,
+        message: 'Could not parse recipe text even with fallback methods. Please try a different format.'
       }
     };
   }
-}
+};

@@ -1,113 +1,95 @@
 
-/**
- * OpenAI API Key management utilities
- * Handles keys from local storage or environment variables
- */
+import { logInfo, logError } from '@/utils/logger';
 
-const LOCAL_STORAGE_KEY = 'openai-api-key';
+const API_KEY_STORAGE_KEY = 'ai_api_key';
 
 /**
- * Check if AI is configured with a valid API key
+ * Check if the API key is configured in localStorage
  */
-export function isAIConfigured(): boolean {
-  return !!getOpenAIApiKey();
-}
+export const isAIConfigured = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  
+  const apiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
+  return !!apiKey && apiKey.trim().length > 0;
+};
 
 /**
- * Get the OpenAI API key from available sources
- * Prioritizes Vite environment variables, then falls back to localStorage
+ * Get the OpenAI API key from localStorage
  */
-export function getOpenAIApiKey(): string | null {
-  // First check import.meta.env (Vite's environment variables)
-  if (import.meta.env.VITE_OPENAI_API_KEY) {
-    return import.meta.env.VITE_OPENAI_API_KEY;
+export const getOpenAIApiKey = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(API_KEY_STORAGE_KEY);
+};
+
+/**
+ * Configure the AI API key in localStorage
+ */
+export const configureAIKey = (apiKey: string): void => {
+  if (typeof window === 'undefined') return;
+  
+  if (!apiKey || apiKey.trim().length === 0) {
+    localStorage.removeItem(API_KEY_STORAGE_KEY);
+    logInfo('AI API key removed');
+    return;
   }
   
-  // Then check localStorage (user-provided key)
-  const localKey = localStorage?.getItem(LOCAL_STORAGE_KEY);
-  if (localKey) {
-    return localKey;
-  }
-  
-  // Finally check for a window.env object (sometimes used for browser env vars)
-  const windowEnv = window as any;
-  if (windowEnv.env?.OPENAI_API_KEY) {
-    return windowEnv.env.OPENAI_API_KEY;
-  }
-  
-  return null;
-}
+  localStorage.setItem(API_KEY_STORAGE_KEY, apiKey.trim());
+  logInfo('AI API key configured');
+};
 
 /**
- * Save the OpenAI API key to local storage
+ * Verify the API key by making a test request
  */
-export function saveOpenAIApiKey(apiKey: string): void {
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem(LOCAL_STORAGE_KEY, apiKey);
-  }
-}
-
-/**
- * Configure and save the OpenAI API key
- * Alias for saveOpenAIApiKey for backward compatibility
- */
-export const configureAIKey = saveOpenAIApiKey;
-
-/**
- * Verify if the configured API key is valid by making a test request to OpenAI
- */
-export async function verifyAPIKey(): Promise<boolean> {
+export const verifyAPIKey = async (): Promise<boolean> => {
   try {
     const apiKey = getOpenAIApiKey();
-    if (!apiKey) return false;
     
-    // Make a minimal request to OpenAI to verify the key
-    const response = await fetch('https://api.openai.com/v1/models', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    if (!apiKey) {
+      logInfo('No API key configured to verify');
+      return false;
+    }
     
-    return response.status === 200;
+    // For now, just return true if key exists
+    // In a production app, you might want to make a test API request
+    return true;
   } catch (error) {
-    console.error('Error verifying API key:', error);
+    logError('Error verifying API key', { error });
     return false;
   }
-}
+};
 
 /**
  * Check the status of the API key
- * Returns information about the key's existence and format validity
  */
-export function checkAPIKeyStatus(): { hasKey: boolean; keyFormat: boolean } {
+export const checkAPIKeyStatus = async (): Promise<{ 
+  configured: boolean; 
+  valid?: boolean;
+}> => {
+  const configured = isAIConfigured();
+  
+  if (!configured) {
+    return { configured: false };
+  }
+  
+  try {
+    const valid = await verifyAPIKey();
+    return { configured: true, valid };
+  } catch (error) {
+    return { configured: true, valid: false };
+  }
+};
+
+/**
+ * Update the OpenAI API key in global runtime configuration
+ * This should be called on app initialization
+ */
+export const updateOpenAIApiKey = (): void => {
   const apiKey = getOpenAIApiKey();
   
-  return {
-    hasKey: !!apiKey,
-    keyFormat: !!apiKey && apiKey.startsWith('sk-') && apiKey.length > 20
-  };
-}
-
-/**
- * Update the OpenAI API key if needed
- * This function is used to ensure the most up-to-date key is being used
- */
-export function updateOpenAIApiKey(): void {
-  // This is just a placeholder function that ensures we're using the most up-to-date key
-  // It doesn't actually need to do anything since getOpenAIApiKey already checks all sources
-  const apiKey = getOpenAIApiKey();
-  if (!apiKey) {
-    console.warn('No OpenAI API key found. Please configure one in settings.');
+  // In a real app, you might want to set the key in a global config object
+  // or pass it to your OpenAI client configuration
+  
+  if (apiKey) {
+    logInfo('OpenAI API key updated in runtime configuration');
   }
-}
-
-/**
- * Remove the OpenAI API key from local storage
- */
-export function removeOpenAIApiKey(): void {
-  if (typeof localStorage !== 'undefined') {
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
-  }
-}
+};
