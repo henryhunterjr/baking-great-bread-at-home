@@ -1,12 +1,15 @@
 
 import { useState } from 'react';
-import { AIConversionService, ConversionErrorType, ConversionResult } from './conversion/AIConversionService';
+import { AIConversionService as ConversionService, ConversionErrorType, ConversionResult } from './conversion/AIConversionService';
 
+// Export the service and error type
 export { ConversionErrorType };
+export { ConversionService };
 
+// Hook for using the AI conversion service
 export const useAIConversion = () => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const service = AIConversionService.getInstance();
+  const service = ConversionService.getInstance();
   
   const processRecipe = async (text: string): Promise<ConversionResult> => {
     setIsProcessing(true);

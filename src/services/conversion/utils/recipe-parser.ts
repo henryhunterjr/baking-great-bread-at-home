@@ -1,65 +1,128 @@
 
-import { RecipeData } from '@/types/unifiedRecipe';
-import { logError } from '@/utils/logger';
+import { ConvertedRecipe, Ingredient } from '@/types/unifiedRecipe';
 
 /**
- * A more robust parser for AI responses to handle various formats and edge cases
- * 
- * @param aiResponse The string response from AI services
- * @returns A properly structured RecipeData object or null if parsing fails
+ * Parses a recipe from text, handling both JSON and structured text formats
  */
-export function parseRecipeFromText(aiResponse: string): RecipeData | null {
+export function parseRecipeFromText(text: string): Partial<ConvertedRecipe> {
+  // First, try to parse as JSON
   try {
-    // Try to parse as JSON first
-    let parsed;
-    try {
-      parsed = JSON.parse(aiResponse);
-    } catch (jsonError) {
-      // If JSON parsing fails, try to extract JSON from the response
-      // (Sometimes AI wraps JSON in markdown or explanatory text)
-      const jsonMatch = aiResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
-      if (jsonMatch && jsonMatch[1]) {
-        try {
-          parsed = JSON.parse(jsonMatch[1].trim());
-        } catch {
-          // If extraction fails, handle as text
-          logError('Failed to extract JSON from AI response');
-          return null;
-        }
-      } else {
-        // Not in a JSON format we can handle
-        logError('Response is not in a parseable JSON format');
-        return null;
-      }
-    }
-    
-    // Ensure we have the required fields with proper fallbacks
-    const safeRecipe: RecipeData = {
-      title: parsed.title || parsed.name || "Untitled Recipe",
-      ingredients: Array.isArray(parsed.ingredients) ? parsed.ingredients : [],
-      instructions: Array.isArray(parsed.instructions) ? parsed.instructions : [],
-      notes: parsed.notes || [],
-      prepTime: parsed.prepTime || '',
-      cookTime: parsed.cookTime || '',
-      servings: parsed.servings || 1,
-      isConverted: true
-    };
-    
-    // Do additional validation
-    if (
-      typeof safeRecipe.title !== 'string' || 
-      !Array.isArray(safeRecipe.ingredients) || 
-      !Array.isArray(safeRecipe.instructions)
-    ) {
-      throw new Error('Invalid recipe structure');
-    }
-    
-    return safeRecipe;
+    const jsonData = JSON.parse(text);
+    return normalizeRecipe(jsonData);
   } catch (error) {
-    logError('Recipe parsing failed:', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      response: aiResponse
-    });
-    return null;
+    // If JSON parsing fails, try to parse as structured text
+    return parseStructuredText(text);
   }
+}
+
+/**
+ * Normalizes a recipe object to ensure it has the expected structure
+ */
+function normalizeRecipe(recipe: any): Partial<ConvertedRecipe> {
+  if (!recipe) return {};
+  
+  return {
+    name: recipe.title || recipe.name || "Untitled Recipe",
+    title: recipe.title || recipe.name || "Untitled Recipe",
+    description: recipe.description || recipe.introduction || "",
+    ingredients: normalizeIngredients(recipe.ingredients || []),
+    instructions: Array.isArray(recipe.instructions) 
+      ? recipe.instructions 
+      : typeof recipe.instructions === 'string' 
+        ? recipe.instructions.split('\n').filter(Boolean) 
+        : [],
+    prepTime: recipe.prepTime || recipe.preparationTime || "",
+    cookTime: recipe.cookTime || recipe.cookingTime || "",
+    totalTime: recipe.totalTime || "",
+    servings: String(recipe.servings || recipe.yield || ""),
+    notes: Array.isArray(recipe.notes) 
+      ? recipe.notes 
+      : typeof recipe.notes === 'string' 
+        ? [recipe.notes] 
+        : []
+  };
+}
+
+/**
+ * Converts ingredients to a consistent format
+ */
+function normalizeIngredients(ingredients: any[]): Ingredient[] {
+  if (!Array.isArray(ingredients)) {
+    return [];
+  }
+  
+  return ingredients.map(ing => {
+    if (typeof ing === 'string') {
+      // Simple heuristic parsing for string ingredients
+      const parts = ing.split(' ');
+      const quantity = parts[0] || '';
+      const unit = parts.length > 2 ? parts[1] : '';
+      const name = parts.length > 2 ? parts.slice(2).join(' ') : parts.slice(1).join(' ');
+      
+      return { quantity, unit, name };
+    } 
+    else if (typeof ing === 'object' && ing !== null) {
+      // Handle object format ingredients
+      return {
+        quantity: typeof ing.quantity === 'number' ? String(ing.quantity) : (ing.quantity || ''),
+        unit: ing.unit || '',
+        name: ing.name || 'Ingredient'
+      };
+    }
+    
+    return { quantity: '', unit: '', name: 'Ingredient' };
+  });
+}
+
+/**
+ * Parses structured text into a recipe format
+ */
+function parseStructuredText(text: string): Partial<ConvertedRecipe> {
+  // Basic parsing for structured text
+  const lines = text.split('\n').filter(line => line.trim().length > 0);
+  
+  let title = "Untitled Recipe";
+  const ingredients: string[] = [];
+  const instructions: string[] = [];
+  const notes: string[] = [];
+  
+  let currentSection = '';
+  
+  // Try to extract title from first line
+  if (lines.length > 0) {
+    title = lines[0].trim();
+  }
+  
+  // Look for section headers and categorize content
+  for (const line of lines.slice(1)) {
+    const lowerLine = line.toLowerCase();
+    
+    if (lowerLine.includes('ingredient')) {
+      currentSection = 'ingredients';
+      continue;
+    } else if (lowerLine.includes('instruction') || lowerLine.includes('direction')) {
+      currentSection = 'instructions';
+      continue;
+    } else if (lowerLine.includes('note') || lowerLine.includes('tip')) {
+      currentSection = 'notes';
+      continue;
+    }
+    
+    // Add line to appropriate section
+    if (currentSection === 'ingredients') {
+      ingredients.push(line.trim());
+    } else if (currentSection === 'instructions') {
+      instructions.push(line.trim());
+    } else if (currentSection === 'notes') {
+      notes.push(line.trim());
+    }
+  }
+  
+  return {
+    title,
+    name: title,
+    ingredients: normalizeIngredients(ingredients),
+    instructions,
+    notes
+  };
 }
