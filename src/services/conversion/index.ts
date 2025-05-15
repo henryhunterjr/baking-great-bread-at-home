@@ -1,5 +1,11 @@
 
-import { RecipeData, ConversionResult, MeasurementSystem, RecipeType, IRecipeConverter } from './types';
+import { 
+  RecipeData, 
+  ConversionResult, 
+  MeasurementSystem, 
+  RecipeType, 
+  IRecipeConverter 
+} from '@/types/unifiedRecipe';
 import { identifyRecipeType } from './recipe-classifier';
 import { SourdoughConverter } from './converters/sourdough-converter';
 import { YeastedConverter } from './converters/yeasted-converter';
@@ -59,11 +65,13 @@ class ConversionService {
 // Export a singleton instance
 export const conversionService = new ConversionService();
 
-// Export types for ease of use
+// Export types for ease of use - now all from unified recipe types
 export type { 
   RecipeData, 
   ConversionResult,
   MeasurementSystem,
   RecipeType,
   RecipeIngredient 
-} from './types';
+} from '@/types/unifiedRecipe';
+
+export { ConversionErrorType } from '@/types/unifiedRecipe';

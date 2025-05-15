@@ -6,10 +6,10 @@ import RecipeConverterContent from '@/components/recipe-converter/RecipeConverte
 import RecipeConverterSidebar from '@/components/recipe-converter/RecipeConverterSidebar';
 import RecipeConverterNav from '@/components/recipe-converter/RecipeConverterNav';
 import { useLocation } from 'react-router-dom';
+import { RecipeData } from '@/types/unifiedRecipe';
 
-// Export RecipeData type here so other files can import it from this file
-// This maintains backward compatibility with existing code
-export type { RecipeData } from '@/types/recipeTypes';
+// Export RecipeData type to maintain backward compatibility
+export type { RecipeData } from '@/types/unifiedRecipe';
 
 const RecipeConverter: React.FC = () => {
   const {

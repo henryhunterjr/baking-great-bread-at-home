@@ -1,79 +1,104 @@
 
-import React from 'react';
-import { useFormContext } from 'react-hook-form';
-import { Textarea } from "@/components/ui/textarea";
-import ConvertButton from './components/ConvertButton';
+import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+import { useFileHandlers } from './hooks/useFileHandlers';
 import FileUploadOptions from './FileUploadOptions';
+import RecipeTextEditor from './RecipeTextEditor';
+import { AlertMessages } from './components/AlertMessages';
+import { ConvertButton } from './components/ConvertButton';
 import RecipeHelp from './components/RecipeHelp';
-import AlertMessages from './components/AlertMessages';
-import { useConvertTab } from './hooks/useConvertTab';
 
 interface ConvertTabProps {
-  recipeText: string;
-  setRecipeText: (text: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
-  isConverting: boolean;
-  error?: string | null;
+  onConvertRecipe: (text: string) => void;
+  isConverting?: boolean;
+  conversionError?: string | null;
 }
 
 const ConvertTab: React.FC<ConvertTabProps> = ({
-  recipeText,
-  setRecipeText,
-  onSubmit,
-  isConverting,
-  error
+  onConvertRecipe,
+  isConverting = false,
+  conversionError = null,
 }) => {
-  const formContext = useFormContext();
-  const { showSuccess, showHelpTip } = useConvertTab({ recipeText });
+  const { toast } = useToast();
+  const [recipeText, setRecipeText] = useState<string>('');
+  const [internalError, setInternalError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  
+  // Use our file handlers hook
+  const { 
+    isProcessing: fileProcessing, 
+    handleFileSelect, 
+    handlePasteFromClipboard,
+    clearText,
+    cancelProcessing
+  } = useFileHandlers({ 
+    setRecipeText, 
+    onError: setInternalError
+  });
+  
+  // Combined processing state
+  const isBusy = isConverting || isProcessing || fileProcessing;
+  
+  // Handle convert button click
+  const handleConvert = async () => {
+    if (!recipeText.trim()) {
+      setInternalError('Please enter a recipe to convert');
+      return;
+    }
+    
+    try {
+      setIsProcessing(true);
+      setInternalError(null);
+      onConvertRecipe(recipeText);
+    } catch (error) {
+      setInternalError(error instanceof Error ? error.message : 'Failed to convert recipe');
+      toast({
+        variant: "destructive",
+        title: "Conversion Error",
+        description: error instanceof Error ? error.message : 'Failed to convert recipe',
+      });
+    } finally {
+      // Always ensure processing state is reset
+      setIsProcessing(false);
+    }
+  };
+  
+  // Get the error to display (prioritize API error over internal)
+  const displayError = conversionError || internalError;
   
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <AlertMessages 
-        showSuccess={showSuccess} 
-        error={error} 
-      />
-      
-      <div className="space-y-2">
-        <div className="flex justify-between items-center">
-          <label htmlFor="recipe-text" className="text-sm font-medium">
-            Recipe Text
-          </label>
-          {recipeText && (
-            <button
-              type="button"
-              className="text-xs text-muted-foreground hover:text-foreground"
-              onClick={() => setRecipeText('')}
-            >
-              Clear
-            </button>
-          )}
+    <Card className="shadow-sm border">
+      <CardContent className="p-6">
+        <AlertMessages error={displayError} />
+        
+        <div className="mb-4">
+          <FileUploadOptions 
+            onFileSelect={handleFileSelect}
+            onPasteFromClipboard={handlePasteFromClipboard}
+            onClearText={clearText}
+            isDisabled={isBusy}
+            isProcessing={fileProcessing}
+            onCancelProcessing={cancelProcessing}
+          />
         </div>
         
-        <Textarea
-          id="recipe-text"
-          placeholder="Paste your recipe here or use one of the upload options below..."
+        <RecipeTextEditor
           value={recipeText}
-          onChange={(e) => setRecipeText(e.target.value)}
-          className="min-h-[200px] w-full p-4 resize-y"
-          disabled={isConverting}
+          onChange={setRecipeText}
+          placeholder="Paste or type your recipe here... We accept recipes from websites, cookbooks, or family recipe cards."
+          disabled={isBusy}
         />
-      </div>
-      
-      {!recipeText && showHelpTip && (
-        <RecipeHelp />
-      )}
-      
-      <FileUploadOptions 
-        recipeText={recipeText} 
-        setRecipeText={setRecipeText} 
-        isProcessing={isConverting}
-      />
-      
-      <ConvertButton 
-        isConverting={isConverting} 
-        isDisabled={!recipeText.trim()}
-      />
-    </form>
+        
+        <div className="flex justify-between items-center mt-4">
+          <RecipeHelp />
+          <ConvertButton 
+            onClick={handleConvert}
+            isConverting={isBusy}
+          />
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
