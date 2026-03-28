@@ -19,6 +19,8 @@ import ChallengesArchive from './pages/ChallengesArchive';
 import Guides from './pages/Guides';
 import Tools from './pages/Tools';
 import AppStore from './pages/AppStore';
+import SourdoughBook from './pages/SourdoughBook';
+import ThankYou from './pages/ThankYou';
 
 // Initialize error handler early to suppress development-related errors
 if (typeof window !== 'undefined') {
@@ -53,6 +55,8 @@ function App() {
                     <Route path="/care-center" element={<CareCenter />} />
                     <Route path="/tools" element={<Tools />} />
                     <Route path="/app-store" element={<AppStore />} />
+                    <Route path="/sourdough-book" element={<SourdoughBook />} />
+                    <Route path="/sourdough-book/thank-you" element={<ThankYou />} />
                   </Routes>
                 </div>
                 <Footer />
