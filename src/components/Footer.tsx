@@ -3,7 +3,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Youtube, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -11,22 +10,17 @@ const Footer = () => {
   return (
     <footer className="bg-bread-950 dark:bg-bread-950 text-white pt-16 pb-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Newsletter signup */}
+        {/* Academy CTA */}
         <div className="max-w-3xl mx-auto mb-16 text-center">
-          <h3 className="font-serif text-2xl md:text-3xl mb-4 text-white">Join Our Baking Community</h3>
+          <h3 className="font-serif text-2xl md:text-3xl mb-4 text-white">Come Bake With Us</h3>
           <p className="text-gray-300 mb-8">
-            Subscribe to our newsletter for exclusive recipes, baking tips, and early access to challenges.
+            Where bakers come not to get likes, but to get better. Join hundreds of bakers inside Crust & Crumb Academy.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <Input 
-              type="email" 
-              placeholder="Your email address" 
-              className="bg-bread-900/70 border-bread-700 text-white placeholder:text-gray-400"
-            />
-            <Button className="bg-bread-600 hover:bg-bread-700 text-white">
-              Subscribe
-            </Button>
-          </div>
+          <Button asChild className="bg-bread-600 hover:bg-bread-700 text-white text-lg px-8 py-6">
+            <a href="https://www.skool.com/crust-crumb-academy-7621/about" target="_blank" rel="noopener noreferrer">
+              Join the Academy — It's Free
+            </a>
+          </Button>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-16 mb-12">
@@ -49,7 +43,7 @@ const Footer = () => {
               <a href="https://www.youtube.com/@henryhunterjr" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Youtube size={20} />
               </a>
-              <a href="mailto:BGBAH2023@Gmail.com" className="text-gray-300 hover:text-white transition-colors">
+              <a href="mailto:crustcrumbacademy@gmail.com" className="text-gray-300 hover:text-white transition-colors">
                 <Mail size={20} />
               </a>
             </div>
@@ -77,8 +71,8 @@ const Footer = () => {
               Have questions or feedback? Reach out to us directly:
             </p>
             <p className="text-gray-300 mb-6">
-              <a href="mailto:BGBAH2023@Gmail.com" className="hover:text-white transition-colors">
-                BGBAH2023@Gmail.com
+              <a href="mailto:crustcrumbacademy@gmail.com" className="hover:text-white transition-colors">
+                crustcrumbacademy@gmail.com
               </a>
             </p>
             <Button asChild variant="outline" className="bg-bread-600 hover:bg-bread-700 text-white border-none hover:translate-y-[-2px] transition-transform">

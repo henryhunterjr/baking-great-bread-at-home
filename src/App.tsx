@@ -40,28 +40,35 @@ function App() {
           <AIAssistantProvider>
             {/* OnboardingProvider remains, but WelcomeModal and GuidedTour are disabled in the provider */}
             <OnboardingProvider>
-              <div className="min-h-screen flex flex-col">
-                <UnderConstruction />
-                <Navbar />
-                <div className="flex-grow">
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/recipe-converter" element={<RecipeConverter />} />
-                    <Route path="/recipes" element={<ComingSoon title="Recipes" />} />
-                    <Route path="/guides" element={<Guides />} />
-                    <Route path="/challenges" element={<ChallengesArchive />} />
-                    <Route path="/community" element={<ComingSoon title="Community" />} />
-                    <Route path="/auth" element={<ComingSoon title="Login/Signup" />} />
-                    <Route path="/care-center" element={<CareCenter />} />
-                    <Route path="/tools" element={<Tools />} />
-                    <Route path="/app-store" element={<AppStore />} />
-                    <Route path="/sourdough-book" element={<SourdoughBook />} />
-                    <Route path="/sourdough-book/thank-you" element={<ThankYou />} />
-                  </Routes>
-                </div>
-                <Footer />
-                <DevToolsToggle />
-              </div>
+              <Routes>
+                {/* Standalone pages — no navbar, no footer */}
+                <Route path="/sourdough-book" element={<SourdoughBook />} />
+                <Route path="/sourdough-book/thank-you" element={<ThankYou />} />
+
+                {/* Main site layout */}
+                <Route path="*" element={
+                  <div className="min-h-screen flex flex-col">
+                    <UnderConstruction />
+                    <Navbar />
+                    <div className="flex-grow">
+                      <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/recipe-converter" element={<RecipeConverter />} />
+                        <Route path="/recipes" element={<ComingSoon title="Recipes" />} />
+                        <Route path="/guides" element={<Guides />} />
+                        <Route path="/challenges" element={<ChallengesArchive />} />
+                        <Route path="/community" element={<ComingSoon title="Community" />} />
+                        <Route path="/auth" element={<ComingSoon title="Login/Signup" />} />
+                        <Route path="/care-center" element={<CareCenter />} />
+                        <Route path="/tools" element={<Tools />} />
+                        <Route path="/app-store" element={<AppStore />} />
+                      </Routes>
+                    </div>
+                    <Footer />
+                    <DevToolsToggle />
+                  </div>
+                } />
+              </Routes>
             </OnboardingProvider>
           </AIAssistantProvider>
         </ThemeProvider>
