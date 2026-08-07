@@ -109,18 +109,26 @@ const SourdoughBook: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   size="lg"
-                  className="bg-bread-500 hover:bg-bread-600 text-white text-lg px-8 py-6 cursor-default"
+                  onClick={handleDownloadPDF}
+                  className="bg-bread-500 hover:bg-bread-600 text-white text-lg px-8 py-6"
                 >
                   <Download className="mr-2 h-5 w-5" />
-                  Download the PDF Below
+                  Download Free PDF
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-bread-400 text-bread-200 hover:bg-bread-800/50 text-lg px-8 py-6 cursor-default"
+                  className="border-bread-400 text-bread-200 hover:bg-bread-800/50 text-lg px-8 py-6"
+                  asChild
                 >
-                  <BookOpen className="mr-2 h-5 w-5" />
-                  Flip Book Below
+                  <a
+                    href={FLIPBOOK_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <BookOpen className="mr-2 h-5 w-5" />
+                    Read the Flip Book
+                  </a>
                 </Button>
               </div>
 
