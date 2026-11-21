@@ -31,14 +31,17 @@ interface MobileOptimizedRecipeFormProps {
 const recipeSchema = z.object({
   title: z.string().min(1, "Title is required"),
   introduction: z.string().optional(),
-  ingredients: z.array(z.string().min(1, "Ingredient text is required")),
+  ingredients: z.array(z.union([
+    z.string().min(1, "Ingredient text is required"),
+    z.object({ quantity: z.string(), unit: z.string(), name: z.string().min(1, "Ingredient name is required") })
+  ])),
   prepTime: z.string().optional(),
   restTime: z.string().optional(),
   bakeTime: z.string().optional(),
   totalTime: z.string().optional(),
   instructions: z.array(z.string().min(1, "Instruction text is required")),
-  tips: z.array(z.string().optional()).optional(),
-  proTips: z.array(z.string().optional()).optional(),
+  tips: z.array(z.string()).optional(),
+  proTips: z.array(z.string()).optional(),
   equipmentNeeded: z.array(
     z.object({
       id: z.string(),
@@ -89,7 +92,7 @@ const MobileOptimizedRecipeForm: React.FC<MobileOptimizedRecipeFormProps> = ({
   } = formMethods;
   
   const onSubmit = (data: RecipeData) => {
-    onSave(data);
+    onSave({ ...initialRecipe, ...data });
   };
   
   // Define responsive classes based on screen size
