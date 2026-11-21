@@ -1,5 +1,6 @@
 
 import { logInfo, logError } from '@/utils/logger';
+import { getOpenAIApiKey } from '@/lib/ai-services/key-management';
 
 interface GenerateImageRequest {
   title: string;
@@ -40,13 +41,13 @@ export async function generateRecipeImage(
     prompt += ` Professional food photography, overhead shot, natural lighting, on a wooden table, high resolution, 4K, detailed, mouth-watering presentation.`;
 
     // Check if OpenAI API key is available
-    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    const OPENAI_API_KEY = getOpenAIApiKey();
     if (!OPENAI_API_KEY) {
       const errorMessage = 'OpenAI API key is not configured';
       logError(errorMessage, {});
       return { 
         error: errorMessage,
-        details: 'Please add your OpenAI API key in the environment variables.'
+        details: 'Please configure your OpenAI API key in the AI settings.'
       };
     }
 

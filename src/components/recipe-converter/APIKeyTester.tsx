@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
-import { verifyAPIKey, checkAPIKeyStatus } from '@/lib/ai-services/key-management';
+import { verifyAPIKey, checkAPIKeyStatus, getOpenAIApiKey } from '@/lib/ai-services/key-management';
 import { Link } from 'react-router-dom';
 
 interface APIKeyTesterProps {
@@ -20,9 +20,9 @@ const APIKeyTester: React.FC<APIKeyTesterProps> = ({ onComplete }) => {
     
     try {
       // Check if API key exists
-      const keyStatus = checkAPIKeyStatus();
+      const keyStatus = await checkAPIKeyStatus();
       
-      if (!keyStatus.hasKey) {
+      if (!keyStatus.configured) {
         setResult({
           valid: false,
           message: "No API key found. Please add your OpenAI API key in the settings."
@@ -30,7 +30,7 @@ const APIKeyTester: React.FC<APIKeyTesterProps> = ({ onComplete }) => {
         return;
       }
       
-      if (!keyStatus.keyFormat) {
+      if (!getOpenAIApiKey()?.startsWith('sk-')) {
         setResult({
           valid: false,
           message: "Invalid API key format. OpenAI API keys should start with 'sk-'."

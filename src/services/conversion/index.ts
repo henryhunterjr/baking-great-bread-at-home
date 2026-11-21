@@ -54,7 +54,9 @@ class ConversionService {
     
     if (!converter) {
       // Fallback to standard converter if no specialized one is found
-      return this.converters.get(RecipeType.STANDARD)!;
+      const fallback = this.converters.get(RecipeType.STANDARD);
+      if (fallback) return fallback;
+      throw new Error('No standard recipe converter is configured');
     }
     
     return converter;
@@ -82,29 +84,8 @@ class ConversionService {
   }
 }
 
-// Add the type classifier for use in the service
-export const identifyRecipeType = (recipeData: RecipeData): RecipeType => {
-  // Simple implementation - check for sourdough-related terms
-  const ingredientText = recipeData.ingredients
-    .map(ing => typeof ing === 'string' ? ing : ing.name)
-    .join(' ')
-    .toLowerCase();
-  
-  const instructionText = recipeData.instructions.join(' ').toLowerCase();
-  const allText = ingredientText + ' ' + instructionText;
-  
-  if (allText.includes('sourdough') || allText.includes('starter')) {
-    return RecipeType.SOURDOUGH;
-  } else if (allText.includes('yeast')) {
-    return RecipeType.YEASTED;
-  } else if (allText.includes('butter') && allText.includes('sugar')) {
-    return RecipeType.ENRICHED;
-  } else if (allText.includes('baking powder') || allText.includes('baking soda')) {
-    return RecipeType.QUICKBREAD;
-  }
-  
-  return RecipeType.STANDARD;
-};
+// Use the same classifier for direct callers and the conversion service.
+export { identifyRecipeType } from './recipe-classifier';
 
 // Export a singleton instance
 export const conversionService = new ConversionService();

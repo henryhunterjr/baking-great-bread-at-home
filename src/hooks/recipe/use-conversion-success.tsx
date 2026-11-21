@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { RecipeData } from '@/types/unifiedRecipe';
 
 export const useConversionSuccess = (
-  recipe: RecipeData | null,
+  recipe: Pick<RecipeData, 'isConverted'> | null,
   isEditing: boolean,
   setShowConversionSuccess: (show: boolean) => void
 ) => {

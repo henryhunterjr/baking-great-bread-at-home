@@ -3,11 +3,16 @@ import { v4 as uuidv4 } from 'uuid';
 import { logInfo } from '@/utils/logger';
 import { StandardRecipe } from '@/types/standardRecipeFormat';
 import { RecipeData, EquipmentItem } from '@/types/recipeTypes';
+import type { RecipeData as ConvertedRecipeData } from '@/types/unifiedRecipe';
+
+type ExportRecipeData = Omit<RecipeData, 'ingredients'> & {
+  ingredients: ConvertedRecipeData['ingredients'];
+};
 
 /**
  * Formats recipe data from AI output into the standard recipe format
  */
-export const formatToStandardRecipe = (recipeData: RecipeData): StandardRecipe => {
+export const formatToStandardRecipe = (recipeData: ExportRecipeData): StandardRecipe => {
   logInfo('Formatting recipe to standard format', { title: recipeData.title });
   
   // Parse ingredients into the required format
@@ -33,7 +38,7 @@ export const formatToStandardRecipe = (recipeData: RecipeData): StandardRecipe =
     } else {
       // Already in object format
       return {
-        quantity: ingredient.quantity,
+        quantity: String(ingredient.quantity),
         unit: ingredient.unit,
         name: ingredient.name
       };

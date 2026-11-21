@@ -25,14 +25,17 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onKeyConfigured }) => {
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
-    const status = checkAPIKeyStatus();
-    setIsConfigured(status.hasKey && status.keyFormat);
+    let active = true;
+    void checkAPIKeyStatus().then(status => {
+      if (active) setIsConfigured(status.configured && status.valid === true);
+    });
     
-    const storedKey = localStorage.getItem('openai_api_key');
+    const storedKey = getOpenAIApiKey();
     if (storedKey) {
       const maskedKey = storedKey.substring(0, 3) + '••••••••••••••••' + storedKey.substring(storedKey.length - 4);
       setApiKey(maskedKey);
     }
+    return () => { active = false; };
   }, []);
   
   const handleSaveKey = async () => {
@@ -92,7 +95,7 @@ const APIKeyForm: React.FC<APIKeyFormProps> = ({ onKeyConfigured }) => {
   };
   
   const handleClearKey = () => {
-    localStorage.removeItem('openai_api_key');
+    configureAIKey('');
     setApiKey('');
     setIsConfigured(false);
     setError(null);
